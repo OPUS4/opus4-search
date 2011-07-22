@@ -300,7 +300,7 @@
          indexes tokens both normally and in reverse for efficient
          leading wildcard queries
     -->
-    <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
+    <field name="text" type="text" indexed="true" stored="false" multiValued="true" omitNorms="false"/>
    </fields>
 
    <uniqueKey>id</uniqueKey>
