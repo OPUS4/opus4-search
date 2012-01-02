@@ -272,12 +272,20 @@
     <field name="collection_ids" type="string" indexed="true" stored="false" multiValued="true" />
     <field name="series_ids"   type="string" indexed="true" stored="true" multiValued="true" />
     <dynamicField name="series_number_for_id_*" type="string" indexed="true" stored="true" />
-    <field name="title_parent" type="string" indexed="false" stored="false" multiValued="true" /><!-- only used as source in copy field -->
+
+    <!-- fields that are only used as source in copy field --> 
+    <field name="title_parent"             type="string" indexed="false" stored="false" multiValued="true" />
+    <field name="title_additional"         type="string" indexed="false" stored="false" multiValued="true" />
+    <field name="title_sub"                type="string" indexed="false" stored="false" multiValued="true" />
+    <field name="creating_corporation"     type="string" indexed="false" stored="false" multiValued="true" />
+    <field name="contributing_corporation" type="string" indexed="false" stored="false" multiValued="true" />
+    <field name="publisher_name"           type="string" indexed="false" stored="false" multiValued="true" />
+    <field name="publisher_place"          type="string" indexed="false" stored="false" multiValued="true" />
 
     <!-- special fields used for sorting -->
-    <field name="author_sort"  type="alphaOnlySort" indexed="true" stored="false" omitNorms="true" multiValued="false" />
-    <field name="year_sort"    type="string" indexed="true" stored="false" omitNorms="true" multiValued="false" />
-    <field name="title_sort"   type="alphaOnlySort" indexed="true" stored="false" omitNorms="true" multiValued="false" />
+    <field name="author_sort" type="alphaOnlySort" indexed="true" stored="false" omitNorms="true" multiValued="false" />
+    <field name="year_sort" type="string" indexed="true" stored="false" omitNorms="true" multiValued="false" />
+    <field name="title_sort" type="alphaOnlySort" indexed="true" stored="false" omitNorms="true" multiValued="false" />
     <field name="server_date_published" type="slong" indexed="true" stored="false" omitNorms="true" />
 
 
@@ -315,6 +323,12 @@
    <copyField source="fulltext" dest="text" />
    <copyField source="subject" dest="text" />
    <copyField source="title_parent" dest="text" />
+   <copyField source="title_additional" dest="text" />
+   <copyField source="title_sub" dest="text" />
+   <copyField source="creating_corporation" dest="text" />
+   <copyField source="contributing_corporation" dest="text" />
+   <copyField source="publisher_name" dest="text" />
+   <copyField source="publisher_place" dest="text" />
 
    <copyField source="author" dest="author_facet" />
    <copyField source="title_output" dest="title_sort" />
