@@ -277,15 +277,15 @@
     <field name="title_parent"             type="string" indexed="false" stored="false" multiValued="true" />
     <field name="title_additional"         type="string" indexed="false" stored="false" multiValued="true" />
     <field name="title_sub"                type="string" indexed="false" stored="false" multiValued="true" />
-    <field name="creating_corporation"     type="string" indexed="false" stored="false" multiValued="false" />
-    <field name="contributing_corporation" type="string" indexed="false" stored="false" multiValued="false" />
-    <field name="publisher_name"           type="string" indexed="false" stored="false" multiValued="false" />
-    <field name="publisher_place"          type="string" indexed="false" stored="false" multiValued="false" />
+    <field name="creating_corporation"     type="string" indexed="false" stored="false" />
+    <field name="contributing_corporation" type="string" indexed="false" stored="false" />
+    <field name="publisher_name"           type="string" indexed="false" stored="false" />
+    <field name="publisher_place"          type="string" indexed="false" stored="false" />
 
     <!-- special fields used for sorting -->
-    <field name="author_sort" type="alphaOnlySort" indexed="true" stored="false" omitNorms="true" multiValued="false" />
-    <field name="year_sort" type="string" indexed="true" stored="false" omitNorms="true" multiValued="false" />
-    <field name="title_sort" type="alphaOnlySort" indexed="true" stored="false" omitNorms="true" multiValued="false" />
+    <field name="author_sort" type="alphaOnlySort" indexed="true" stored="false" omitNorms="true" />
+    <field name="year_sort" type="string" indexed="true" stored="false" omitNorms="true" />
+    <field name="title_sort" type="alphaOnlySort" indexed="true" stored="false" omitNorms="true" />
     <field name="server_date_published" type="slong" indexed="true" stored="false" omitNorms="true" />
 
 
