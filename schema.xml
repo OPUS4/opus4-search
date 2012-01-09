@@ -266,7 +266,6 @@
     <field name="institute"    type="string" indexed="true" stored="false" multiValued="true" />
     <field name="project"      type="string" indexed="true" stored="false" multiValued="true" />
     <field name="app_area"     type="string" indexed="true" stored="false" multiValued="true" />
-    <field name="subject_msc"  type="string" indexed="true" stored="false" multiValued="true" />
     <field name="has_fulltext" type="boolean" indexed="true" stored="false" />
     <field name="belongs_to_bibliography" type="string" indexed="true" stored="false" /> 
     <field name="collection_ids" type="string" indexed="true" stored="false" multiValued="true" />
