@@ -270,7 +270,8 @@
     <field name="belongs_to_bibliography" type="string" indexed="true" stored="false" /> 
     <field name="collection_ids" type="string" indexed="true" stored="false" multiValued="true" />
     <field name="series_ids"   type="string" indexed="true" stored="true" multiValued="true" />
-    <dynamicField name="series_number_for_id_*" type="string" indexed="true" stored="true" />
+    <dynamicField name="series_number_for_id_*" type="string" indexed="false" stored="true" />
+    <dynamicField name="doc_sort_order_for_seriesid_*" type="int" indexed="true" stored="false" />
 
     <!-- fields that are only used as source in copy field --> 
     <field name="title_parent"             type="string" indexed="false" stored="false" multiValued="true" />
