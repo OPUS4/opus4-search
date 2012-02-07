@@ -245,6 +245,12 @@
         /-->
       </analyzer>
     </fieldType>
+
+    <!--
+        since fields of this type are by default not stored or indexed,
+        any data added to them will be ignored outright.
+    -->
+    <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
     
   </types>
  
@@ -311,6 +317,11 @@
          leading wildcard queries
     -->
     <field name="text" type="text" indexed="true" stored="false" multiValued="true" omitNorms="false"/>
+
+
+    <!-- legacy fields (existed in earlier versions) -->
+    <field name="subject_msc" type="ignored" />
+    
    </fields>
 
    <uniqueKey>id</uniqueKey>
