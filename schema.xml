@@ -342,6 +342,7 @@
    <copyField source="publisher_name" dest="text" />
    <copyField source="publisher_place" dest="text" />
    <copyField source="identifier" dest="text" />
+   <copyField source="persons" dest="text" />
 
    <copyField source="author" dest="author_facet" />
    <copyField source="title_output" dest="title_sort" />
