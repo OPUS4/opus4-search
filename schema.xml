@@ -276,6 +276,7 @@
     <field name="belongs_to_bibliography" type="string" indexed="true" stored="false" /> 
     <field name="collection_ids" type="string" indexed="true" stored="false" multiValued="true" />
     <field name="series_ids"   type="string" indexed="true" stored="true" multiValued="true" />
+    <field name="identifier"   type="string" indexed="true" stored="false" multiValued="true" />
     <dynamicField name="series_number_for_id_*" type="string" indexed="false" stored="true" />
     <dynamicField name="doc_sort_order_for_seriesid_*" type="int" indexed="true" stored="false" />
 
@@ -286,7 +287,7 @@
     <field name="creating_corporation"     type="string" indexed="false" stored="false" />
     <field name="contributing_corporation" type="string" indexed="false" stored="false" />
     <field name="publisher_name"           type="string" indexed="false" stored="false" />
-    <field name="publisher_place"          type="string" indexed="false" stored="false" />
+    <field name="publisher_place"          type="string" indexed="false" stored="false" />    
 
     <!-- special fields used for sorting -->
     <field name="author_sort" type="alphaOnlySort" indexed="true" stored="false" omitNorms="true" />
@@ -340,6 +341,7 @@
    <copyField source="contributing_corporation" dest="text" />
    <copyField source="publisher_name" dest="text" />
    <copyField source="publisher_place" dest="text" />
+   <copyField source="identifier" dest="text" />
 
    <copyField source="author" dest="author_facet" />
    <copyField source="title_output" dest="title_sort" />
