@@ -257,6 +257,7 @@
   <fields>
     <field name="id"           type="string" indexed="true" stored="true"  required="true" />
     <field name="year"         type="string" indexed="true" stored="true" />
+    <field name="year_inverted" type="string" indexed="true" stored="false" />
     <field name="abstract"     type="text"   indexed="true" stored="false" multiValued="true" omitNorms="false" />
     <field name="abstract_output" type="text" indexed="false" stored="true" />
     <field name="title"        type="text"   indexed="true" stored="false" multiValued="true" />
