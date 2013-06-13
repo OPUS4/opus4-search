@@ -296,6 +296,9 @@
     <field name="title_sort" type="alphaOnlySort" indexed="true" stored="false" omitNorms="true" />
     <field name="server_date_published" type="slong" indexed="true" stored="false" omitNorms="true" />
 
+    <!-- special fields for internal index management -->
+    <field name="server_date_modified" type="slong" indexed="false" stored="true" />
+
 
     <!-- Common metadata fields, named specifically to match up with
          SolrCell metadata when parsing rich documents such as Word, PDF.
