@@ -298,6 +298,8 @@
 
     <!-- special fields for internal index management -->
     <field name="server_date_modified" type="slong" indexed="false" stored="true" />
+    <field name="fulltext_id_success" type="string" indexed="true" stored="true" multiValued="true" />
+    <field name="fulltext_id_failure" type="string" indexed="true" stored="true" multiValued="true" />
 
 
     <!-- Common metadata fields, named specifically to match up with
