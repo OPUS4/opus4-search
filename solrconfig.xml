@@ -23,6 +23,8 @@
      the configuration.  See https://issues.apache.org/jira/browse/SOLR-1167
 -->
 <config>
+  
+  <luceneMatchVersion>4.8</luceneMatchVersion>
   <!-- Set this to 'false' if you want solr to continue working after it has 
        encountered an severe configuration error.  In a production environment, 
        you may want solr to keep working even if one handler is mis-configured.
@@ -45,8 +47,9 @@
     -->
   <!-- A dir option by itself adds any files found in the directory to the
        classpath, this is useful for including all jars in a directory.
+       dir="../../contrib/extraction/lib" /
     -->
-  <lib dir="../../contrib/extraction/lib" />
+  <lib dir="../../lib" />
   <!-- When a regex is specified in addition to a directory, only the files in that
        directory which completely match the regex (anchored on both ends)
        will be included.
@@ -62,11 +65,14 @@
        If replication is in use, this should match the replication configuration. -->
   <!--dataDir>${solr.data.dir:./solr/data}</dataDir-->
 
-
-  <!-- WARNING: this <indexDefaults> section only provides defaults for index writers
-       in general. See also the <mainIndex> section after that when changing parameters
-       for Solr's main Lucene index. -->
-  <indexDefaults>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       Index Config - These settings control low-level behavior of indexing
+       Most example settings here show the default value, but are commented
+       out, to more easily see where customizations have been made.
+       
+       Note: This replaces <indexDefaults> and <mainIndex> from older versions
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <indexConfig>
    <!-- Values here affect all index writers and act as a default unless overridden. -->
     <useCompoundFile>false</useCompoundFile>
 
@@ -82,7 +88,9 @@
     <!-- <maxMergeDocs>2147483647</maxMergeDocs> -->
     <maxFieldLength>2147483647</maxFieldLength>
     <writeLockTimeout>1000</writeLockTimeout>
+    <!-- taken out in Solr 3.5
     <commitLockTimeout>10000</commitLockTimeout>
+    -->
 
     <!--
      Expert: Turn on Lucene's auto commit capability.  This causes intermediate
@@ -133,13 +141,10 @@
      Expert:
     Controls how often Lucene loads terms into memory -->
     <!--<termIndexInterval>256</termIndexInterval>-->
-  </indexDefaults>
 
-  <mainIndex>
+    
     <!-- options specific to the main on-disk lucene index -->
-    <useCompoundFile>false</useCompoundFile>
-    <ramBufferSizeMB>32</ramBufferSizeMB>
-    <mergeFactor>10</mergeFactor>
+
     <!-- Deprecated -->
     <!--<maxBufferedDocs>1000</maxBufferedDocs>-->
     <!--<maxMergeDocs>2147483647</maxMergeDocs>-->
@@ -195,7 +200,7 @@
       will write its debug infostream to.  -->
      <infoStream file="INFOSTREAM.txt">false</infoStream> 
 
-  </mainIndex>
+  </indexConfig>
 
   <!--	Enables JMX if and only if an existing MBeanServer is found, use this
     if you want to configure JMX through JVM parameters. Remove this to disable
@@ -584,7 +589,7 @@
     </arr>
   </requestHandler>
 
-  <!-- Solr Cell: http://wiki.apache.org/solr/ExtractingRequestHandler -->
+  <!-- Solr Cell: http://wiki.apache.org/solr/ExtractingRequestHandler class="org.apache.solr.handler.extraction.ExtractingRequestHandler"-->
   <requestHandler name="/update/extract" class="org.apache.solr.handler.extraction.ExtractingRequestHandler" startup="lazy">
     <lst name="defaults">
       <!-- All the main content goes into "text"... if you need to return

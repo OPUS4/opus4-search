@@ -55,7 +55,7 @@
        1.2: omitTermFreqAndPositions attribute introduced, true by default except for text fields.
      -->
 
-  <types>
+
     <!-- field type definitions. The "name" attribute is
        just a label to be used by field definitions.  The "class"
        attribute and any other attributes determine the real
@@ -251,8 +251,7 @@
         any data added to them will be ignored outright.
     -->
     <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
-    
-  </types>
+
  
   <fields>
     <field name="id"           type="string" indexed="true" stored="true"  required="true" />
@@ -328,6 +327,7 @@
 
     <!-- legacy fields (existed in earlier versions) -->
     <field name="subject_msc" type="ignored" />
+    <dynamicField name="ignored_*" type="ignored"/>
     
    </fields>
 
