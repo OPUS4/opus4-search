@@ -49,12 +49,14 @@
        classpath, this is useful for including all jars in a directory.
        dir="../../contrib/extraction/lib" /
     -->
-  <lib dir="../../lib" />
+  <!--<lib dir="../lib" />-->
+  <lib dir="../../../contrib/extraction/lib" />
   <!-- When a regex is specified in addition to a directory, only the files in that
        directory which completely match the regex (anchored on both ends)
        will be included.
     -->
-  <lib dir="../../dist/" regex="apache-solr-cell-\d.*\.jar" />
+  <lib dir="../../../dist" regex="solr-cell-\d.*\.jar" />
+  <lib dir="../../../dist" regex="solr-dataimporthandler-\d.*\.jar" />
   <!-- If a dir option (with or without a regex) is used and nothing is found
        that matches, it will be ignored
     -->
