@@ -1,0 +1,16 @@
+{
+  "name": "opus4/search",
+  "description": "Solr configuration for Opus 4",
+  "license": "GPL-2.0+",
+  "type": "library",
+  "keywords": [
+    "opus4",
+    "solr"
+  ],
+  "homepage": "http://opus4.kobv.de",
+  "extra": {
+    "branch-alias": {
+      "dev-master": "4.5-dev"
+    }
+  }
+}
