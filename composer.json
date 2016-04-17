@@ -1,5 +1,5 @@
 {
-  "name": "opus4/search",
+  "name": "opus4-repo/search",
   "description": "Solr configuration for Opus 4",
   "license": "GPL-2.0+",
   "type": "library",
