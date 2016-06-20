@@ -45,7 +45,7 @@
     that avoids logging every request
 -->
 
-<schema name="example" version="1.2">
+<schema name="OPUS 4" version="1.2">
   <!-- attribute "name" is the name of this schema and is only used for display purposes.
        Applications should change this to reflect the nature of the search collection.
        version="1.2" is Solr's version number for the schema syntax and semantics.  It should
@@ -140,25 +140,6 @@
     <!-- A Trie based date field for faster date range queries and date faceting. -->
     <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
 
-
-    <!--
-      Note:
-      These should only be used for compatibility with existing indexes (created with older Solr versions)
-      or if "sortMissingFirst" or "sortMissingLast" functionality is needed. Use Trie based fields instead.
-
-      Plain numeric field types that store and index the text
-      value verbatim (and hence don't support range queries, since the
-      lexicographic ordering isn't equal to the numeric ordering)
-    -->
-<!--
-    <fieldType name="pint" class="solr.IntField" omitNorms="true"/>
-    <fieldType name="plong" class="solr.LongField" omitNorms="true"/>
-    <fieldType name="pfloat" class="solr.FloatField" omitNorms="true"/>
-    <fieldType name="pdouble" class="solr.DoubleField" omitNorms="true"/>
-    <fieldType name="pdate" class="solr.DateField" sortMissingLast="true" omitNorms="true"/>
--->
-
-
     <!--
       Note:
       These should only be used for compatibility with existing indexes (created with older Solr versions)
@@ -231,20 +212,6 @@
         <filter class="solr.LowerCaseFilterFactory" />
         <!-- The TrimFilter removes any leading or trailing whitespace -->
         <filter class="solr.TrimFilterFactory" />
-        <!-- The PatternReplaceFilter gives you the flexibility to use
-             Java Regular expression to replace any sequence of characters
-             matching a pattern with an arbitrary replacement string,
-             which may include back references to portions of the original
-             string matched by the pattern.
-
-             See the Java Regular Expression documentation for more
-             information on pattern and replacement string syntax.
-
-             http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/package-summary.html
-          -->
-        <!--filter class="solr.PatternReplaceFilterFactory"
-                pattern="([^a-z])" replacement="" replace="all"
-        /-->
       </analyzer>
     </fieldType>
 
