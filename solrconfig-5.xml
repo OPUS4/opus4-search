@@ -13,8 +13,6 @@
     <indexConfig>
         <useCompoundFile>false</useCompoundFile>
 
-        <mergeFactor>10</mergeFactor>
-
         <ramBufferSizeMB>32</ramBufferSizeMB>
 
         <maxFieldLength>2147483647</maxFieldLength>
