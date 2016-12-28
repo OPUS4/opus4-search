@@ -15,9 +15,11 @@
         <!-- TODO not found in documentation -->
         <maxFieldLength>2147483647</maxFieldLength>
 
-        <infoStream>true</infoStream>
+        <!-- Set to true for more detailed debug information from the indexing process as Solr log messages. -->
+        <infoStream>false</infoStream>
     </indexConfig>
 
+    <!-- TODO no options configured - Anything needed? -->
     <updateHandler class="solr.DirectUpdateHandler2">
     </updateHandler>
 
