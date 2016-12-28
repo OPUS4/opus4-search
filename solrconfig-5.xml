@@ -64,44 +64,37 @@
         </lst>
     </requestHandler>
 
+    <!--
+        Configuration for search term suggestions.
+    -->
+
+    <!-- Provides suggestions based on other, similar terms. -->
     <searchComponent name="spellcheck" class="solr.SpellCheckComponent">
 
         <str name="queryAnalyzerFieldType">textSpell</str>
 
         <lst name="spellchecker">
             <str name="name">default</str>
-            <str name="field">name</str>
+            <str name="field">text</str>
             <str name="spellcheckIndexDir">./spellchecker</str>
         </lst>
 
     </searchComponent>
 
-    <!-- A request handler utilizing the spellcheck component.
-    #############################################################################
-    NOTE: This is purely as an example.  The whole purpose of the
-    SpellCheckComponent is to hook it into the request handler that handles (i.e.
-    the standard or dismax SearchHandler) queries such that a separate request is
-    not needed to get suggestions.
-
-    IN OTHER WORDS, THERE IS REALLY GOOD CHANCE THE SETUP BELOW IS NOT WHAT YOU
-    WANT FOR YOUR PRODUCTION SYSTEM!
-    #############################################################################
-    -->
+    <!-- TODO not what we need? definitely not working yet - need suggestions for search terms -->
     <requestHandler name="/spell" class="solr.SearchHandler" lazy="true">
         <lst name="defaults">
-            <!-- omp = Only More Popular -->
-            <str name="spellcheck.onlyMorePopular">false</str>
-            <!-- exr = Extended Results -->
-            <str name="spellcheck.extendedResults">false</str>
-            <!--  The number of suggestions to return -->
-            <str name="spellcheck.count">1</str>
+            <str name="spellcheck.dictionary">default</str>
+            <str name="spellcheck.extendedResults">true</str>
+            <str name="spellcheck.count">20</str>
         </lst>
         <arr name="last-components">
             <str>spellcheck</str>
         </arr>
     </requestHandler>
 
-    <requestHandler name="/update/extract" class="org.apache.solr.handler.extraction.ExtractingRequestHandler" startup="lazy">
+    <requestHandler name="/update/extract" class="org.apache.solr.handler.extraction.ExtractingRequestHandler"
+                    startup="lazy">
         <lst name="defaults">
             <str name="fmap.content">text</str>
             <str name="lowernames">true</str>
@@ -115,10 +108,14 @@
 
     <requestHandler name="/update" class="solr.UpdateRequestHandler" />
 
-    <requestHandler name="/analysis/document" class="solr.DocumentAnalysisRequestHandler" />
+    <!--
+        Request handlers for analysis.
+    -->
+    <requestHandler name="/analysis/document" class="solr.DocumentAnalysisRequestHandler" startup="lazy" />
 
-    <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" />
+    <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" startup="lazy" />
 
+    <!-- Handler for checking health of Solr core. -->
     <requestHandler name="/admin/ping" class="PingRequestHandler">
         <lst name="defaults">
             <str name="qt">standard</str>
@@ -127,38 +124,12 @@
         </lst>
     </requestHandler>
 
+    <!-- Echo the request content back to the client. -->
     <requestHandler name="/debug/dump" class="solr.DumpRequestHandler" >
         <lst name="defaults">
             <str name="echoParams">explicit</str>
             <str name="echoHandler">true</str>
         </lst>
     </requestHandler>
-
-    <highlighting>
-        <fragmenter name="gap" class="org.apache.solr.highlight.GapFragmenter" default="true">
-            <lst name="defaults">
-                <int name="hl.fragsize">100</int>
-            </lst>
-        </fragmenter>
-
-        <fragmenter name="regex" class="org.apache.solr.highlight.RegexFragmenter">
-            <lst name="defaults">
-                <int name="hl.fragsize">70</int>
-                <float name="hl.regex.slop">0.5</float>
-                <str name="hl.regex.pattern">[-\w ,/\n\"']{20,200}</str>
-            </lst>
-        </fragmenter>
-
-        <formatter name="html" class="org.apache.solr.highlight.HtmlFormatter" default="true">
-            <lst name="defaults">
-                <str name="hl.simple.pre"><![CDATA[<em>]]></str>
-                <str name="hl.simple.post"><![CDATA[</em>]]></str>
-            </lst>
-        </formatter>
-    </highlighting>
-
-    <admin>
-        <defaultQuery>solr</defaultQuery>
-    </admin>
 
 </config>
