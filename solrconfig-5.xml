@@ -15,14 +15,7 @@
         <!-- TODO not found in documentation -->
         <maxFieldLength>2147483647</maxFieldLength>
 
-        <reopenReaders>true</reopenReaders>
-
-        <deletionPolicy class="solr.SolrDeletionPolicy">
-            <str name="maxCommitsToKeep">1</str>
-            <str name="maxOptimizedCommitsToKeep">0</str>
-        </deletionPolicy>
-
-        <infoStream file="INFOSTREAM.txt">false</infoStream>
+        <infoStream>true</infoStream>
     </indexConfig>
 
     <updateHandler class="solr.DirectUpdateHandler2">
