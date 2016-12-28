@@ -15,8 +15,6 @@
         <!-- TODO not found in documentation -->
         <maxFieldLength>2147483647</maxFieldLength>
 
-        <writeLockTimeout>1000</writeLockTimeout>
-
         <reopenReaders>true</reopenReaders>
 
         <deletionPolicy class="solr.SolrDeletionPolicy">
