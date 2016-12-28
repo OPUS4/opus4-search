@@ -93,6 +93,12 @@
         </arr>
     </requestHandler>
 
+    <requestHandler name="/update" class="solr.UpdateRequestHandler" />
+
+    <!--
+        Request handler for text extraction.
+    -->
+
     <requestHandler name="/update/extract" class="org.apache.solr.handler.extraction.ExtractingRequestHandler"
                     startup="lazy">
         <lst name="defaults">
@@ -106,11 +112,10 @@
         </lst>
     </requestHandler>
 
-    <requestHandler name="/update" class="solr.UpdateRequestHandler" />
-
     <!--
-        Request handlers for analysis.
+        Request handlers for analysis and debugging.
     -->
+
     <requestHandler name="/analysis/document" class="solr.DocumentAnalysisRequestHandler" startup="lazy" />
 
     <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" startup="lazy" />
@@ -125,7 +130,7 @@
     </requestHandler>
 
     <!-- Echo the request content back to the client. -->
-    <requestHandler name="/debug/dump" class="solr.DumpRequestHandler" >
+    <requestHandler name="/debug/dump" class="solr.DumpRequestHandler" startup="lazy">
         <lst name="defaults">
             <str name="echoParams">explicit</str>
             <str name="echoHandler">true</str>
