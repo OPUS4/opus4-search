@@ -9,15 +9,13 @@
     <lib dir="${solr.install.dir:../../..}/dist" regex="solr-dataimporthandler-\d.*\.jar" />
 
     <indexConfig>
-        <useCompoundFile>false</useCompoundFile>
-
+        <!-- TODO Current default is 100. -->
         <ramBufferSizeMB>32</ramBufferSizeMB>
 
+        <!-- TODO not found in documentation -->
         <maxFieldLength>2147483647</maxFieldLength>
 
         <writeLockTimeout>1000</writeLockTimeout>
-
-        <lockType>native</lockType>
 
         <reopenReaders>true</reopenReaders>
 
