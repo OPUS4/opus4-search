@@ -2,11 +2,13 @@
 
 <config>
 
-    <luceneMatchVersion>5.2</luceneMatchVersion>
+    <luceneMatchVersion>7.0</luceneMatchVersion>
 
     <lib dir="${solr.install.dir:../../..}/contrib/extraction/lib" />
     <lib dir="${solr.install.dir:../../..}/dist" regex="solr-cell-\d.*\.jar" />
     <lib dir="${solr.install.dir:../../..}/dist" regex="solr-dataimporthandler-\d.*\.jar" />
+
+    <schemaFactory class="ClassicIndexSchemaFactory" />
 
     <indexConfig>
         <!-- TODO Current default is 100. -->
@@ -61,6 +63,7 @@
     <requestHandler name="standard" class="solr.SearchHandler" default="true">
         <lst name="defaults">
             <str name="echoParams">explicit</str>
+            <str name="df">text</str>
         </lst>
     </requestHandler>
 
