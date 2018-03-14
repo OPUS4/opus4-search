@@ -7,10 +7,5 @@
     "opus4",
     "solr"
   ],
-  "homepage": "http://opus4.kobv.de",
-  "extra": {
-    "branch-alias": {
-      "dev-master": "4.7.x-dev"
-    }
-  }
+  "homepage": "http://www.opus-repository.org"
 }
