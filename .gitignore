@@ -1,3 +1,10 @@
 # IDE files
 .idea
 *.iml
+nbproject
+
+# Ignore Composer files
+composer.lock
+composer.phar
+vendor
+
