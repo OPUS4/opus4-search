@@ -11,10 +11,11 @@
   "require": {
     "solarium/solarium": "3.8.*",
     "opus4-repo/framework": "4.7.x-dev",
-    "zendframework/zendframework": "1.12.*"
+    "zendframework/zendframework1": "1.12.*"
   },
   "require-dev": {
-    "phpunit/phpunit": "4.8.24"
+    "phpunit/phpunit": "4.8.24",
+    "zendframework/zend-coding-standard": "~1.0.0"
   },
   "autoload": {
     "psr-4": {
