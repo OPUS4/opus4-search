@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<config>
+
+    <luceneMatchVersion>7.0</luceneMatchVersion>
+
+    <lib dir="${solr.install.dir:../../..}/contrib/extraction/lib" />
+    <lib dir="${solr.install.dir:../../..}/dist" regex="solr-cell-\d.*\.jar" />
+    <lib dir="${solr.install.dir:../../..}/dist" regex="solr-dataimporthandler-\d.*\.jar" />
+
+    <schemaFactory class="ClassicIndexSchemaFactory" />
+
+    <indexConfig>
+        <!-- TODO Current default is 100. -->
+        <ramBufferSizeMB>32</ramBufferSizeMB>
+
+        <!-- TODO not found in documentation -->
+        <maxFieldLength>2147483647</maxFieldLength>
+
+        <!-- Set to true for more detailed debug information from the indexing process as Solr log messages. -->
+        <infoStream>false</infoStream>
+    </indexConfig>
+
+    <!-- TODO no options configured - Anything needed? -->
+    <updateHandler class="solr.DirectUpdateHandler2">
+    </updateHandler>
+
+    <query>
+        <maxBooleanClauses>1024</maxBooleanClauses>
+
+        <filterCache class="solr.FastLRUCache" size="512" initialSize="512" autowarmCount="0"/>
+
+        <queryResultCache class="solr.LRUCache" size="512" initialSize="512" autowarmCount="0"/>
+
+        <documentCache class="solr.LRUCache" size="512" initialSize="512" autowarmCount="0"/>
+
+        <enableLazyFieldLoading>true</enableLazyFieldLoading>
+
+        <queryResultWindowSize>20</queryResultWindowSize>
+
+        <queryResultMaxDocsCached>200</queryResultMaxDocsCached>
+
+        <listener event="newSearcher" class="solr.QuerySenderListener">
+            <arr name="queries">
+            </arr>
+        </listener>
+
+        <listener event="firstSearcher" class="solr.QuerySenderListener">
+            <arr name="queries">
+            </arr>
+        </listener>
+
+        <useColdSearcher>false</useColdSearcher>
+
+        <maxWarmingSearchers>2</maxWarmingSearchers>
+    </query>
+
+    <requestDispatcher handleSelect="true" >
+        <httpCaching lastModifiedFrom="openTime" etagSeed="Solr">
+        </httpCaching>
+    </requestDispatcher>
+
+    <requestHandler name="standard" class="solr.SearchHandler" default="true">
+        <lst name="defaults">
+            <str name="echoParams">explicit</str>
+            <str name="df">text</str>
+        </lst>
+    </requestHandler>
+
+    <!--
+        TODO Configuration for highlighting must be finished and documented.
+    -->
+    <searchComponent name="highlight" class="solr.HighlightComponent">
+        <highlighting>
+            <fragmenter name="gap" default="true" class="solr.highlight.GapFragmenter">
+                <lst name="defaults">
+                    <int name="hl.fragsize">100</int>
+                </lst>
+            </fragmenter>
+
+            <fragmenter name="regex" class="solr.highlight.RegexFragmenter">
+                <lst name="defaults">
+                    <int name="hl.fragsize">70</int>
+                    <float name="hl.regex.slop">0.5</float>
+                    <str name="hl.regex.pattern">[-\w ,/\n\&quot;&apos;]{20,200}</str>
+                </lst>
+            </fragmenter>
+
+            <formatter name="html" default="true" class="solr.highlight.HtmlFormatter">
+                <lst name="defaults">
+                    <str name="hl.simple.pre"><![CDATA[<em>]]></str>
+                    <str name="hl.simple.post"><![CDATA[</em>]]></str>
+                </lst>
+            </formatter>
+
+            <encoder name="html" class="solr.highlight.HtmlEncoder" />
+
+            <fragListBuilder name="simple" default="true" class="solr.highlight.SimpleFragListBuilder" />
+
+            <fragmentsBuilder name="default" default="true" class="solr.highlight.ScoreOrderFragmentsBuilder" />
+
+            <boundaryScanner name="default" default="true" class="solr.highlight.SimpleBoundaryScanner">
+                <lst name="defaults">
+                    <str name="hl.bs.maxScan">10</str>
+                    <str name="hl.bs.chars">.,!? &#9;&#10;&#13;</str>
+                </lst>
+            </boundaryScanner>
+
+        </highlighting>
+    </searchComponent>
+
+    <!--
+        TODO Configuration for suggest function must be finished and documented.
+
+        The "suggest" function is used to provide suggestions for strings entered into the search box.
+    -->
+    <searchComponent name="suggest" class="solr.SuggestComponent">
+        <lst name="suggester">
+            <str name="name">OpusSuggester</str>
+            <str name="lookupImpl">FuzzyLookupFactory</str>
+            <str name="dictionaryImpl">DocumentDictionaryFactory</str>
+            <str name="field">author</str>
+            <str name="suggestAnalyzerFieldType">string</str>
+            <str name="buildOnCommit">true</str>
+            <str name="buildOnStartup">false</str>
+        </lst>
+    </searchComponent>
+
+    <requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">
+        <lst name="defaults">
+            <str name="suggest">true</str>
+            <str name="suggest.count">10</str>
+        </lst>
+        <arr name="components">
+            <str>suggest</str>
+        </arr>
+    </requestHandler>
+
+    <requestHandler name="/update" class="solr.UpdateRequestHandler" />
+
+    <!--
+        Request handler for text extraction.
+    -->
+
+    <requestHandler name="/update/extract" class="org.apache.solr.handler.extraction.ExtractingRequestHandler"
+                    startup="lazy">
+        <lst name="defaults">
+            <str name="fmap.content">text</str>
+            <str name="lowernames">true</str>
+            <str name="uprefix">ignored_</str>
+
+            <str name="captureAttr">true</str>
+            <str name="fmap.a">links</str>
+            <str name="fmap.div">ignored_</str>
+        </lst>
+    </requestHandler>
+
+    <!--
+        Request handlers for analysis and debugging.
+    -->
+
+    <requestHandler name="/analysis/document" class="solr.DocumentAnalysisRequestHandler" startup="lazy" />
+
+    <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" startup="lazy" />
+
+    <!-- Handler for checking health of Solr core. -->
+    <requestHandler name="/admin/ping" class="PingRequestHandler">
+        <lst name="defaults">
+            <str name="qt">standard</str>
+            <str name="q">solrpingquery</str>
+            <str name="echoParams">all</str>
+        </lst>
+    </requestHandler>
+
+    <!-- Echo the request content back to the client. -->
+    <requestHandler name="/debug/dump" class="solr.DumpRequestHandler" startup="lazy">
+        <lst name="defaults">
+            <str name="echoParams">explicit</str>
+            <str name="echoHandler">true</str>
+        </lst>
+    </requestHandler>
+
+</config>
