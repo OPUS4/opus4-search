@@ -27,53 +27,65 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace OpusTest\Search\Solr\Solarium;
 
-class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCase {
+use Opus\Search\Exception;
+use Opus\Search\Service;
+use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
-	public function testService() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+class AdapterIndexingTest extends DocumentBasedTestCase
+{
+
+	public function testService()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
 	}
 
 	/**
-	 * @expectedException Opus_Search_Exception
+	 * @expectedException Exception
 	 */
-	public function testDisfunctServiceFails() {
+	public function testDisfunctServiceFails()
+    {
 		// need to drop deprecated configuration options for interfering with
 		// intention of this test regarding revised configuration structure, only
 		$this->dropDeprecatedConfiguration();
 
-		Opus_Search_Service::selectIndexingService( 'disfunct' );
+		Service::selectIndexingService( 'disfunct' );
 	}
 
-	public function testRemoveAllDocuments() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testRemoveAllDocuments()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 		$service->removeAllDocumentsFromIndex();
 	}
 
-	public function testIndexingArticleWithoutFiles() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testIndexingArticleWithoutFiles()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
 		$service->addDocumentsToIndex( $doc );
 	}
 
-	public function testIndexingBookWithoutFiles() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testIndexingBookWithoutFiles()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'book' );
 
 		$service->addDocumentsToIndex( $doc );
 	}
 
-	public function testIndexingArticleWithPublicFile() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testIndexingArticleWithPublicFile()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
@@ -82,8 +94,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->addDocumentsToIndex( $doc );
 	}
 
-	public function testIndexingArticleWithPublicFiles() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testIndexingArticleWithPublicFiles()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
@@ -93,8 +106,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->addDocumentsToIndex( $doc );
 	}
 
-	public function testIndexingArticleWithHiddenFile() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testIndexingArticleWithHiddenFile()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
@@ -103,8 +117,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->addDocumentsToIndex( $doc );
 	}
 
-	public function testIndexingArticleWithHiddenFiles() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testIndexingArticleWithHiddenFiles()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
@@ -114,8 +129,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->addDocumentsToIndex( $doc );
 	}
 
-	public function testIndexingArticleWithMixedFiles() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testIndexingArticleWithMixedFiles()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
@@ -127,8 +143,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->addDocumentsToIndex( $doc );
 	}
 
-	public function testRemovingIndexedArticle() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testRemovingIndexedArticle()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
@@ -137,8 +154,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->removeDocumentsFromIndex( $doc );
 	}
 
-	public function testRemovingIndexedArticleById() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testRemovingIndexedArticleById()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
@@ -147,8 +165,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->removeDocumentsFromIndexById( $doc->getId() );
 	}
 
-	public function testRemovingIndexedArticleTwiceFails() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testRemovingIndexedArticleTwiceFails()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
@@ -158,8 +177,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->removeDocumentsFromIndex( $doc );
 	}
 
-	public function testRemovingIndexedArticleByIdTwiceFails() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testRemovingIndexedArticleByIdTwiceFails()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
@@ -169,8 +189,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->removeDocumentsFromIndexById( $doc->getId() );
 	}
 
-	public function testMixedRemovingIndexedArticleTwiceFails() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testMixedRemovingIndexedArticleTwiceFails()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
@@ -180,8 +201,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->removeDocumentsFromIndexById( $doc->getId() );
 	}
 
-	public function testMixedRemovingIndexedArticleTwiceFailsAgain() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testMixedRemovingIndexedArticleTwiceFailsAgain()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
@@ -191,24 +213,27 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->removeDocumentsFromIndex( $doc );
 	}
 
-	public function testRemovingNonIndexedArticleFails() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testRemovingNonIndexedArticleFails()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
 		$service->removeDocumentsFromIndex( $doc );
 	}
 
-	public function testRemovingNonIndexedArticleByIdFails() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testRemovingNonIndexedArticleByIdFails()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
 		$service->removeDocumentsFromIndexById( $doc->getId() );
 	}
 
-	public function testIndexingMultipleDocument() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testIndexingMultipleDocument()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$docA = $this->createDocument( 'article' );
 		$docB = $this->createDocument( 'book' );
@@ -218,8 +243,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->addDocumentsToIndex( array( $docA, $docB, $docC, $docD ) );
 	}
 
-	public function testRemovingMultipleIndexedDocuments() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testRemovingMultipleIndexedDocuments()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$docA = $this->createDocument( 'article' );
 		$docB = $this->createDocument( 'book' );
@@ -230,8 +256,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->removeDocumentsFromIndex( array( $docA, $docB, $docC, $docD ) );
 	}
 
-	public function testMultiplyRemovingMultipleIndexedDocumentsFails() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testMultiplyRemovingMultipleIndexedDocumentsFails()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$docA = $this->createDocument( 'article' );
 		$docB = $this->createDocument( 'book' );
@@ -243,8 +270,9 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 		$service->removeDocumentsFromIndex( array( $docA, $docB, $docC, $docD ) );
 	}
 
-	public function testMultiplyRemovingMultipleIndexedDocumentsFailsAgain() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+	public function testMultiplyRemovingMultipleIndexedDocumentsFailsAgain()
+    {
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$docA = $this->createDocument( 'article' );
 		$docB = $this->createDocument( 'book' );
@@ -257,18 +285,18 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 	}
 
 	/**
-	 * @expectedException Opus_Search_Exception
+	 * @expectedException Exception
 	 */
-	public function testIndexingArticleOnDisfunctServiceFails() {
+	public function testIndexingArticleOnDisfunctServiceFails()
+    {
 		// need to drop deprecated configuration options for interfering with
 		// intention of this test regarding revised configuration structure, only
 		$this->dropDeprecatedConfiguration();
 
-		$service = Opus_Search_Service::selectIndexingService( 'disfunct', 'solr' );
+		$service = Service::selectIndexingService( 'disfunct', 'solr' );
 
 		$doc = $this->createDocument( 'article' );
 
 		$service->addDocumentsToIndex( $doc );
 	}
-
 }

@@ -32,11 +32,15 @@
  * @version     $Id$
  */
 
+namespace OpusTest\Search;
 
-class Opus_Search_QueryTest extends TestCase {
+use Opus\Search\Query;
+use OpusTest\Search\TestAsset\TestCase;
+
+class QueryTest extends TestCase {
 
 	public function testInitiallyEmpty() {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 
 		$this->assertFalse( isset( $query->start ) );
 		$this->assertFalse( isset( $query->rows ) );
@@ -46,7 +50,7 @@ class Opus_Search_QueryTest extends TestCase {
 	}
 
 	public function testSupportingExplicitGetter() {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 
 		$this->assertNull( $query->get( 'start' ) );
 		$this->assertNull( $query->get( 'rows' ) );
@@ -56,7 +60,7 @@ class Opus_Search_QueryTest extends TestCase {
 	}
 
 	public function testSupportingImplicitGetter() {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 
 		$this->assertNull( $query->start );
 		$this->assertNull( $query->rows );
@@ -66,7 +70,7 @@ class Opus_Search_QueryTest extends TestCase {
 	}
 
 	public function testSupportingGetterMethods() {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 
 		$this->assertNull( $query->getStart() );
 		$this->assertNull( $query->getRows() );
@@ -78,8 +82,9 @@ class Opus_Search_QueryTest extends TestCase {
 	/**
 	 * @dataProvider provideValidScalarSettings
 	 */
-	public function testSupportingImplicitScalarSetterValid( $value, $property, $method, $expecting ) {
-		$query = new Opus_Search_Query();
+	public function testSupportingImplicitScalarSetterValid( $value, $property, $method, $expecting )
+    {
+		$query = new Query();
 		$query->{$property} = $value;
 		$this->assertEquals( $expecting, $query->{$property} );
 	}
@@ -88,7 +93,7 @@ class Opus_Search_QueryTest extends TestCase {
 	 * @dataProvider provideValidScalarSettings
 	 */
 	public function testSupportingExplicitScalarSetterValid( $value, $property, $method, $expecting ) {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 		$query->set( $property, $value );
 		$this->assertEquals( $expecting, $query->get( $property ) );
 
@@ -100,59 +105,61 @@ class Opus_Search_QueryTest extends TestCase {
 	 * @dataProvider provideValidScalarSettings
 	 */
 	public function testSupportingScalarSetterMethodValid( $value, $property, $method, $expecting ) {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 		$query->{$method}( $value );
 		$this->assertEquals( $expecting, $query->get( $property ) );
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provideValidScalarSettings
 	 */
 	public function testSupportingExplicitScalarSetterValidRejectToAdd( $value, $property, $method, $expecting ) {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 		$query->set( $property, $value, true );
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provideValidScalarSettings
 	 */
 	public function testSupportingScalarSetterMethodValidRejectToAdd( $value, $property, $method, $expecting ) {
 		$method = preg_replace( '/^set/', 'add', $method );
 
-		$query = new Opus_Search_Query();
+		$query = new Query();
 		$query->{$method}( $value );
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provideInvalidScalarSettings
 	 */
 	public function testSupportingImplicitScalarSetterInvalid( $value, $property, $method ) {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 		$query->{$property} = $value;
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provideInvalidScalarSettings
 	 */
-	public function testSupportingExplicitScalarSetterInvalid( $value, $property, $method ) {
-		$query = new Opus_Search_Query();
+	public function testSupportingExplicitScalarSetterInvalid( $value, $property, $method )
+    {
+		$query = new Query();
 		$query->{$property} = $value;
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provideInvalidScalarSettings
 	 */
 	public function testSupportingScalarSetterMethodInvalid( $value, $property, $method ) {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 		$query->{$method}( $value );
 	}
 
-	public function provideValidScalarSettings() {
+	public function provideValidScalarSettings()
+    {
 		return array(
 			array( 0, 'start', 'setStart', 0 ),
 			array( 10, 'start', 'setStart', 10 ),
@@ -212,7 +219,7 @@ class Opus_Search_QueryTest extends TestCase {
 	 * @dataProvider provideValidFieldsSettings
 	 */
 	public function testSupportingImplicitFieldsSetterValid( $value, $property, $method, $expecting ) {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 		$query->{$property} = $value;
 		$this->assertEquals( $expecting, $query->{$property} );
 	}
@@ -221,7 +228,7 @@ class Opus_Search_QueryTest extends TestCase {
 	 * @dataProvider provideValidFieldsSettings
 	 */
 	public function testSupportingExplicitFieldsSetterValid( $value, $property, $method, $expecting ) {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 		$query->set( $property, $value );
 		$this->assertEquals( $expecting, $query->get( $property ) );
 
@@ -233,7 +240,7 @@ class Opus_Search_QueryTest extends TestCase {
 	 * @dataProvider provideValidFieldsSettings
 	 */
 	public function testSupportingFieldsSetterMethodValid( $value, $property, $method, $expecting ) {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 		$query->{$method}( $value );
 		$this->assertEquals( $expecting, $query->get( $property ) );
 	}
@@ -242,7 +249,7 @@ class Opus_Search_QueryTest extends TestCase {
 	 * @dataProvider provideValidFieldsSettings
 	 */
 	public function testSupportingExplicitFieldsSetterValidAdding( $value, $property, $method, $expecting ) {
-		$query = new Opus_Search_Query();
+		$query = new Query();
 		$query->set( $property, 'auto', false );
 		$query->set( $property, $value, true );
 		$this->assertEquals( array_merge( array( 'auto' ), $expecting ), $query->get( $property ) );
@@ -254,36 +261,39 @@ class Opus_Search_QueryTest extends TestCase {
 	public function testSupportingFieldsSetterMethodValidAdding( $value, $property, $method, $expecting ) {
 		$adder = preg_replace( '/^set/', 'add', $method );
 
-		$query = new Opus_Search_Query();
+		$query = new Query();
 		$query->{$method}( 'auto' );
 		$query->{$adder}( $value );
 		$this->assertEquals( array_merge( array( 'auto' ), $expecting ), $query->get( $property ) );
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provideInvalidFieldsSettings
 	 */
-	public function testSupportingImplicitFieldsSetterInvalid( $value, $property, $method ) {
-		$query = new Opus_Search_Query();
+	public function testSupportingImplicitFieldsSetterInvalid( $value, $property, $method )
+    {
+		$query = new Query();
 		$query->{$property} = $value;
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provideInvalidFieldsSettings
 	 */
-	public function testSupportingExplicitFieldsSetterInvalid( $value, $property, $method ) {
-		$query = new Opus_Search_Query();
+	public function testSupportingExplicitFieldsSetterInvalid( $value, $property, $method )
+    {
+		$query = new Query();
 		$query->{$property} = $value;
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provideInvalidFieldsSettings
 	 */
-	public function testSupportingFieldsSetterMethodInvalid( $value, $property, $method ) {
-		$query = new Opus_Search_Query();
+	public function testSupportingFieldsSetterMethodInvalid( $value, $property, $method )
+    {
+		$query = new Query();
 		$query->{$method}( $value );
 	}
 
@@ -333,8 +343,9 @@ class Opus_Search_QueryTest extends TestCase {
 	/**
 	 * @dataProvider provideValidSortSettings
 	 */
-	public function testSupportingImplicitSortSetterValid( $value, $property, $method, $expecting ) {
-		$query = new Opus_Search_Query();
+	public function testSupportingImplicitSortSetterValid( $value, $property, $method, $expecting )
+    {
+		$query = new Query();
 		$query->{$property} = $value;
 		$this->assertEquals( $expecting, $query->{$property} );
 	}
@@ -342,8 +353,9 @@ class Opus_Search_QueryTest extends TestCase {
 	/**
 	 * @dataProvider provideValidSortSettings
 	 */
-	public function testSupportingExplicitSortSetterValid( $value, $property, $method, $expecting ) {
-		$query = new Opus_Search_Query();
+	public function testSupportingExplicitSortSetterValid( $value, $property, $method, $expecting )
+    {
+		$query = new Query();
 		$query->set( $property, $value );
 		$this->assertEquals( $expecting, $query->get( $property ) );
 
@@ -354,8 +366,9 @@ class Opus_Search_QueryTest extends TestCase {
 	/**
 	 * @dataProvider provideValidSortSettings
 	 */
-	public function testSupportingSortSetterMethodValid( $value, $property, $method, $expecting ) {
-		$query = new Opus_Search_Query();
+	public function testSupportingSortSetterMethodValid( $value, $property, $method, $expecting )
+    {
+		$query = new Query();
 		$query->{$method}( $value );
 		$this->assertEquals( $expecting, $query->get( $property ) );
 	}
@@ -363,8 +376,9 @@ class Opus_Search_QueryTest extends TestCase {
 	/**
 	 * @dataProvider provideValidSortSettings
 	 */
-	public function testSupportingExplicitSortSetterValidAdding( $value, $property, $method, $expecting ) {
-		$query = new Opus_Search_Query();
+	public function testSupportingExplicitSortSetterValidAdding( $value, $property, $method, $expecting )
+    {
+		$query = new Query();
 		$query->set( $property, 'auto', false );
 		$query->set( $property, $value, true );
 		$this->assertEquals( array_merge( array( 'auto' => 'asc' ), $expecting ), $query->get( $property ) );
@@ -376,36 +390,39 @@ class Opus_Search_QueryTest extends TestCase {
 	public function testSupportingSortSetterMethodValidAdding( $value, $property, $method, $expecting ) {
 		$adder = preg_replace( '/^set/', 'add', $method );
 
-		$query = new Opus_Search_Query();
+		$query = new Query();
 		$query->{$method}( 'auto' );
 		$query->{$adder}( $value );
 		$this->assertEquals( array_merge( array( 'auto' => 'asc' ), $expecting ), $query->get( $property ) );
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provideInvalidSortSettings
 	 */
-	public function testSupportingImplicitSortSetterInvalid( $value, $property, $method ) {
-		$query = new Opus_Search_Query();
+	public function testSupportingImplicitSortSetterInvalid( $value, $property, $method )
+    {
+		$query = new Query();
 		$query->{$property} = $value;
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provideInvalidSortSettings
 	 */
-	public function testSupportingExplicitSortSetterInvalid( $value, $property, $method ) {
-		$query = new Opus_Search_Query();
+	public function testSupportingExplicitSortSetterInvalid( $value, $property, $method )
+    {
+		$query = new Query();
 		$query->{$property} = $value;
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provideInvalidSortSettings
 	 */
-	public function testSupportingSortSetterMethodInvalid( $value, $property, $method ) {
-		$query = new Opus_Search_Query();
+	public function testSupportingSortSetterMethodInvalid( $value, $property, $method )
+    {
+		$query = new Query();
 		$query->{$method}( $value );
 	}
 
@@ -460,7 +477,7 @@ class Opus_Search_QueryTest extends TestCase {
 	 * @dataProvider provideValidAddSortSettings
 	 */
 	public function testSupportingAddingSortValid( $fields, $dir, $reset, $expected ) {
-		$params = new Opus_Search_Query();
+		$params = new Query();
 		$params->addSorting( 'auto' );
 		$params->addSorting( $fields, $dir, $reset );
 
@@ -468,16 +485,17 @@ class Opus_Search_QueryTest extends TestCase {
 	}
 
 	/**
-	 * @expectedException InvalidArgumentException
+	 * @expectedException \InvalidArgumentException
 	 * @dataProvider provideInvalidAddSortSettings
 	 */
 	public function testSupportingAddingSortInvalid( $fields, $dir, $reset ) {
-		$params = new Opus_Search_Query();
+		$params = new Query();
 		$params->addSorting( 'auto' );
 		$params->addSorting( $fields, $dir, $reset );
 	}
 
-	public function provideValidAddSortSettings() {
+	public function provideValidAddSortSettings()
+    {
 		return array(
 			array( 'a', true, true, array( 'a' => 'asc' ) ),
 			array( 'a', true, true, array( 'a' => 'asc' ) ),
@@ -494,7 +512,8 @@ class Opus_Search_QueryTest extends TestCase {
 		);
 	}
 
-	public function provideInvalidAddSortSettings() {
+	public function provideInvalidAddSortSettings()
+    {
 		return array(
 			array( null, true, true ),
 			array( null, true, false ),

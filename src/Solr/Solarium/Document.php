@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -33,6 +32,10 @@
  * @version     $Id$
  */
 
+namespace Opus\Search\Solr\Solarium;
+
+use Opus\Search\Solr\Document\Xslt;
+
 /**
  * Implements description of solr documents when using `Solarium` client
  * library.
@@ -43,9 +46,11 @@
  * basically due to supporting customized XSLT transformations.
  */
 
-class Opus_Search_Solr_Solarium_Document extends Opus_Search_Solr_Document_Xslt {
+class Document extends Xslt
+{
 
-	public function __construct( Zend_Config $options ) {
+	public function __construct( \Zend_Config $options )
+    {
 		parent::__construct( $options );
 	}
 
@@ -65,13 +70,14 @@ class Opus_Search_Solr_Solarium_Document extends Opus_Search_Solr_Document_Xslt 
 	 * @param \Solarium\QueryType\Update\Query\Document\Document $solrDoc
 	 * @return \Solarium\QueryType\Update\Query\Document\Document
 	 */
-	public function toSolrDocument( Opus_Document $opusDoc, $solrDoc ) {
-		if ( !( $solrDoc instanceof Solarium\QueryType\Update\Query\Document\Document ) ) {
-			throw new InvalidArgumentException( 'provided Solr document must be instance of Solarium Update Document' );
+	public function toSolrDocument( \Opus_Document $opusDoc, $solrDoc )
+    {
+		if ( !( $solrDoc instanceof \Solarium\QueryType\Update\Query\Document\Document ) ) {
+			throw new \InvalidArgumentException( 'provided Solr document must be instance of Solarium Update Document' );
 		}
 
 		// convert Opus document to Solr XML document for supporting custom transformations
-		$solrDomDoc = parent::toSolrDocument( $opusDoc, new DOMDocument() );
+		$solrDomDoc = parent::toSolrDocument( $opusDoc, new \DOMDocument() );
 
 		// read back fields from generated Solr XML document
 		$solrXmlDoc = simplexml_import_dom( $solrDomDoc )->doc[0];

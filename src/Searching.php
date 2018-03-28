@@ -25,45 +25,51 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
+ * @category    library
+ * @package     Opus\Search
  * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus\Search;
+
+use Opus\Search\Filter\Complex;
+use Opus\Search\Result\Base;
 
 /**
  * Defines methods provided for querying search database.
  */
 
-interface Opus_Search_Searching {
+interface Searching
+{
 
 	/**
 	 * Queries search database for set of entries matching some prepared set of
 	 * query parameters.
 	 *
-	 * @param Opus_Search_Query $query
-	 * @return Opus_Search_Result_Base set of documents matching query
-	 * @throws Opus_Search_Exception in case of error
+	 * @param Query $query
+	 * @return Base set of documents matching query
+	 * @throws Exception in case of error
 	 */
-	public function customSearch( Opus_Search_Query $query );
+	public function customSearch( Query $query );
 
 	/**
 	 * Queries search database for set of matching entries using some named
 	 * query defined in configuration.
 	 *
 	 * @param string $name name of query defined in configuration
-	 * @param Opus_Search_Query $customization set of customizations to selected query
-	 * @returns Opus_Search_Result_Base set of documents matching query
-	 * @throws Opus_Search_Exception in case of error
+	 * @param Query $customization set of customizations to selected query
+	 * @returns Base set of documents matching query
+	 * @throws Exception in case of error
 	 */
-	public function namedSearch( $name, Opus_Search_Query $customization = null );
+	public function namedSearch( $name, Query $customization = null );
 
 	/**
 	 * Creates query to use on searching documents with current adapter.
 	 *
-	 * @return Opus_Search_Query
+	 * @return Query
 	 */
 	public function createQuery();
 
@@ -71,7 +77,7 @@ interface Opus_Search_Searching {
 	 * Creates new complex filter instance for describing set of documents to
 	 * search for.
 	 *
-	 * @return Opus_Search_Filter_Complex
+	 * @return Complex
 	 */
 	public function createFilter();
 }

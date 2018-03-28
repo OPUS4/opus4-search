@@ -27,12 +27,14 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_Search_Service {
+namespace Opus\Search;
+
+class Service
+{
 
 	protected static $adaptersPool = array();
 
@@ -62,7 +64,8 @@ class Opus_Search_Service {
 	 * Drops any cached service adapter.
 	 *
 	 */
-	public static function dropCached() {
+	public static function dropCached()
+    {
 		self::$adaptersPool = array();
 	}
 
@@ -76,14 +79,15 @@ class Opus_Search_Service {
 	 * @param string $searchDomain explicitly selected search domain
 	 * @return string
 	 */
-	public static function getQualifiedDomain( $searchDomain = null ) {
+	public static function getQualifiedDomain( $searchDomain = null )
+    {
 		if ( is_null( $searchDomain ) ) {
-			$config = Opus_Search_Config::getConfiguration();
+			$config = Config::getConfiguration();
 			$searchDomain = $config->get( 'domain', 'solr' );
 		}
 
 		if ( !is_string( $searchDomain ) || !trim( $searchDomain ) ) {
-			throw new InvalidArgumentException( 'invalid default search domain' );
+			throw new \InvalidArgumentException( 'invalid default search domain' );
 		}
 
 		return trim( $searchDomain );
@@ -95,10 +99,13 @@ class Opus_Search_Service {
 	 * @param string $serviceInterface required interface of service adapter, e.g. 'Opus_Search_Indexing'
 	 * @param string|null $serviceName name of configured service to work with
 	 * @param string $serviceDomain name of domain selected service belongs to
-	 * @return Opus_Search_Indexing|Opus_Search_Searching|Opus_Search_Extracting
-	 * @throws Zend_Config_Exception
+	 * @return Indexing|Searching|Extracting
+	 * @throws \Zend_Config_Exception
 	 */
-	protected static function selectService( $serviceType, $serviceInterface, $serviceName = null, $serviceDomain = null ) {
+	protected static function selectService(
+	    $serviceType, $serviceInterface, $serviceName = null, $serviceDomain = null
+    )
+    {
 		// manage pool of domains
 		$serviceDomain = static::getQualifiedDomain( $serviceDomain );
 
@@ -118,17 +125,17 @@ class Opus_Search_Service {
 		}
 
 		if ( !array_key_exists( $serviceName, $domainPool[$serviceType] ) ) {
-			$config = Opus_Search_Config::getServiceConfiguration( $serviceType, $serviceName, $serviceDomain );
+			$config = Config::getServiceConfiguration( $serviceType, $serviceName, $serviceDomain );
 
 			$className = $config->adapterClass;
-			if ( !$className || $className instanceof Zend_Config ) {
-				throw new Zend_Config_Exception( 'missing search engine adapter' );
+			if ( !$className || $className instanceof \Zend_Config ) {
+				throw new \Zend_Config_Exception( 'missing search engine adapter' );
 			}
 
-			$class = new ReflectionClass( $className );
+			$class = new \ReflectionClass( $className );
 
 			if ( !$class->implementsInterface( $serviceInterface ) ) {
-				throw new Zend_Config_Exception( 'invalid search engine adapter' );
+				throw new \Zend_Config_Exception( 'invalid search engine adapter' );
 			}
 
 			$domainPool[$serviceType][$serviceName] = $class->newInstance( $serviceName, $config );
@@ -140,28 +147,30 @@ class Opus_Search_Service {
 	/**
 	 * @param string|null $serviceName name of configured service to work with
 	 * @param string $serviceDomain name of domain selected service belongs to
-	 * @return Opus_Search_Indexing
-	 * @throws Zend_Config_Exception
+	 * @return Indexing
+	 * @throws \Zend_Config_Exception
 	 */
-	public static function selectIndexingService( $serviceName = null, $serviceDomain = null ) {
+	public static function selectIndexingService( $serviceName = null, $serviceDomain = null )
+    {
 		return static::selectService( 'index', 'Opus_Search_Indexing', $serviceName, $serviceDomain );
 	}
 
 	/**
 	 * @param string|null $serviceName name of configured service to work with
 	 * @param string $serviceDomain name of domain selected service belongs to
-	 * @return Opus_Search_Searching
-	 * @throws Zend_Config_Exception
+	 * @return Searching
+	 * @throws \Zend_Config_Exception
 	 */
-	public static function selectSearchingService( $serviceName = null, $serviceDomain = null ) {
+	public static function selectSearchingService( $serviceName = null, $serviceDomain = null )
+    {
 		return static::selectService( 'search', 'Opus_Search_Searching', $serviceName, $serviceDomain );
 	}
 
 	/**
 	 * @param string|null $serviceName name of configured service to work with
 	 * @param string $serviceDomain name of domain selected service belongs to
-	 * @return Opus_Search_Extracting
-	 * @throws Zend_Config_Exception
+	 * @return Extracting
+	 * @throws \Zend_Config_Exception
 	 */
 	public static function selectExtractingService( $serviceName = null, $serviceDomain = null ) {
 		return static::selectService( 'extract', 'Opus_Search_Extracting', $serviceName, $serviceDomain );

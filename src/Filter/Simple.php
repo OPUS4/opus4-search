@@ -27,11 +27,14 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace Opus\Search\Filter;
+
+use Opus\Search\Filtering;
 
 /**
  * Describes simple binary term.
@@ -40,7 +43,8 @@
  * actually used search engine.
  */
 
-class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
+class Simple implements Filtering
+{
 
 	const COMPARE_EQUALITY = '=';
 	const COMPARE_INEQUALITY = '<>';
@@ -61,9 +65,10 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 	 * @param string $fieldName name of field simple condition applies on
 	 * @param mixed $comparator one out of Opus_Search_Filter_Simple::COMPARE_* constants
 	 */
-	public function __construct( $fieldName, $comparator ) {
+	public function __construct( $fieldName, $comparator )
+    {
 		if ( !is_string( $fieldName ) || !$fieldName ) {
-			throw new InvalidArgumentException( 'invalid field name' );
+			throw new \InvalidArgumentException( 'invalid field name' );
 		}
 
 		switch ( $comparator ) {
@@ -75,7 +80,7 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 			case self::COMPARE_GREATER_OR_EQUAL :
 				break;
 			default :
-				throw new InvalidArgumentException( 'invalid comparator' );
+				throw new \InvalidArgumentException( 'invalid comparator' );
 		}
 
 		$this->fieldName  = $fieldName;
@@ -87,9 +92,10 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 	 *
 	 * @param string $field name of field filter is testing
 	 * @param string $comparator comparison operator to use on testing field
-	 * @return Opus_Search_Filter_Simple
+	 * @return Simple
 	 */
-	public static function createOnField( $field, $comparator ) {
+	public static function createOnField( $field, $comparator )
+    {
 		return new static( $field, $comparator );
 	}
 
@@ -99,9 +105,10 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 	 * @note This filter is special and might not be supported by all adapters.
 	 *
 	 * @param string $value value to look up in any field of search engine
-	 * @return Opus_Search_Filter_Simple
+	 * @return Simple
 	 */
-	public static function createCatchAll( $value ) {
+	public static function createCatchAll( $value )
+    {
 		return static::createOnField( '*', self::COMPARE_EQUALITY )->addValue( $value );
 	}
 
@@ -110,7 +117,8 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 	 *
 	 * @return string
 	 */
-	public function getName() {
+	public function getName()
+    {
 		return $this->fieldName;
 	}
 
@@ -119,7 +127,8 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 	 *
 	 * @return mixed one out of Opus_Search_Filter_Simple::COMPARE_* constants
 	 */
-	public function getComparator() {
+	public function getComparator()
+    {
 		return $this->comparator;
 	}
 
@@ -128,7 +137,8 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 	 *
 	 * @return bool
 	 */
-	public function isRangeValue() {
+	public function isRangeValue()
+    {
 		return count( $this->fieldValues ) === 1 && is_array( @$this->fieldValues[0] );
 	}
 
@@ -144,14 +154,15 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 	 * @param string $value
 	 * @return $this fluent interface
 	 */
-	public function addValue( $value ) {
+	public function addValue( $value )
+    {
 		if ( $this->isRangeValue() ) {
 			$this->fieldValues = array();
 		}
 
 		if ( $this->comparator !== self::COMPARE_EQUALITY && $this->comparator !== self::COMPARE_INEQUALITY ) {
 			if ( count( $this->fieldValues ) > 0 ) {
-				throw new InvalidArgumentException( "invalid multi-value comparison" );
+				throw new \InvalidArgumentException( "invalid multi-value comparison" );
 			}
 		}
 
@@ -166,7 +177,8 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 	 * @param string|string[] $value
 	 * @return $this fluent interface
 	 */
-	public function setValue( $value ) {
+	public function setValue( $value )
+    {
 		if ( is_array( $value ) ) {
 			$this->fieldValues = array_map( function( $i ) { return strval( $i ); }, $value );
 		} else {
@@ -181,12 +193,13 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 	 *
 	 * @return string[]
 	 */
-	public function getValues() {
+	public function getValues()
+    {
 		if ( !$this->isRangeValue() ) {
 			return $this->fieldValues;
 		}
 
-		throw new InvalidArgumentException( 'range values must be requested differently' );
+		throw new \InvalidArgumentException( 'range values must be requested differently' );
 	}
 
 	/**
@@ -200,9 +213,10 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 	 * @param int|null $upper optional upper (inclusive) end of range
 	 * @return $this fluent interface
 	 */
-	public function setRange( $lower, $upper ) {
+	public function setRange( $lower, $upper )
+    {
 		if ( $this->comparator !== self::COMPARE_EQUALITY && $this->comparator !== self::COMPARE_INEQUALITY ) {
-			throw new InvalidArgumentException( "invalid range-value comparison" );
+			throw new \InvalidArgumentException( "invalid range-value comparison" );
 		}
 
 		$this->fieldValues = array( array( $lower, $upper ) );
@@ -216,7 +230,8 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 	 * @param int[] $default default value to use if current term doesn't contain range value
 	 * @return int[] two-element array with lower/upper (inclusive) end of range (or null for open ranges at either end)
 	 */
-	public function getRangeValue( $default = null ) {
+	public function getRangeValue( $default = null )
+    {
 		if ( $this->isRangeValue() ) {
 			return $this->fieldValues[0];
 		}
@@ -225,6 +240,6 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 			return $default;
 		}
 
-		throw new RuntimeException( 'not a range value' );
+		throw new \RuntimeException( 'not a range value' );
 	}
 }

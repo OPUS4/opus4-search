@@ -28,23 +28,27 @@
  * @package     Opus_Job
  * @subpackage  Worker
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2013, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2013-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus\Search\Task;
 
 /**
  * Worker class for checking consistency between documents in database and Solr index.
  *
  */
-class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract {
+class ConsistencyCheck extends \Opus_Job_Worker_Abstract
+{
 
     const LABEL = 'opus-consistency-check';
     
     private $logfilePath = null;
 
-    public function __construct() {        
-        $config = Zend_Registry::get('Zend_Config');
+    public function __construct()
+    {
+        $config = \Zend_Registry::get('Zend_Config');
         if (isset($config->workspacePath) && trim($config->workspacePath) != '') {
             $this->logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus_consistency-check.log';
         }
@@ -56,7 +60,8 @@ class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract {
      *
      * @return string Message label.
      */
-    public function getActivationLabel() {
+    public function getActivationLabel()
+    {
         return self::LABEL;
     }
 
@@ -73,11 +78,11 @@ class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract {
      * @param Opus_Job $job Job description and attached data.
      * @return void
      */
-    public function work(Opus_Job $job) {
-
+    public function work(\Opus_Job $job)
+    {
         // make sure we have the right job
         if ($job->getLabel() != $this->getActivationLabel()) {
-            throw new Opus_Job_Worker_InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
+            throw new \Opus_Job_Worker_InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
         }
 
         $lockFile = $this->logfilePath . '.lock';
@@ -86,21 +91,22 @@ class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract {
         }
         
         touch($lockFile);
-        $consistencyChecker = new Opus_Util_ConsistencyCheck($this->_logger);
+        $consistencyChecker = new \Opus\Search\Util\ConsistencyCheck($this->_logger);
         $consistencyChecker->run();
         unlink($lockFile);
     }
 
-    public function setLogger($logger = null) {
+    public function setLogger($logger = null)
+    {
         if (!is_null($this->logfilePath)) {
             $logfile = @fopen($this->logfilePath, 'w', false);
-            $writer = new Zend_Log_Writer_Stream($logfile);
+            $writer = new \Zend_Log_Writer_Stream($logfile);
 
             $format = '[%timestamp%] %priorityName%: %message%' . PHP_EOL;
-            $formatter = new Zend_Log_Formatter_Simple($format);
+            $formatter = new \Zend_Log_Formatter_Simple($format);
             $writer->setFormatter($formatter);
 
-            parent::setLogger(new Zend_Log($writer));            
+            parent::setLogger(new \Zend_Log($writer));
         }
         else {
             parent::setLogger(null);

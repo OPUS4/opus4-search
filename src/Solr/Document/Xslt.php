@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,30 +27,32 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_Search_Solr_Document_Xslt extends Opus_Search_Solr_Document_Base {
+namespace Opus\Search\Solr\Document;
+
+class Xslt extends Base
+{
 
 	/**
-	 * @var XSLTProcessor
+	 * @var \XSLTProcessor
 	 */
 	protected $processor;
 
-
-	public function __construct( Zend_Config $options ) {
+	public function __construct( \Zend_Config $options )
+    {
 		parent::__construct( $options );
 
 		try {
-			$xslt = new DomDocument;
+			$xslt = new \DomDocument;
 			$xslt->load( $options->xsltfile );
 
-			$this->processor = new XSLTProcessor;
+			$this->processor = new \XSLTProcessor;
 			$this->processor->importStyleSheet( $xslt );
-		} catch ( Exception $e ) {
-			throw new InvalidArgumentException( 'invalid XSLT file for deriving Solr documents', 0, $e );
+		} catch ( \Exception $e ) {
+			throw new \InvalidArgumentException( 'invalid XSLT file for deriving Solr documents', 0, $e );
 		}
 	}
 
@@ -65,13 +66,13 @@ class Opus_Search_Solr_Document_Xslt extends Opus_Search_Solr_Document_Base {
 	 * @example
 	 *     $solrXmlDoc = $doc->toSolrDocument( $opusDoc, new DOMDocument() );
 	 *
-	 * @param Opus_Document $opusDoc
-	 * @param DOMDocument $solrDoc
-	 * @return DOMDocument
+	 * @param \Opus_Document $opusDoc
+	 * @param \DOMDocument $solrDoc
+	 * @return \DOMDocument
 	 */
-	public function toSolrDocument( Opus_Document $opusDoc, $solrDoc ) {
-		if ( !( $solrDoc instanceof DOMDocument ) ) {
-			throw new InvalidArgumentException( 'provided Solr document must be instance of DOMDocument' );
+	public function toSolrDocument( \Opus_Document $opusDoc, $solrDoc ) {
+		if ( !( $solrDoc instanceof \DOMDocument ) ) {
+			throw new \InvalidArgumentException( 'provided Solr document must be instance of DOMDocument' );
 		}
 
 		$modelXml = $this->getModelXml( $opusDoc );
@@ -79,11 +80,11 @@ class Opus_Search_Solr_Document_Xslt extends Opus_Search_Solr_Document_Base {
 		$solrDoc->preserveWhiteSpace = false;
 		$solrDoc->loadXML( $this->processor->transformToXML( $modelXml ) );
 
-		if ( Opus_Config::get()->log->prepare->xml ) {
+		if ( \Opus_Config::get()->log->prepare->xml ) {
 			$modelXml->formatOutput = true;
-			Opus_Log::get()->debug( "input xml\n" . $modelXml->saveXML() );
+			\Opus_Log::get()->debug( "input xml\n" . $modelXml->saveXML() );
 			$solrDoc->formatOutput = true;
-			Opus_Log::get()->debug( "transformed solr xml\n" . $solrDoc->saveXML() );
+			\Opus_Log::get()->debug( "transformed solr xml\n" . $solrDoc->saveXML() );
 		}
 
 		return $solrDoc;

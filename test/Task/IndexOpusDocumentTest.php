@@ -26,33 +26,37 @@
  *
  * @category    Framework Unit Test
  * @author      Edouard Simon <edouard.simon@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_Job_Worker_IndexOpusDocumentTest extends TestCase {
+namespace OpusTest\Search\Task;
+
+use Opus\Search\Task\IndexOpusDocument;
+use OpusTest\Search\TestAsset\TestCase;
+
+class IndexOpusDocumentTest extends TestCase
+{
 
     /**
      * Tests working on job.
      */
-    public function testWork() {
-
-        $document = new Opus_Document();
+    public function testWork()
+    {
+        $document = new \Opus_Document();
         $document->setServerState('published');
         $documentId = $document->store();
 
 
-        $job = new Opus_Job();
+        $job = new \Opus_Job();
         $job->setLabel('opus-index-document');
         $job->setData(array(
             'documentId' => $documentId,
             'task' => 'index'));
 
-        $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
+        $indexWorker = new IndexOpusDocument();
 
         $indexWorker->work($job);
-
     }
-
 }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,10 +27,14 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus\Search;
+
+use Opus\Search\Facet\Set;
+use Opus\Search\Filter\Base;
 
 /**
  * Implements API for describing search queries.
@@ -53,19 +56,19 @@
  * @method string[] getFields( array $default = null )
  * @method array getSort( array $default = null )
  * @method bool getUnion( bool $default = null )
- * @method Opus_Search_Filter_Base getFilter( Opus_Search_Filter_Base $default = null ) retrieves condition to be met by resulting documents
- * @method Opus_Search_Facet_Set getFacet( Opus_Search_Facet_Set $default = null )
+ * @method Base getFilter( Base $default = null ) retrieves condition to be met by resulting documents
+ * @method Set getFacet( Set $default = null )
  * @method $this setStart( int $offset )
  * @method $this setRows( int $count )
  * @method $this setFields( $fields )
  * @method $this setSort( $sorting )
  * @method $this setUnion( bool $isUnion )
- * @method $this setFilter( Opus_Search_Filter_Base $filter ) assigns condition to be met by resulting documents
- * @method $this setFacet( Opus_Search_Facet_Set $facet )
+ * @method $this setFilter( Base $filter ) assigns condition to be met by resulting documents
+ * @method $this setFacet( Set $facet )
  * @method $this addFields( string $fields )
  * @method $this addSort( $sorting )
  */
-class Opus_Search_Query {
+class Query {
 
 	protected $_data;
 
@@ -90,13 +93,13 @@ class Opus_Search_Query {
 	 * Tests if provided name is actually name of known parameter normalizing it
 	 * on return.
 	 *
-	 * @throws InvalidArgumentException unless providing name of existing parameter
+	 * @throws \InvalidArgumentException unless providing name of existing parameter
 	 * @param string $name name of parameter to access
 	 * @return string normalized name of existing parameter
 	 */
 	protected function isValidParameter( $name )  {
 		if ( !array_key_exists( strtolower( trim( $name ) ), $this->_data ) ) {
-			throw new InvalidArgumentException( 'invalid query parameter: ' . $name );
+			throw new \InvalidArgumentException( 'invalid query parameter: ' . $name );
 		}
 
 		return strtolower( trim( $name ) );
@@ -118,13 +121,13 @@ class Opus_Search_Query {
 
 		foreach ( $input as $field ) {
 			if ( !is_string( $field ) ) {
-				throw new InvalidArgumentException( 'invalid type of field selector' );
+				throw new \InvalidArgumentException( 'invalid type of field selector' );
 			}
 
 			$fieldNames = preg_split( '/[\s,]+/', $field, null, PREG_SPLIT_NO_EMPTY );
 			foreach ( $fieldNames as $name ) {
 				if ( !preg_match( '/^(?:\*|[a-z_][a-z0-9_]*)$/i', $name ) ) {
-					throw new InvalidArgumentException( 'malformed field selector: ' . $name );
+					throw new \InvalidArgumentException( 'malformed field selector: ' . $name );
 				}
 
 				$output[] = $name;
@@ -132,7 +135,7 @@ class Opus_Search_Query {
 		}
 
 		if ( !count( $input ) ) {
-			throw new InvalidArgumentException( 'missing field selector' );
+			throw new \InvalidArgumentException( 'missing field selector' );
 		}
 
 		return $output;
@@ -150,7 +153,7 @@ class Opus_Search_Query {
 		} else if ( !strcasecmp( $ascending, 'desc' ) ) {
 			$ascending = false;
 		} else if ( $ascending !== false && $ascending !== true ) {
-			throw new InvalidArgumentException( 'invalid sorting direction selector' );
+			throw new \InvalidArgumentException( 'invalid sorting direction selector' );
 		}
 
 		return $ascending;
@@ -172,7 +175,7 @@ class Opus_Search_Query {
 	/**
 	 * Sets value of selected query parameter.
 	 *
-	 * @throws InvalidArgumentException in case of invalid arguments (e.g. on trying to add value to single-value parameter)
+	 * @throws \InvalidArgumentException in case of invalid arguments (e.g. on trying to add value to single-value parameter)
 	 * @param string $name name of query parameter to adjust
 	 * @param string[]|array|string|int $value value of query parameter to write
 	 * @param bool $adding true for adding given parameter to any existing one
@@ -185,11 +188,11 @@ class Opus_Search_Query {
 			case 'start' :
 			case 'rows' :
 				if ( $adding ) {
-					throw new InvalidArgumentException( 'invalid parameter access on ' . $name );
+					throw new \InvalidArgumentException( 'invalid parameter access on ' . $name );
 				}
 
 				if ( !is_scalar( $value ) || !ctype_digit( trim( $value ) ) ) {
-					throw new InvalidArgumentException( 'invalid parameter value on ' . $name );
+					throw new \InvalidArgumentException( 'invalid parameter value on ' . $name );
 				}
 
 				$this->_data[$name] = intval( $value );
@@ -206,7 +209,7 @@ class Opus_Search_Query {
 					$this->_data['fields'] = array_merge( $this->_data['fields'], $fields );
 				} else {
 					if ( !count( $fields ) ) {
-						throw new InvalidArgumentException( 'setting empty set of fields rejected' );
+						throw new \InvalidArgumentException( 'setting empty set of fields rejected' );
 					}
 
 					$this->_data['fields'] = $fields;
@@ -230,7 +233,7 @@ class Opus_Search_Query {
 						$ascending = true;
 						break;
 					default :
-						throw new InvalidArgumentException( 'invalid sorting selector' );
+						throw new \InvalidArgumentException( 'invalid sorting selector' );
 				}
 
 				$this->addSorting( $fields, $ascending, !$adding );
@@ -238,7 +241,7 @@ class Opus_Search_Query {
 
 			case 'union' :
 				if ( $adding ) {
-					throw new InvalidArgumentException( 'invalid parameter access on ' . $name );
+					throw new \InvalidArgumentException( 'invalid parameter access on ' . $name );
 				}
 
 				$this->_data[$name] = !!$value;
@@ -246,11 +249,11 @@ class Opus_Search_Query {
 
 			case 'filter' :
 				if ( $adding ) {
-					throw new InvalidArgumentException( 'invalid parameter access on ' . $name );
+					throw new \InvalidArgumentException( 'invalid parameter access on ' . $name );
 				}
 
-				if ( !( $value instanceof Opus_Search_Filter_Base ) ) {
-					throw new InvalidArgumentException( 'invalid filter' );
+				if ( !( $value instanceof Base ) ) {
+					throw new \InvalidArgumentException( 'invalid filter' );
 				}
 
 				$this->_data[$name] = $value;
@@ -258,18 +261,18 @@ class Opus_Search_Query {
 
 			case 'facet' :
 				if ( $adding ) {
-					throw new InvalidArgumentException( 'invalid parameter access on ' . $name );
+					throw new \InvalidArgumentException( 'invalid parameter access on ' . $name );
 				}
 
-				if ( !( $value instanceof Opus_Search_Facet_Set ) ) {
-					throw new InvalidArgumentException( 'invalid facet options' );
+				if ( !( $value instanceof Set ) ) {
+					throw new \InvalidArgumentException( 'invalid facet options' );
 				}
 
 				$this->_data[$name] = $value;
 				break;
 
 			case 'subfilters' :
-				throw new RuntimeException( 'invalid access on sub filters' );
+				throw new \RuntimeException( 'invalid access on sub filters' );
 		}
 
 		return $this;
@@ -279,15 +282,18 @@ class Opus_Search_Query {
 		return $this->get( $name );
 	}
 
-	public function __isset( $name ) {
+	public function __isset( $name )
+    {
 		return !is_null( $this->get( $name ) );
 	}
 
-	public function __set( $name, $value ) {
+	public function __set( $name, $value )
+    {
 		$this->set( $name, $value, false );
 	}
 
-	public function __call( $method, $arguments ) {
+	public function __call( $method, $arguments )
+    {
 		if ( preg_match( '/^(get|set|add)([a-z]+)$/i', $method, $matches ) ) {
 			$property = $this->isValidParameter( $matches[2] );
 			switch ( strtolower( $matches[1] ) ) {
@@ -304,7 +310,7 @@ class Opus_Search_Query {
 			}
 		}
 
-		throw new RuntimeException( 'invalid method: ' . $method );
+		throw new \RuntimeException( 'invalid method: ' . $method );
 	}
 
 	/**
@@ -315,12 +321,13 @@ class Opus_Search_Query {
 	 * @param bool $reset true for dropping previously declared sorting
 	 * @return $this fluent interface
 	 */
-	public function addSorting( $field, $ascending = true, $reset = false ) {
+	public function addSorting( $field, $ascending = true, $reset = false )
+    {
 		$fields    = $this->normalizeFields( $field );
 		$ascending = $this->normalizeDirection( $ascending );
 
 		if ( !count( $fields ) ) {
-			throw new InvalidArgumentException( 'missing field for sorting result' );
+			throw new \InvalidArgumentException( 'missing field for sorting result' );
 		}
 
 		if ( $reset || !is_array( $this->_data['sort'] ) ) {
@@ -329,7 +336,7 @@ class Opus_Search_Query {
 
 		foreach ( $fields as $field ) {
 			if ( $field === '*' ) {
-				throw new InvalidArgumentException( 'invalid request for sorting by all fields (*)' );
+				throw new \InvalidArgumentException( 'invalid request for sorting by all fields (*)' );
 			}
 
 			$this->_data['sort'][$field] = $ascending ? 'asc' : 'desc';
@@ -353,12 +360,12 @@ class Opus_Search_Query {
 	 *       @see http://wiki.apache.org/solr/CommonQueryParameters#fq
 	 *
 	 * @param string $name name of query (used for server-side caching)
-	 * @param Opus_Search_Filter_Base $subFilter filter to be satisfied by all matching documents in addition
+	 * @param Base $subFilter filter to be satisfied by all matching documents in addition
 	 * @return $this fluent interface
 	 */
-	public function setSubFilter( $name, Opus_Search_Filter_Base $subFilter ) {
+	public function setSubFilter( $name, Base $subFilter ) {
 		if ( !is_string( $name ) || !$name ) {
-			throw new InvalidArgumentException( 'invalid sub filter name' );
+			throw new \InvalidArgumentException( 'invalid sub filter name' );
 		}
 
 		if ( !is_array( $this->_data['subfilters'] ) ) {
@@ -383,7 +390,7 @@ class Opus_Search_Query {
 	 */
 	public function removeSubFilter( $name ) {
 		if ( !is_string( $name ) || !$name ) {
-			throw new InvalidArgumentException( 'invalid sub filter name' );
+			throw new \InvalidArgumentException( 'invalid sub filter name' );
 		}
 
 		if ( is_array( $this->_data['subfilters'] ) ) {
@@ -402,17 +409,19 @@ class Opus_Search_Query {
 	/**
 	 * Retrieves named map of subfilters to include on querying search engine.
 	 *
-	 * @return Opus_Search_Filter_Base[]
+	 * @return Base[]
 	 */
-	public function getSubFilters() {
+	public function getSubFilters()
+    {
 		return $this->_data['subfilters'];
 	}
 
-	public static function getParameterDefault( $name, $fallbackIfMissing, $oldName = null ) {
-		$config   = Opus_Search_Config::getDomainConfiguration();
+	public static function getParameterDefault( $name, $fallbackIfMissing, $oldName = null )
+    {
+		$config   = Config::getDomainConfiguration();
 		$defaults = $config->parameterDefaults;
 
-		if ( $defaults instanceof Zend_Config ) {
+		if ( $defaults instanceof \Zend_Config ) {
 			return $defaults->get( $name, $fallbackIfMissing );
 		}
 
@@ -428,7 +437,8 @@ class Opus_Search_Query {
 	 *
 	 * @return int
 	 */
-	public static function getDefaultStart() {
+	public static function getDefaultStart()
+    {
 		return static::getParameterDefault( 'start', 0 );
 	}
 
@@ -437,7 +447,8 @@ class Opus_Search_Query {
 	 *
 	 * @return int
 	 */
-	public static function getDefaultRows() {
+	public static function getDefaultRows()
+    {
 		return static::getParameterDefault( 'rows', 10, 'numberOfDefaultSearchResults' );
 	}
 
@@ -446,7 +457,8 @@ class Opus_Search_Query {
 	 *
 	 * @return string[]
 	 */
-	public static function getDefaultSorting() {
+	public static function getDefaultSorting()
+    {
 		$sorting = static::getParameterDefault( 'sortField', 'score desc' );
 
 		$parts = preg_split( '/[\s,]+/', trim( $sorting ), null, PREG_SPLIT_NO_EMPTY );
@@ -472,7 +484,8 @@ class Opus_Search_Query {
 	 *
 	 * @return string
 	 */
-	public static function getDefaultSortingField() {
+	public static function getDefaultSortingField()
+    {
 		$sorting = static::getDefaultSorting();
 		return $sorting[0];
 	}

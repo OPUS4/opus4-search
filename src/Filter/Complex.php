@@ -27,11 +27,13 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace Opus\Search\Filter;
+
+use Opus\Search\Filtering;
 
 /**
  * Describes complex term describing union or intersection of several contained
@@ -41,7 +43,7 @@
  * actually used search engine.
  */
 
-abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
+abstract class Complex extends Base {
 
 	protected $negated = false;
 
@@ -62,13 +64,15 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 * @param Opus_Search_Filtering $filter
 	 * @return $this
 	 */
-	public function addFilter( Opus_Search_Filtering $filter ) {
+	public function addFilter(Filtering $filter)
+    {
 		$this->conditions[] = $filter;
 
 		return $this;
 	}
 
-	public function createComplexFilter() {
+	public function createComplexFilter()
+    {
 		return new static();
 	}
 
@@ -78,10 +82,11 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 * @param string $fieldName name of field simple filter applies on
 	 * @param mixed $operator one out of Opus_Search_Filter_Simple::COMPARE_* constants
 	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
+	 * @return Simple
 	 */
-	public function createSimpleFilter( $fieldName, $operator, $addImplicitly = true ) {
-		$simple = new Opus_Search_Filter_Simple( $fieldName, $operator );
+	public function createSimpleFilter( $fieldName, $operator, $addImplicitly = true )
+    {
+		$simple = new Simple( $fieldName, $operator );
 
 		if ( $addImplicitly ) {
 			$this->addFilter( $simple );
@@ -96,10 +101,11 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 *
 	 * @param string $fieldName name of field simple filter applies on
 	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
+	 * @return Simple
 	 */
-	public function createSimpleEqualityFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_EQUALITY, $addImplicitly );
+	public function createSimpleEqualityFilter( $fieldName, $addImplicitly = true )
+    {
+		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_EQUALITY, $addImplicitly );
 	}
 
 	/**
@@ -108,10 +114,11 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 *
 	 * @param string $fieldName name of field simple filter applies on
 	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
+	 * @return Simple
 	 */
-	public function createSimpleInequalityFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_INEQUALITY, $addImplicitly );
+	public function createSimpleInequalityFilter( $fieldName, $addImplicitly = true )
+    {
+		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_INEQUALITY, $addImplicitly );
 	}
 
 	/**
@@ -120,10 +127,11 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 *
 	 * @param string $fieldName name of field simple filter applies on
 	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
+	 * @return Simple
 	 */
-	public function createSimpleSimilarityFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_SIMILARITY, $addImplicitly );
+	public function createSimpleSimilarityFilter( $fieldName, $addImplicitly = true )
+    {
+		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_SIMILARITY, $addImplicitly );
 	}
 
 	/**
@@ -132,10 +140,11 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 *
 	 * @param string $fieldName name of field simple filter applies on
 	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
+	 * @return Simple
 	 */
-	public function createSimpleLessFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_LESS, $addImplicitly );
+	public function createSimpleLessFilter( $fieldName, $addImplicitly = true )
+    {
+		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_LESS, $addImplicitly );
 	}
 
 	/**
@@ -144,10 +153,11 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 *
 	 * @param string $fieldName name of field simple filter applies on
 	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
+	 * @return Simple
 	 */
-	public function createSimpleLessOrEqualFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_LESS_OR_EQUAL, $addImplicitly );
+	public function createSimpleLessOrEqualFilter( $fieldName, $addImplicitly = true )
+    {
+		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_LESS_OR_EQUAL, $addImplicitly );
 	}
 
 	/**
@@ -156,10 +166,11 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 *
 	 * @param string $fieldName name of field simple filter applies on
 	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
+	 * @return Simple
 	 */
-	public function createSimpleGreaterFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_GREATER, $addImplicitly );
+	public function createSimpleGreaterFilter( $fieldName, $addImplicitly = true )
+    {
+		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_GREATER, $addImplicitly );
 	}
 
 	/**
@@ -170,8 +181,9 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
 	 * @return Opus_Search_Filter_Simple
 	 */
-	public function createSimpleGreaterOrEqualFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_GREATER_OR_EQUAL, $addImplicitly );
+	public function createSimpleGreaterOrEqualFilter( $fieldName, $addImplicitly = true )
+    {
+		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_GREATER_OR_EQUAL, $addImplicitly );
 	}
 
 	/**
@@ -179,7 +191,8 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 *
 	 * @return $this
 	 */
-	public function setSatisfyAll() {
+	public function setSatisfyAll()
+    {
 		$this->negated = false;
 		$this->union   = false;
 
@@ -191,7 +204,8 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 *
 	 * @return $this
 	 */
-	public function setSatisfyAny() {
+	public function setSatisfyAny()
+    {
 		$this->negated = false;
 		$this->union   = true;
 
@@ -204,7 +218,8 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 *
 	 * @return $this
 	 */
-	public function setSatisfyNone() {
+	public function setSatisfyNone()
+    {
 		$this->negated = true;
 		$this->union   = true;
 
@@ -218,7 +233,8 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 *
 	 * @return bool
 	 */
-	public function isRequestingUnion() {
+	public function isRequestingUnion()
+    {
 		return !!$this->union;
 	}
 
@@ -228,14 +244,16 @@ abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
 	 *
 	 * @return bool
 	 */
-	public function isGloballyNegated() {
+	public function isGloballyNegated()
+    {
 		return !!$this->negated;
 	}
 
 	/**
 	 * @return Opus_Search_Filtering[]
 	 */
-	public function getConditions() {
+	public function getConditions()
+    {
 		return $this->conditions;
 	}
 }

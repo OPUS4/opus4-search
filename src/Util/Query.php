@@ -31,10 +31,14 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Search\Util;
+
+use Opus\Search\Exception;
+
 /**
  * Encapsulates all parameter values needed to build the Solr query URL.
  */
-class Opus_Search_Util_Query
+class Query
 {
 
     // currently available search types
@@ -76,9 +80,10 @@ class Opus_Search_Util_Query
     /**
      *
      * @param string $searchType
-     * @throws Opus_Search_Exception If $searchType is not supported.
+     * @throws Exception If $searchType is not supported.
      */
-    public function  __construct($searchType = self::SIMPLE) {
+    public function  __construct($searchType = self::SIMPLE)
+    {
         $this->invalidQCache();
 
         if ($searchType === self::SIMPLE || $searchType === self::ADVANCED || $searchType === self::ALL_DOCS) {
@@ -104,7 +109,7 @@ class Opus_Search_Util_Query
             return;
         }
 
-        throw new Opus_Search_Exception("searchtype $searchType is not supported");
+        throw new Exception("searchtype $searchType is not supported");
     }
 
     public function getSearchType() {
@@ -128,7 +133,7 @@ class Opus_Search_Util_Query
     }
 
     public static function getDefaultRows() {
-        return Opus_Search_Query::getDefaultRows();
+        return \Opus\Search\Query::getDefaultRows();
     }
 
     public function getRows() {
@@ -143,7 +148,8 @@ class Opus_Search_Util_Query
         return $this->sortField;
     }
 
-    public function setSortField($sortField) {
+    public function setSortField($sortField)
+    {
         if ($sortField === self::DEFAULT_SORTFIELD) {
             if ($this->searchType === self::ALL_DOCS) {
                 // change the default sortfield for searchtype all
@@ -240,7 +246,7 @@ class Opus_Search_Util_Query
     /**
      *
      * @param string $name
-     * @return Returns null if no values was specified for the given field name.
+     * @return null if no values was specified for the given field name.
      */
     public function getField($name) {
         if (array_key_exists($name, $this->fieldValues)) {
@@ -252,7 +258,7 @@ class Opus_Search_Util_Query
     /**
      *
      * @param string $fieldname
-     * @return Returns null if no modifier was specified for the given field name.
+     * @return null if no modifier was specified for the given field name.
      */
     public function getModifier($fieldname) {
         if (array_key_exists($fieldname, $this->modifier)) {
@@ -416,14 +422,16 @@ class Opus_Search_Util_Query
      *
      * @param boolean $returnIdsOnly
      */
-    public function setReturnIdsOnly($returnIdsOnly) {
+    public function setReturnIdsOnly($returnIdsOnly)
+    {
         $this->returnIdsOnly = $returnIdsOnly;
     }
 
     /**
      * @return boolean
      */
-    public function isReturnIdsOnly() {
+    public function isReturnIdsOnly()
+    {
         return $this->returnIdsOnly;
     }
 }

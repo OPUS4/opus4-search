@@ -27,11 +27,13 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace Opus\Search\Facet;
+
+use Opus\Search\Config;
 
 /**
  * This class implements API for generically work with search engines supporting
@@ -45,7 +47,8 @@
  *       @see Opus_Search_Searchable::namedSearch()
  */
 
-class Opus_Search_Facet_Set {
+class Set
+{
 
     const GLOBABL_KEY = '__global__';
 
@@ -70,13 +73,14 @@ class Opus_Search_Facet_Set {
 	 * @param string $serviceDomain name of search engine domain used for selecting proper configuration
 	 * @throws Zend_Config_Exception
 	 */
-	protected function __construct( $facetSetName = 'default', $serviceDomain = null ) {
+	protected function __construct( $facetSetName = 'default', $serviceDomain = null )
+    {
 		if ( !is_string( $facetSetName ) || !( $facetSetName = trim( $facetSetName ) ) ) {
-			throw new InvalidArgumentException( 'invalid facet set name' );
+			throw new \InvalidArgumentException( 'invalid facet set name' );
 		}
 
-		$this->config[self::LIMIT_KEY] = Opus_Search_Config::getFacetLimits( $facetSetName, $serviceDomain );
-		$this->config[self::SORT_KEY] = Opus_Search_Config::getFacetSorting( $facetSetName, $serviceDomain );
+		$this->config[self::LIMIT_KEY] = Config::getFacetLimits( $facetSetName, $serviceDomain );
+		$this->config[self::SORT_KEY] = Config::getFacetSorting( $facetSetName, $serviceDomain );
 
 		$this->name = $facetSetName;
 	}
@@ -88,7 +92,8 @@ class Opus_Search_Facet_Set {
 	 * @see Opus_Search_Query::setFacet()
 	 * @return Opus_Search_Facet_Set
 	 */
-	public static function create( $facetSetName = 'default', $serviceDomain = null ) {
+	public static function create( $facetSetName = 'default', $serviceDomain = null )
+    {
 		return new static( $facetSetName, $serviceDomain );
 	}
 
@@ -102,7 +107,8 @@ class Opus_Search_Facet_Set {
 	 * @param int[]|int $limits map of field names into limits or single global limit
 	 * @return $this fluent interface
 	 */
-	public function overrideLimits( $limits )  {
+	public function overrideLimits( $limits )
+    {
 		if ( is_array( $limits ) ) {
 			// replace field-specific limits but keep previously cached global
 			// limit unless provided set is overriding that as well.
@@ -113,7 +119,7 @@ class Opus_Search_Facet_Set {
 			$this->config[self::LIMIT_KEY] = array( self::GLOBABL_KEY => intval( $limits ) );
 		}
         else {
-			throw new InvalidArgumentException( 'invalid limits for overriding configuration' );
+			throw new \InvalidArgumentException( 'invalid limits for overriding configuration' );
 		}
 
 		return $this;
@@ -124,7 +130,8 @@ class Opus_Search_Facet_Set {
 	 *
 	 * @return string
 	 */
-	public function getSetName() {
+	public function getSetName()
+    {
 		return $this->name;
 	}
 
@@ -134,13 +141,13 @@ class Opus_Search_Facet_Set {
 	 * @param string $name name of field to add (existing field is returned if it's been added before)
 	 * @return Opus_Search_Facet_Field description of added or already existing field
 	 */
-	public function addField( $name ) {
+	public function addField( $name )
+    {
 		if ( array_key_exists( $name, $this->fields ) ) {
 			return $this->fields[$name];
 		}
 
-		$field = Opus_Search_Facet_Field::create( $name )
-			->setMinCount( 1 );
+		$field = Field::create( $name )->setMinCount( 1 );
 
 		if ( array_key_exists( $name, $this->config[self::SORT_KEY] ) ) {
 			$field->setSort( $this->config[self::SORT_KEY][$name] );
@@ -162,9 +169,10 @@ class Opus_Search_Facet_Set {
 	}
 
 	/**
-	 * @return Opus_Search_Facet_Field[] named map of facet fields
+	 * @return Field[] named map of facet fields
 	 */
-	public function getFields() {
+	public function getFields()
+    {
 		return $this->fields;
 	}
 
@@ -175,7 +183,8 @@ class Opus_Search_Facet_Set {
 	 * @param string|string[] $input one or more field names or comma-separated lists of fields' names
 	 * @return string[] list of field names
 	 */
-	protected function normalizeFields( $input )  {
+	protected function normalizeFields( $input )
+    {
 		if ( !is_array( $input ) ) {
 			$input = array( $input );
 		}
@@ -184,13 +193,13 @@ class Opus_Search_Facet_Set {
 
 		foreach ( $input as $field ) {
 			if ( !is_string( $field ) ) {
-				throw new InvalidArgumentException( 'invalid type of field selector' );
+				throw new \InvalidArgumentException( 'invalid type of field selector' );
 			}
 
 			$fieldNames = preg_split( '/[\s,]+/', $field, null, PREG_SPLIT_NO_EMPTY );
 			foreach ( $fieldNames as $name ) {
 				if ( !preg_match( '/^[a-z_][a-z0-9_]*$/i', $name ) ) {
-					throw new InvalidArgumentException( 'malformed field selector: ' . $name );
+					throw new \InvalidArgumentException( 'malformed field selector: ' . $name );
 				}
 
 				$output[] = $name;
@@ -198,7 +207,7 @@ class Opus_Search_Facet_Set {
 		}
 
 		if ( !count( $input ) ) {
-			throw new InvalidArgumentException( 'missing field selector' );
+			throw new \InvalidArgumentException( 'missing field selector' );
 		}
 
 		return $output;
@@ -211,7 +220,8 @@ class Opus_Search_Facet_Set {
 	 * @param bool $adding true for adding given fields to previously declared fields instead of replacing those
 	 * @return $this fluent interface
 	 */
-	public function setFields( $fieldNames, $adding = false ) {
+	public function setFields( $fieldNames, $adding = false )
+    {
 		if ( !$adding ) {
 			$this->fields = array();
 		}
@@ -236,7 +246,8 @@ class Opus_Search_Facet_Set {
 	 * @param int $limit limit to set on every given field in input
 	 * @return array|null
 	 */
-	public static function getFacetLimitsFromInput( $input, $limit = 10000 ) {
+	public static function getFacetLimitsFromInput( $input, $limit = 10000 )
+    {
 		$limit = intval( $limit );
 
 		$limits = array();
@@ -246,7 +257,7 @@ class Opus_Search_Facet_Set {
 		}
 
 		if ( isset( $input['facetNumber_year'] ) ) {
-			if ( in_array( 'year_inverted', Opus_Search_Config::getFacetFields() ) ) {
+			if ( in_array( 'year_inverted', Config::getFacetFields() ) ) {
 				// 'year_inverted' is used in framework and result is returned as 'year'
 				$limits['year_inverted'] = $limit;
 			}
@@ -278,7 +289,8 @@ class Opus_Search_Facet_Set {
 	 *
 	 * @return $this fluent interface
 	 */
-	public function setFacetOnly() {
+	public function setFacetOnly()
+    {
 		$this->facetOnly = true;
 
 		return $this;
@@ -289,7 +301,8 @@ class Opus_Search_Facet_Set {
 	 *
 	 * @return bool true if search is limited, false otherwise
 	 */
-	public function isFacetOnly() {
+	public function isFacetOnly()
+    {
 		return $this->facetOnly;
 	}
 }

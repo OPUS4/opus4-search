@@ -27,17 +27,18 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace Opus\Search\Result;
 
 /**
  * Describes local document as a match in context of a related search query.
  */
 
-class Opus_Search_Result_Match {
+class Match
+{
 
 	/**
 	 * @var mixed
@@ -45,7 +46,7 @@ class Opus_Search_Result_Match {
 	protected $id = null;
 
 	/**
-	 * @var Opus_Document
+	 * @var \Opus_Document
 	 */
 	protected $doc = null;
 
@@ -55,7 +56,7 @@ class Opus_Search_Result_Match {
 	protected $score = null;
 
 	/**
-	 * @var Opus_Date
+	 * @var \Opus_Date
 	 */
 	protected $serverDateModified = null;
 
@@ -84,13 +85,13 @@ class Opus_Search_Result_Match {
 	 */
 	protected $data = array();
 
-
-
-	public function __construct( $matchId ) {
+	public function __construct( $matchId )
+    {
 		$this->id = $matchId;
 	}
 
-	public static function create( $matchId ) {
+	public static function create( $matchId )
+    {
 		return new static( $matchId );
 	}
 
@@ -99,19 +100,21 @@ class Opus_Search_Result_Match {
 	 *
 	 * @return mixed
 	 */
-	public function getId() {
+	public function getId()
+    {
 		return $this->id;
 	}
 
 	/**
 	 * Retrieves instance of Opus_Document related to current match.
 	 *
-	 * @throws Opus_Model_NotFoundException
-	 * @return Opus_Document
+	 * @throws \Opus_Model_NotFoundException
+	 * @return \Opus_Document
 	 */
-	public function getDocument() {
+	public function getDocument()
+    {
 		if ( is_null( $this->doc ) ) {
-			$this->doc = new Opus_Document( $this->id );
+			$this->doc = new \Opus_Document( $this->id );
 		}
 
 		return $this->doc;
@@ -123,9 +126,10 @@ class Opus_Search_Result_Match {
 	 * @param $score
 	 * @return $this
 	 */
-	public function setScore( $score ) {
+	public function setScore( $score )
+    {
 		if ( !is_null( $this->score ) ) {
-			throw new RuntimeException( 'score has been set before' );
+			throw new \RuntimeException( 'score has been set before' );
 		}
 
 		$this->score = floatval( $score );
@@ -138,7 +142,8 @@ class Opus_Search_Result_Match {
 	 *
 	 * @return float|null null if score was not set
 	 */
-	public function getScore() {
+	public function getScore()
+    {
 		return $this->score;
 	}
 
@@ -152,7 +157,8 @@ class Opus_Search_Result_Match {
 	 * @deprecated
 	 * @return string
 	 */
-	public function getSeriesNumber( $seriesId ) {
+	public function getSeriesNumber( $seriesId )
+    {
 		if ( !$seriesId ) {
 			return null;
 		}
@@ -181,12 +187,13 @@ class Opus_Search_Result_Match {
 	 * @param {int} $timestamp Unix timestamp of last modification tracked in search index
 	 * @return $this fluent interface
 	 */
-	public function setServerDateModified( $timestamp ) {
+	public function setServerDateModified( $timestamp )
+    {
 		if ( !is_null( $this->serverDateModified ) ) {
-			throw new RuntimeException( 'timestamp of modification has been set before' );
+			throw new \RuntimeException( 'timestamp of modification has been set before' );
 		}
 
-		$this->serverDateModified = new Opus_Date();
+		$this->serverDateModified = new \Opus_Date();
 
 		if ( ctype_digit( $timestamp = trim( $timestamp ) ) ) {
 			$this->serverDateModified->setUnixTimestamp( intval( $timestamp ) );
@@ -206,7 +213,8 @@ class Opus_Search_Result_Match {
 	 *
 	 * @return Opus_Date
 	 */
-	public function getServerDateModified() {
+	public function getServerDateModified()
+    {
 		if ( !is_null( $this->serverDateModified ) ) {
 			return $this->serverDateModified;
 		}
@@ -214,9 +222,10 @@ class Opus_Search_Result_Match {
 		return $this->getDocument()->getServerDateModified();
 	}
 
-	public function setFulltextIDsSuccess( $value ) {
+	public function setFulltextIDsSuccess( $value )
+    {
 		if ( !is_null( $this->fulltextIdSuccess ) ) {
-			throw new RuntimeException( 'successful fulltext IDs have been set before' );
+			throw new \RuntimeException( 'successful fulltext IDs have been set before' );
 		}
 
 		$this->fulltextIdSuccess = $value;
@@ -224,7 +233,8 @@ class Opus_Search_Result_Match {
 		return $this;
 	}
 
-	public function getFulltextIDsSuccess() {
+	public function getFulltextIDsSuccess()
+    {
 		if ( !is_null( $this->fulltextIdSuccess ) ) {
 			return $this->fulltextIdSuccess;
 		}
@@ -232,9 +242,10 @@ class Opus_Search_Result_Match {
 		return null;
 	}
 
-	public function setFulltextIDsFailure( $value ) {
+	public function setFulltextIDsFailure( $value )
+    {
 		if ( !is_null( $this->fulltextIdFailure ) ) {
-			throw new RuntimeException( 'failed fulltext IDs have been set before' );
+			throw new \RuntimeException( 'failed fulltext IDs have been set before' );
 		}
 
 		$this->fulltextIdFailure = $value;
@@ -242,7 +253,8 @@ class Opus_Search_Result_Match {
 		return $this;
 	}
 
-	public function getFulltextIDsFailure() {
+	public function getFulltextIDsFailure()
+    {
 		if ( !is_null( $this->fulltextIdFailure ) ) {
 			return $this->fulltextIdFailure;
 		}
@@ -258,7 +270,8 @@ class Opus_Search_Result_Match {
 	 * @param mixed[] $args arguments used on invoking that method
 	 * @return mixed
 	 */
-	public function __call( $method, $args ) {
+	public function __call( $method, $args )
+    {
 		return call_user_func_array( array( $this->getDocument(), $method ), $args );
 	}
 
@@ -269,7 +282,8 @@ class Opus_Search_Result_Match {
 	 * @param string $name name of locally missing/protected property
 	 * @return mixed value of property
 	 */
-	public function __get( $name ) {
+	public function __get( $name )
+    {
 		return $this->getDocument()->{$name};
 	}
 
@@ -282,7 +296,8 @@ class Opus_Search_Result_Match {
 	 * @param mixed $value
 	 * @return $this fluent interface
 	 */
-	public function setAsset( $name, $value ) {
+	public function setAsset( $name, $value )
+    {
 		$this->data[$name] = $value;
 
 		return $this;
@@ -295,7 +310,8 @@ class Opus_Search_Result_Match {
 	 * @param string $name
 	 * @return mixed|null
 	 */
-	public function getAsset( $name ) {
+	public function getAsset( $name )
+    {
 		return isset($this->data[$name]) ? $this->data[$name] : null;
 	}
 
@@ -305,7 +321,8 @@ class Opus_Search_Result_Match {
 	 * @param string $name name of asset to test
 	 * @return bool true if asset was assigned to current match
 	 */
-	public function hasAsset( $name ) {
+	public function hasAsset( $name )
+    {
 		return array_key_exists( $name, $this->data );
 	}
 }

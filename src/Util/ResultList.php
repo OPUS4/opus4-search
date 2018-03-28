@@ -31,7 +31,10 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Search_Util_ResultList {
+namespace Opus\Search\Util;
+
+class ResultList
+{
 
     private $results;
     private $numberOfHits;
@@ -40,11 +43,14 @@ class Opus_Search_Util_ResultList {
 
     /**
      *
-     * @var Zend_Log
+     * @var \Zend_Log
      */
     private $log;
 
-    public function __construct($results = array(), $numberOfHits = 0, $queryTime = 0, $facets = array(), $validateDocIds = true, $log = null) {
+    public function __construct(
+        $results = array(), $numberOfHits = 0, $queryTime = 0, $facets = array(), $validateDocIds = true, $log = null
+    )
+    {
         $this->log = $log;
         $this->numberOfHits = $numberOfHits;
         $this->queryTime = $queryTime;
@@ -58,7 +64,7 @@ class Opus_Search_Util_ResultList {
                 foreach ($results as $result) {
                     array_push($docIds, $result->getId());
                 }
-                $finder = new Opus_DocumentFinder();
+                $finder = new \Opus_DocumentFinder();
                 $finder->setServerState('published');
                 $finder->setIdSubset($docIds);
                 $docIdsDB = $finder->ids();
@@ -74,7 +80,10 @@ class Opus_Search_Util_ResultList {
                 $resultsSize = count($this->results);
                 if ($notInDB > 0 && !is_null($this->log)) {
                     $inDB = $resultsSize - $notInDB;
-                    $this->log->err("found inconsistency between database and solr index: index returns $resultsSize documents, but only " . $inDB . " found in database");
+                    $this->log->err(
+                        "found inconsistency between database and solr index: index returns " .
+                        "$resultsSize documents, but only " . $inDB . " found in database"
+                    );
                 }
             }
             else {
@@ -110,7 +119,8 @@ class Opus_Search_Util_ResultList {
 
     public function  __toString() {
         // TODO
-        return "Result list consisting of " . $this->numberOfHits . " results retrieved in " . $this->queryTime . " milliseconds.";
+        return "Result list consisting of " . $this->numberOfHits . " results retrieved in "
+            . $this->queryTime . " milliseconds.";
     }
 }
 

@@ -27,11 +27,11 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace Opus\Search;
 
 /**
  * Indicates invalid query either detected client-side or due to related
@@ -40,12 +40,16 @@
  * TODO überlappungen zu anderen Exceptions
  */
 
-class Opus_Search_InvalidQueryException extends Opus_Search_Exception {
-	public function __construct( $message = "", $code = 0, Exception $previous = null ) {
+class InvalidQueryException extends Exception
+{
+
+	public function __construct( $message = "", $code = 0, \Exception $previous = null )
+    {
 		parent::__construct( $message, $code, $previous );
 	}
 
-	public function __toString() {
+	public function __toString()
+    {
 		$previousMessage = '';
 		if ( !is_null( $this->getPrevious() ) ) {
 			$previousMessage = $this->getPrevious()->getMessage();

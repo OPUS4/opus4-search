@@ -27,10 +27,13 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus\Search\Solr\Filter;
+
+use Opus\Search\Filter\Base;
 
 /**
  * Implements support for passing raw Solr query terms.
@@ -39,15 +42,18 @@
  *
  * @deprecated
  */
-class Opus_Search_Solr_Filter_Raw extends Opus_Search_Filter_Base {
+class Raw extends Base
+{
 
     protected $rawTerm;
 
-	public function __construct( $rawTerm ) {
+	public function __construct( $rawTerm )
+    {
 		$this->rawTerm = $rawTerm;
 	}
 
-	public function compile( $context ) {
+	public function compile( $context )
+    {
 		return $this->rawTerm;
 	}
 }

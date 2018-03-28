@@ -27,17 +27,17 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace Opus\Search\Result;
 
 /**
  * Implements API for describing successful response to search query.
  */
-
-class Opus_Search_Result_Base {
+class Base
+{
 
 	protected $data = array(
 		'matches'   => null,
@@ -48,15 +48,13 @@ class Opus_Search_Result_Base {
 
 	protected $validated = false;
 
-
-
-	public function __construct() {
-	}
+	public function __construct() {}
 
 	/**
-	 * @return Opus_Search_Result_Base
+	 * @return Base
 	 */
-	public static function create() {
+	public static function create()
+    {
 		return new static();
 	}
 
@@ -64,14 +62,15 @@ class Opus_Search_Result_Base {
 	 * Assigns matches returned in response to search query.
 	 *
 	 * @param mixed $documentId ID of document considered match of related search query
-	 * @return Opus_Search_Result_Match
+	 * @return Match
 	 */
-	public function addMatch( $documentId ) {
+	public function addMatch( $documentId )
+    {
 		if ( !is_array( $this->data['matches'] ) ) {
 			$this->data['matches'] = array();
 		}
 
-		$match = Opus_Search_Result_Match::create( $documentId );
+		$match = Match::create( $documentId );
 
 		$this->data['matches'][] = $match;
 
@@ -87,13 +86,14 @@ class Opus_Search_Result_Base {
 	 * @param int $allMatchesCount number of all matching documents
 	 * @return $this fluent interface
 	 */
-	public function setAllMatchesCount( $allMatchesCount ) {
+	public function setAllMatchesCount( $allMatchesCount )
+    {
 		if ( !is_null( $this->data['count'] ) ) {
-			throw new RuntimeException( 'must not set count of all matches multiple times' );
+			throw new \RuntimeException( 'must not set count of all matches multiple times' );
 		}
 
 		if ( !ctype_digit( trim( $allMatchesCount ) ) ) {
-			throw new InvalidArgumentException( 'invalid number of overall matches' );
+			throw new \InvalidArgumentException( 'invalid number of overall matches' );
 		}
 
 		$this->data['count'] = intval( $allMatchesCount );
@@ -107,9 +107,10 @@ class Opus_Search_Result_Base {
 	 * @param string $time
 	 * @return $this fluent interface
 	 */
-	public function setQueryTime( $time ) {
+	public function setQueryTime( $time )
+    {
 		if ( !is_null( $this->data['querytime'] ) ) {
-			throw new RuntimeException( 'must not set query time multiple times' );
+			throw new \RuntimeException( 'must not set query time multiple times' );
 		}
 
 		if ( !is_null( $time ) ) {
@@ -129,7 +130,8 @@ class Opus_Search_Result_Base {
      *
      * TODO special year_inverted facet handling should be moved to separate class
 	 */
-	public function addFacet( $facetField, $text, $count ) {
+	public function addFacet( $facetField, $text, $count )
+    {
 		$facetField = strval( $facetField );
 
         // remove inverted sorting prefix from year values
@@ -151,7 +153,7 @@ class Opus_Search_Result_Base {
 			$this->data['facets'][$facetField] = array();
 		}
 
-		$this->data['facets'][$facetField][] = new Opus_Search_Result_Facet( $text, $count );
+		$this->data['facets'][$facetField][] = new Facet( $text, $count );
 
 		return $this;
 	}
@@ -159,9 +161,10 @@ class Opus_Search_Result_Base {
 	/**
 	 * Retrieves results of faceted search.
 	 *
-	 * @return Opus_Search_Result_Facet[][] map of fields' names into sets of facet result per field
+	 * @return Facet[][] map of fields' names into sets of facet result per field
 	 */
-	public function getFacets() {
+	public function getFacets()
+    {
 		return is_null( $this->data['facets'] ) ? array() : $this->data['facets'];
 	}
 
@@ -169,9 +172,10 @@ class Opus_Search_Result_Base {
 	 * Retrieves set of facet results on single field selected by name.
 	 *
 	 * @param string $fieldName name of field returned facet result is related to
-	 * @return Opus_Search_Result_Facet[] set of facet results on selected field
+	 * @return Facet[] set of facet results on selected field
 	 */
-	public function getFacet( $fieldName ) {
+	public function getFacet( $fieldName )
+    {
 		if ( $this->data['facets'] && array_key_exists( $fieldName, $this->data['facets'] ) ) {
 			return $this->data['facets'][$fieldName];
 		}
@@ -183,9 +187,10 @@ class Opus_Search_Result_Base {
 	 * Retrieves set of matching and locally existing documents returned in
 	 * response to some search query.
 	 *
-	 * @return Opus_Search_Result_Match[]
+	 * @return Match[]
 	 */
-	public function getReturnedMatches() {
+	public function getReturnedMatches()
+    {
 		if ( is_null( $this->data['matches'] ) ) {
 			return array();
 		}
@@ -196,11 +201,11 @@ class Opus_Search_Result_Base {
 
 		foreach ( $this->data['matches'] as $match ) {
 			try {
-				/** @var Opus_Search_Result_Match $match */
+				/** @var Match $match */
 				$match->getDocument();
 				$matches[] = $match;
-			} catch ( Opus_Document_Exception $e ) {
-				Opus_Log::get()->warn( 'skipping matching but locally missing document #' . $match->getId() );
+			} catch ( \Opus_Document_Exception $e ) {
+				\Opus_Log::get()->warn( 'skipping matching but locally missing document #' . $match->getId() );
 			}
 		}
 
@@ -216,13 +221,14 @@ class Opus_Search_Result_Base {
 	 *
 	 * @return int[]
 	 */
-	public function getReturnedMatchingIds() {
+	public function getReturnedMatchingIds()
+    {
 		if ( is_null( $this->data['matches'] ) ) {
 			return array();
 		}
 
 		return array_map( function( $match ) {
-			/** @var Opus_Search_Result_Match $match */
+			/** @var Match $match */
 			return $match->getId();
 		}, $this->data['matches'] );
 	}
@@ -239,9 +245,10 @@ class Opus_Search_Result_Base {
 	 *       prefers "matches" over "results".
 	 *
 	 * @deprecated
-	 * @return Opus_Document[]
+	 * @return \Opus_Document[]
 	 */
-	public function getResults() {
+	public function getResults()
+    {
 		return $this->getReturnedMatches();
 	}
 
@@ -251,9 +258,10 @@ class Opus_Search_Result_Base {
 	 *
 	 * @return $this
 	 */
-	public function dropLocallyMissingMatches() {
+	public function dropLocallyMissingMatches()
+    {
 		if ( !$this->validated ) {
-			$finder = new Opus_DocumentFinder();
+			$finder = new \Opus_DocumentFinder();
 
 			$returnedIds = $this->getReturnedMatchingIds();
 			$existingIds = $finder
@@ -262,7 +270,11 @@ class Opus_Search_Result_Base {
 				->ids();
 
 			if ( count( $returnedIds ) !== count( $existingIds ) ) {
-				Opus_Log::get()->err( sprintf( "found inconsistency between database and search index: index returns %d documents, but only %d found in database", count( $returnedIds ), count( $existingIds ) ) );
+				\Opus_Log::get()->err(sprintf(
+				    "found inconsistency between database and search index: "
+                    . "index returns %d documents, but only %d found in database",
+                    count( $returnedIds ), count( $existingIds )
+                ));
 
 				// update set of returned matches internally
 				$this->data['matches'] = array();
@@ -286,9 +298,10 @@ class Opus_Search_Result_Base {
 	 *
 	 * @return int
 	 */
-	public function getAllMatchesCount() {
+	public function getAllMatchesCount()
+    {
 		if ( is_null( $this->data['count'] ) ) {
-			throw new RuntimeException( 'count of matches have not been provided yet' );
+			throw new \RuntimeException( 'count of matches have not been provided yet' );
 		}
 
 		return $this->data['count'];
@@ -302,7 +315,8 @@ class Opus_Search_Result_Base {
 	 * @deprecated
 	 * @return int
 	 */
-	public function getNumberOfHits() {
+	public function getNumberOfHits()
+    {
 		return $this->getAllMatchesCount();
 	}
 
@@ -311,12 +325,14 @@ class Opus_Search_Result_Base {
 	 *
 	 * @return mixed
 	 */
-	public function getQueryTime() {
+	public function getQueryTime()
+    {
 		return $this->data['querytime'];
 	}
 
 
-	public function __get( $name ) {
+	public function __get( $name )
+    {
 		switch ( strtolower( trim( $name ) ) ) {
 			case 'matches' :
 				return $this->getReturnedMatches();
@@ -328,8 +344,7 @@ class Opus_Search_Result_Base {
 				return $this->getQueryTime();
 
 			default :
-				throw new RuntimeException( 'invalid request for property ' . $name );
+				throw new \RuntimeException( 'invalid request for property ' . $name );
 		}
 	}
-
 }

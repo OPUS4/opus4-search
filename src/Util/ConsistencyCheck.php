@@ -27,12 +27,19 @@
  * @category    Framework
  * @package     Opus_Util
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_Util_ConsistencyCheck {
+namespace Opus\Search\Util;
+
+use Opus\Search\Exception;
+use Opus\Search\QueryFactory;
+use Opus\Search\Service;
+
+class ConsistencyCheck
+{
 
     private $logger;
 
@@ -47,13 +54,15 @@ class Opus_Util_ConsistencyCheck {
     private $numOfDeletions = 0;
 
 
-    public function __construct($logger = null) {
-        $this->logger = is_null($logger) ? Zend_Registry::get('Zend_Log') : $logger;
-        $this->searcher = Opus_Search_Service::selectSearchingService();
-        $this->indexer = Opus_Search_Service::selectIndexingService();
+    public function __construct($logger = null)
+    {
+        $this->logger = is_null($logger) ? \Zend_Registry::get('Zend_Log') : $logger;
+        $this->searcher = Service::selectSearchingService();
+        $this->indexer = Service::selectIndexingService();
     }
 
-    public function run() {
+    public function run()
+    {
         $runtime = microtime(true);
 
         $this->checkDatabase();
@@ -83,8 +92,9 @@ class Opus_Util_ConsistencyCheck {
      * database and Solr index.
      *
      */
-    private function checkDatabase() {
-        $finder = new Opus_DocumentFinder();
+    private function checkDatabase()
+    {
+        $finder = new \Opus_DocumentFinder();
         $finder->setServerState('published');
         $ids = $finder->ids();
 
@@ -92,9 +102,9 @@ class Opus_Util_ConsistencyCheck {
 
         foreach ($ids as $id) {
             try {
-                $doc = new Opus_Document($id);
+                $doc = new \Opus_Document($id);
             }
-            catch (Opus_Model_NotFoundException $e) {
+            catch (\Opus_Model_NotFoundException $e) {
                 // ignore: document was deleted from database in meantime
                 continue;
             }
@@ -102,7 +112,7 @@ class Opus_Util_ConsistencyCheck {
             $serverDataModified = $doc->getServerDateModified()->getUnixTimestamp();
 
             // retrieve document from index and compare serverDateModified fields
-            $query = Opus_Search_QueryFactory::selectDocumentById( $this->searcher, $id );
+            $query = QueryFactory::selectDocumentById( $this->searcher, $id );
             $result = $this->searcher->customSearch( $query );
 
 	        switch ( $result->getAllMatchesCount() ) {
@@ -136,16 +146,17 @@ class Opus_Util_ConsistencyCheck {
      * index.
      *
      */
-    private function checkSearchIndex() {
-	    $query = Opus_Search_QueryFactory::selectAllDocuments( $this->searcher );
+    private function checkSearchIndex()
+    {
+	    $query = QueryFactory::selectAllDocuments( $this->searcher );
 	    $result = $this->searcher->customSearch( $query );
 
         $results = $result->getReturnedMatchingIds();
         foreach ($results as $id) {
             try {
-                $doc = new Opus_Document($id);
+                $doc = new \Opus_Document($id);
             }
-            catch (Opus_Model_NotFoundException $e) {
+            catch (\Opus_Model_NotFoundException $e) {
                 $this->logger->info("inconsistency found for document $id: document is in Solr index, but is not in database.");
                 $this->numOfInconsistencies++;
                 if ($this->removeDocumentFromSearchIndex($id)) {
@@ -166,15 +177,16 @@ class Opus_Util_ConsistencyCheck {
     /**
      * Forces the reindexing of the given document.
      *
-     * @param Opus_Document $doc
+     * @param \Opus_Document $doc
      * @return bool Returns true, iff the given document was successfully updated in Solr index.
      */
-    private function forceReindexing($doc) {
+    private function forceReindexing($doc)
+    {
         try {
             $doc->unregisterPlugin('Opus_Document_Plugin_Index'); // prevent document from being indexed twice
             $this->indexer->addDocumentsToIndex( $doc );
         }
-        catch (Opus_Search_Exception $e) {
+        catch (Exception $e) {
             $this->logger->err('Could not force reindexing of document ' . $doc->getId() . ' : ' . $e->getMessage());
             return false;
         }
@@ -187,11 +199,12 @@ class Opus_Util_ConsistencyCheck {
      * @param int $id Document ID
      * @return bool Returns true, iff the given document was successfully deleted from Solr index.
      */
-    private function removeDocumentFromSearchIndex($id) {
+    private function removeDocumentFromSearchIndex($id)
+    {
         try {
             $this->indexer->removeDocumentsFromIndexById( $id );
         }
-        catch (Opus_Search_Exception $e) {
+        catch (Exception $e) {
             $this->logger->err('Could not delete document ' . $id . ' from index : ' . $e->getMessage());
             return false;
         }

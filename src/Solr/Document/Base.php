@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,14 +27,16 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-abstract class Opus_Search_Solr_Document_Base {
+namespace Opus\Search\Solr\Document;
 
-	public function __construct( Zend_Config $options ) {}
+abstract class Base
+{
+
+	public function __construct( \Zend_Config $options ) {}
 
 	/**
 	 * Retrieves XML describing model data of provided Opus document.
@@ -43,13 +44,14 @@ abstract class Opus_Search_Solr_Document_Base {
 	 * @param Opus_Document $opusDoc
 	 * @return DOMDocument
 	 */
-	protected function getModelXml( Opus_Document $opusDoc ) {
+	protected function getModelXml( \Opus_Document $opusDoc )
+    {
 		// Set up caching xml-model and get XML representation of document.
-		$caching_xml_model = new Opus_Model_Xml;
+		$caching_xml_model = new \Opus_Model_Xml();
 		$caching_xml_model->setModel( $opusDoc );
 		$caching_xml_model->excludeEmptyFields();
-		$caching_xml_model->setStrategy( new Opus_Model_Xml_Version1 );
-		$cache = new Opus_Model_Xml_Cache( false );
+		$caching_xml_model->setStrategy( new \Opus_Model_Xml_Version1() );
+		$cache = new \Opus_Model_Xml_Cache( false );
 		$caching_xml_model->setXmlCache( $cache );
 
 		$modelXml = $caching_xml_model->getDomDocument();
@@ -63,24 +65,27 @@ abstract class Opus_Search_Solr_Document_Base {
 	/**
 	 * Appends fulltext data of every listen file to provided XML document.
 	 *
-	 * @param DomDocument $modelXml
-	 * @param Opus_File[] $files
+	 * @param \DomDocument $modelXml
+	 * @param \Opus_File[] $files
 	 * @param string $docId ID of document
 	 * @return void
 	 */
-	private function attachFulltextToXml( $modelXml, $files, $docId ) {
+	private function attachFulltextToXml( $modelXml, $files, $docId )
+    {
 
 		// get root element of XML document containing document's information
 		$docXml = $modelXml->getElementsByTagName( 'Opus_Document' )->item( 0 );
 		if ( is_null( $docXml ) ) {
-			Opus_Log::get()->warn( 'An error occurred while attaching fulltext information to the xml for document with id ' . $docId );
+			\Opus_Log::get()->warn(
+			    'An error occurred while attaching fulltext information to the xml for document with id '
+                . $docId
+            );
 			return;
 		}
 
-
 		// only consider files which are visible in frontdoor
 		$files = array_filter( $files, function ( $file ) {
-			/** @var Opus_File $file */
+			/** @var \Opus_File $file */
 			return $file->getVisibleInFrontdoor() === '1';
 		} );
 
@@ -103,11 +108,17 @@ abstract class Opus_Search_Solr_Document_Base {
 				$fulltext = $extractingService->extractDocumentFile( $file );
 				$fulltext = trim( iconv( "UTF-8", "UTF-8//IGNORE", $fulltext ) );
 			}
-            catch ( Opus_Search_Exception $e ) {
-				Opus_Log::get()->err( 'An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage() );
+            catch ( \Opus_Search_Exception $e ) {
+				\Opus_Log::get()->err(
+				    'An error occurred while getting fulltext data for document with id ' . $docId . ': ' .
+                    $e->getMessage()
+                );
 			}
-            catch ( Opus_Storage_Exception $e ) {
-				Opus_Log::get()->err( 'Failed accessing file for extracting fulltext for document with id ' . $docId . ': ' . $e->getMessage() );
+            catch ( \Opus_Storage_Exception $e ) {
+				\Opus_Log::get()->err(
+				    'Failed accessing file for extracting fulltext for document with id ' . $docId . ': '
+                    . $e->getMessage()
+                );
 			}
 
 			if ( $fulltext != '' ) {
@@ -129,16 +140,18 @@ abstract class Opus_Search_Solr_Document_Base {
 
 	/**
 	 *
-	 * @param Opus_File $file
+	 * @param \Opus_File $file
 	 * @return string
 	 */
-	private function getFulltextHash( Opus_File $file ) {
+	private function getFulltextHash( \Opus_File $file )
+    {
 		$hash = '';
 
 		try {
 			$hash = $file->getRealHash( 'md5' );
-		} catch ( Exception $e ) {
-			Opus_Log::get()->err('could not compute MD5 hash for ' . $file->getPath() . ' : ' . $e);
+		}
+		catch ( \Exception $e ) {
+			\Opus_Log::get()->err('could not compute MD5 hash for ' . $file->getPath() . ' : ' . $e);
 		}
 
 		return $file->getId() . ':' . $hash;
@@ -163,6 +176,6 @@ abstract class Opus_Search_Solr_Document_Base {
 	 * @param mixed $solrDoc depends on derived implementation
 	 * @return mixed reference provided in parameter $solrDoc
 	 */
-	abstract public function toSolrDocument( Opus_Document $opusDoc, $solrDoc );
+	abstract public function toSolrDocument( \Opus_Document $opusDoc, $solrDoc );
 
 }

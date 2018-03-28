@@ -31,7 +31,10 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Search_Util_Result {
+namespace Opus\Search\Util;
+
+class Result
+{
 
     private $id;
     private $score;

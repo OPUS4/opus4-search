@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -32,7 +31,12 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Search_FulltextFileCacheTest extends TestCase
+namespace OpusTest\Search;
+
+use Opus\Search\FulltextFileCache;
+use OpusTest\Search\TestAsset\TestCase;
+
+class FulltextFileCacheTest extends TestCase
 {
 
     public function tearDown()
@@ -44,7 +48,7 @@ class Opus_Search_FulltextFileCacheTest extends TestCase
 
     public function testGetCacheFileName()
     {
-        $doc = new Opus_Document();
+        $doc = new \Opus_Document();
         $doc->setServerState('published');
 
         $fulltextDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR .
@@ -59,16 +63,16 @@ class Opus_Search_FulltextFileCacheTest extends TestCase
         $file->setVisibleInFrontdoor('1');
         $doc->store();
 
-        $name = Opus_Search_FulltextFileCache::getCacheFileName($file);
+        $name = FulltextFileCache::getCacheFileName($file);
 
         $this->assertContains(
             'solr_cache---1ba50dc8abc619cea3ba39f77c75c0fe' .
             '-f87dffb1d8f33844154e214711674407e2493e6188b1411481e6a38fe071064e.txt', $name
         );
 
-        $file2 = new Opus_File($file->getId());
+        $file2 = new \Opus_File($file->getId());
 
-        $name2 = Opus_Search_FulltextFileCache::getCacheFileName($file2);
+        $name2 = FulltextFileCache::getCacheFileName($file2);
 
         $this->assertEquals($name, $name2);
 

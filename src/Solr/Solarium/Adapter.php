@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,16 +27,29 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements Opus_Search_Indexing,
-    Opus_Search_Searching, Opus_Search_Extracting {
+namespace Opus\Search\Solr\Solarium;
+
+use Opus\Search\Exception;
+use Opus\Search\Extracting;
+use Opus\Search\FulltextFileCache;
+use Opus\Search\Indexing;
+use Opus\Search\InvalidQueryException;
+use Opus\Search\InvalidServiceException;
+use Opus\Search\Query;
+use Opus\Search\Result\Base;
+use Opus\Search\Searching;
+use Opus\Search\Solr\Filter\Raw;
+use Opus\Search\Solr\Solarium\Filter\Complex;
+
+class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extracting
+{
 
 	/**
-	 * @var Zend_Config
+	 * @var \Zend_Config
 	 */
 	protected $options;
 
@@ -47,9 +59,10 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 	protected $client;
 
 
-	public function __construct( $serviceName, $options ) {
+	public function __construct( $serviceName, $options )
+    {
 		$this->options = $options;
-		$this->client  = new Solarium\Client( $options );
+		$this->client  = new \Solarium\Client( $options );
 
 		// ensure service is basically available
 		$ping = $this->client->createPing();
@@ -60,29 +73,30 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 	 * @param \Solarium\Core\Query\Query $query
 	 * @param string $actionText
 	 * @return \Solarium\Core\Query\Result\ResultInterface
-	 * @throws Opus_Search_Exception
-	 * @throws Opus_Search_InvalidQueryException
-	 * @throws Opus_Search_InvalidServiceException
+	 * @throws Exception
+	 * @throws InvalidQueryException
+	 * @throws InvalidServiceException
 	 */
-	protected function execute( $query, $actionText ) {
+	protected function execute( $query, $actionText )
+    {
 		try {
 			$result = $this->client->execute( $query );
 		} catch ( \Solarium\Exception\HttpException $e ) {
 			$msg = sprintf( '%s: %d %s', $actionText, $e->getCode(), $e->getStatusMessage() );
 
 			if ( $e->getCode() == 404 || $e->getCode() >= 500 ) {
-				throw new Opus_Search_InvalidServiceException( $msg, $e->getCode(), $e );
+				throw new InvalidServiceException( $msg, $e->getCode(), $e );
 			}
 
 			if ( $e->getCode() == 400 ) {
-				throw new Opus_Search_InvalidQueryException( $msg, $e->getCode(), $e );
+				throw new InvalidQueryException( $msg, $e->getCode(), $e );
 			}
 
-			throw new Opus_Search_Exception( $msg, $e->getCode(), $e );
+			throw new Exception( $msg, $e->getCode(), $e );
 		}
 
 		if ( $result->getStatus() ) {
-			throw new Opus_Search_Exception( $actionText, $result->getStatus() );
+			throw new Exception( $actionText, $result->getStatus() );
 		}
 
 		return $result;
@@ -98,14 +112,14 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 	 * @param string $fieldName
 	 * @return string
 	 */
-	protected function mapResultFieldToAsset( $fieldName ) {
-		if ( $this->options->fieldToAsset instanceof Zend_Config ) {
+	protected function mapResultFieldToAsset( $fieldName )
+    {
+		if ( $this->options->fieldToAsset instanceof \Zend_Config ) {
 			return $this->options->fieldToAsset->get( $fieldName, $fieldName );
 		}
 
 		return $fieldName;
 	}
-
 
 	/*
 	 *
@@ -117,21 +131,21 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 		return 'solr';
 	}
 
-
 	/*
 	 *
 	 * -- part of Opus_Search_Indexing --
 	 *
 	 */
 
-	protected function normalizeDocuments( $documents ) {
+	protected function normalizeDocuments( $documents )
+    {
 		if ( !is_array( $documents ) ) {
 			$documents = array( $documents );
 		}
 
 		foreach ( $documents as $document ) {
-			if ( !( $document instanceof Opus_Document ) ) {
-				throw new InvalidArgumentException( "invalid document in provided set" );
+			if ( !( $document instanceof \Opus_Document ) ) {
+				throw new \InvalidArgumentException( "invalid document in provided set" );
 			}
 		}
 
@@ -145,17 +159,18 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 
 		foreach ( $documentIds as $id ) {
 			if ( !$id ) {
-				throw new InvalidArgumentException( "invalid document ID in provided set" );
+				throw new \InvalidArgumentException( "invalid document ID in provided set" );
 			}
 		}
 
 		return $documentIds;
 	}
 
-	public function addDocumentsToIndex( $documents ) {
+	public function addDocumentsToIndex( $documents )
+    {
 		$documents = $this->normalizeDocuments( $documents );
 
-		$builder = new Opus_Search_Solr_Solarium_Document( $this->options );
+		$builder = new Document( $this->options );
 
 		try {
 			// split provided set of documents into chunks of 16 documents
@@ -182,8 +197,8 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 
 			return $this;
 		}
-        catch ( Opus_Search_Exception $e ) {
-			Opus_Log::get()->err( $e->getMessage() );
+        catch ( Exception $e ) {
+			\Opus_Log::get()->err( $e->getMessage() );
 
 			if ( $this->options->get( 'rollback', 1 ) ) {
 				// roll back updates due to failure
@@ -194,7 +209,7 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 					$this->execute( $update, 'failed rolling back update of documents' );
 				} catch ( Exception $inner ) {
 					// SEVERE case: rolling back failed, too
-					Opus_Log::get()->alert( $inner->getMessage() );
+					\Opus_Log::get()->alert( $inner->getMessage() );
 				}
 			}
 
@@ -202,7 +217,8 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 		}
 	}
 
-	public function removeDocumentsFromIndex( $documents ) {
+	public function removeDocumentsFromIndex( $documents )
+    {
 		$documents = $this->normalizeDocuments( $documents );
 
 		$documentIds = array_map( function( $doc ) {
@@ -213,7 +229,8 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 		return $this->removeDocumentsFromIndexById( $documentIds );
 	}
 
-	public function removeDocumentsFromIndexById( $documentIds ) {
+	public function removeDocumentsFromIndexById( $documentIds )
+    {
 		$documentIds = $this->normalizeDocumentIds( $documentIds );
 
 		try {
@@ -235,8 +252,8 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 			$this->execute( $update, 'failed committing deletion of documents' );
 
 			return $this;
-		} catch ( Opus_Search_Exception $e ) {
-			Opus_log::get()->err( $e->getMessage() );
+		} catch ( Exception $e ) {
+			\Opus_log::get()->err( $e->getMessage() );
 
 			if ( $this->options->get( 'rollback', 1 ) ) {
 				// roll back deletes due to failure
@@ -273,13 +290,15 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 	 *
 	 */
 
-	public function customSearch( Opus_Search_Query $query ) {
+	public function customSearch( Query $query )
+    {
 		$search = $this->client->createSelect();
 
 		return $this->processQuery( $this->applyParametersOnQuery( $search, $query, false ) );
 	}
 
-	public function namedSearch( $name, Opus_Search_Query $customization = null ) {
+	public function namedSearch( $name, Query $customization = null )
+    {
 		if ( !preg_match( '/^[a-z_]+$/i', $name ) ) {
 			throw new Opus_Search_Exception( 'invalid name of pre-defined query: ' . $name );
 		}
@@ -291,8 +310,8 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 			$definition = null;
 		}
 
-		if ( !$definition || !( $definition instanceof Zend_Config ) ) {
-			throw new Opus_Search_InvalidQueryException( 'selected query is not pre-defined: ' . $name );
+		if ( !$definition || !( $definition instanceof \Zend_Config ) ) {
+			throw new InvalidQueryException( 'selected query is not pre-defined: ' . $name );
 		}
 
 		$search = $this->client->createSelect( $definition );
@@ -301,11 +320,11 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 	}
 
 	public function createQuery() {
-		return new Opus_Search_Query();
+		return new Query();
 	}
 
 	public function createFilter() {
-		return new Opus_Search_Solr_Solarium_Filter_Complex( $this->client );
+		return new Complex( $this->client );
 	}
 
 	/**
@@ -313,8 +332,8 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 	 * success.
 	 *
 	 * @param \Solarium\QueryType\Select\Query\Query $query
-	 * @return Opus_Search_Result_Base
-	 * @throws Opus_Search_Exception
+	 * @return Base
+	 * @throws Exception
 	 */
 	protected function processQuery( $query ) {
 		// send search query to service
@@ -323,14 +342,14 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 		/** @var \Solarium\QueryType\Select\Result\Result $request */
 
 		// create result descriptor
-		$result = Opus_Search_Result_Base::create()
+		$result = Base::create()
 			->setAllMatchesCount( $request->getNumFound() )
 			->setQueryTime( $request->getQueryTime() );
 
 		// add description on every returned match
 		$excluded = 0;
 		foreach ( $request->getDocuments() as $document ) {
-			/** @var Solarium\QueryType\Select\Result\Document $document */
+			/** @var \Solarium\QueryType\Select\Result\Document $document */
 			$fields = $document->getFields();
 
 			if ( array_key_exists( 'id', $fields ) ) {
@@ -369,7 +388,10 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 		}
 
 		if ( $excluded > 0 ) {
-			Opus_Log::get()->warn( sprintf( 'search yielded %d matches not available in result set for missing ID of related document', $excluded ) );
+			\Opus_Log::get()->warn( sprintf(
+			    'search yielded %d matches not available in result set for missing ID of related document',
+                $excluded
+            ));
 		}
 
 		// add returned results of faceted search
@@ -389,17 +411,19 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 	 * Adjusts provided query depending on explicitly defined parameters.
 	 *
 	 * @param \Solarium\QueryType\Select\Query\Query $query
-	 * @param Opus_Search_Query $parameters
+	 * @param Query $parameters
 	 * @param bool $preferOriginalQuery true for keeping existing query in $query
 	 * @return mixed
 	 */
-	protected function applyParametersOnQuery( \Solarium\QueryType\Select\Query\Query $query, Opus_Search_Query $parameters = null, $preferOriginalQuery = false ) {
+	protected function applyParametersOnQuery( \Solarium\QueryType\Select\Query\Query $query,
+                                               Query $parameters = null, $preferOriginalQuery = false )
+    {
 		if ( $parameters ) {
 
 			$subfilters = $parameters->getSubFilters();
 			if ( $subfilters !== null ) {
 				foreach ( $subfilters as $name => $subfilter ) {
-					if ( $subfilter instanceof Opus_Search_Solr_Filter_Raw || $subfilter instanceof Opus_Search_Solr_Solarium_Filter_Complex ) {
+					if ( $subfilter instanceof Raw || $subfilter instanceof Complex ) {
 						$query->createFilterQuery( $name )
 						      ->setQuery( $subfilter->compile( $query ) );
 					}
@@ -407,7 +431,7 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 			}
 
 			$filter = $parameters->getFilter();
-			if ( $filter instanceof Opus_Search_Solr_Filter_Raw || $filter instanceof Opus_Search_Solr_Solarium_Filter_Complex ) {
+			if ( $filter instanceof Raw || $filter instanceof Complex ) {
 				if ( !$query->getQuery() || !$preferOriginalQuery ) {
 					$compiled = $filter->compile( $query );
 					if ( $compiled !== null ) {
@@ -470,28 +494,29 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 	 *
 	 */
 
-	public function extractDocumentFile( Opus_File $file, Opus_Document $document = null ) {
-		Opus_Log::get()->debug( 'extracting fulltext from ' . $file->getPath() );
+	public function extractDocumentFile( \Opus_File $file, \Opus_Document $document = null )
+    {
+		\Opus_Log::get()->debug( 'extracting fulltext from ' . $file->getPath() );
 
 		try {
 			// ensure file is basically available and extracting is supported
 			if ( !$file->exists() ) {
-				throw new Opus_Storage_FileNotFoundException( $file->getPath() . ' does not exist.' );
+				throw new \Opus_Storage_FileNotFoundException( $file->getPath() . ' does not exist.' );
 			}
 
 			if ( !$file->isReadable() ) {
-				throw new Opus_Storage_FileAccessException( $file->getPath() . ' is not readable.' );
+				throw new \Opus_Storage_FileAccessException( $file->getPath() . ' is not readable.' );
 			}
 
 			if ( !$this->isMimeTypeSupported( $file ) ) {
-				throw new Opus_Search_Exception( $file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported' );
+				throw new Exception( $file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported' );
 			}
 
 
 			// use cached result of previous extraction if available
-			$fulltext = Opus_Search_FulltextFileCache::readOnFile( $file );
+			$fulltext = FulltextFileCache::readOnFile( $file );
 			if ( $fulltext !== false ) {
-				Opus_Log::get()->info( 'Found cached fulltext for file ' . $file->getPath() );
+				\Opus_Log::get()->info( 'Found cached fulltext for file ' . $file->getPath() );
 				return $fulltext;
 			}
 
@@ -505,7 +530,7 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 				                        ->setCommit( true );
 
 				$result = $this->execute( $extract, 'failed extracting fulltext data' );
-				/** @var Solarium\QueryType\Extract\Result $response */
+				/** @var \Solarium\QueryType\Extract\Result $response */
 
 				// got response -> extract
 				$response = $result->getData();
@@ -522,7 +547,7 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 					$fulltextData = array_shift( $response );
 					if ( is_string( $fulltextData ) ) {
 						if ( substr( $fulltextData, 0, 6 ) === '<?xml ' ) {
-							$dom = new DOMDocument();
+							$dom = new \DOMDocument();
 							$dom->loadHTML( $fulltextData );
 							$body = $dom->getElementsByTagName( "body" )->item( 0 );
 							if ( $body ) {
@@ -537,7 +562,7 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 				}
 
 				if ( is_null( $fulltext ) ) {
-					Opus_Log::get()->err( 'failed extracting fulltext data from solr response' );
+					\Opus_Log::get()->err( 'failed extracting fulltext data from solr response' );
 					$fulltext = '';
 				} else {
 					$fulltext = trim( $fulltext );
@@ -552,16 +577,16 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 			// always write returned fulltext data to cache to keep client from
 			// re-extracting same file as query has been processed properly this
 			// time
-			Opus_Search_FulltextFileCache::writeOnFile( $file, $fulltext );
+			FulltextFileCache::writeOnFile( $file, $fulltext );
 
 			return $fulltext;
 
 		} catch ( Exception $e ) {
-			if ( !( $e instanceof Opus_Search_Exception ) && !( $e instanceof Opus_Storage_Exception ) ) {
-				$e = new Opus_Search_Exception( 'error while extracting fulltext from file ' . $file->getPath(), null, $e );
+			if ( !( $e instanceof Exception ) && !( $e instanceof \Opus_Storage_Exception ) ) {
+				$e = new Exception( 'error while extracting fulltext from file ' . $file->getPath(), null, $e );
 			}
 
-			Opus_Log::get()->err( $e->getMessage() );
+			\Opus_Log::get()->err( $e->getMessage() );
 			throw $e;
 		}
 	}
@@ -573,7 +598,8 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 	 * @param Opus_File $file
 	 * @return bool
 	 */
-	protected function isMimeTypeSupported( Opus_File $file ) {
+	protected function isMimeTypeSupported( \Opus_File $file )
+    {
 		$mimeType = $file->getMimeType();
 
 		$mimeType = preg_split( '/[;\s]+/', trim( $mimeType ), null, PREG_SPLIT_NO_EMPTY )[0];

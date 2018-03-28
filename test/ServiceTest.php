@@ -25,46 +25,50 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
+ * @category    Test
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
+namespace OpusTest\Search;
 
-class Opus_Search_ServiceTest extends TestCase {
+use Opus\Search\Service;
+use OpusTest\Search\TestAsset\TestCase;
+
+class ServiceTest extends TestCase {
 
 	public function testProvidesIndexService() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+		$service = Service::selectIndexingService( null, 'solr' );
 
 		$this->assertInstanceOf( 'Opus_Search_Indexing', $service );
 		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
 	}
 
 	public function testProvidesExtractService() {
-		$service = Opus_Search_Service::selectExtractingService( null, 'solr' );
+		$service = Service::selectExtractingService( null, 'solr' );
 
 		$this->assertInstanceOf( 'Opus_Search_Extracting', $service );
 		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
 	}
 
 	public function testProvidesSearchService() {
-		$service = Opus_Search_Service::selectSearchingService( null, 'solr' );
+		$service = Service::selectSearchingService( null, 'solr' );
 
 		$this->assertInstanceOf( 'Opus_Search_Searching', $service );
 		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
 	}
 
 	public function testCachingService() {
-		$searchA = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$searchB = Opus_Search_Service::selectSearchingService( null, 'solr' );
+		$searchA = Service::selectSearchingService( null, 'solr' );
+		$searchB = Service::selectSearchingService( null, 'solr' );
 
 		$this->assertTrue( $searchA === $searchB );
 
-		Opus_Search_Service::dropCached();
+		Service::dropCached();
 
-		$searchC = Opus_Search_Service::selectSearchingService( null, 'solr' );
+		$searchC = Service::selectSearchingService( null, 'solr' );
 
 		$this->assertTrue( $searchA === $searchB );
 		$this->assertTrue( $searchA !== $searchC );

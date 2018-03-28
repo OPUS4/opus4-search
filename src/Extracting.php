@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -29,23 +28,26 @@
  * @category    Application
  * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus\Search;
 
 /**
  * Defines API provided for extracting fulltext data from files attached to
  * Opus documents.
  */
 
-interface Opus_Search_Extracting {
+interface Extracting
+{
+
 	/**
 	 * Extracts provided file of document.
 	 *
-	 * @param Opus_File $file
-	 * @param Opus_Document $document
-	 * @return Opus_Search_Extracting fluent interface
+	 * @param \Opus_File $file
+	 * @param \Opus_Document $document
+	 * @return Extracting fluent interface
 	 */
-	public function extractDocumentFile( Opus_File $file, Opus_Document $document = null );
+	public function extractDocumentFile( \Opus_File $file, \Opus_Document $document = null );
 }

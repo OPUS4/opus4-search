@@ -27,21 +27,28 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace OpusTest\Search\Solr\Solarium;
 
-class Opus_Search_Solr_Solarium_DocumentTest extends DocumentBasedTestCase {
+use Opus\Search\Config;
+use Opus\Search\Solr\Solarium\Document;
+use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
-	public function testConvertingArticle() {
+class DocumentTest extends DocumentBasedTestCase
+{
+
+	public function testConvertingArticle()
+    {
 		$service = new \Solarium\Client();
 		$update  = $service->createUpdate();
 
 		$article = $this->createDocument( 'article' );
 
-		$converter = new Opus_Search_Solr_Solarium_Document( Opus_Search_Config::getDomainConfiguration( 'solr' ) );
+		$converter = new Document(Config::getDomainConfiguration( 'solr' ) );
 		$solrDoc   = $converter->toSolrDocument( $article, $update->createDocument() );
 		$this->assertInstanceOf( '\Solarium\QueryType\Update\Query\Document\Document', $solrDoc );
 
@@ -80,5 +87,4 @@ class Opus_Search_Solr_Solarium_DocumentTest extends DocumentBasedTestCase {
 		//$this->assertArrayHasKey( 'publisher_name', $fields );
 		//$this->assertArrayHasKey( 'identifier', $fields );
 	}
-
 }

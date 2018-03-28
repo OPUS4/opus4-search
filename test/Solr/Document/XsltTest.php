@@ -27,28 +27,37 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace OpusTest\Search\Solr\Document;
 
-class Opus_Search_Solr_Document_XsltTest extends DocumentBasedTestCase {
 
-	public function createConverter() {
-		$converter = new Opus_Search_Solr_Document_Xslt( Opus_Search_Config::getDomainConfiguration( 'solr' ) );
+use Opus\Search\Config;
+use Opus\Search\Solr\Document\Xslt;
+use OpusTest\Search\TestAsset\DocumentBasedTestCase;
+
+class XsltTest extends DocumentBasedTestCase
+{
+
+	public function createConverter()
+    {
+		$converter = new Xslt(Config::getDomainConfiguration( 'solr' ) );
 	}
 
-	public function testArticleConversion() {
+	public function testArticleConversion()
+    {
 		$document = $this->createDocument( 'article' );
 		$this->assertInstanceOf( 'Opus_Document', $document );
 
-		$converter = new Opus_Search_Solr_Document_Xslt( Opus_Search_Config::getDomainConfiguration( 'solr' ) );
-		$solr = $converter->toSolrDocument( $document, new DOMDocument() );
+		$converter = new Xslt(Config::getDomainConfiguration( 'solr' ) );
+		$solr = $converter->toSolrDocument( $document, new \DOMDocument() );
 
 		$this->assertInstanceOf( 'DOMDocument', $solr );
 
-		$xpath  = new DOMXPath( $solr );
+		$xpath  = new \DOMXPath( $solr );
 		$simple = simplexml_import_dom( $solr );
 
 		$this->assertEquals( 'add', $simple->getName() );
@@ -177,16 +186,17 @@ class Opus_Search_Solr_Document_XsltTest extends DocumentBasedTestCase {
 
 	}
 
-	public function testBookConversion() {
+	public function testBookConversion()
+    {
 		$document = $this->createDocument( 'book' );
 		$this->assertInstanceOf( 'Opus_Document', $document );
 
-		$converter = new Opus_Search_Solr_Document_Xslt( Opus_Search_Config::getDomainConfiguration( 'solr' ) );
-		$solr = $converter->toSolrDocument( $document, new DOMDocument() );
+		$converter = new Xslt( Config::getDomainConfiguration( 'solr' ) );
+		$solr = $converter->toSolrDocument( $document, new \DOMDocument() );
 
 		$this->assertInstanceOf( 'DOMDocument', $solr );
 
-		$xpath  = new DOMXPath( $solr );
+		$xpath  = new \DOMXPath( $solr );
 		$simple = simplexml_import_dom( $solr );
 
 		$this->assertEquals( 'add', $simple->getName() );
@@ -312,6 +322,5 @@ class Opus_Search_Solr_Document_XsltTest extends DocumentBasedTestCase {
 
 		$field = $xpath->query( '/add/doc/field[@name="identifier"]' );
 		$this->assertEquals( 0, $field->length );
-
 	}
 }

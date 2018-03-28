@@ -28,16 +28,18 @@
  * @category    Application
  * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus\Search;
 
 /**
  * Defines methods provided for indexing data in (Solr-based) search database.
  */
 
-interface Opus_Search_Indexing {
+interface Indexing
+{
 
 	/**
 	 * Adds provided set of Opus_Document instances to index.
@@ -46,9 +48,9 @@ interface Opus_Search_Indexing {
 	 *       by adding all listed documents as part of a transaction to be
 	 *       rolled back on any error.
 	 *
-	 * @param Opus_Document|Opus_Document[] $documents set of documents to add
-	 * @return Opus_Search_Indexing
-	 * @throws Opus_Search_Exception in case of error
+	 * @param \Opus_Document|\Opus_Document[] $documents set of documents to add
+	 * @return Indexing
+	 * @throws Exception in case of error
 	 */
 	public function addDocumentsToIndex( $documents );
 
@@ -59,9 +61,9 @@ interface Opus_Search_Indexing {
 	 *       by adding all listed documents as part of a transaction to be
 	 *       rolled back on any error.
 	 *
-	 * @param Opus_Document|Opus_Document[] $documents set of document to remove
-	 * @return Opus_Search_Indexing
-	 * @throws Opus_Search_Exception in case of error
+	 * @param \Opus_Document|\Opus_Document[] $documents set of document to remove
+	 * @return Indexing
+	 * @throws Exception in case of error
 	 */
 	public function removeDocumentsFromIndex( $documents );
 
@@ -73,8 +75,8 @@ interface Opus_Search_Indexing {
 	 *       rolled back on any error.
 	 *
 	 * @param int|int[] $documentIds set of IDs of documents to remove
-	 * @return Opus_Search_Indexing
-	 * @throws Opus_Search_Exception in case of error
+	 * @return Indexing
+	 * @throws Exception in case of error
 	 */
 	public function removeDocumentsFromIndexById( $documentIds );
 
@@ -85,8 +87,8 @@ interface Opus_Search_Indexing {
 	 *       by adding all listed documents as part of a transaction to be
 	 *       rolled back on any error.
 	 *
-	 * @return Opus_Search_Indexing
-	 * @throws Opus_Search_Exception in case of error
+	 * @return Indexing
+	 * @throws Exception in case of error
 	 */
 	public function removeAllDocumentsFromIndex();
 

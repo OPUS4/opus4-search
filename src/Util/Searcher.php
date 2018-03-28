@@ -31,7 +31,17 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Search_Util_Searcher
+namespace Opus\Search\Util;
+
+use Opus\Search\Config;
+use Opus\Search\Exception;
+use Opus\Search\Facet\Set;
+use Opus\Search\InvalidServiceException;
+use Opus\Search\Result\Base;
+use Opus\Search\Service;
+use Opus\Search\Solr\Filter\Raw;
+
+class Searcher
 {
 
     /*
@@ -45,32 +55,33 @@ class Opus_Search_Util_Searcher
 
     /**
      *
-     * @param Opus_Search_Util_Query $query
+     * @param Query $query
      * @param bool $validateDocIds check document IDs coming from Solr index against database
-     * @return Opus_Search_Result_Base
-     * @throws Opus_Search_Exception If Solr server responds with an error or the response is empty.
+     * @return Base
+     * @throws Exception If Solr server responds with an error or the response is empty.
      */
-    public function search($query, $validateDocIds = true) {
+    public function search($query, $validateDocIds = true)
+    {
 
         try {
-            Opus_Log::get()->debug("query: " . $query->getQ());
+            \Opus_Log::get()->debug("query: " . $query->getQ());
 
 	        // get service adapter for searching
-	        $service = Opus_Search_Service::selectSearchingService( null, 'solr' );
+	        $service = Service::selectSearchingService( null, 'solr' );
 
 	        // basically create query
 	        $request = $service->createQuery()
-		        ->setFilter( new Opus_Search_Solr_Filter_Raw( $query->getQ() ) )
+		        ->setFilter( new Raw( $query->getQ() ) )
 		        ->setStart( $query->getStart() )
 		        ->setRows( $query->getRows() );
 
 
 	        switch ( $query->getSearchType() ) {
-		        case Opus_Search_Util_Query::LATEST_DOCS :
+		        case Query::LATEST_DOCS :
 			        $request
 				        ->addSorting( $query->getSortField(), $query->getSortOrder() );
 
-		        case Opus_Search_Util_Query::DOC_ID :
+		        case Query::DOC_ID :
 					if ( $query->isReturnIdsOnly() ) {
 						$request
 							->setFields( 'id' );
@@ -80,8 +91,8 @@ class Opus_Search_Util_Searcher
 					}
 			        break;
 
-		        case Opus_Search_Util_Query::FACET_ONLY :
-					$facet = Opus_Search_Facet_Set::create()
+		        case Query::FACET_ONLY :
+					$facet = Set::create()
 						->setFacetOnly();
 
 					$facet->addField( $query->getFacetField() )
@@ -101,16 +112,16 @@ class Opus_Search_Util_Searcher
 				        $request
 					        ->setFields( array( '*', 'score' ) );
 
-				        $facet = Opus_Search_Facet_Set::create();
+				        $facet = Set::create();
 
 				        if ( isset( $this->facetArray ) ) {
 					        $facet->overrideLimits( $this->facetArray );
 				        }
 
-		                $fields = Opus_Search_Config::getFacetFields( $facet->getSetName(), 'solr' );
+		                $fields = Config::getFacetFields( $facet->getSetName(), 'solr' );
 				        if ( empty( $fields ) ) {
 					        // no facets are being configured
-					        Opus_Log::get()->warn("Key searchengine.solr.facets is not present in config. No facets will be displayed.");
+					        \Opus_Log::get()->warn("Key searchengine.solr.facets is not present in config. No facets will be displayed.");
 				        } else {
 					        $request->setFacet( $facet->setFields( $fields ) );
 				        }
@@ -121,7 +132,7 @@ class Opus_Search_Util_Searcher
 
 			        if ( !empty( $fq ) ) {
 				        foreach ( $fq as $index => $sub ) {
-					        $request->setSubFilter( "fq$index", new Opus_Search_Solr_Filter_Raw( $sub ) );
+					        $request->setSubFilter( "fq$index", new Raw( $sub ) );
 				        }
 			        }
 	        }
@@ -134,11 +145,11 @@ class Opus_Search_Util_Searcher
 
 	        return $response;
         }
-        catch ( Opus_Search_InvalidServiceException $e ) {
-	        return $this->mapException( Opus_Search_Exception::SERVER_UNREACHABLE, $e );
+        catch (InvalidServiceException $e) {
+	        return $this->mapException(Exception::SERVER_UNREACHABLE, $e);
         }
-        catch( Opus_Search_InvalidQueryException $e ) {
-	        return $this->mapException( Opus_Search_Exception::INVALID_QUERY, $e );
+        catch (InvalidQueryException $e ) {
+	        return $this->mapException(Exception::INVALID_QUERY, $e);
         }
 	    catch ( Exception $e ) {
 		    return $this->mapException( null, $e );
@@ -147,18 +158,20 @@ class Opus_Search_Util_Searcher
 
 	/**
 	 * @param mixed $type
-	 * @param Exception $previousException
-	 * @throws Opus_Search_Exception
+	 * @param \Exception $previousException
+	 * @throws Exception
 	 * @return no-return
 	 */
-	private function mapException( $type, Exception $previousException ) {
+	private function mapException( $type, \Exception $previousException )
+    {
 		$msg = 'Solr server responds with an error ' . $previousException->getMessage();
-		Opus_Log::get()->err($msg);
+		\Opus_Log::get()->err($msg);
 
-		throw new Opus_Search_Exception($msg, $type, $previousException);
+		throw new Exception($msg, $type, $previousException);
 	}
 
-    public function setFacetArray($array) {
+    public function setFacetArray($array)
+    {
         $this->facetArray = $array;
     }
 }

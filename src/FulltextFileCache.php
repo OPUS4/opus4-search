@@ -28,9 +28,11 @@
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2017, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus\Search;
 
 /**
  * Cache for fulltext extractions of files.
@@ -44,19 +46,21 @@
  *
  * TODO report cache misses (detect corruption of files)
  */
-class Opus_Search_FulltextFileCache {
+class FulltextFileCache
+{
 
 	const MAX_FILE_SIZE = 16777216; // 16 MiByte
 
-	public static function getCacheFileName( Opus_File $file ) {
+	public static function getCacheFileName( \Opus_File $file )
+    {
 		$name = null;
 
 		try {
 			$hash = $file->getRealHash('md5') . '-' . $file->getRealHash('sha256');
-			$name = Opus_Config::get()->workspacePath . "/cache/solr_cache---$hash.txt";
+			$name = \Opus_Config::get()->workspacePath . "/cache/solr_cache---$hash.txt";
 		}
 		catch (Exception $e) {
-			Opus_Log::get()->err(
+			\Opus_Log::get()->err(
                 __CLASS__ . '::' . __METHOD__ . ' : could not compute hash values for ' . $file->getPath() . " : $e"
             );
 		}
@@ -67,16 +71,16 @@ class Opus_Search_FulltextFileCache {
 	/**
 	 * Tries reading cached fulltext data linked with given Opus file from cache.
 	 *
-	 * @param Opus_File $file
+	 * @param \Opus_File $file
 	 * @return false|string found fulltext data, false on missing data in cache
 	 */
-	public static function readOnFile( Opus_File $file ) {
+	public static function readOnFile( \Opus_File $file ) {
 		$fileName = static::getCacheFileName( $file );
 		if ( $fileName && is_readable( $fileName ) ) {
 			// TODO: Why keeping huge files in cache if not actually using them but trying to fetch extraction
             //       from remote Solr service over and over again?
 			if ( filesize( $fileName ) > self::MAX_FILE_SIZE ) {
-				Opus_Log::get()->info( 'Skipped reading fulltext HUGE cache file ' . $fileName );
+				\Opus_Log::get()->info( 'Skipped reading fulltext HUGE cache file ' . $fileName );
 			}
             else {
 				// try reading cached content
@@ -85,11 +89,11 @@ class Opus_Search_FulltextFileCache {
 					return trim( $fileContent );
 				}
 
-				Opus_Log::get()->info( 'Failed reading fulltext cache file ' . $fileName );
+				\Opus_Log::get()->info( 'Failed reading fulltext cache file ' . $fileName );
 			}
 		}
         else {
-            Opus_Log::get()->debug( "Fulltext cache miss for (File ID = {$file->getId()}):  . {$file->getPath()}");
+            \Opus_Log::get()->debug( "Fulltext cache miss for (File ID = {$file->getId()}):  . {$file->getPath()}");
         }
 
 		return false;
@@ -101,27 +105,27 @@ class Opus_Search_FulltextFileCache {
 	 * @note Writing file might fail without notice. Succeeding tests for cached
 	 *       record are going to fail then, too.
 	 *
-	 * @param Opus_File $file
+	 * @param \Opus_File $file
 	 * @param string $fulltext
 	 */
-	public static function writeOnFile( Opus_File $file, $fulltext ) {
+	public static function writeOnFile(\Opus_File $file, $fulltext ) {
 		if ( is_string( $fulltext ) ) {
 			// try deriving cache file's name first
 			$cache_file = static::getCacheFileName( $file );
 			if ( $cache_file ) {
 				// use intermediate temporary file with random name for writing
 				// to prevent race conditions on writing cache file
-				$tmp_path = realpath( Opus_Config::get()->workspacePath . '/tmp/' );
+				$tmp_path = realpath( \Opus_Config::get()->workspacePath . '/tmp/' );
 				$tmp_file = tempnam( $tmp_path, 'solr_tmp---' );
 
 				if ( !file_put_contents( $tmp_file, trim( $fulltext ) ) ) {
-					Opus_Log::get()->info( 'Failed writing fulltext temp file ' . $tmp_file );
+					\Opus_Log::get()->info( 'Failed writing fulltext temp file ' . $tmp_file );
 				} else {
 					// writing temporary file succeeded
 					// -> rename to final cache file (single-step-operation)
 					if ( !rename( $tmp_file, $cache_file ) ) {
 						// failed renaming
-						Opus_Log::get()->info( 'Failed renaming temp file to fulltext cache file ' . $cache_file );
+						\Opus_Log::get()->info( 'Failed renaming temp file to fulltext cache file ' . $cache_file );
 
 						// don't keep temporary file
 						unlink( $tmp_file );

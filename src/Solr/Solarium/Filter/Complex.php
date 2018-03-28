@@ -27,20 +27,26 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace Opus\Search\Solr\Solarium\Filter;
 
-class Opus_Search_Solr_Solarium_Filter_Complex extends Opus_Search_Filter_Complex {
+use Opus\Search\Filter\Simple;
+use Opus\Search\Filtering;
+use Opus\Search\Solr\Filter\Helper;
+
+class Complex extends \Opus\Search\Filter\Complex
+{
 
 	/**
 	 * @var \Solarium\Client
 	 */
 	protected $client = null;
 
-	public function __construct( \Solarium\Client $client ) {
+	public function __construct( \Solarium\Client $client )
+    {
 		$this->client = $client;
 	}
 
@@ -48,10 +54,11 @@ class Opus_Search_Solr_Solarium_Filter_Complex extends Opus_Search_Filter_Comple
 	 * Delivers glue for concatenating terms according to given filter's
 	 * combination of particular result sets.
 	 *
-	 * @param Opus_Search_Filter_Complex $complex
+	 * @param \Opus\Search\Filter\Complex $complex
 	 * @return string
 	 */
-	protected static function glue( Opus_Search_Filter_Complex $complex ) {
+	protected static function glue( \Opus\Search\Filter\Complex $complex )
+    {
 		return $complex->isRequestingUnion() ? ' OR ' : ' AND ';
 	}
 
@@ -59,21 +66,22 @@ class Opus_Search_Solr_Solarium_Filter_Complex extends Opus_Search_Filter_Comple
 	 * Compiles simple condition to proper Solr query term.
 	 *
 	 * @param \Solarium\Core\Query\AbstractQuery $query
-	 * @param Opus_Search_Filter_Simple $simple
+	 * @param \Opus\Search\Filter\Simple $simple
 	 * @return string
 	 */
-	protected static function _compileSimple( \Solarium\Core\Query\AbstractQuery $query, Opus_Search_Filter_Simple $simple ) {
+	protected static function _compileSimple( \Solarium\Core\Query\AbstractQuery $query, Simple $simple )
+    {
 		// validate desired type of comparison
 		switch ( $simple->getComparator() ) {
-			case Opus_Search_Filter_Simple::COMPARE_EQUALITY :
+			case Simple::COMPARE_EQUALITY :
 				$negated = false;
 				break;
-			case Opus_Search_Filter_Simple::COMPARE_INEQUALITY :
+			case Simple::COMPARE_INEQUALITY :
 				$negated = true;
 				break;
 			default :
 				// TODO implement additional types of comparison
-				throw new InvalidArgumentException( 'comparison not supported by Solr adapter' );
+				throw new \InvalidArgumentException( 'comparison not supported by Solr adapter' );
 		}
 
 		// handle range checks
@@ -87,7 +95,7 @@ class Opus_Search_Solr_Solarium_Filter_Complex extends Opus_Search_Filter_Comple
 		// (resulting term might be complex in case of testing multiple values)
 		$values = $simple->getValues();
 		if ( !count( $values ) ) {
-			throw new InvalidArgumentException( 'missing values on field ' . $simple->getName() );
+			throw new \InvalidArgumentException( 'missing values on field ' . $simple->getName() );
 		} else {
 			$name = $simple->getName();
 			if ( $name === '*' && ( count( $values ) !== 1 || $values[0] !== '*' ) ) {
@@ -102,7 +110,7 @@ class Opus_Search_Solr_Solarium_Filter_Complex extends Opus_Search_Filter_Comple
 			}
 
 			$values = array_map( function( $value ) use ( $name, $query ) {
-				return $name . Opus_Search_Solr_Filter_Helper::escapePhrase( $value );
+				return $name . Helper::escapePhrase( $value );
 			}, $values );
 
 			if ( count( $values ) === 1 ) {
@@ -118,15 +126,16 @@ class Opus_Search_Solr_Solarium_Filter_Complex extends Opus_Search_Filter_Comple
 	 * term.
 	 *
 	 * @param \Solarium\Core\Query\AbstractQuery $query
-	 * @param Opus_Search_Filtering[] $conditions
+	 * @param Filtering[] $conditions
 	 * @param string $glue
 	 * @return string
 	 */
-	protected static function _compile( \Solarium\Core\Query\AbstractQuery $query, $conditions, $glue ) {
+	protected static function _compile( \Solarium\Core\Query\AbstractQuery $query, $conditions, $glue )
+    {
 		$compiled = array();
 
 		foreach ( $conditions as $condition ) {
-			if ( $condition instanceof Opus_Search_Filter_Complex ) {
+			if ( $condition instanceof \Opus\Search\Filter\Complex ) {
 				$term = static::_compile( $query, $condition->getConditions(), static::glue( $condition ) );
 				$term = "($term)";
 				if ( $condition->isGloballyNegated() ) {
@@ -142,7 +151,8 @@ class Opus_Search_Solr_Solarium_Filter_Complex extends Opus_Search_Filter_Comple
 		return implode( $glue, $compiled );
 	}
 
-	public function compile( $query ) {
+	public function compile( $query )
+    {
 		return static::_compile( $query, $this->getConditions(), static::glue( $this ) );
 	}
 }

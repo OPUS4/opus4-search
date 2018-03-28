@@ -28,23 +28,30 @@
  * @package     Opus_Search_Util
  * @author      Sascha Szott <szott@zib.de>
  * @author      Michael Lang <lang@zib.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
-class Opus_Search_Util_Indexer
+
+namespace Opus\Search\Util;
+
+use Opus\Search\Exception;
+use Opus\Search\InvalidConfigurationException;
+
+class Indexer
 {
 
     /**
      * Connection to Solr server
      *
-     * @var Apache_Solr_Service
+     * @var \Apache_Solr_Service
      */
     private $index_server = null;
 
     /**
      * Connection to extraction server
      *
-     * @var Apache_Solr_Service
+     * @var \Apache_Solr_Service
      */
     private $extract_server = null;
 
@@ -61,7 +68,7 @@ class Opus_Search_Util_Indexer
     private $extract_server_url;
 
     /**
-     * @var Zend_Log
+     * @var \Zend_Log
      */
     private $log;
 
@@ -74,13 +81,14 @@ class Opus_Search_Util_Indexer
      * if $deleteAllDocs is set to true.
      *
      * @param boolean $deleteAllDocs Delete all docs.  Defaults to false.
-     * @throws Opus_Search_InvalidConfigurationException If at least one
+     * @throws InvalidConfigurationException If at least one
      * searchengine related parameter in configuration file is missing or empty.
      */
-    public function __construct($deleteAllDocs = false) {
-        $this->log = Zend_Registry::get('Zend_Log');
+    public function __construct($deleteAllDocs = false)
+    {
+        $this->log = \Zend_Registry::get('Zend_Log');
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         // check if all config params exist and are not empty
         foreach(array('index', 'extract') as $server) {
             $errMsg = "Configuration parameter searchengine.%s.%s does not exist in config file.";
@@ -88,7 +96,7 @@ class Opus_Search_Util_Indexer
                 if (!isset($config->searchengine->$server->$param)) {
                     $errMsg = sprintf($errMsg, $server, $param);
                     $this->log->err($errMsg);
-                    throw new Opus_Search_InvalidConfigurationException($errMsg);
+                    throw new InvalidConfigurationException($errMsg);
                 }
             }
             $host = $this->checkForExistence($config, $server, 'host');
@@ -112,11 +120,12 @@ class Opus_Search_Util_Indexer
      * @param string $server Server that should be pinged against.
      * @throws Opus_Search_Exception If the given server does not react.
      */
-    private function ping($server) {
+    private function ping($server)
+    {
         $url = $server . '_url';
         if (false === $this->$server->ping()) {
             $this->log->err('Connection to Solr server ' . $this->$url . ' could not be established.');
-            throw new Opus_Search_Exception('Solr server ' . $this->$url . ' is not responding.');
+            throw new Exception('Solr server ' . $this->$url . ' is not responding.');
         }
         $this->log->info('Connection to Solr server ' . $this->$url . ' was successfully established.');
     }
@@ -125,27 +134,28 @@ class Opus_Search_Util_Indexer
      * Returns a Apache_Solr_Service object which encapsulates the communication
      * with the Solr server.
      *
-     * @return Apache_Solr_Service
-     * @throws Opus_Search_Exception If no connection could be
+     * @return \Apache_Solr_Service
+     * @throws Exception If no connection could be
      * established or Solr server does not react.
      */
-    private function getSolrServer($server) {
+    private function getSolrServer($server)
+    {
 
         $serverVarName = $server.'_server';
 
         if(isset($this->$serverVarName)
-        && $this->$serverVarName instanceof Apache_Solr_Service) {
+        && $this->$serverVarName instanceof \Apache_Solr_Service) {
             return $this->$serverVarName;
         }
 
         try {
-            $config = Zend_Registry::get('Zend_Config');
-            $this->$serverVarName = new Apache_Solr_Service(
+            $config = \Zend_Registry::get('Zend_Config');
+            $this->$serverVarName = new \Apache_Solr_Service(
                     $config->searchengine->$server->host,
                     $config->searchengine->$server->port,
                     $config->searchengine->$server->app);
         }
-        catch (Apache_Solr_Exception $e) {
+        catch (\Apache_Solr_Exception $e) {
             $msg = 'Connection to Solr server' . $this->{$server . '_server_url'} . 'could not be established';
             $this->log->err($msg . ": " . $e->getMessage());
             throw new Opus_Search_Exception($msg, null, $e);
@@ -155,19 +165,20 @@ class Opus_Search_Util_Indexer
     }
 
     /**
-     * @param Zend_Config $config Configuration from which to read from.
+     * @param \Zend_Config $config Configuration from which to read from.
      * @param string $configParamName Name of the config parameter needed for output purposes.
      * @return string Returns the value of the given configuration parameter if
      * it exists in config file and is not empty.
-     * @throws Opus_Search_InvalidConfigurationException If the given configuration parameter
+     * @throws InvalidConfigurationException If the given configuration parameter
      * is empty.
      */
-    private function checkForExistence($config, $server, $param) {
+    private function checkForExistence($config, $server, $param)
+    {
         $paramValue = $config->searchengine->$server->$param;
         if (empty($paramValue)) {
             $msg = "Configuration parameter searchengine.$server.$param is empty.";
             $this->log->err($msg);
-            throw new Opus_Search_InvalidConfigurationException($msg);
+            throw new InvalidConfigurationException($msg);
         }
         return trim($paramValue);
     }
@@ -176,14 +187,15 @@ class Opus_Search_Util_Indexer
      * Add a document to the index.  The changes are not visible and a
      * subsequent call to commit is required, to make the changes visible.
      *
-     * @param Opus_Document $doc Model of the document that should be added to the index
-     * @throws InvalidArgumentException If given document $doc is null.
-     * @throws Opus_Search_Exception If adding document to Solr index failed.
+     * @param \Opus_Document $doc Model of the document that should be added to the index
+     * @throws \InvalidArgumentException If given document $doc is null.
+     * @throws Exception If adding document to Solr index failed.
      * @return $this (fluent interface)
      */
-    public function addDocumentToEntryIndex(Opus_Document $doc) {
+    public function addDocumentToEntryIndex(\Opus_Document $doc)
+    {
         if (is_null($doc)) {
-            throw new InvalidArgumentException("Document parameter must not be NULL.");
+            throw new \InvalidArgumentException("Document parameter must not be NULL.");
         }
         try {
             // send xml directly to solr server instead of wrapping the document data
@@ -193,7 +205,7 @@ class Opus_Search_Util_Indexer
         catch (Exception $e) {
             $msg = 'Error while adding document with id ' . $doc->getId();
             $this->log->err("$msg : " . get_class($e) .': '. $e->getMessage());
-            throw new Opus_Search_Exception($msg, 0, $e);
+            throw new Exception($msg, 0, $e);
         }
         return $this;
     }
@@ -202,16 +214,17 @@ class Opus_Search_Util_Indexer
      * Removes a document from the index.  The changes are not visible and a
      * subsequent call to commit is required, to make the changes visible.
      *
-     * @param Opus_Document $doc Model of the document that should be removed to the index
-     * @throws InvalidArgumentException If given document $doc is null.
-     * @throws Opus_Search_Exception If deleting document failed.
+     * @param \Opus_Document $doc Model of the document that should be removed to the index
+     * @throws \InvalidArgumentException If given document $doc is null.
+     * @throws Exception If deleting document failed.
      * @return $this (fluent interface)
      *
      * @see removeDocumentFromEntryIndexById()
      */
-    public function removeDocumentFromEntryIndex(Opus_Document $doc = null) {
+    public function removeDocumentFromEntryIndex(\Opus_Document $doc = null)
+    {
         if (is_null($doc)) {
-            throw new InvalidArgumentException("Document parameter must not be NULL.");
+            throw new \InvalidArgumentException("Document parameter must not be NULL.");
         }
         $this->removeDocumentFromEntryIndexById($doc->getId());
         return $this;
@@ -222,21 +235,22 @@ class Opus_Search_Util_Indexer
      * subsequent call to commit is required, to make the changes visible.
      *
      * @param int $documentId Id document that should be removed to the index
-     * @throws InvalidArgumentException If given document $documentId is null.
-     * @throws Opus_Search_Exception If deleting document failed.
+     * @throws \InvalidArgumentException If given document $documentId is null.
+     * @throws Exception If deleting document failed.
      * @return $this (fluent interface)
      */
-    public function removeDocumentFromEntryIndexById($documentId = null) {
+    public function removeDocumentFromEntryIndexById($documentId = null)
+    {
         if (true !== isset($documentId)) {
-            throw new InvalidArgumentException("DocumentId parameter must not be NULL.");
+            throw new \InvalidArgumentException("DocumentId parameter must not be NULL.");
         }
         try {
             $this->getSolrServer('index')->deleteById($documentId);
         }
-        catch (Apache_Solr_Exception $e) {
+        catch (\Apache_Solr_Exception $e) {
             $msg = 'Error while deleting document with id ' . $documentId;
             $this->log->err("$msg : " . $e->getMessage());
-            throw new Opus_Search_Exception($msg, 0, $e);
+            throw new Exception($msg, 0, $e);
         }
         return $this;
     }
@@ -245,19 +259,20 @@ class Opus_Search_Util_Indexer
      * Returns an xml representation of the given document in the format that is
      * expected by Solr.
      *
-     * @param Opus_Document $doc
-     * @return DOMDocument
+     * @param \Opus_Document $doc
+     * @return \DOMDocument
      */
-    private function getSolrXmlDocument(Opus_Document $doc) {
+    private function getSolrXmlDocument(\Opus_Document $doc)
+    {
         // Set up caching xml-model and get XML representation of document.
-        $caching_xml_model = new Opus_Model_Xml;
+        $caching_xml_model = new \Opus_Model_Xml;
         $caching_xml_model->setModel($doc);
         $caching_xml_model->excludeEmptyFields();
-        $caching_xml_model->setStrategy(new Opus_Model_Xml_Version1);
-        $cache = new Opus_Model_Xml_Cache($doc->hasPlugin('Opus_Document_Plugin_Index'));
+        $caching_xml_model->setStrategy(new \Opus_Model_Xml_Version1);
+        $cache = new \Opus_Model_Xml_Cache($doc->hasPlugin('Opus_Document_Plugin_Index'));
         $caching_xml_model->setXmlCache($cache);
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
 
         $modelXml = $caching_xml_model->getDomDocument();
 
@@ -265,22 +280,22 @@ class Opus_Search_Util_Indexer
         $this->attachFulltextToXml($modelXml, $doc->getFile(), $doc->getId());
 
         // Set up XSLT stylesheet
-        $xslt = new DomDocument;
+        $xslt = new \DomDocument;
         if ( isset( $config->searchengine->solr->xsltfile ) ) {
             $xsltFilePath = $config->searchengine->solr->xsltfile;
             if ( !file_exists( $xsltFilePath ) ) {
-                throw new Application_Exception( 'Solr XSLT file not found.' );
+                throw new \Application_Exception( 'Solr XSLT file not found.' );
             }
             $xslt->load( $xsltFilePath );
         } else {
-            throw new Application_Exception( 'Missing configuration of Solr XSLT file used to prepare Opus documents for indexing.' );
+            throw new \Application_Exception( 'Missing configuration of Solr XSLT file used to prepare Opus documents for indexing.' );
         }
 
         // Set up XSLT processor
-        $proc = new XSLTProcessor;
+        $proc = new \XSLTProcessor;
         $proc->importStyleSheet($xslt);
 
-        $solrXmlDocument = new DOMDocument();
+        $solrXmlDocument = new \DOMDocument();
         $solrXmlDocument->preserveWhiteSpace = false;
         $solrXmlDocument->loadXML($proc->transformToXML($modelXml));
 
@@ -297,12 +312,13 @@ class Opus_Search_Util_Indexer
      * for each file that is associated to the given document the fulltext and
      * path information are attached to the xml representation of the document model
      *
-     * @param DomDocument $modelXml
-     * @param Opus_File $files
+     * @param \DomDocument $modelXml
+     * @param \Opus_File $files
      * @param $docId
      * @return void
      */
-    private function attachFulltextToXml($modelXml, $files, $docId) {
+    private function attachFulltextToXml($modelXml, $files, $docId)
+    {
         $docXml = $modelXml->getElementsByTagName('Opus_Document')->item(0);
         if (is_null($docXml)) {
             $this->log->warn('An error occurred while attaching fulltext information to the xml for document with id ' . $docId);
@@ -322,7 +338,7 @@ class Opus_Search_Util_Indexer
                 $this->totalFileCount++;
                 $fulltext = trim(iconv("UTF-8","UTF-8//IGNORE", $this->getFileContent($file)));
             }
-            catch (Opus_Search_Exception $e) {
+            catch (Exception $e) {
                 $this->errorFileCount++;
                 $this->log->err('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
             }
@@ -346,10 +362,11 @@ class Opus_Search_Util_Indexer
 
     /**
      *
-     * @param Opus_File $file
+     * @param \Opus_File $file
      * @return string
      */
-    private function getFulltextHash($file) {
+    private function getFulltextHash($file)
+    {
         $hash = '';
         try {
             $hash = $file->getRealHash('md5');
@@ -364,23 +381,24 @@ class Opus_Search_Util_Indexer
      * returns the extracted fulltext of the given file or an exception in
      * case of errors
      *
-     * @param Opus_File $file
-     * @throws Opus_Search_Exception
+     * @param \Opus_File $file
+     * @throws Exception
      * @return extracted fulltext
      */
-    private function getFileContent(Opus_File $file) {
+    private function getFileContent(\Opus_File $file)
+    {
         $this->log->debug('extracting fulltext from ' . $file->getPath());
         if (!$file->exists()) {
             $this->log->err($file->getPath() . ' does not exist.');
-            throw new Opus_Search_Exception($file->getPath() . ' does not exist.');
+            throw new Exception($file->getPath() . ' does not exist.');
         }
         if (!$file->isReadable()) {
             $this->log->err($file->getPath() . ' is not readable.');
-            throw new Opus_Search_Exception($file->getPath() . ' is not readable.');
+            throw new Exception($file->getPath() . ' is not readable.');
         }
         if (!$this->hasSupportedMimeType($file)) {
             $this->log->err($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
-            throw new Opus_Search_Exception($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
+            throw new Exception($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
         }
 
         // Check for cached ...
@@ -394,7 +412,7 @@ class Opus_Search_Util_Indexer
         try {
             $response = $this->getSolrServer('extract')->extract($file->getPath(), $params);
             // TODO add mime type information
-            $jsonResponse = Zend_Json_Decoder::decode($response->getRawResponse());
+            $jsonResponse = \Zend_Json_Decoder::decode($response->getRawResponse());
             if (array_key_exists('', $jsonResponse)) {
                 $fulltext = trim($jsonResponse['']);
 
@@ -405,7 +423,7 @@ class Opus_Search_Util_Indexer
         }
         catch (Exception $e) {
             $this->log->err('error while extracting fulltext from file ' . $file->getPath());
-            throw new Opus_Search_Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
+            throw new Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
         }
         return '';
     }
@@ -414,11 +432,12 @@ class Opus_Search_Util_Indexer
     /**
      * Construct name of fulltext cache file for given Opus_File object.
      *
-     * @param Opus_File $file
+     * @param \Opus_File $file
      * @return string Name of full absolute name of fulltext cache file or null if file name could not be computed.
      */
-    private function getCachedFileName(Opus_File $file) {
-        $config = Zend_Registry::get('Zend_Config');
+    private function getCachedFileName(\Opus_File $file)
+    {
+        $config = \Zend_Registry::get('Zend_Config');
         try {
             $hash = $file->getRealHash('md5') . "-" . $file->getRealHash('sha256');
         }
@@ -434,16 +453,17 @@ class Opus_Search_Util_Indexer
     /**
      * Cache extracted fulltext.  Do not create file if given fulltext is empty.
      *
-     * @param Opus_File $file
+     * @param \Opus_File $file
      * @param string $fulltext
      * @return void
      */
-    private function setCachedFileContent(Opus_File $file, $fulltext) {
+    private function setCachedFileContent(\Opus_File $file, $fulltext)
+    {
         if (empty($fulltext)) {
             return;
         }
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         $cache_file = $this->getCachedFileName($file);
 
         if (is_null($cache_file)) {
@@ -475,10 +495,11 @@ class Opus_Search_Util_Indexer
     /**
      * Try to load cached fulltext for given Opus_File object.
      *
-     * @param Opus_File $file
+     * @param \Opus_File $file
      * @return false|string Fulltext if loaded successfully, false otherwise.
      */
-    private function getCachedFileContent(Opus_File $file) {
+    private function getCachedFileContent(\Opus_File $file)
+    {
         $cache_file = $this->getCachedFileName($file);
 
         if (!is_null($cache_file) && is_readable($cache_file)) {
@@ -507,11 +528,12 @@ class Opus_Search_Util_Indexer
 
     /**
      *
-     * @param Opus_File $file
+     * @param \Opus_File $file
      * @return boolean Returns true if fulltext extraction for the file's MIME type
      * is supported.
      */
-    private function hasSupportedMimeType($file) {
+    private function hasSupportedMimeType($file)
+    {
         if (    $file->getMimeType() === 'text/html' ||
                 $file->getMimeType() === 'text/plain' ||
                 $file->getMimeType() === 'application/pdf' ||
@@ -528,7 +550,7 @@ class Opus_Search_Util_Indexer
      * subsequent call to commit is required, to make the changes visible.
      *
      * @param query
-     * @throws Opus_Search_Exception If deletion of all documents failed.
+     * @throws Exception If deletion of all documents failed.
      * @return void
      */
     public function deleteAllDocs() {
@@ -544,15 +566,16 @@ class Opus_Search_Util_Indexer
      * @throws Opus_Search_Exception If delete by query $query failed.
      * @return void
      */
-    public function deleteDocsByQuery($query) {
+    public function deleteDocsByQuery($query)
+    {
         try {
             $this->getSolrServer('index')->deleteByQuery($query);
             $this->log->info('deleted all docs that match ' . $query);
         }
-        catch (Apache_Solr_Exception $e) {
+        catch (\Apache_Solr_Exception $e) {
             $msg = 'Error while deleting all documents that match query ' . $query;
             $this->log->err("$msg : " . $e->getMessage());
-            throw new Opus_Search_Exception($msg, 0, $e);
+            throw new Exception($msg, 0, $e);
         }
     }
 
@@ -562,7 +585,8 @@ class Opus_Search_Util_Indexer
      * @param DOMDocument $solrXml
      * @return void
      */
-    private function sendSolrXmlToServer($solrXml) {
+    private function sendSolrXmlToServer($solrXml)
+    {
         $stream = stream_context_create();
         stream_context_set_option(
             $stream,
@@ -575,52 +599,56 @@ class Opus_Search_Util_Indexer
                 )
             )
         );
-        $response = new Apache_Solr_Response(@file_get_contents($this->index_server_url . '/update', false, $stream));
+        $response = new \Apache_Solr_Response(@file_get_contents($this->index_server_url . '/update', false, $stream));
         $this->log->debug('Solr Response Status: ' . $response->getHttpStatus());
         if (!$response->getRawResponse()) {
-            throw new Opus_Search_Exception("Solr Server {$this->index_server_url} not responding.");
+            throw new Exception("Solr Server {$this->index_server_url} not responding.");
         }
     }
 
     /**
      * Commits changes to the index
      *
-     * @throws Opus_Search_Exception If commit failed.
+     * @throws Exception If commit failed.
      * @return void
      */
-    public function commit() {
+    public function commit()
+    {
         try {
             $this->getSolrServer('index')->commit();
         }
-        catch (Apache_Solr_Exception $e) {
+        catch (\Apache_Solr_Exception $e) {
             $msg = 'Error while committing changes';
             $this->log->err("$msg : " . $e->getMessage());
-            throw new Opus_Search_Exception($msg, 0, $e);
+            throw new Exception($msg, 0, $e);
         }
     }
 
     /**
      * Optimizes the index
      *
-     * @throws Opus_Search_Exception If index optimization failed.
+     * @throws Exception If index optimization failed.
      * @return void
      */
-    public function optimize() {
+    public function optimize()
+    {
         try {
             $this->getSolrServer('index')->optimize();
         }
-        catch (Apache_Solr_Exception $e) {
+        catch (\Apache_Solr_Exception $e) {
             $msg = 'Error while performing index optimization';
             $this->log->err("$msg : " . $e->getMessage());
-            throw new Opus_Search_Exception($msg, 0, $e);
+            throw new Exception($msg, 0, $e);
         }
     }
 
-    public function getErrorFileCount() {
+    public function getErrorFileCount()
+    {
         return $this->errorFileCount;
     }
 
-    public function getTotalFileCount() {
+    public function getTotalFileCount()
+    {
         return $this->totalFileCount;
     }
 

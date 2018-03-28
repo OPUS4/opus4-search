@@ -25,45 +25,52 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Search
+ * @package     Opus\Search\Result
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace Opus\Search\Result;
 
 /**
  * Implements API for accessing single result of faceted search.
  */
 
-class Opus_Search_Result_Facet {
+class Facet
+{
 
     private $text;
     private $count;
 
-    public function  __construct($text, $count) {
+    public function  __construct($text, $count)
+    {
         $this->text = $text;
         $this->count = $count;
     }
 
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
     }
 
-    public function getCount() {
+    public function getCount()
+    {
         return $this->count;
     }
 
-    public function setCount($count) {
+    public function setCount($count)
+    {
         $this->count = $count;
     }
 
-    public function  __toString() {
+    public function  __toString()
+    {
         return $this->getText() . ' => ' . $this->getCount();
     }
 }

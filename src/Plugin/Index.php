@@ -26,24 +26,31 @@
  *
  * @category    Framework
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus\Search\Plugin;
+use Opus\Search\Exception;
+use Opus\Search\Service;
+use Opus\Search\Task\IndexOpusDocument;
 
 /**
  * Plugin for updating the solr index triggered by document changes.
  *
  * @category    Framework
- * @package     Opus_Document_Plugin
- * @uses        Opus_Model_Plugin_Abstract
+ * @package     Opus\Search\Plugin
+ * @uses        \Opus_Model_Plugin_Abstract
  */
-class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
+class Index extends \Opus_Model_Plugin_Abstract
+{
 
     private $config;
 
-    public function __construct($config = null) {
-        $this->config = is_null($config) ? Zend_Registry::get('Zend_Config') : $config;
+    public function __construct($config = null)
+    {
+        $this->config = is_null($config) ? \Zend_Registry::get('Zend_Config') : $config;
     }
 
     /**
@@ -53,13 +60,13 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
      *
      * If document state is set to something != published, remove document.
      *
-     * @param Opus_Model_AbstractDb $model item written to store before
-     * @see {Opus_Model_Plugin_Interface::postStore}
+     * @param \Opus_Model_AbstractDb $model item written to store before
+     * @see {\Opus_Model_Plugin_Interface::postStore}
      */
-    public function postStore(Opus_Model_AbstractDb $model) {
-
+    public function postStore(\Opus_Model_AbstractDb $model)
+    {
         // only index Opus_Document instances
-        if (false === ($model instanceof Opus_Document)) {
+        if (false === ($model instanceof \Opus_Document)) {
             return;
         }
 
@@ -67,7 +74,7 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
         // to reload the document, just to make sure the object is new,
         // unmodified and clean...
         // TODO: Write unit test.
-        $model = new Opus_Document($model->getId());
+        $model = new \Opus_Document($model->getId());
         if ($model->getServerState() !== 'published') {
             if ($model->getServerState() !== 'temporary') {
                 $this->removeDocumentFromIndexById($model->getId());
@@ -84,8 +91,8 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
      * @param mixed $modelId ID of item deleted before
      * @see {Opus_Model_Plugin_Interface::postDelete}
      */
-    public function postDelete($modelId) {
-
+    public function postDelete($modelId)
+    {
         if (null === $modelId) {
             return;
         }
@@ -99,16 +106,16 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
      *
      * @param $documentId
      */
-    private function removeDocumentFromIndexById( $documentId ) {
-
-        $log = Opus_Log::get();
+    private function removeDocumentFromIndexById( $documentId )
+    {
+        $log = \Opus_Log::get();
 
         if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
 
             $log->debug(__METHOD__ . ': ' .'Adding remove-index job for document ' . $documentId . '.');
 
-            $job = new Opus_Job();
-            $job->setLabel(Opus_Job_Worker_IndexOpusDocument::LABEL);
+            $job = new \Opus_Job();
+            $job->setLabel(IndexOpusDocument::LABEL);
             $job->setData(array(
                 'documentId' => $documentId,
                 'task' => 'remove'
@@ -124,10 +131,10 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
         } else {
             $log->debug(__METHOD__ . ': ' . 'Removing document ' . $documentId . ' from index.');
             try {
-	            Opus_Search_Service::selectIndexingService( 'onDocumentChange' )
+	            Service::selectIndexingService( 'onDocumentChange' )
 		            ->removeDocumentsFromIndexById( $documentId );
             }
-            catch (Opus_Search_Exception $e) {
+            catch (Exception $e) {
                 $log->debug(__METHOD__ . ': ' . 'Removing document-id ' . $documentId . ' from index failed: ' . $e->getMessage());
             }
         }
@@ -137,22 +144,22 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
     /**
      * Helper method to add document to index.
      *
-     * @param Opus_Document $document
+     * @param \Opus_Document $document
      * @return void
      */
-    private function addDocumentToIndex(Opus_Document $document) {
+    private function addDocumentToIndex(\Opus_Document $document) {
 
 	    $documentId = $document->getId();
 
-        $log = Opus_Log::get();
+        $log = \Opus_Log::get();
 
         // create job if asynchronous is set
         if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
 
             $log->debug(__METHOD__ . ': ' . 'Adding index job for document ' . $documentId . '.');
 
-            $job = new Opus_Job();
-            $job->setLabel(Opus_Job_Worker_IndexOpusDocument::LABEL);
+            $job = new \Opus_Job();
+            $job->setLabel(IndexOpusDocument::LABEL);
             $job->setData(array(
                 'documentId' => $documentId,
                 'task' => 'index'
@@ -171,13 +178,12 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             $log->debug(__METHOD__ . ': ' . 'Index document ' . $documentId . '.');
 
             try {
-	            Opus_Search_Service::selectIndexingService( 'onDocumentChange' )
-		            ->addDocumentsToIndex( $document );
+	            Service::selectIndexingService('onDocumentChange')->addDocumentsToIndex($document);
             }
-            catch (Opus_Search_Exception $e) {
+            catch (Exception $e) {
                 $log->debug(__METHOD__ . ': ' . 'Indexing document ' . $documentId . ' failed: ' . $e->getMessage());
             }
-            catch (InvalidArgumentException $e) {
+            catch (\InvalidArgumentException $e) {
                 $log->warn(__METHOD__ . ': ' . $e->getMessage());
             }
         }

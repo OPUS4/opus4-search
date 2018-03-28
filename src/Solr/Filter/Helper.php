@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,12 +27,17 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
-class Opus_Search_Solr_Filter_Helper {
-	public static function escapePhrase( $term ) {
+
+namespace Opus\Search\Solr\Filter;
+
+class Helper
+{
+
+	public static function escapePhrase( $term )
+    {
 		$term = trim( $term );
 
 		// add one " to the end of $query if it contains an odd number of "
@@ -50,7 +54,10 @@ class Opus_Search_Solr_Filter_Helper {
 				$result .= '"' . $phrase . '"';
 			} else {
 				$phrase = static::lowercaseLiterals( $phrase );
-				$result .= preg_replace( '/(\s+|\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\|\/)/', '\\\$1', $phrase );
+				$result .= preg_replace(
+				    '/(\s+|\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\|\/)/',
+                    '\\\$1', $phrase
+                );
 			}
 
 			$insidePhrase = !$insidePhrase;

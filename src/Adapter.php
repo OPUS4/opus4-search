@@ -27,11 +27,11 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace Opus\Search;
 
 /**
  * This class provides some base class for implementing search engine adapters
@@ -43,7 +43,8 @@
  * Opus_Search_Extracting each.
  */
 
-abstract class Opus_Search_Adapter {
+abstract class Adapter
+{
 	/**
 	 * Retrieves name of current adapter's search engine domain.
 	 *

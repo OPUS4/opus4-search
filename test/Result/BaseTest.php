@@ -27,14 +27,21 @@
  *
  * @category    Application
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Search_Result_BaseTest extends SimpleTestCase {
+namespace OpusTest\Search\Result;
 
-    public function testAddFacetYearInverted() {
-        $model = new Opus_Search_Result_Base();
+use Opus\Search\Result\Base;
+use OpusTest\Search\TestAsset\SimpleTestCase;
+
+class BaseTest extends SimpleTestCase
+{
+
+    public function testAddFacetYearInverted()
+    {
+        $model = new Base();
 
         $model->addFacet('year_inverted', '65212:2013', 3);
 
@@ -50,8 +57,9 @@ class Opus_Search_Result_BaseTest extends SimpleTestCase {
         $this->assertEquals(3, $value->getCount());
     }
 
-    public function testAddFacetYear() {
-        $model = new Opus_Search_Result_Base();
+    public function testAddFacetYear()
+    {
+        $model = new Base();
 
         $model->addFacet('year', '2013', 7);
 
@@ -67,8 +75,9 @@ class Opus_Search_Result_BaseTest extends SimpleTestCase {
         $this->assertEquals(7, $value->getCount());
     }
 
-    public function testAddMultipleFacetValues() {
-        $model = new Opus_Search_Result_Base();
+    public function testAddMultipleFacetValues()
+    {
+        $model = new Base();
 
         $model->addFacet('author', 'John', 3);
         $model->addFacet('author', 'Jane', 5);
@@ -89,5 +98,4 @@ class Opus_Search_Result_BaseTest extends SimpleTestCase {
         $this->assertEquals('Jane', $jane->getText());
         $this->assertEquals(5, $jane->getCount());
     }
-
 }

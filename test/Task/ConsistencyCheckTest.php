@@ -26,40 +26,50 @@
  *
  * @category    Framework Unit Test
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_Job_Worker_ConsistencyCheckTest extends TestCase {    
+namespace OpusTest\Search\Task;
+
+use Opus\Search\Task\ConsistencyCheck;
+use OpusTest\Search\TestAsset\TestCase;
+
+class ConsistencyCheckTest extends TestCase
+{
     
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
-        $this->job = new Opus_Job();
-        $this->worker = new Opus_Job_Worker_ConsistencyCheck();
+        $this->job = new \Opus_Job();
+        $this->worker = new ConsistencyCheck();
     }
     
-    public function testActivationLabel() {
-         $this->assertEquals(Opus_Job_Worker_ConsistencyCheck::LABEL, $this->worker->getActivationLabel());
+    public function testActivationLabel()
+    {
+         $this->assertEquals(ConsistencyCheck::LABEL, $this->worker->getActivationLabel());
     }
 
-    public function testInvalidJobExecution() {
+    public function testInvalidJobExecution()
+    {
         $this->job->setLabel('invalid-label');
         $this->setExpectedException('Opus_Job_Worker_InvalidJobException');
         $this->worker->work($this->job);
     }
 
-    public function testValidJobExecution() {
+    public function testValidJobExecution()
+    {
         // create a published test doc
-        $doc = new Opus_Document();
+        $doc = new \Opus_Document();
         $doc->setServerState('published');
         $doc->store();
 
-        $this->job->setLabel(Opus_Job_Worker_ConsistencyCheck::LABEL);
+        $this->job->setLabel(ConsistencyCheck::LABEL);
         $this->worker->work($this->job);
         
         // check if consistency check log file was created and is not empty
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         $logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus_consistency-check.log';
         $this->assertFileExists($logfilePath);
         

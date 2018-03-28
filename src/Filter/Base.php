@@ -27,11 +27,13 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace Opus\Search\Filter;
+
+use Opus\Search\Filtering;
 
 /**
  * Describes base for all terms describing conditions to be met by matching
@@ -43,7 +45,7 @@
  * search query string complying with query syntax of particular search engine.
  */
 
-abstract class Opus_Search_Filter_Base implements Opus_Search_Filtering {
+abstract class Base implements Filtering {
 
 	/**
 	 * Compiles filter description to term for use with search engine adapter.

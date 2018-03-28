@@ -27,64 +27,77 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace OpusTest\Search\Solr\Solarium;
 
-class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCase {
+use Opus\Search\Exception;
+use Opus\Search\Query;
+use Opus\Search\QueryFactory;
+use Opus\Search\Service;
+use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
-	public function testService() {
-		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
+class AdapterSearchingTest extends DocumentBasedTestCase {
+
+	public function testService()
+    {
+		$search = Service::selectSearchingService( null, 'solr' );
 		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $search );
 	}
 
 	/**
-	 * @expectedException Opus_Search_Exception
+	 * @expectedException Exception
 	 */
-	public function testDisfunctServiceFails() {
+	public function testDisfunctServiceFails()
+    {
 		// need to drop deprecated configuration options for interfering with
 		// intention of this test regarding revised configuration structure, only
 		$this->dropDeprecatedConfiguration();
 
-		Opus_Search_Service::selectSearchingService( 'disfunct', 'solr' );
+		Service::selectSearchingService( 'disfunct', 'solr' );
 	}
 
-	public function testEmptyIndex() {
-		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
+	public function testEmptyIndex()
+    {
+		$search = Service::selectSearchingService( null, 'solr' );
 		$result = $search->customSearch( Opus_Search_QueryFactory::selectAllDocuments( $search ) );
 
 		$this->assertEquals( 0, $result->getAllMatchesCount() );
 	}
 
-	public function testEmptyIndexNamed() {
-		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
+	public function testEmptyIndexNamed()
+    {
+		$search = Service::selectSearchingService( null, 'solr' );
 		$result = $search->namedSearch( 'alldocs' );
 
 		$this->assertEquals( 0, $result->getAllMatchesCount() );
 	}
 
-	public function testSingleDoc() {
+	public function testSingleDoc()
+    {
 		$doc = $this->createDocument( 'article' );
 
-		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
+		$index = Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( $doc );
-		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$result = $search->customSearch( Opus_Search_QueryFactory::selectAllDocuments( $search ) );
+		$search = Service::selectSearchingService( null, 'solr' );
+		$result = $search->customSearch( QueryFactory::selectAllDocuments( $search ) );
 
 		$this->assertEquals( 1, $result->getAllMatchesCount() );
 
 		$this->assertEquals( $doc->getId(), $result->getReturnedMatches()[0]->getId() );
 	}
 
-	public function testSingleDocNamed() {
+	public function testSingleDocNamed()
+    {
 		$doc = $this->createDocument( 'article' );
 
-		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
+		$index = Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( $doc );
 
-		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
+		$search = Service::selectSearchingService( null, 'solr' );
 		$result = $search->namedSearch( 'alldocs' );
 
 		$this->assertEquals( 1, $result->getAllMatchesCount() );
@@ -92,89 +105,94 @@ class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCa
 		$this->assertEquals( $doc->getId(), $result->getReturnedMatches()[0]->getId() );
 	}
 
-	public function testClearedIndex() {
+	public function testClearedIndex()
+    {
 		$doc = $this->createDocument( 'article' );
 
-		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
+		$index = Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( $doc );
 
 		$index->removeDocumentsFromIndexbyId( $doc->getId() );
 
-		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$result = $search->customSearch( Opus_Search_QueryFactory::selectAllDocuments( $search ) );
+		$search = Service::selectSearchingService( null, 'solr' );
+		$result = $search->customSearch(QueryFactory::selectAllDocuments( $search ) );
 
 		$this->assertEquals( 0, $result->getAllMatchesCount() );
 	}
 
-	public function testClearedIndexNamed() {
+	public function testClearedIndexNamed()
+    {
 		$doc = $this->createDocument( 'article' );
 
-		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
+		$index = Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( $doc );
 
 		$index->removeDocumentsFromIndex( $doc );
 
-		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
+		$search = Service::selectSearchingService( null, 'solr' );
 		$result = $search->namedSearch( 'alldocs' );
 
 		$this->assertEquals( 0, $result->getAllMatchesCount() );
 	}
 
-	public function testTwoDocs() {
+	public function testTwoDocs()
+    {
 		$docA = $this->createDocument( 'article' );
 		$docB = $this->createDocument( 'book' );
 
-		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
+		$index = Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( array( $docA, $docB ) );
 
-		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$result = $search->customSearch( Opus_Search_QueryFactory::selectAllDocuments( $search ) );
+		$search = Service::selectSearchingService( null, 'solr' );
+		$result = $search->customSearch(QueryFactory::selectAllDocuments( $search ) );
 
 		$this->assertEquals( 2, $result->getAllMatchesCount() );
 	}
 
-	public function testTwoDocsNamed() {
+	public function testTwoDocsNamed()
+    {
 		$docA = $this->createDocument( 'article' );
 		$docB = $this->createDocument( 'book' );
 
-		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
+		$index = Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( array( $docA, $docB ) );
 
-		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
+		$search = Service::selectSearchingService( null, 'solr' );
 		$result = $search->namedSearch( 'alldocs' );
 
 		$this->assertEquals( 2, $result->getAllMatchesCount() );
 	}
 
-	public function testTwoDocsNamedSpecial() {
+	public function testTwoDocsNamedSpecial()
+    {
 		$docA = $this->createDocument( 'article' );
 		$docB = $this->createDocument( 'book' );
 
-		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
+		$index = Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( array( $docA, $docB ) );
 
-		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
+		$search = Service::selectSearchingService( null, 'solr' );
 		$result = $search->namedSearch( 'onedoc' );
 
 		$this->assertEquals( 2, $result->getAllMatchesCount() );
 		$this->assertEquals( 1, count( $result->getReturnedMatches() ) );
 	}
 
-	public function testTwoDocsNamedSpecialAdjusted() {
+	public function testTwoDocsNamedSpecialAdjusted()
+    {
 		$docA = $this->createDocument( 'article' );
 		$docB = $this->createDocument( 'book' );
 
-		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
+		$index = Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( array( $docA, $docB ) );
 
-		$opts = new Opus_Search_Query();
+		$opts = new Query();
 		$opts->setRows( 1 );
 
-		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
+		$search = Service::selectSearchingService( null, 'solr' );
 		$result = $search->namedSearch( 'alldocs', $opts );
 
 		$this->assertEquals( 2, $result->getAllMatchesCount() );
 		$this->assertEquals( 1, count( $result->getReturnedMatches() ) );
 	}
-
 }

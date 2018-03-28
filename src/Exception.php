@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -34,27 +33,32 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Search;
+
 /**
  * Implements common exception to be used in code of search engine adapters.
  *
  * TODO code duplication in extending classes
  */
-class Opus_Search_Exception extends Exception
+class Exception extends \Exception
 {
 
     const SERVER_UNREACHABLE = '1';
 
     const INVALID_QUERY = '2';
 
-    public function __construct($message, $code = null, $previous = null) {
+    public function __construct($message, $code = null, $previous = null)
+    {
         parent::__construct($message, $code, $previous);
     }
 
-    public function isServerUnreachable() {
+    public function isServerUnreachable()
+    {
         return $this->code == self::SERVER_UNREACHABLE;
     }
 
-    public function isInvalidQuery() {
+    public function isInvalidQuery()
+    {
         return $this->code == self::INVALID_QUERY;
     }
 
