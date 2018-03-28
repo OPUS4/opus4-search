@@ -39,7 +39,7 @@ use Opus\Search\Util\Query;
 use Opus\Search\Util\Searcher;
 use OpusTest\Search\TestAsset\TestCase;
 
-class Opus_Search_Util_SearcherTest extends TestCase
+class SearcherTest extends TestCase
 {
 
     public function tearDown()

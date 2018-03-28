@@ -33,12 +33,15 @@
 
 namespace OpusTest\Search\TestAsset;
 
+use Opus\Search\Config;
+
 /**
  * Superclass for all tests.  Providing maintainance tasks.
  *
  * @category Tests
  */
-class SimpleTestCase extends \PHPUnit_Framework_TestCase {
+class SimpleTestCase extends \PHPUnit_Framework_TestCase
+{
 
     private $config_backup;
 
@@ -51,10 +54,11 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase {
      *
      * @param array $overlay properties to overwrite existing values in configuration
      * @param callable $callback callback to invoke with adjusted configuration before enabling e.g. to delete some options
-     * @return Zend_Config reference on previously set configuration
+     * @return \Zend_Config reference on previously set configuration
      */
-    protected function adjustConfiguration( $overlay, $callback = null ) {
-        $previous = Zend_Registry::get( 'Zend_Config' );
+    protected function adjustConfiguration( $overlay, $callback = null )
+    {
+        $previous = \Zend_Registry::get( 'Zend_Config' );
         $updated  = new Zend_Config( array(), true );
 
         $updated
@@ -67,9 +71,9 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase {
 
         $updated->setReadOnly();
 
-        Zend_Registry::set( 'Zend_Config', $updated );
+        \Zend_Registry::set( 'Zend_Config', $updated );
 
-        Opus_Search_Config::dropCached();
+        Config::dropCached();
 
         return $previous;
     }
@@ -80,8 +84,9 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase {
      * setup due to using that deprecated configuration in preference.
      *
      */
-    protected function dropDeprecatedConfiguration() {
-        $config = Opus_Config::get()->searchengine;
+    protected function dropDeprecatedConfiguration()
+    {
+        $config = \Opus_Config::get()->searchengine;
 
         unset(
             $config->index->host,
@@ -92,7 +97,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase {
             $config->extract->app
         );
 
-        Opus_Search_Config::dropCached();
+        Config::dropCached();
     }
 
     /**
@@ -100,18 +105,20 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase {
      *
      * @return void
      */
-    protected function setUp() {
+    protected function setUp()
+    {
         parent::setUp();
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         if (!is_null($config)) {
             $this->config_backup = clone $config;
         }
     }
 
-    protected function  tearDown() {
+    protected function  tearDown()
+    {
         if (!is_null($this->config_backup)) {
-            Zend_Registry::set('Zend_Config', $this->config_backup);
+            \Zend_Registry::set('Zend_Config', $this->config_backup);
         }
 
         parent::tearDown();

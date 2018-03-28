@@ -32,22 +32,26 @@
  */
 
 namespace OpusTest\Search\TestAsset;
+use Opus\Search\Config;
+use Opus\Search\Service;
 
 /**
  * Superclass for all tests.  Providing maintainance tasks.
  *
  * @category Tests
  */
-class TestCase extends SimpleTestCase {
+class TestCase extends SimpleTestCase
+{
 
     /**
      * Empty all listed tables.
      *
      * @return void
      */
-    private function _clearTables() {
+    private function _clearTables()
+    {
         // This is needed to workaround the constraints on the parent_id column.
-        $adapter = Zend_Db_Table::getDefaultAdapter();
+        $adapter = \Zend_Db_Table::getDefaultAdapter();
         $this->assertNotNull($adapter);
 
         $adapter->query('SET FOREIGN_KEY_CHECKS = 0;');
@@ -66,8 +70,9 @@ class TestCase extends SimpleTestCase {
      * @param string $tablename Name of the table to be cleared.
      * @return void
      */
-    protected function clearTable($tablename) {
-        $adapter = Zend_Db_Table::getDefaultAdapter();
+    protected function clearTable($tablename)
+    {
+        $adapter = \Zend_Db_Table::getDefaultAdapter();
         $this->assertNotNull($adapter);
 
         $tablename = $adapter->quoteIdentifier($tablename);
@@ -80,15 +85,17 @@ class TestCase extends SimpleTestCase {
     /**
      * Removes all documents from Solr index.
      */
-    protected function clearSolrIndex() {
-	    Opus_Search_Service::selectIndexingService( null, 'solr' )->removeAllDocumentsFromIndex();
+    protected function clearSolrIndex()
+    {
+	    Service::selectIndexingService( null, 'solr' )->removeAllDocumentsFromIndex();
     }
 
     /**
      * Deletes folders in workspace/files in case a test didn't do proper cleanup.
      * @param null $directory
      */
-    protected function clearFiles($directory = null) {
+    protected function clearFiles($directory = null)
+    {
         if (is_null($directory)) {
             if (empty(APPLICATION_PATH)) {
                 return;
@@ -125,17 +132,19 @@ class TestCase extends SimpleTestCase {
      *
      * @return void
      */
-    protected function setUp() {
+    protected function setUp()
+    {
         parent::setUp();
 
-        Opus_Search_Config::dropCached();
-        Opus_Search_Service::dropCached();
+        Config::dropCached();
+        Service::dropCached();
 
         $this->_clearTables();
         $this->clearSolrIndex();
     }
 
-    protected function tearDown() {
+    protected function tearDown()
+    {
         $this->clearSolrIndex();
 
         parent::tearDown();
