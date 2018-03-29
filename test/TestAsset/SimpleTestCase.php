@@ -26,9 +26,9 @@
  *
  * @category    Tests
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 namespace OpusTest\Search\TestAsset;
@@ -39,12 +39,14 @@ use Opus\Search\Config;
  * Superclass for all tests.  Providing maintainance tasks.
  *
  * @category Tests
+ *
+ * TODO add necessary test resources
+ * TODO how to prepare database for testing?
  */
 class SimpleTestCase extends \PHPUnit_Framework_TestCase
 {
 
     private $config_backup;
-
 
     /**
      * Overwrites selected properties of current configuration.
@@ -98,6 +100,36 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
         );
 
         Config::dropCached();
+    }
+
+    /**
+     * @beforeClass
+     */
+    public static function setUpBeforeClass()
+    {
+        defined('APPLICATION_PATH') || define('APPLICATION_PATH', realpath(dirname(dirname(dirname(__FILE__)))));
+
+        $workspacePath = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'build' .DIRECTORY_SEPARATOR . 'workspace';
+
+        self::createFolder( $workspacePath . DIRECTORY_SEPARATOR . 'cache');
+        self::createFolder( $workspacePath . DIRECTORY_SEPARATOR . 'log');
+
+        $configPath = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'config.ini';
+
+        $application = new \Zend_Application('testing', array(
+            'config' => array($configPath)
+        ));
+
+        \Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
+
+        $application->bootstrap(array('Database', 'Temp', 'OpusLocale'));
+    }
+
+    public static function createFolder($path)
+    {
+        if (!file_exists($path)) {
+            mkdir($path, 0700, true);
+        }
     }
 
     /**
