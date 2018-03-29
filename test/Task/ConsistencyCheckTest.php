@@ -38,17 +38,17 @@ use OpusTest\Search\TestAsset\TestCase;
 
 class ConsistencyCheckTest extends TestCase
 {
-    
+
     public function setUp()
     {
         parent::setUp();
         $this->job = new \Opus_Job();
         $this->worker = new ConsistencyCheck();
     }
-    
+
     public function testActivationLabel()
     {
-         $this->assertEquals(ConsistencyCheck::LABEL, $this->worker->getActivationLabel());
+        $this->assertEquals(ConsistencyCheck::LABEL, $this->worker->getActivationLabel());
     }
 
     public function testInvalidJobExecution()
@@ -67,15 +67,16 @@ class ConsistencyCheckTest extends TestCase
 
         $this->job->setLabel(ConsistencyCheck::LABEL);
         $this->worker->work($this->job);
-        
+
         // check if consistency check log file was created and is not empty
         $config = \Zend_Registry::get('Zend_Config');
-        $logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus_consistency-check.log';
+        $logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR
+            . 'opus_consistency-check.log';
         $this->assertFileExists($logfilePath);
-        
+
         $content = file_get_contents($logfilePath);
         $this->assertContains('checking 1 published documents for consistency.', $content);
         $this->assertContains('No inconsistency was detected.', $content);
         $this->assertContains('Completed operation after ', $content);
-    }    
+    }
 }
