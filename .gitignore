@@ -1,5 +1,6 @@
-# Build artifacts
+# Local files
 build
+test/config.ini
 
 # IDE files
 .idea
