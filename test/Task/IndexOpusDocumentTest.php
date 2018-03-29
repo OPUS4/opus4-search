@@ -51,9 +51,10 @@ class IndexOpusDocumentTest extends TestCase
 
         $job = new \Opus_Job();
         $job->setLabel('opus-index-document');
-        $job->setData(array(
+        $job->setData([
             'documentId' => $documentId,
-            'task' => 'index'));
+            'task' => 'index'
+        ]);
 
         $indexWorker = new IndexOpusDocument();
 

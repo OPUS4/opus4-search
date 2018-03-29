@@ -57,9 +57,10 @@ class RunnerTest extends TestCase
 
         $job = new \Opus_Job();
         $job->setLabel('opus-index-document');
-        $job->setData(array(
+        $job->setData([
             'documentId' => $documentId,
-            'task' => 'get-me-a-coffee'));
+            'task' => 'get-me-a-coffee'
+        ]);
         $jobId = $job->store();
 
         $indexWorker = new IndexOpusDocument();
@@ -84,9 +85,10 @@ class RunnerTest extends TestCase
 
         $job = new \Opus_Job();
         $job->setLabel('opus-index-document');
-        $job->setData(array(
+        $job->setData([
             'documentId' => $documentId,
-            'task' => 'index'));
+            'task' => 'index'
+        ]);
         $jobId = $job->store();
 
         $indexWorker = new IndexOpusDocument();
@@ -96,9 +98,8 @@ class RunnerTest extends TestCase
         $runner->run();
         $this->setExpectedException('Opus_Model_NotFoundException');
         $job = new \Opus_Job($jobId);
-        if($job instanceof \Opus_Job) {
+        if ($job instanceof \Opus_Job) {
             $job->delete();
         }
     }
 }
-
