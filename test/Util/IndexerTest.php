@@ -81,21 +81,21 @@ class IndexerTest extends TestCase
      * @var array  An array of arrays of arrays. Each 'inner' array must be an
      * associative array that represents valid document data.
      */
-    protected static $_validDocumentData = array(
-        'Type'                    => 'article',
-        'Language'                => 'deu',
+    protected static $_validDocumentData = [
+        'Type' => 'article',
+        'Language' => 'deu',
         'ContributingCorporation' => 'Contributing, Inc.',
-        'CreatingCorporation'     => 'Creating, Inc.',
-        'ThesisDateAccepted'      => '1901-01-01',
-        'Edition'                 => 2,
-        'Issue'                   => 3,
-        'Volume'                  => 1,
-        'PageFirst'               => 1,
-        'PageLast'                => 297,
-        'PageNumber'              => 297,
-        'CompletedYear'           => 1960,
-        'CompletedDate'           => '1901-01-01',
-    );
+        'CreatingCorporation' => 'Creating, Inc.',
+        'ThesisDateAccepted' => '1901-01-01',
+        'Edition' => 2,
+        'Issue' => 3,
+        'Volume' => 1,
+        'PageFirst' => 1,
+        'PageLast' => 297,
+        'PageNumber' => 297,
+        'CompletedYear' => 1960,
+        'CompletedDate' => '1901-01-01',
+    ];
 
     /**
      * Valid document data provider
@@ -119,9 +119,9 @@ class IndexerTest extends TestCase
         $this->indexer = Service::selectIndexingService();
 
         $document = new \Opus_Document();
-        foreach ( self::$_validDocumentData as $fieldname => $value ) {
+        foreach (self::$_validDocumentData as $fieldname => $value) {
             $callname = 'set' . $fieldname;
-            $document->$callname( $value );
+            $document->$callname($value);
         }
         $document->store();
         $this->document_id = $document->getId();
@@ -134,13 +134,13 @@ class IndexerTest extends TestCase
     {
         // remove test documents under tests/workspace/files/$document_id
         $dirname = $this->files_dir . DIRECTORY_SEPARATOR . $this->document_id;
-        if ( is_dir( $dirname ) && is_readable( $dirname ) ) {
-            foreach ( glob( $dirname . "/*" ) as $filename ) {
-                if ( is_readable( $filename ) ) {
-                    unlink( $filename );
+        if (is_dir($dirname) && is_readable($dirname)) {
+            foreach (glob($dirname . "/*") as $filename) {
+                if (is_readable($filename)) {
+                    unlink($filename);
                 }
             }
-            rmdir( $dirname );
+            rmdir($dirname);
         }
 
         parent::tearDown();
@@ -149,18 +149,20 @@ class IndexerTest extends TestCase
     /**
      * @expectedException InvalidConfigurationException
      */
-    public function testMissingConfigParamSearchEngine_Index_Host()
+    public function testMissingConfigParamSearchEngineIndexHost()
     {
-        $this->markTestSkipped( 'not supported in Opus_Search API due to passing configuration to 3rd-party library for processing' );
+        $this->markTestSkipped(
+            'not supported in Opus_Search API due to passing configuration to 3rd-party library for processing'
+        );
 
-        $this->adjustConfiguration( array(), function (\Zend_Config $config) {
+        $this->adjustConfiguration([], function (\Zend_Config $config) {
             unset(
                 $config->searchengine->solr->default->service->index->endpoint->primary->host,
                 $config->searchengine->solr->default->service->default->endpoint->primary->host
             );
 
             return $config;
-        } );
+        });
 
         Service::selectIndexingService()->removeAllDocumentsFromIndex();
     }
@@ -168,18 +170,20 @@ class IndexerTest extends TestCase
     /**
      * @expectedException Opus_Search_InvalidConfigurationException
      */
-    public function testMissingConfigParamSearchEngine_Index_Port()
+    public function testMissingConfigParamSearchEngineIndexPort()
     {
-        $this->markTestSkipped( 'not supported in Opus_Search API due to passing configuration to 3rd-party library for processing' );
+        $this->markTestSkipped(
+            'not supported in Opus_Search API due to passing configuration to 3rd-party library for processing'
+        );
 
-        $this->adjustConfiguration( array(), function ( Zend_Config $config ) {
+        $this->adjustConfiguration([], function (Zend_Config $config) {
             unset(
                 $config->searchengine->solr->default->service->index->endpoint->primary->port,
                 $config->searchengine->solr->default->service->default->endpoint->primary->port
             );
 
             return $config;
-        } );
+        });
 
         Service::selectIndexingService()->removeAllDocumentsFromIndex();
     }
@@ -187,29 +191,31 @@ class IndexerTest extends TestCase
     /**
      * @expectedException InvalidConfigurationException
      */
-    public function testMissingConfigParamSearchEngine_Index_Path()
+    public function testMissingConfigParamSearchEngineIndexPath()
     {
-        $this->markTestSkipped( 'not supported in Opus_Search API due to passing configuration to 3rd-party library for processing' );
+        $this->markTestSkipped(
+            'not supported in Opus_Search API due to passing configuration to 3rd-party library for processing'
+        );
 
-        $this->adjustConfiguration( array(), function ( \Zend_Config $config ) {
+        $this->adjustConfiguration([], function (\Zend_Config $config) {
             unset(
                 $config->searchengine->solr->default->service->index->endpoint->primary->path,
                 $config->searchengine->solr->default->service->default->endpoint->primary->path
             );
 
             return $config;
-        } );
+        });
 
         Service::selectIndexingService()->removeAllDocumentsFromIndex();
     }
 
     public function testMissingConfigParamLogPrepareXml()
     {
-        $this->adjustConfiguration( array(), function (\Zend_Config $config) {
-            unset( $config->log->prepare->xml );
+        $this->adjustConfiguration([], function (\Zend_Config $config) {
+            unset($config->log->prepare->xml);
 
             return $config;
-        } );
+        });
 
         $this->_addOneDocumentToIndex();
     }
@@ -219,11 +225,15 @@ class IndexerTest extends TestCase
      */
     public function testEmptyConfiguration()
     {
-        $this->markTestSkipped( 'not supported in Opus_Search API due to passing configuration to 3rd-party library for processing' );
+        $this->markTestSkipped(
+            'not supported in Opus_Search API due to passing configuration to 3rd-party library for processing'
+        );
 
-        $this->adjustConfiguration( array(
-            'searchengine' => array( 'solr' => array( 'default' => array( 'service' => array( 'index' => array( 'endpoint' => array( 'primary' => array( 'path' => '' ) ) ) ) ) ) )
-        ) );
+        $this->adjustConfiguration([
+            'searchengine' => ['solr' => ['default' => ['service' => ['index' => ['endpoint' => ['primary' => [
+                'path' => ''
+            ]]]]]]]
+        ]);
 
         Service::selectIndexingService()->removeAllDocumentsFromIndex();
     }
@@ -233,36 +243,38 @@ class IndexerTest extends TestCase
      */
     public function testInvalidConfiguration()
     {
-        $this->markTestSkipped( 'not supported in Opus_Search API due to passing configuration to 3rd-party library for processing' );
+        $this->markTestSkipped(
+            'not supported in Opus_Search API due to passing configuration to 3rd-party library for processing'
+        );
 
-        $this->adjustConfiguration( array(
-            'searchengine' => array(
-                'solr' => array(
-                    'default' => array(
-                        'service' => array(
-                            'index' => array(
-                                'endpoint' => array(
-                                    'primary' => array(
+        $this->adjustConfiguration([
+            'searchengine' => [
+                'solr' => [
+                    'default' => [
+                        'service' => [
+                            'index' => [
+                                'endpoint' => [
+                                    'primary' => [
                                         'host' => 'examplehost',
                                         'port' => 'exampleport',
                                         'path' => 'this_solr_instance_name_does_not_exist'
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-        ) );
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]);
 
         Service::selectIndexingService()->removeAllDocumentsFromIndex();
     }
 
     public function testPrepareAndOutputXML()
     {
-        $this->adjustConfiguration( array(
-                                        'log' => array( 'prepare' => array( 'xml' => true ) )
-                                    ) );
+        $this->adjustConfiguration([
+            'log' => ['prepare' => ['xml' => true]]
+        ]);
 
         $this->_addOneDocumentToIndex();
     }
@@ -270,53 +282,53 @@ class IndexerTest extends TestCase
     public function testAddDocumentToEmptyIndex()
     {
         $this->_addOneDocumentToIndex();
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
     }
 
     public function testRemoveDocumentFromIndex()
     {
         $this->_addOneDocumentToIndex();
 
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
 
-        $document = new \Opus_Document( $this->document_id );
-        $this->indexer->removeDocumentsFromIndex( $document );
+        $document = new \Opus_Document($this->document_id);
+        $this->indexer->removeDocumentsFromIndex($document);
 
-        $this->assertEquals( 0, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(0, $this->_getNumberOfIndexDocs());
     }
 
     public function testRemoveDocumentArrayFromIndex()
     {
         $this->_addOneDocumentToIndex();
 
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
 
-        $document = new \Opus_Document( $this->document_id );
-        $this->indexer->removeDocumentsFromIndex( array( $document ) );
+        $document = new \Opus_Document($this->document_id);
+        $this->indexer->removeDocumentsFromIndex([$document]);
 
-        $this->assertEquals( 0, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(0, $this->_getNumberOfIndexDocs());
     }
 
     public function testRemoveDocumentByIdFromIndex()
     {
         $this->_addOneDocumentToIndex();
 
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
 
-        $this->indexer->removeDocumentsFromIndexById( $this->document_id );
+        $this->indexer->removeDocumentsFromIndexById($this->document_id);
 
-        $this->assertEquals( 0, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(0, $this->_getNumberOfIndexDocs());
     }
 
     public function testRemoveDocumentArrayByIdFromIndex()
     {
         $this->_addOneDocumentToIndex();
 
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
 
-        $this->indexer->removeDocumentsFromIndexById( array( $this->document_id ) );
+        $this->indexer->removeDocumentsFromIndexById([$this->document_id]);
 
-        $this->assertEquals( 0, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(0, $this->_getNumberOfIndexDocs());
     }
 
     /**
@@ -326,7 +338,7 @@ class IndexerTest extends TestCase
     {
         $this->_addOneDocumentToIndex();
 
-        $this->indexer->removeDocumentsFromIndex( null );
+        $this->indexer->removeDocumentsFromIndex(null);
     }
 
     /**
@@ -342,23 +354,23 @@ class IndexerTest extends TestCase
     public function testDeleteAllDocsFromNonEmptyIndex()
     {
         $this->_addOneDocumentToIndex();
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
 
         $this->indexer->removeAllDocumentsFromIndex();
 
-        $this->assertEquals( 0, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(0, $this->_getNumberOfIndexDocs());
     }
 
     public function testDeleteAllDocsFromEmptyIndex()
     {
         $this->indexer->removeAllDocumentsFromIndex();
 
-        $this->assertEquals( 0, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(0, $this->_getNumberOfIndexDocs());
     }
 
     public function testDeleteDocsByMatchingQuery()
     {
-        $this->markTestSkipped( 'not supported by Opus_Search API' );
+        $this->markTestSkipped('not supported by Opus_Search API');
 
         /*		$this->_addOneDocumentToIndex();
 
@@ -373,7 +385,7 @@ class IndexerTest extends TestCase
 
     public function testDeleteDocsByNonMatchingQuery()
     {
-        $this->markTestSkipped( 'not supported by Opus_Search API' );
+        $this->markTestSkipped('not supported by Opus_Search API');
 
         /*		$this->_addOneDocumentToIndex();
 
@@ -389,7 +401,7 @@ class IndexerTest extends TestCase
 
     public function testDeleteDocsByInvalidQuery()
     {
-        $this->markTestSkipped( 'not supported by Opus_Search API' );
+        $this->markTestSkipped('not supported by Opus_Search API');
 
         /*		$this->setExpectedException( 'Opus_SolrSearch_Index_Exception' );
                 $this->indexer->deleteDocsByQuery( 'id:' );*/
@@ -397,110 +409,110 @@ class IndexerTest extends TestCase
 
     public function testCommit()
     {
-        $this->markTestSkipped( 'not supported by Opus_Search API' );
+        $this->markTestSkipped('not supported by Opus_Search API');
 
         /*		$this->indexer->commit();*/
     }
 
     public function testOptimize()
     {
-        $this->markTestSkipped( 'not supported by Opus_Search API' );
+        $this->markTestSkipped('not supported by Opus_Search API');
 
         /*		$this->indexer->optimize();*/
     }
 
     public function testFulltextExtractionPdf()
     {
-        $this->_addFileToDocument( 'test.pdf', 'PDF fulltext' );
+        $this->_addFileToDocument('test.pdf', 'PDF fulltext');
 
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
     }
 
     public function testFulltextExtractionPostscript()
     {
-        $this->_addFileToDocument( 'test.ps', 'PS fulltext' );
+        $this->_addFileToDocument('test.ps', 'PS fulltext');
 
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
     }
 
     public function testFulltextExtractionHtml()
     {
-        $this->_addFileToDocument( 'test.html', 'HTML fulltext' );
+        $this->_addFileToDocument('test.html', 'HTML fulltext');
 
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
     }
 
     public function testFulltextExtractionXhtml()
     {
-        $this->_addFileToDocument( 'test.xhtml', 'XHTML fulltext' );
+        $this->_addFileToDocument('test.xhtml', 'XHTML fulltext');
 
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
     }
 
     public function testFulltextExtractionText()
     {
-        $this->_addFileToDocument( 'test.txt', 'TXT fulltext' );
+        $this->_addFileToDocument('test.txt', 'TXT fulltext');
 
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
     }
 
     public function testFulltextExtractionWithNonExistentFile()
     {
-        $doc = new \Opus_Document( $this->document_id );
+        $doc = new \Opus_Document($this->document_id);
 
         $file = $doc->addFile();
-        $file->setPathName( 'nonexistent.pdf' );
-        $file->setLabel( 'non-existent PDF fulltext' );
+        $file->setPathName('nonexistent.pdf');
+        $file->setLabel('non-existent PDF fulltext');
 
         $doc->store();
 
-        $this->indexer->addDocumentsToIndex( $doc );
+        $this->indexer->addDocumentsToIndex($doc);
 
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
     }
 
     public function testFulltextExtractionWithNonSupportedMimeType()
     {
-        $this->_addFileToDocument( 'test.odt', 'ODT fulltext' );
+        $this->_addFileToDocument('test.odt', 'ODT fulltext');
 
-        $this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
     }
 
     public function testFulltextExtractionByContentForPdf()
     {
-        $this->_addFileToDocument( 'test.pdf', 'PDF fulltext' );
+        $this->_addFileToDocument('test.pdf', 'PDF fulltext');
 
-        $this->assertEquals( 1, $this->_searchTestFulltext() );
+        $this->assertEquals(1, $this->_searchTestFulltext());
     }
 
     public function testFulltextExtractionByContentForPostscript()
     {
         $this->markTestIncomplete();
 
-        $this->_addFileToDocument( 'test.ps', 'PS fulltext' );
+        $this->_addFileToDocument('test.ps', 'PS fulltext');
 
-        $this->assertEquals( 1, $this->_searchTestFulltext() );
+        $this->assertEquals(1, $this->_searchTestFulltext());
     }
 
     public function testFulltextExtractionByContentForText()
     {
-        $this->_addFileToDocument( 'test.txt', 'TXT fulltext' );
+        $this->_addFileToDocument('test.txt', 'TXT fulltext');
 
-        $this->assertEquals( 1, $this->_searchTestFulltext() );
+        $this->assertEquals(1, $this->_searchTestFulltext());
     }
 
     public function testFulltextExtractionByContentForHtml()
     {
-        $this->_addFileToDocument( 'test.html', 'HTML fulltext' );
+        $this->_addFileToDocument('test.html', 'HTML fulltext');
 
-        $this->assertEquals( 1, $this->_searchTestFulltext() );
+        $this->assertEquals(1, $this->_searchTestFulltext());
     }
 
     public function testFulltextExtractionByContentForXhtml()
     {
-        $this->_addFileToDocument( 'test.xhtml', 'XHTML fulltext' );
+        $this->_addFileToDocument('test.xhtml', 'XHTML fulltext');
 
-        $this->assertEquals( 1, $this->_searchTestFulltext() );
+        $this->assertEquals(1, $this->_searchTestFulltext());
     }
 
     private function _getNumberOfIndexDocs()
@@ -513,17 +525,17 @@ class IndexerTest extends TestCase
     private function _searchTestFulltext()
     {
         $search = Service::selectSearchingService();
-        $query  = $search->createQuery()->setFilter(
+        $query = $search->createQuery()->setFilter(
             $search->createFilter()->addFilter(Simple::createCatchAll('Lorem'))
         );
 
-        return $search->customSearch( $query )->getAllMatchesCount();
+        return $search->customSearch($query)->getAllMatchesCount();
     }
 
     private function _addOneDocumentToIndex()
     {
-        $document = new \Opus_Document( $this->document_id );
-        $this->indexer->addDocumentsToIndex( $document );
+        $document = new \Opus_Document($this->document_id);
+        $this->indexer->addDocumentsToIndex($document);
     }
 
     /**
@@ -531,32 +543,32 @@ class IndexerTest extends TestCase
      * @param string $filename
      * @param string $label
      */
-    private function _addFileToDocument( $filename, $label )
+    private function _addFileToDocument($filename, $label)
     {
-        $doc  = new \Opus_Document( $this->document_id );
+        $doc = new \Opus_Document($this->document_id);
         $file = $doc->addFile();
-        $file->setTempFile( APPLICATION_PATH . '/tests/fulltexts/' . $filename );
-        $file->setPathName( $filename );
-        $file->setLabel( $label );
-        $file->setVisibleInFrontdoor( '1' );
+        $file->setTempFile(APPLICATION_PATH . '/tests/fulltexts/' . $filename);
+        $file->setPathName($filename);
+        $file->setLabel($label);
+        $file->setVisibleInFrontdoor('1');
 
         $doc->store();
 
-        $this->indexer->addDocumentsToIndex( $doc );
+        $this->indexer->addDocumentsToIndex($doc);
     }
 
     public function testAttachFulltextToNull()
     {
-        $this->markTestSkipped( 'not supported in Opus_Search API' );
+        $this->markTestSkipped('not supported in Opus_Search API');
 
         // TODO is this intended behaviour of a unit test?
         // apply a hack to be able to test a private method directly
-        $class  = new \ReflectionClass( 'Opus_SolrSearch_Index_Indexer' );
-        $method = $class->getMethod( 'attachFulltextToXml' );
-        $method->setAccessible( true );
+        $class = new \ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('attachFulltextToXml');
+        $method->setAccessible(true);
 
         $indexer = new Indexer();
-        $method->invokeArgs( $indexer, array( new \DomDocument(), null, 1 ) );
+        $method->invokeArgs($indexer, [new \DomDocument(), null, 1]);
     }
 
     /**
@@ -565,31 +577,30 @@ class IndexerTest extends TestCase
     public function testIndexDocumentWithMultipleTitleMainInSameLanguage()
     {
         $doc = new \Opus_Document();
-        $doc->setServerState( 'published' );
-        $doc->setLanguage( 'eng' );
+        $doc->setServerState('published');
+        $doc->setLanguage('eng');
 
         $title = new \Opus_Title();
-        $title->setValue( 'foo' );
-        $title->setLanguage( 'eng' );
-        $doc->addTitleMain( $title );
+        $title->setValue('foo');
+        $title->setLanguage('eng');
+        $doc->addTitleMain($title);
 
         $title = new \Opus_Title();
-        $title->setValue( 'bar' );
-        $title->setLanguage( 'eng' );
-        $doc->addTitleMain( $title );
+        $title->setValue('bar');
+        $title->setLanguage('eng');
+        $doc->addTitleMain($title);
 
         $doc->store();
 
         $exception = null;
         try {
-            $this->indexer->addDocumentsToIndex( $doc );
-        }
-        catch ( \Exception $e ) {
+            $this->indexer->addDocumentsToIndex($doc);
+        } catch (\Exception $e) {
             $exception = $e;
         }
 
-        $this->assertNotNull( $exception );
-        $this->assertInstanceOf( 'Opus_Search_InvalidQueryException', $exception );
+        $this->assertNotNull($exception);
+        $this->assertInstanceOf('Opus_Search_InvalidQueryException', $exception);
 
         $doc->deletePermanent();
     }
@@ -600,31 +611,30 @@ class IndexerTest extends TestCase
     public function testIndexDocumentWithMultipleAbstractsInSameLanguage()
     {
         $doc = new \Opus_Document();
-        $doc->setServerState( 'published' );
-        $doc->setLanguage( 'eng' );
+        $doc->setServerState('published');
+        $doc->setLanguage('eng');
 
         $title = new \Opus_Title();
-        $title->setValue( 'foo' );
-        $title->setLanguage( 'eng' );
-        $doc->addTitleAbstract( $title );
+        $title->setValue('foo');
+        $title->setLanguage('eng');
+        $doc->addTitleAbstract($title);
 
         $title = new \Opus_Title();
-        $title->setValue( 'bar' );
-        $title->setLanguage( 'eng' );
-        $doc->addTitleAbstract( $title );
+        $title->setValue('bar');
+        $title->setLanguage('eng');
+        $doc->addTitleAbstract($title);
 
         $doc->store();
 
         $exception = null;
         try {
-            $this->indexer->addDocumentsToIndex( $doc );
-        }
-        catch (\Exception $e) {
+            $this->indexer->addDocumentsToIndex($doc);
+        } catch (\Exception $e) {
             $exception = $e;
         }
 
-        $this->assertNotNull( $exception );
-        $this->assertInstanceOf( '\Opus\Search\InvalidQueryException', $exception );
+        $this->assertNotNull($exception);
+        $this->assertInstanceOf('\Opus\Search\InvalidQueryException', $exception);
 
         $doc->deletePermanent();
     }
@@ -636,7 +646,7 @@ class IndexerTest extends TestCase
      */
     public function testIndexDocumentWithUnknownIndexField()
     {
-        $this->markTestSkipped( 'not supported in Opus_Search API' );
+        $this->markTestSkipped('not supported in Opus_Search API');
 
         $xml = new \DOMDocument();
         $xml->loadXML(
@@ -651,13 +661,14 @@ class IndexerTest extends TestCase
                     <field name="belongs_to_bibliography">false</field>
                     <field name="xyz_unknown_field">foo</field>
                   </doc>
-                </add>' );
+                </add>'
+        );
 
-        $class  = new \ReflectionClass( 'Opus\Search\Util\Indexer' );
-        $method = $class->getMethod( 'sendSolrXmlToServer' );
-        $method->setAccessible( true );
+        $class = new \ReflectionClass('Opus\Search\Util\Indexer');
+        $method = $class->getMethod('sendSolrXmlToServer');
+        $method->setAccessible(true);
 
-        $method->invoke( $this->indexer, $xml );
+        $method->invoke($this->indexer, $xml);
     }
 
     /**
@@ -665,33 +676,34 @@ class IndexerTest extends TestCase
      */
     public function testFulltextVisibilityIsConsideredInFacetForFrontdoorVisibleFulltext()
     {
-        $this->markTestSkipped( 'not supported in Opus_Search API' );
+        $this->markTestSkipped('not supported in Opus_Search API');
 
-/*		$doc = new Opus_Document( $this->document_id );
-        $doc->setServerState( 'published' );
-        $doc->setLanguage( 'eng' );
+        /*		$doc = new Opus_Document( $this->document_id );
+                $doc->setServerState( 'published' );
+                $doc->setLanguage( 'eng' );
 
-        $file = $doc->addFile();
-        $file->setTempFile( APPLICATION_PATH . '/tests/fulltexts' . DIRECTORY_SEPARATOR . 'test.pdf' );
-        $file->setPathName( 'test.pdf' );
-        $file->setVisibleInFrontdoor( '1' );
+                $file = $doc->addFile();
+                $file->setTempFile( APPLICATION_PATH . '/tests/fulltexts' . DIRECTORY_SEPARATOR . 'test.pdf' );
+                $file->setPathName( 'test.pdf' );
+                $file->setVisibleInFrontdoor( '1' );
 
-        $doc->store();
+                $doc->store();
 
-        $class  = new ReflectionClass( 'Opus_SolrSearch_Index_Indexer' );
-        $method = $class->getMethod( 'getSolrXmlDocument' );
-        $method->setAccessible( true );
+                $class  = new ReflectionClass( 'Opus_SolrSearch_Index_Indexer' );
+                $method = $class->getMethod( 'getSolrXmlDocument' );
+                $method->setAccessible( true );
 
-        $xml       = $method->invoke( $this->indexer, $doc );
-        $xmlString = $xml->saveXML();
-        $this->assertContains( '<field name="has_fulltext">true</field>', $xmlString );
-        $this->assertNotContains( '<field name="has_fulltext">false</field>', $xmlString );
-        $this->assertContains( '<field name="fulltext_id_success">' . $file->getId() . ':' . $file->getRealHash( 'md5' ) . '</field>', $xmlString );
-        $this->assertNotContains( '<field name="fulltext_id_failure">', $xmlString );
+                $xml       = $method->invoke( $this->indexer, $doc );
+                $xmlString = $xml->saveXML();
+                $this->assertContains( '<field name="has_fulltext">true</field>', $xmlString );
+                $this->assertNotContains( '<field name="has_fulltext">false</field>', $xmlString );
+                $this->assertContains( '<field name="fulltext_id_success">' . $file->getId() . ':'
+                    . $file->getRealHash( 'md5' ) . '</field>', $xmlString );
+                $this->assertNotContains( '<field name="fulltext_id_failure">', $xmlString );
 
-        $path = $this->files_dir . DIRECTORY_SEPARATOR . $doc->getId();
-        unlink( $path . DIRECTORY_SEPARATOR . 'test.pdf' );
-        rmdir( $path );*/
+                $path = $this->files_dir . DIRECTORY_SEPARATOR . $doc->getId();
+                unlink( $path . DIRECTORY_SEPARATOR . 'test.pdf' );
+                rmdir( $path );*/
     }
 
     /**
@@ -699,31 +711,31 @@ class IndexerTest extends TestCase
      */
     public function testFulltextVisibilityIsConsideredInFacetForFrontdoorInvisibleFulltext()
     {
-        $this->markTestSkipped( 'not supported in Opus_Search API' );
+        $this->markTestSkipped('not supported in Opus_Search API');
 
-/*		$doc = new Opus_Document( $this->document_id );
-        $doc->setServerState( 'published' );
-        $doc->setLanguage( 'eng' );
-        $file = $doc->addFile();
-        $file->setTempFile( APPLICATION_PATH . '/tests/fulltexts' . DIRECTORY_SEPARATOR . 'test.pdf' );
-        $file->setPathName( 'test.pdf' );
-        $file->setVisibleInFrontdoor( '0' );
-        $doc->store();
+        /*		$doc = new Opus_Document( $this->document_id );
+                $doc->setServerState( 'published' );
+                $doc->setLanguage( 'eng' );
+                $file = $doc->addFile();
+                $file->setTempFile( APPLICATION_PATH . '/tests/fulltexts' . DIRECTORY_SEPARATOR . 'test.pdf' );
+                $file->setPathName( 'test.pdf' );
+                $file->setVisibleInFrontdoor( '0' );
+                $doc->store();
 
-        $class  = new ReflectionClass( 'Opus_SolrSearch_Index_Indexer' );
-        $method = $class->getMethod( 'getSolrXmlDocument' );
-        $method->setAccessible( true );
+                $class  = new ReflectionClass( 'Opus_SolrSearch_Index_Indexer' );
+                $method = $class->getMethod( 'getSolrXmlDocument' );
+                $method->setAccessible( true );
 
-        $xml       = $method->invoke( $this->indexer, $doc );
-        $xmlString = $xml->saveXML();
-        $this->assertContains( '<field name="has_fulltext">false</field>', $xmlString );
-        $this->assertNotContains( '<field name="has_fulltext">true</field>', $xmlString );
-        $this->assertNotContains( '<field name="fulltext_id_success">', $xmlString );
-        $this->assertNotContains( '<field name="fulltext_id_failure">', $xmlString );
+                $xml       = $method->invoke( $this->indexer, $doc );
+                $xmlString = $xml->saveXML();
+                $this->assertContains( '<field name="has_fulltext">false</field>', $xmlString );
+                $this->assertNotContains( '<field name="has_fulltext">true</field>', $xmlString );
+                $this->assertNotContains( '<field name="fulltext_id_success">', $xmlString );
+                $this->assertNotContains( '<field name="fulltext_id_failure">', $xmlString );
 
-        $path = $this->files_dir . DIRECTORY_SEPARATOR . $doc->getId();
-        unlink( $path . DIRECTORY_SEPARATOR . 'test.pdf' );
-        rmdir( $path );*/
+                $path = $this->files_dir . DIRECTORY_SEPARATOR . $doc->getId();
+                unlink( $path . DIRECTORY_SEPARATOR . 'test.pdf' );
+                rmdir( $path );*/
     }
 
     /**
@@ -731,54 +743,55 @@ class IndexerTest extends TestCase
      */
     public function testFulltextVisibilityIsNotConsideredInFacet()
     {
-        $this->markTestSkipped( 'not supported in Opus_Search API' );
+        $this->markTestSkipped('not supported in Opus_Search API');
 
-/*		$doc = new Opus_Document( $this->document_id );
-        $doc->setServerState( 'published' );
-        $doc->setLanguage( 'eng' );
-        $doc->store();
+        /*		$doc = new Opus_Document( $this->document_id );
+                $doc->setServerState( 'published' );
+                $doc->setLanguage( 'eng' );
+                $doc->store();
 
-        $class  = new ReflectionClass( 'Opus_SolrSearch_Index_Indexer' );
-        $method = $class->getMethod( 'getSolrXmlDocument' );
-        $method->setAccessible( true );
+                $class  = new ReflectionClass( 'Opus_SolrSearch_Index_Indexer' );
+                $method = $class->getMethod( 'getSolrXmlDocument' );
+                $method->setAccessible( true );
 
-        $xml       = $method->invoke( $this->indexer, $doc );
-        $xmlString = $xml->saveXML();
-        $this->assertContains( '<field name="has_fulltext">false</field>', $xmlString );
-        $this->assertNotContains( '<field name="has_fulltext">true</field>', $xmlString );
-        $this->assertNotContains( '<field name="fulltext_id_success">', $xmlString );
-        $this->assertNotContains( '<field name="fulltext_id_failure">', $xmlString );*/
+                $xml       = $method->invoke( $this->indexer, $doc );
+                $xmlString = $xml->saveXML();
+                $this->assertContains( '<field name="has_fulltext">false</field>', $xmlString );
+                $this->assertNotContains( '<field name="has_fulltext">true</field>', $xmlString );
+                $this->assertNotContains( '<field name="fulltext_id_success">', $xmlString );
+                $this->assertNotContains( '<field name="fulltext_id_failure">', $xmlString );*/
     }
 
     public function testHandlingOfNonExtractableFulltext()
     {
-        $this->markTestSkipped( 'not supported in Opus_Search API' );
+        $this->markTestSkipped('not supported in Opus_Search API');
 
-/*		$doc = new Opus_Document( $this->document_id );
-        $doc->setServerState( 'published' );
-        $doc->setLanguage( 'eng' );
+        /*		$doc = new Opus_Document( $this->document_id );
+                $doc->setServerState( 'published' );
+                $doc->setLanguage( 'eng' );
 
-        $file = $doc->addFile();
-        $file->setTempFile( APPLICATION_PATH . '/tests/fulltexts' . DIRECTORY_SEPARATOR . 'test-invalid.pdf' );
-        $file->setPathName( 'test-invalid.pdf' );
-        $file->setVisibleInFrontdoor( '1' );
+                $file = $doc->addFile();
+                $file->setTempFile( APPLICATION_PATH . '/tests/fulltexts' . DIRECTORY_SEPARATOR . 'test-invalid.pdf' );
+                $file->setPathName( 'test-invalid.pdf' );
+                $file->setVisibleInFrontdoor( '1' );
 
-        $doc->store();
+                $doc->store();
 
-        $class  = new ReflectionClass( 'Opus_SolrSearch_Index_Indexer' );
-        $method = $class->getMethod( 'getSolrXmlDocument' );
-        $method->setAccessible( true );
+                $class  = new ReflectionClass( 'Opus_SolrSearch_Index_Indexer' );
+                $method = $class->getMethod( 'getSolrXmlDocument' );
+                $method->setAccessible( true );
 
-        $xml       = $method->invoke( $this->indexer, $doc );
-        $xmlString = $xml->saveXML();
-        $this->assertContains( '<field name="has_fulltext">true</field>', $xmlString );
-        $this->assertNotContains( '<field name="has_fulltext">false</field>', $xmlString );
-        $this->assertContains( '<field name="fulltext_id_failure">' . $file->getId() . ':' . $file->getRealHash( 'md5' ) . '</field>', $xmlString );
-        $this->assertNotContains( '<field name="fulltext_id_success">', $xmlString );
+                $xml       = $method->invoke( $this->indexer, $doc );
+                $xmlString = $xml->saveXML();
+                $this->assertContains( '<field name="has_fulltext">true</field>', $xmlString );
+                $this->assertNotContains( '<field name="has_fulltext">false</field>', $xmlString );
+                $this->assertContains( '<field name="fulltext_id_failure">' . $file->getId() . ':'
+                    . $file->getRealHash( 'md5' ) . '</field>', $xmlString );
+                $this->assertNotContains( '<field name="fulltext_id_success">', $xmlString );
 
-        $path = $this->files_dir . DIRECTORY_SEPARATOR . $doc->getId();
-        unlink( $path . DIRECTORY_SEPARATOR . 'test-invalid.pdf' );
-        rmdir( $path );*/
+                $path = $this->files_dir . DIRECTORY_SEPARATOR . $doc->getId();
+                unlink( $path . DIRECTORY_SEPARATOR . 'test-invalid.pdf' );
+                rmdir( $path );*/
     }
 
     /**
@@ -787,41 +800,41 @@ class IndexerTest extends TestCase
     public function testFluentInterface()
     {
         $doc = new \Opus_Document();
-        $doc->setServerState( 'published' );
-        $doc->setLanguage( 'eng' );
+        $doc->setServerState('published');
+        $doc->setLanguage('eng');
         $doc->store();
 
         $indexer = Service::selectIndexingService();
 
-        $result = $indexer->addDocumentsToIndex( $doc );
+        $result = $indexer->addDocumentsToIndex($doc);
 
-        $this->assertTrue( $result instanceof Indexing, 'Expected instance of Opus_Search_Indexing' );
+        $this->assertTrue($result instanceof Indexing, 'Expected instance of Opus_Search_Indexing');
 
-        $result = $indexer->removeDocumentsFromIndex( $doc );
+        $result = $indexer->removeDocumentsFromIndex($doc);
 
-        $this->assertTrue( $result instanceof Indexing, 'Expected instance of Opus_Search_Indexing' );
+        $this->assertTrue($result instanceof Indexing, 'Expected instance of Opus_Search_Indexing');
 
-        $result = $indexer->removeDocumentsFromIndexById( $doc->getId() );
+        $result = $indexer->removeDocumentsFromIndexById($doc->getId());
 
-        $this->assertTrue( $result instanceof Indexing, 'Expected instance of Opus_Search_Indexing' );
+        $this->assertTrue($result instanceof Indexing, 'Expected instance of Opus_Search_Indexing');
     }
 
     public function testIndexIsUpdatedSynchronouslyInSyncMode()
     {
-        $this->adjustConfiguration( array(
-            'runjobs' => array( 'asynchronous' => 0 )
-        ) );
+        $this->adjustConfiguration([
+            'runjobs' => ['asynchronous' => 0]
+        ]);
 
         $this->performDocumentExistsInIndexChecks();
     }
 
     public function testIndexIsUpdatedSynchronouslyInAsyncMode()
     {
-        $this->markTestSkipped( 'Asynchronous index update is the expected behaviour in asynchronous mode so far.' );
+        $this->markTestSkipped('Asynchronous index update is the expected behaviour in asynchronous mode so far.');
 
-        $this->adjustConfiguration( array(
-            'runjobs' => array( 'asynchronous' => 1 )
-        ) );
+        $this->adjustConfiguration([
+            'runjobs' => ['asynchronous' => 1]
+        ]);
 
         $this->performDocumentExistsInIndexChecks();
     }
@@ -829,147 +842,151 @@ class IndexerTest extends TestCase
     private function performDocumentExistsInIndexChecks()
     {
         // check that document with id $this->document_id is NOT in Solr index
-        $this->assertFalse( $this->isTestDocumentInSearchIndex(), 'check #1 failed' );
+        $this->assertFalse($this->isTestDocumentInSearchIndex(), 'check #1 failed');
 
-        $doc = new \Opus_Document( $this->document_id );
-        $doc->setServerState( 'published' );
+        $doc = new \Opus_Document($this->document_id);
+        $doc->setServerState('published');
         $doc->store();
 
         // check that document with id $this->document_id is in Solr index
-        $this->assertTrue( $this->isTestDocumentInSearchIndex(), 'check #2 failed' );
+        $this->assertTrue($this->isTestDocumentInSearchIndex(), 'check #2 failed');
 
-        $doc = new \Opus_Document( $this->document_id );
-        $doc->setServerState( 'unpublished' );
+        $doc = new \Opus_Document($this->document_id);
+        $doc->setServerState('unpublished');
         $doc->store();
 
         // check that document with id $this->document_id is NOT in Solr index
-        $this->assertFalse( $this->isTestDocumentInSearchIndex(), 'check #3 failed' );
+        $this->assertFalse($this->isTestDocumentInSearchIndex(), 'check #3 failed');
 
-        $doc = new \Opus_Document( $this->document_id );
-        $doc->setServerState( 'published' );
+        $doc = new \Opus_Document($this->document_id);
+        $doc->setServerState('published');
         $doc->store();
 
         // check that document with id $this->document_id is in Solr index
-        $this->assertTrue( $this->isTestDocumentInSearchIndex(), 'check #4 failed' );
+        $this->assertTrue($this->isTestDocumentInSearchIndex(), 'check #4 failed');
 
-        $resultList          = $this->catchAll();
-        $doc                 = new \Opus_Document( $this->document_id );
+        $resultList = $this->catchAll();
+        $doc = new \Opus_Document($this->document_id);
         $serverDateModified1 = $doc->getServerDateModified()->getUnixTimestamp();
 
-        $this->assertEquals( $serverDateModified1, $resultList[0]->getServerDateModified()->getUnixTimestamp() );
+        $this->assertEquals($serverDateModified1, $resultList[0]->getServerDateModified()->getUnixTimestamp());
 
-        sleep( 1 );
+        sleep(1);
 
-        $doc = new \Opus_Document( $this->document_id );
-        $doc->setLanguage( 'eng' );
+        $doc = new \Opus_Document($this->document_id);
+        $doc->setLanguage('eng');
         $doc->store();
 
         // check that document with id $this->document_id is in Solr index
-        $this->assertTrue( $this->isTestDocumentInSearchIndex(), 'check #5 failed' );
+        $this->assertTrue($this->isTestDocumentInSearchIndex(), 'check #5 failed');
 
-        $resultList          = $this->catchAll();
-        $doc                 = new \Opus_Document( $this->document_id );
+        $resultList = $this->catchAll();
+        $doc = new \Opus_Document($this->document_id);
         $serverDateModified2 = $doc->getServerDateModified()->getUnixTimestamp();
 
-        $this->assertEquals( $serverDateModified2, $resultList[0]->getServerDateModified()->getUnixTimestamp() );
-        $this->assertTrue( $serverDateModified1 < $serverDateModified2 );
+        $this->assertEquals($serverDateModified2, $resultList[0]->getServerDateModified()->getUnixTimestamp());
+        $this->assertTrue($serverDateModified1 < $serverDateModified2);
 
-        $doc = new \Opus_Document( $this->document_id );
+        $doc = new \Opus_Document($this->document_id);
         $doc->deletePermanent();
 
         // check that document with id $this->document_id is NOT in Solr index
-        $this->assertFalse( $this->isTestDocumentInSearchIndex(), 'check #6 failed' );
+        $this->assertFalse($this->isTestDocumentInSearchIndex(), 'check #6 failed');
     }
 
     private function isTestDocumentInSearchIndex()
     {
         $resultList = $this->catchAll();
 
-        return ( count( $resultList ) == 1 ) && ( $this->document_id == $resultList[0]->getId() );
+        return (count($resultList) == 1) && ($this->document_id == $resultList[0]->getId());
     }
 
     private function catchAll()
     {
         $search = Service::selectSearchingService();
 
-        return $search->customSearch( $search->createQuery() )->getResults();
+        return $search->customSearch($search->createQuery())->getResults();
     }
 
     public function testGetCachedFileNamePositiveCase()
     {
-        $this->markTestSkipped( 'to be implemented on Opus_Search_FulltextFileCache' );
+        $this->markTestSkipped('to be implemented on Opus_Search_FulltextFileCache');
 
         $file = $this->createTestFile();
 
         // apply a hack to be able to test a private method directly
-        $class  = new \ReflectionClass( 'Opus_SolrSearch_Index_Indexer' );
-        $method = $class->getMethod( 'getCachedFileName' );
-        $method->setAccessible( true );
+        $class = new \ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('getCachedFileName');
+        $method->setAccessible(true);
 
         $indexer = new Indexer();
-        $result  = $method->invokeArgs( $indexer, array( $file ) );
-        $this->assertNotNull( $result );
+        $result = $method->invokeArgs($indexer, [$file]);
+        $this->assertNotNull($result);
 
-        $path   = \Opus_Config::get()->workspacePath;
-        $this->assertEquals( $path . '/cache/solr_cache---901736df3fbc807121c46f9eaed8ff28-ff4ef4245da5b09786e3d3de8b430292fa081984db272d2b13ed404b45353d28.txt', $result );
+        $path = \Opus_Config::get()->workspacePath;
+        $this->assertEquals(
+            $path . '/cache/solr_cache---901736df3fbc807121c46f9eaed8ff28-'
+            . 'ff4ef4245da5b09786e3d3de8b430292fa081984db272d2b13ed404b45353d28.txt',
+            $result
+        );
 
-        $this->removeTestFile( $file );
+        $this->removeTestFile($file);
     }
 
     public function testGetCachedFileNameNegativeCase()
     {
-        $this->markTestSkipped( 'to be implemented on Opus_Search_FulltextFileCache' );
+        $this->markTestSkipped('to be implemented on Opus_Search_FulltextFileCache');
 
         $file = $this->createTestFile();
 
-        $this->removeTestFile( $file );
+        $this->removeTestFile($file);
 
         // apply a hack to be able to test a private method directly
-        $class  = new \ReflectionClass( 'Opus_SolrSearch_Index_Indexer' );
-        $method = $class->getMethod( 'getCachedFileName' );
-        $method->setAccessible( true );
+        $class = new \ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('getCachedFileName');
+        $method->setAccessible(true);
 
         $indexer = new Indexer();
-        $result  = $method->invokeArgs( $indexer, array( $file ) );
-        $this->assertNull( $result );
+        $result = $method->invokeArgs($indexer, [$file]);
+        $this->assertNull($result);
     }
 
     public function testGetFulltextHashPositiveCase()
     {
-        $this->markTestSkipped( 'to be implemented on Opus_Search_FulltextFileCache' );
+        $this->markTestSkipped('to be implemented on Opus_Search_FulltextFileCache');
 
         $file = $this->createTestFile();
 
         // apply a hack to be able to test a private method directly
-        $class  = new \ReflectionClass( 'Indexer' );
-        $method = $class->getMethod( 'getFulltextHash' );
-        $method->setAccessible( true );
+        $class = new \ReflectionClass('Indexer');
+        $method = $class->getMethod('getFulltextHash');
+        $method->setAccessible(true);
 
         $indexer = new Opus_SolrSearch_Index_Indexer();
-        $result  = $method->invokeArgs( $indexer, array( $file ) );
+        $result = $method->invokeArgs($indexer, [$file]);
 
-        $this->assertEquals( '1:901736df3fbc807121c46f9eaed8ff28', $result );
+        $this->assertEquals('1:901736df3fbc807121c46f9eaed8ff28', $result);
 
-        $this->removeTestFile( $file );
+        $this->removeTestFile($file);
     }
 
     public function testGetFulltextHashNegativeCase()
     {
-        $this->markTestSkipped( 'to be implemented on Opus_Search_FulltextFileCache' );
+        $this->markTestSkipped('to be implemented on Opus_Search_FulltextFileCache');
 
         $file = $this->createTestFile();
 
-        $this->removeTestFile( $file );
+        $this->removeTestFile($file);
 
         // apply a hack to be able to test a private method directly
-        $class  = new \ReflectionClass( 'Opus_SolrSearch_Index_Indexer' );
-        $method = $class->getMethod( 'getFulltextHash' );
+        $class = new \ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('getFulltextHash');
 
-        $method->setAccessible( true );
+        $method->setAccessible(true);
         $indexer = new Indexer();
-        $result  = $method->invokeArgs( $indexer, array( $file ) );
+        $result = $method->invokeArgs($indexer, [$file]);
 
-        $this->assertEquals( '1:', $result );
+        $this->assertEquals('1:', $result);
     }
 
     private function createTestFile()
@@ -980,23 +997,22 @@ class IndexerTest extends TestCase
         $path = \Opus_Config::get()->workspacePath;
 
         $testfile = $path . '/files/' . $doc->getId() . '/test.txt';
-        if ( file_exists( $testfile ) ) {
-            unlink( $testfile );
+        if (file_exists($testfile)) {
+            unlink($testfile);
         }
 
         $file = $doc->addFile();
-        $file->setTempFile( $path . '../fulltexts/test.txt' );
-        $file->setPathName( 'test.txt' );
-        $file->setLabel( 'foobarbaz' );
+        $file->setTempFile($path . '../fulltexts/test.txt');
+        $file->setPathName('test.txt');
+        $file->setLabel('foobarbaz');
 
         $doc->store();
 
         return $file;
     }
 
-    private function removeTestFile( $file )
+    private function removeTestFile($file)
     {
-        unlink( $file->getPath() );
+        unlink($file->getPath());
     }
 }
-
