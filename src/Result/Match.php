@@ -187,18 +187,18 @@ class Match
 	 * @param {int} $timestamp Unix timestamp of last modification tracked in search index
 	 * @return $this fluent interface
 	 */
-	public function setServerDateModified( $timestamp )
+	public function setServerDateModified($timestamp)
     {
-		if ( !is_null( $this->serverDateModified ) ) {
-			throw new \RuntimeException( 'timestamp of modification has been set before' );
+		if (!is_null($this->serverDateModified)) {
+			throw new \RuntimeException('timestamp of modification has been set before');
 		}
 
 		$this->serverDateModified = new \Opus_Date();
 
-		if ( ctype_digit( $timestamp = trim( $timestamp ) ) ) {
-			$this->serverDateModified->setUnixTimestamp( intval( $timestamp ) );
+		if (ctype_digit($timestamp = trim($timestamp))) {
+			$this->serverDateModified->setTimestamp(intval($timestamp));
 		} else {
-			$this->serverDateModified->setFromString( $timestamp );
+			$this->serverDateModified->setFromString($timestamp);
 		}
 
 		return $this;

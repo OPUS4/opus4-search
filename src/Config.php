@@ -217,7 +217,7 @@ class Config
 
 		if ( $unqualified->readOnly() ) {
 			// create writable copy of provided unqualified configuration
-			$qualified = new Zend_Config( array(), true );
+			$qualified = new \Zend_Config( array(), true );
 			$qualified->merge( $unqualified );
 		} else {
 			// adjust provided instance directly
@@ -236,14 +236,18 @@ class Config
 		// configuration to support different XSLT transformations per
 		// service
 		if ( isset( $config->searchengine->solr->xsltfile ) ) {
-			$qualified->merge( new \Zend_Config( array( 'default' => array( 'service' => array( 'default' => array( 'xsltfile' => $config->searchengine->solr->xsltfile ) ) ) ) ) );
+			$qualified->merge(new \Zend_Config(
+			    ['default' => ['service' => ['default' => ['xsltfile' => $config->searchengine->solr->xsltfile]]]]
+            ));
 		}
 
 		// searchengine.solr.numberOfDefaultSearchResults has been moved to
 		// searchengine.solr.parameterDefault.rows to introduce more
 		// intuitive support for configuring defaults of query parameters
 		if ( isset( $config->searchengine->solr->numberOfDefaultSearchResults ) ) {
-			$qualified->merge( new \Zend_Config( array( 'parameterDefaults' => array( 'rows' => $config->searchengine->solr->numberOfDefaultSearchResults ) ) ) );
+			$qualified->merge(new \Zend_Config(
+			    ['parameterDefaults' => ['rows' => $config->searchengine->solr->numberOfDefaultSearchResults]]
+            ));
 		}
 
 
@@ -329,7 +333,6 @@ class Config
 			throw new \InvalidArgumentException( 'invalid facet set name' );
 		}
 
-
 		$config = static::getDomainConfiguration( $serviceDomain )->get( 'facets' );
 
 		if ( $config instanceof \Zend_Config ) {
@@ -398,7 +401,7 @@ class Config
 		// however, the facet-name should be 'year' (reset in framework ResponseRenderer::getFacets())
 		if ( array_key_exists( 'year_inverted', $set ) ) {
 			$set['year'] = $set['year_inverted'];
-			unset( $set['year_inverted'] );
+			$set['year_inverted']; // leave set for query to solr 'year_inverted' facet
 		}
 
 
@@ -413,7 +416,8 @@ class Config
 	 * only, but requires either field to be given in searchengine.solr.sortcrit
 	 * additionally assigning special value there.
 	 *
-	 * @param string $facetSetName requests to fetch one of more probably configured facet field sets (e.g. to have different sets per request purpose)
+	 * @param string $facetSetName requests to fetch one of more probably configured facet field sets
+     *        (e.g. to have different sets per request purpose)
 	 * @param string $serviceDomain name of service domain, omit for default ("solr")
 	 * @return array map of field names into string "index"
 	 * @throws \Zend_Config_Exception

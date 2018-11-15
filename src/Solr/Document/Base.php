@@ -33,6 +33,9 @@
 
 namespace Opus\Search\Solr\Document;
 
+use Opus\Search\Exception;
+use Opus\Search\Service;
+
 abstract class Base
 {
 
@@ -98,7 +101,7 @@ abstract class Base
 		$docXml->appendChild( $modelXml->createElement( 'Has_Fulltext', 'true' ) );
 
 		// fetch reference on probably separate service for extracting fulltext data
-		$extractingService = Opus_Search_Service::selectExtractingService();
+		$extractingService = Service::selectExtractingService();
 
 		// extract fulltext data for every file left in set after filtering before
 		foreach ( $files as $file ) {
@@ -108,7 +111,7 @@ abstract class Base
 				$fulltext = $extractingService->extractDocumentFile( $file );
 				$fulltext = trim( iconv( "UTF-8", "UTF-8//IGNORE", $fulltext ) );
 			}
-            catch ( \Opus_Search_Exception $e ) {
+            catch ( Exception $e ) {
 				\Opus_Log::get()->err(
 				    'An error occurred while getting fulltext data for document with id ' . $docId . ': ' .
                     $e->getMessage()

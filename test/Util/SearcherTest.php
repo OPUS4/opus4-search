@@ -140,7 +140,7 @@ class SearcherTest extends TestCase
         $root->setVisible(0);
         $root->store();
 
-        $doc = new Opus_Document();
+        $doc = new \Opus_Document();
         $doc->setServerState('published');
         $docId = $doc->store();
 
@@ -170,7 +170,7 @@ class SearcherTest extends TestCase
         $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
 
         $serverDateModified2 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified1 == $serverDateModified2);
+        $this->assertTrue($serverDateModified1->compare($serverDateModified2) == 0);
 
         sleep(1);
 
@@ -184,7 +184,7 @@ class SearcherTest extends TestCase
         $this->assertEquals(0, count($doc->getCollection()), "Document $docId is still assigned to collection $collId");
 
         $serverDateModified3 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified2 == $serverDateModified3);
+        $this->assertTrue($serverDateModified2->compare($serverDateModified3) == 0);
 
         sleep(1);
 
@@ -208,7 +208,7 @@ class SearcherTest extends TestCase
         $this->assertEquals(1, count($result));
 
         $serverDateModified4 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified3 < $serverDateModified4);
+        $this->assertTrue($serverDateModified3->compare($serverDateModified4) == -1);
     }
 
     public function testServerDateModifiedIsUpdatedForDependentModelChanges()
@@ -401,13 +401,17 @@ class SearcherTest extends TestCase
 
     }
 
+    private function getFulltextDir() {
+        return APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'TestAsset'
+            . DIRECTORY_SEPARATOR . 'fulltexts' . DIRECTORY_SEPARATOR;
+    }
+
     private function createDocWithFulltext($fulltext1, $fulltext2 = null)
     {
         $doc = new \Opus_Document();
         $doc->setServerState('published');
 
-        $fulltextDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR .
-            'fulltexts' . DIRECTORY_SEPARATOR;
+        $fulltextDir = $this->getFulltextDir();
 
         $file = $doc->addFile();
         $file->setTempFile($fulltextDir . $fulltext1);
