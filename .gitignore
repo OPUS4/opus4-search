@@ -1,3 +1,10 @@
 # IDE files
 .idea
 *.iml
+
+# Composer files and dependencies
+composer.lock
+vendor
+
+# Local build files
+build
