@@ -46,9 +46,9 @@ class ConfigTest extends SimpleTestCase
 
 		$config = Config::getServiceConfiguration( 'search', null, 'solr' );
 
-		$this->assertInstanceOf( 'Zend_Config', $config );
-		$this->assertInstanceOf( 'Zend_Config', $config->query );
-		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+		$this->assertInstanceOf( '\Zend_Config', $config );
+		$this->assertInstanceOf( '\Zend_Config', $config->query );
+		$this->assertInstanceOf( '\Zend_Config', $config->query->alldocs );
 
 		$this->assertEquals( 'search', $config->marker );
 		$this->assertNotNull( $config->endpoint->primary->host );
@@ -65,9 +65,9 @@ class ConfigTest extends SimpleTestCase
 
 		$config = Config::getServiceConfiguration( 'index', null, 'solr' );
 
-		$this->assertInstanceOf( 'Zend_Config', $config );
-		$this->assertInstanceOf( 'Zend_Config', $config->query );
-		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+		$this->assertInstanceOf( '\Zend_Config', $config );
+		$this->assertInstanceOf( '\Zend_Config', $config->query );
+		$this->assertInstanceOf( '\Zend_Config', $config->query->alldocs );
 
 		$this->assertEquals( 'index', $config->marker );
 		$this->assertNotNull( $config->endpoint->primary->host );
@@ -81,9 +81,9 @@ class ConfigTest extends SimpleTestCase
 
 		$config = Config::getServiceConfiguration( 'extract', null, 'solr' );
 
-		$this->assertInstanceOf( 'Zend_Config', $config );
-		$this->assertInstanceOf( 'Zend_Config', $config->query );
-		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+		$this->assertInstanceOf( '\Zend_Config', $config );
+		$this->assertInstanceOf( '\Zend_Config', $config->query );
+		$this->assertInstanceOf( '\Zend_Config', $config->query->alldocs );
 
 		$this->assertEquals( 'extract', $config->marker );
 		$this->assertNotNull( $config->endpoint->primary->host );
@@ -97,9 +97,9 @@ class ConfigTest extends SimpleTestCase
 
 		$config = Config::getServiceConfiguration( 'default', null, 'solr' );
 
-		$this->assertInstanceOf( 'Zend_Config', $config );
-		$this->assertInstanceOf( 'Zend_Config', $config->query );
-		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+		$this->assertInstanceOf( '\Zend_Config', $config );
+		$this->assertInstanceOf( '\Zend_Config', $config->query );
+		$this->assertInstanceOf( '\Zend_Config', $config->query->alldocs );
 
 		$this->assertEquals( 'default', $config->marker );
 		$this->assertNotNull( $config->endpoint->primary->host );
@@ -201,11 +201,11 @@ class ConfigTest extends SimpleTestCase
 		$this->assertNotEquals( '/some/fallback', $config->endpoint->primary->path );
 
 		// provide some deprecated-style configuration to overlay
-		$this->adjustConfiguration( array( 'searchengine' => array( 'index' => array(
+		$this->adjustConfiguration( ['searchengine' => ['index' => [
 			'host' => '10.1.2.3',
 			'port' => 12345,
 			'app'  => 'some/fallback'
-		) ) ) );
+        ]]]);
 
 		$this->assertEquals( '10.1.2.3', \Opus_Config::get()->searchengine->index->host );
 		$this->assertEquals( '12345', \Opus_Config::get()->searchengine->index->port );
@@ -214,9 +214,9 @@ class ConfigTest extends SimpleTestCase
 		// repeat test above now expecting to get overlaid configuration
 		$config = Config::getServiceConfiguration( 'search', null, 'solr' );
 
-		$this->assertInstanceOf( 'Zend_Config', $config );
-		$this->assertInstanceOf( 'Zend_Config', $config->query );
-		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+		$this->assertInstanceOf( '\Zend_Config', $config );
+		$this->assertInstanceOf( '\Zend_Config', $config->query );
+		$this->assertInstanceOf( '\Zend_Config', $config->query->alldocs );
 
 		$this->assertEquals( 'search', $config->marker );
 

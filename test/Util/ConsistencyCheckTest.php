@@ -35,6 +35,7 @@
 namespace OpusTest\Util;
 
 use Opus\Search\Config;
+use Opus\Search\Exception;
 use Opus\Search\QueryFactory;
 use Opus\Search\Service;
 use Opus\Search\Util\ConsistencyCheck;
@@ -105,7 +106,7 @@ class ConsistencyCheckTest extends TestCase
         try {
             $this->doc->setServerState('unpublished');
             $this->doc->store();
-        } catch ( Opus_Search_Exception $e ) {
+        } catch (Exception $e ) {
         }
 
         $this->restoreSolrConfig();

@@ -45,7 +45,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase {
 	public function testService()
     {
 		$search = Service::selectSearchingService( null, 'solr' );
-		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $search );
+		$this->assertInstanceOf( 'Opus\Search\Solr\Solarium\Adapter', $search );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase {
 	public function testEmptyIndex()
     {
 		$search = Service::selectSearchingService( null, 'solr' );
-		$result = $search->customSearch( Opus_Search_QueryFactory::selectAllDocuments( $search ) );
+		$result = $search->customSearch( QueryFactory::selectAllDocuments( $search ) );
 
 		$this->assertEquals( 0, $result->getAllMatchesCount() );
 	}

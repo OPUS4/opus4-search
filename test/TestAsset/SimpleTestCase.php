@@ -61,11 +61,11 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
     protected function adjustConfiguration( $overlay, $callback = null )
     {
         $previous = \Zend_Registry::get( 'Zend_Config' );
-        $updated  = new Zend_Config( array(), true );
+        $updated  = new \Zend_Config( array(), true );
 
         $updated
             ->merge( $previous )
-            ->merge( new Zend_Config( $overlay ) );
+            ->merge( new \Zend_Config( $overlay ) );
 
         if ( is_callable( $callback ) ) {
             $updated = call_user_func( $callback, $updated );
@@ -113,7 +113,9 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
 
         self::createFolder( $workspacePath . DIRECTORY_SEPARATOR . 'cache');
         self::createFolder( $workspacePath . DIRECTORY_SEPARATOR . 'log');
+        self::createFolder($workspacePath . DIRECTORY_SEPARATOR . 'files');
 
+        /*
         $configPath = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'config.ini';
 
         $application = new \Zend_Application('testing', array(
@@ -123,6 +125,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
         \Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
 
         $application->bootstrap(array('Database', 'Temp', 'OpusLocale'));
+        */
     }
 
     public static function createFolder($path)

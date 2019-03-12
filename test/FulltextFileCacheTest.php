@@ -51,8 +51,8 @@ class FulltextFileCacheTest extends TestCase
         $doc = new \Opus_Document();
         $doc->setServerState('published');
 
-        $fulltextDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR .
-            'fulltexts' . DIRECTORY_SEPARATOR;
+        $fulltextDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'TestAsset' .
+            DIRECTORY_SEPARATOR . 'fulltexts' . DIRECTORY_SEPARATOR;
 
         $fileName = 'test.pdf';
 

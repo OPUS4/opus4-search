@@ -243,7 +243,7 @@ class DocumentBasedTestCase extends TestCase
 
 	public function qualifyTestFilename( $filename )
     {
-		return APPLICATION_PATH . '/tests/fulltexts/' . basename( $filename );
+		return APPLICATION_PATH . '/test/TestAsset/fulltexts/' . basename( $filename );
 	}
 
 	public function getTestFile( $filename )
@@ -272,7 +272,7 @@ class DocumentBasedTestCase extends TestCase
 		parent::tearDown();
 
 		$cache = new \Opus_Model_Xml_Cache( false );
-		$files = APPLICATION_PATH . '/tests/workspace/files/';
+		$files = APPLICATION_PATH . '/build/workspace/files/';
 
 		foreach ( $this->created as $model ) {
 			/** @var \Opus_Model_AbstractDb $model */

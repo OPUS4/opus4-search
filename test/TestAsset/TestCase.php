@@ -100,7 +100,7 @@ class TestCase extends SimpleTestCase
             if (empty(APPLICATION_PATH)) {
                 return;
             }
-            $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'workspace'
+            $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'build' . DIRECTORY_SEPARATOR . 'workspace'
                 . DIRECTORY_SEPARATOR . 'files';
             $files = array_diff(scandir($filesDir), array('.', '..', '.gitignore'));
         }

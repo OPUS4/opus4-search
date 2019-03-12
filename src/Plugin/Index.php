@@ -32,6 +32,7 @@
  */
 
 namespace Opus\Search\Plugin;
+
 use Opus\Search\Exception;
 use Opus\Search\Service;
 use Opus\Search\Task\IndexOpusDocument;
@@ -41,9 +42,9 @@ use Opus\Search\Task\IndexOpusDocument;
  *
  * @category    Framework
  * @package     Opus\Search\Plugin
- * @uses        \Opus_Model_Plugin_Abstract
+ * @uses        \Opus\Model\Plugin\AbstractPlugin
  */
-class Index extends \Opus_Model_Plugin_Abstract
+class Index extends \Opus\Model\Plugin\AbstractPlugin
 {
 
     private $config;
@@ -63,7 +64,7 @@ class Index extends \Opus_Model_Plugin_Abstract
      * @param \Opus_Model_AbstractDb $model item written to store before
      * @see {\Opus_Model_Plugin_Interface::postStore}
      */
-    public function postStore(\Opus_Model_AbstractDb $model)
+    public function postStore(\Opus\Model\ModelInterface $model)
     {
         // only index Opus_Document instances
         if (false === ($model instanceof \Opus_Document)) {
@@ -168,8 +169,7 @@ class Index extends \Opus_Model_Plugin_Abstract
             // skip creating job if equal job already exists
             if (true === $job->isUniqueInQueue()) {
                 $job->store();
-            }
-            else {
+            } else {
                 $log->debug(__METHOD__ . ': ' . 'Indexing job for document ' . $documentId . ' already exists!');
             }
         }
@@ -189,4 +189,3 @@ class Index extends \Opus_Model_Plugin_Abstract
         }
     }
 }
-

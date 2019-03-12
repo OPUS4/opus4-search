@@ -52,7 +52,7 @@ class BaseTest extends SimpleTestCase
         $value = $facet[0];
 
         $this->assertNotNull($value);
-        $this->assertInstanceOf('Opus_Search_Result_Facet', $value);
+        $this->assertInstanceOf('Opus\Search\Result\Facet', $value);
         $this->assertEquals('2013', $value->getText());
         $this->assertEquals(3, $value->getCount());
     }
@@ -70,7 +70,7 @@ class BaseTest extends SimpleTestCase
         $value = $facet[0];
 
         $this->assertNotNull($value);
-        $this->assertInstanceOf('Opus_Search_Result_Facet', $value);
+        $this->assertInstanceOf('Opus\Search\Result\Facet', $value);
         $this->assertEquals('2013', $value->getText());
         $this->assertEquals(7, $value->getCount());
     }
@@ -88,13 +88,13 @@ class BaseTest extends SimpleTestCase
 
         $john = $values[0];
         $this->assertNotNull($john);
-        $this->assertInstanceOf('Opus_Search_Result_Facet', $john);
+        $this->assertInstanceOf('Opus\Search\Result\Facet', $john);
         $this->assertEquals('John', $john->getText());
         $this->assertEquals(3, $john->getCount());
 
         $jane = $values[1];
         $this->assertNotNull($jane);
-        $this->assertInstanceOf('Opus_Search_Result_Facet', $jane);
+        $this->assertInstanceOf('Opus\Search\Result\Facet', $jane);
         $this->assertEquals('Jane', $jane->getText());
         $this->assertEquals(5, $jane->getCount());
     }

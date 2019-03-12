@@ -147,7 +147,7 @@ class IndexerTest extends TestCase
     }
 
     /**
-     * @expectedException InvalidConfigurationException
+     * @expectedException \Opus\Search\InvalidConfigurationException
      */
     public function testMissingConfigParamSearchEngineIndexHost()
     {
@@ -168,7 +168,7 @@ class IndexerTest extends TestCase
     }
 
     /**
-     * @expectedException Opus_Search_InvalidConfigurationException
+     * @expectedException \Opus\Search\InvalidConfigurationException
      */
     public function testMissingConfigParamSearchEngineIndexPort()
     {
@@ -189,7 +189,7 @@ class IndexerTest extends TestCase
     }
 
     /**
-     * @expectedException InvalidConfigurationException
+     * @expectedException \Opus\Search\InvalidConfigurationException
      */
     public function testMissingConfigParamSearchEngineIndexPath()
     {
@@ -221,7 +221,7 @@ class IndexerTest extends TestCase
     }
 
     /**
-     * @expectedException InvalidConfigurationException
+     * @expectedException \Opus\Search\InvalidConfigurationException
      */
     public function testEmptyConfiguration()
     {
@@ -239,7 +239,7 @@ class IndexerTest extends TestCase
     }
 
     /**
-     * @expectedException Opus_Search_InvalidConfigurationException
+     * @expectedException \Opus\Search\InvalidConfigurationException
      */
     public function testInvalidConfiguration()
     {
@@ -547,7 +547,7 @@ class IndexerTest extends TestCase
     {
         $doc = new \Opus_Document($this->document_id);
         $file = $doc->addFile();
-        $file->setTempFile(APPLICATION_PATH . '/tests/fulltexts/' . $filename);
+        $file->setTempFile(APPLICATION_PATH . '/test/TestAsset/fulltexts/' . $filename);
         $file->setPathName($filename);
         $file->setLabel($label);
         $file->setVisibleInFrontdoor('1');
@@ -600,7 +600,7 @@ class IndexerTest extends TestCase
         }
 
         $this->assertNotNull($exception);
-        $this->assertInstanceOf('Opus_Search_InvalidQueryException', $exception);
+        $this->assertInstanceOf('Opus\Search\InvalidQueryException', $exception);
 
         $doc->deletePermanent();
     }
@@ -808,15 +808,15 @@ class IndexerTest extends TestCase
 
         $result = $indexer->addDocumentsToIndex($doc);
 
-        $this->assertTrue($result instanceof Indexing, 'Expected instance of Opus_Search_Indexing');
+        $this->assertTrue($result instanceof Indexing, 'Expected instance of Opus\Search\Indexing');
 
         $result = $indexer->removeDocumentsFromIndex($doc);
 
-        $this->assertTrue($result instanceof Indexing, 'Expected instance of Opus_Search_Indexing');
+        $this->assertTrue($result instanceof Indexing, 'Expected instance of Opus\Search\Indexing');
 
         $result = $indexer->removeDocumentsFromIndexById($doc->getId());
 
-        $this->assertTrue($result instanceof Indexing, 'Expected instance of Opus_Search_Indexing');
+        $this->assertTrue($result instanceof Indexing, 'Expected instance of Opus\Search\Indexing');
     }
 
     public function testIndexIsUpdatedSynchronouslyInSyncMode()

@@ -96,7 +96,7 @@ class RunnerTest extends TestCase
         $runner = new \Opus_Job_Runner();
         $runner->registerWorker($indexWorker);
         $runner->run();
-        $this->setExpectedException('Opus_Model_NotFoundException');
+        $this->setExpectedException('\Opus_Model_NotFoundException');
         $job = new \Opus_Job($jobId);
         if ($job instanceof \Opus_Job) {
             $job->delete();

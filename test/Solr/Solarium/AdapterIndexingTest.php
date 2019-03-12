@@ -44,7 +44,7 @@ class AdapterIndexingTest extends DocumentBasedTestCase
 	public function testService()
     {
 		$service = Service::selectIndexingService( null, 'solr' );
-		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
+		$this->assertInstanceOf( 'Opus\Search\Solr\Solarium\Adapter', $service );
 	}
 
 	/**

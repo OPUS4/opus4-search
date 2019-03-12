@@ -42,22 +42,22 @@ class ServiceTest extends TestCase {
 	public function testProvidesIndexService() {
 		$service = Service::selectIndexingService( null, 'solr' );
 
-		$this->assertInstanceOf( 'Opus_Search_Indexing', $service );
-		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
+		$this->assertInstanceOf( 'Opus\Search\Indexing', $service );
+		$this->assertInstanceOf( 'Opus\Search\Solr\Solarium\Adapter', $service );
 	}
 
 	public function testProvidesExtractService() {
 		$service = Service::selectExtractingService( null, 'solr' );
 
-		$this->assertInstanceOf( 'Opus_Search_Extracting', $service );
-		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
+		$this->assertInstanceOf( 'Opus\Search\Extracting', $service );
+		$this->assertInstanceOf( 'Opus\Search\Solr\Solarium\Adapter', $service );
 	}
 
 	public function testProvidesSearchService() {
 		$service = Service::selectSearchingService( null, 'solr' );
 
-		$this->assertInstanceOf( 'Opus_Search_Searching', $service );
-		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
+		$this->assertInstanceOf( 'Opus\Search\Searching', $service );
+		$this->assertInstanceOf( 'Opus\Search\Solr\Solarium\Adapter', $service );
 	}
 
 	public function testCachingService() {

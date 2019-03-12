@@ -145,7 +145,7 @@ class IndexOpusDocument implements \Opus_Job_Worker_Interface
             Service::selectIndexingService( 'jobRunner' )->removeDocumentsFromIndexById($data->documentId);
         }
         else {
-            throw new Opus_Job_Worker_InvalidJobException("unknown task '{$data->task}'.");
+            throw new \Opus_Job_Worker_InvalidJobException("unknown task '{$data->task}'.");
         }
     }
 }

@@ -152,7 +152,7 @@ class Service
 	 */
 	public static function selectIndexingService( $serviceName = null, $serviceDomain = null )
     {
-		return static::selectService( 'index', 'Opus_Search_Indexing', $serviceName, $serviceDomain );
+		return static::selectService( 'index', 'Opus\Search\Indexing', $serviceName, $serviceDomain );
 	}
 
 	/**
@@ -163,7 +163,7 @@ class Service
 	 */
 	public static function selectSearchingService( $serviceName = null, $serviceDomain = null )
     {
-		return static::selectService( 'search', 'Opus_Search_Searching', $serviceName, $serviceDomain );
+		return static::selectService( 'search', 'Opus\Search\Searching', $serviceName, $serviceDomain );
 	}
 
 	/**
@@ -173,6 +173,6 @@ class Service
 	 * @throws \Zend_Config_Exception
 	 */
 	public static function selectExtractingService( $serviceName = null, $serviceDomain = null ) {
-		return static::selectService( 'extract', 'Opus_Search_Extracting', $serviceName, $serviceDomain );
+		return static::selectService( 'extract', 'Opus\Search\Extracting', $serviceName, $serviceDomain );
 	}
 }

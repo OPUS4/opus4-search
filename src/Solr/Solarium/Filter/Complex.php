@@ -143,7 +143,7 @@ class Complex extends \Opus\Search\Filter\Complex
 				}
 
 				$compiled[] = $term;
-			} else if ( $condition instanceof Opus_Search_Filter_Simple ) {
+			} else if ($condition instanceof Simple) {
 				$compiled[] = static::_compileSimple( $query, $condition );
 			}
 		}

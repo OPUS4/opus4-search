@@ -45,4 +45,10 @@ namespace OpusTest;
  */
 class Bootstrap extends \Opus_Bootstrap_Base
 {
+
+    protected function _initIndexPlugin()
+    {
+        Opus_Document::addDefaultPlugin('Opus\Search\Plugin\Index');
+    }
+
 }

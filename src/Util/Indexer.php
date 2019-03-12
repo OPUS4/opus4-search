@@ -158,7 +158,7 @@ class Indexer
         catch (\Apache_Solr_Exception $e) {
             $msg = 'Connection to Solr server' . $this->{$server . '_server_url'} . 'could not be established';
             $this->log->err($msg . ": " . $e->getMessage());
-            throw new Opus_Search_Exception($msg, null, $e);
+            throw new Exception($msg, null, $e);
         }
         $this->ping($serverVarName);
         return $this->$serverVarName;

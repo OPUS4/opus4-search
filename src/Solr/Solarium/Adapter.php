@@ -300,7 +300,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 	public function namedSearch( $name, Query $customization = null )
     {
 		if ( !preg_match( '/^[a-z_]+$/i', $name ) ) {
-			throw new Opus_Search_Exception( 'invalid name of pre-defined query: ' . $name );
+			throw new Exception( 'invalid name of pre-defined query: ' . $name );
 		}
 
 		// lookup named query in configuration of current service
