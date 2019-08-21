@@ -43,47 +43,48 @@ namespace Opus\Search;
 class QueryFactory
 {
 
-	/**
-	 * Creates query on provided adapter initially searching all documents.
-	 *
-	 * @param Searching $adapter
-	 * @return Query
-	 */
-	public static function selectAllDocuments(Searching $adapter)
+    /**
+     * Creates query on provided adapter initially searching all documents.
+     *
+     * @param Searching $adapter
+     * @return Query
+     */
+    public static function selectAllDocuments(Searching $adapter)
     {
-		$filter = $adapter->createFilter();
-		$filter->createSimpleEqualityFilter( '*' )->addValue( '*' );
+        $filter = $adapter->createFilter();
+        $filter->createSimpleEqualityFilter('*')->addValue('*');
 
-		return $adapter->createQuery()->setSubFilter( "alldocs", $filter );
-	}
+        return $adapter->createQuery()->setSubFilter("alldocs", $filter);
+    }
 
-	/**
-	 * Creates query on provided adapter initially searching given document.
-	 *
-	 * @param Searching $adapter
-	 * @param \Opus_Document $document
-	 * @return Query
-	 */
-	public static function selectDocument( Searching $adapter, \Opus_Document $document ) {
-		$filter = $adapter->createFilter();
-		$filter->createSimpleEqualityFilter( 'id' )->addValue( $document->getId() );
+    /**
+     * Creates query on provided adapter initially searching given document.
+     *
+     * @param Searching $adapter
+     * @param \Opus_Document $document
+     * @return Query
+     */
+    public static function selectDocument(Searching $adapter, \Opus_Document $document)
+    {
+        $filter = $adapter->createFilter();
+        $filter->createSimpleEqualityFilter('id')->addValue($document->getId());
 
-		return $adapter->createQuery()->setFilter( $filter );
-	}
+        return $adapter->createQuery()->setFilter($filter);
+    }
 
-	/**
-	 * Creates query on provided adapter initially searching document by given
-	 * ID.
-	 *
-	 * @param Searching $adapter
-	 * @param int $documentId
-	 * @return Query
-	 */
-	public static function selectDocumentById(Searching $adapter, $documentId ) {
-		$filter = $adapter->createFilter();
-		$filter->createSimpleEqualityFilter( 'id' )->addValue( $documentId );
+    /**
+     * Creates query on provided adapter initially searching document by given
+     * ID.
+     *
+     * @param Searching $adapter
+     * @param int $documentId
+     * @return Query
+     */
+    public static function selectDocumentById(Searching $adapter, $documentId)
+    {
+        $filter = $adapter->createFilter();
+        $filter->createSimpleEqualityFilter('id')->addValue($documentId);
 
-		return $adapter->createQuery()->setFilter( $filter );
-	}
-
+        return $adapter->createQuery()->setFilter($filter);
+    }
 }

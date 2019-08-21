@@ -43,217 +43,218 @@ use Opus\Search\Filtering;
  * actually used search engine.
  */
 
-abstract class Complex extends Base {
+abstract class Complex extends Base
+{
 
-	protected $negated = false;
+    protected $negated = false;
 
-	protected $union = false;
+    protected $union = false;
 
-	/**
-	 * Lists conditions of current filter.
-	 *
-	 * @var Opus_Search_Filtering[]
-	 */
-	protected $conditions = array();
+    /**
+     * Lists conditions of current filter.
+     *
+     * @var Opus_Search_Filtering[]
+     */
+    protected $conditions = [];
 
 
 
-	/**
-	 * Adds provided condition to current filter.
-	 *
-	 * @param Opus_Search_Filtering $filter
-	 * @return $this
-	 */
-	public function addFilter(Filtering $filter)
+    /**
+     * Adds provided condition to current filter.
+     *
+     * @param Opus_Search_Filtering $filter
+     * @return $this
+     */
+    public function addFilter(Filtering $filter)
     {
-		$this->conditions[] = $filter;
+        $this->conditions[] = $filter;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function createComplexFilter()
+    public function createComplexFilter()
     {
-		return new static();
-	}
+        return new static();
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param mixed $operator one out of Opus_Search_Filter_Simple::COMPARE_* constants
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Simple
-	 */
-	public function createSimpleFilter( $fieldName, $operator, $addImplicitly = true )
+    /**
+     * Creates (and adds) another simple filter term.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param mixed $operator one out of Opus_Search_Filter_Simple::COMPARE_* constants
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Simple
+     */
+    public function createSimpleFilter($fieldName, $operator, $addImplicitly = true)
     {
-		$simple = new Simple( $fieldName, $operator );
+        $simple = new Simple($fieldName, $operator);
 
-		if ( $addImplicitly ) {
-			$this->addFilter( $simple );
-		}
+        if ($addImplicitly) {
+            $this->addFilter($simple);
+        }
 
-		return $simple;
-	}
+        return $simple;
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for equality on
-	 * given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Simple
-	 */
-	public function createSimpleEqualityFilter( $fieldName, $addImplicitly = true )
+    /**
+     * Creates (and adds) another simple filter term testing for equality on
+     * given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Simple
+     */
+    public function createSimpleEqualityFilter($fieldName, $addImplicitly = true)
     {
-		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_EQUALITY, $addImplicitly );
-	}
+        return $this->createSimpleFilter($fieldName, Simple::COMPARE_EQUALITY, $addImplicitly);
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for inequality on
-	 * given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Simple
-	 */
-	public function createSimpleInequalityFilter( $fieldName, $addImplicitly = true )
+    /**
+     * Creates (and adds) another simple filter term testing for inequality on
+     * given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Simple
+     */
+    public function createSimpleInequalityFilter($fieldName, $addImplicitly = true)
     {
-		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_INEQUALITY, $addImplicitly );
-	}
+        return $this->createSimpleFilter($fieldName, Simple::COMPARE_INEQUALITY, $addImplicitly);
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for similarity on
-	 * given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Simple
-	 */
-	public function createSimpleSimilarityFilter( $fieldName, $addImplicitly = true )
+    /**
+     * Creates (and adds) another simple filter term testing for similarity on
+     * given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Simple
+     */
+    public function createSimpleSimilarityFilter($fieldName, $addImplicitly = true)
     {
-		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_SIMILARITY, $addImplicitly );
-	}
+        return $this->createSimpleFilter($fieldName, Simple::COMPARE_SIMILARITY, $addImplicitly);
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for upper exclusive
-	 * limit on given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Simple
-	 */
-	public function createSimpleLessFilter( $fieldName, $addImplicitly = true )
+    /**
+     * Creates (and adds) another simple filter term testing for upper exclusive
+     * limit on given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Simple
+     */
+    public function createSimpleLessFilter($fieldName, $addImplicitly = true)
     {
-		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_LESS, $addImplicitly );
-	}
+        return $this->createSimpleFilter($fieldName, Simple::COMPARE_LESS, $addImplicitly);
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for upper inclusive
-	 * limit on given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Simple
-	 */
-	public function createSimpleLessOrEqualFilter( $fieldName, $addImplicitly = true )
+    /**
+     * Creates (and adds) another simple filter term testing for upper inclusive
+     * limit on given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Simple
+     */
+    public function createSimpleLessOrEqualFilter($fieldName, $addImplicitly = true)
     {
-		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_LESS_OR_EQUAL, $addImplicitly );
-	}
+        return $this->createSimpleFilter($fieldName, Simple::COMPARE_LESS_OR_EQUAL, $addImplicitly);
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for lower exclusive
-	 * limit on given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Simple
-	 */
-	public function createSimpleGreaterFilter( $fieldName, $addImplicitly = true )
+    /**
+     * Creates (and adds) another simple filter term testing for lower exclusive
+     * limit on given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Simple
+     */
+    public function createSimpleGreaterFilter($fieldName, $addImplicitly = true)
     {
-		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_GREATER, $addImplicitly );
-	}
+        return $this->createSimpleFilter($fieldName, Simple::COMPARE_GREATER, $addImplicitly);
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for lower inclusive
-	 * limit on given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
-	 */
-	public function createSimpleGreaterOrEqualFilter( $fieldName, $addImplicitly = true )
+    /**
+     * Creates (and adds) another simple filter term testing for lower inclusive
+     * limit on given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Opus_Search_Filter_Simple
+     */
+    public function createSimpleGreaterOrEqualFilter($fieldName, $addImplicitly = true)
     {
-		return $this->createSimpleFilter( $fieldName, Simple::COMPARE_GREATER_OR_EQUAL, $addImplicitly );
-	}
+        return $this->createSimpleFilter($fieldName, Simple::COMPARE_GREATER_OR_EQUAL, $addImplicitly);
+    }
 
-	/**
-	 * Requests filter describing documents matching all contained conditions.
-	 *
-	 * @return $this
-	 */
-	public function setSatisfyAll()
+    /**
+     * Requests filter describing documents matching all contained conditions.
+     *
+     * @return $this
+     */
+    public function setSatisfyAll()
     {
-		$this->negated = false;
-		$this->union   = false;
+        $this->negated = false;
+        $this->union   = false;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Requests filter describing documents matching any contained condition.
-	 *
-	 * @return $this
-	 */
-	public function setSatisfyAny()
+    /**
+     * Requests filter describing documents matching any contained condition.
+     *
+     * @return $this
+     */
+    public function setSatisfyAny()
     {
-		$this->negated = false;
-		$this->union   = true;
+        $this->negated = false;
+        $this->union   = true;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Requests filter describing documents not matching any of the contained
-	 * conditions.
-	 *
-	 * @return $this
-	 */
-	public function setSatisfyNone()
+    /**
+     * Requests filter describing documents not matching any of the contained
+     * conditions.
+     *
+     * @return $this
+     */
+    public function setSatisfyNone()
     {
-		$this->negated = true;
-		$this->union   = true;
+        $this->negated = true;
+        $this->union   = true;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Indicates if filter is describing union of sets matching conditions.
-	 *
-	 * @note This is false if filter is describing intersection of those sets.
-	 *
-	 * @return bool
-	 */
-	public function isRequestingUnion()
+    /**
+     * Indicates if filter is describing union of sets matching conditions.
+     *
+     * @note This is false if filter is describing intersection of those sets.
+     *
+     * @return bool
+     */
+    public function isRequestingUnion()
     {
-		return !!$this->union;
-	}
+        return ! ! $this->union;
+    }
 
-	/**
-	 * Indicates if filter is describing complementary set of intersection or
-	 * union of sets matching conditions.
-	 *
-	 * @return bool
-	 */
-	public function isGloballyNegated()
+    /**
+     * Indicates if filter is describing complementary set of intersection or
+     * union of sets matching conditions.
+     *
+     * @return bool
+     */
+    public function isGloballyNegated()
     {
-		return !!$this->negated;
-	}
+        return ! ! $this->negated;
+    }
 
-	/**
-	 * @return Opus_Search_Filtering[]
-	 */
-	public function getConditions()
+    /**
+     * @return Opus_Search_Filtering[]
+     */
+    public function getConditions()
     {
-		return $this->conditions;
-	}
+        return $this->conditions;
+    }
 }

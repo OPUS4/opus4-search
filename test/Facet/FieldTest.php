@@ -114,5 +114,4 @@ class FieldTest extends SimpleTestCase
 
         $field->setMinCount('all');
     }
-
 }

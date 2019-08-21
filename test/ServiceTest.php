@@ -37,41 +37,45 @@ namespace OpusTest\Search;
 use Opus\Search\Service;
 use OpusTest\Search\TestAsset\TestCase;
 
-class ServiceTest extends TestCase {
+class ServiceTest extends TestCase
+{
 
-	public function testProvidesIndexService() {
-		$service = Service::selectIndexingService( null, 'solr' );
+    public function testProvidesIndexService()
+    {
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$this->assertInstanceOf( 'Opus\Search\Indexing', $service );
-		$this->assertInstanceOf( 'Opus\Search\Solr\Solarium\Adapter', $service );
-	}
+        $this->assertInstanceOf('Opus\Search\Indexing', $service);
+        $this->assertInstanceOf('Opus\Search\Solr\Solarium\Adapter', $service);
+    }
 
-	public function testProvidesExtractService() {
-		$service = Service::selectExtractingService( null, 'solr' );
+    public function testProvidesExtractService()
+    {
+        $service = Service::selectExtractingService(null, 'solr');
 
-		$this->assertInstanceOf( 'Opus\Search\Extracting', $service );
-		$this->assertInstanceOf( 'Opus\Search\Solr\Solarium\Adapter', $service );
-	}
+        $this->assertInstanceOf('Opus\Search\Extracting', $service);
+        $this->assertInstanceOf('Opus\Search\Solr\Solarium\Adapter', $service);
+    }
 
-	public function testProvidesSearchService() {
-		$service = Service::selectSearchingService( null, 'solr' );
+    public function testProvidesSearchService()
+    {
+        $service = Service::selectSearchingService(null, 'solr');
 
-		$this->assertInstanceOf( 'Opus\Search\Searching', $service );
-		$this->assertInstanceOf( 'Opus\Search\Solr\Solarium\Adapter', $service );
-	}
+        $this->assertInstanceOf('Opus\Search\Searching', $service);
+        $this->assertInstanceOf('Opus\Search\Solr\Solarium\Adapter', $service);
+    }
 
-	public function testCachingService() {
-		$searchA = Service::selectSearchingService( null, 'solr' );
-		$searchB = Service::selectSearchingService( null, 'solr' );
+    public function testCachingService()
+    {
+        $searchA = Service::selectSearchingService(null, 'solr');
+        $searchB = Service::selectSearchingService(null, 'solr');
 
-		$this->assertTrue( $searchA === $searchB );
+        $this->assertTrue($searchA === $searchB);
 
-		Service::dropCached();
+        Service::dropCached();
 
-		$searchC = Service::selectSearchingService( null, 'solr' );
+        $searchC = Service::selectSearchingService(null, 'solr');
 
-		$this->assertTrue( $searchA === $searchB );
-		$this->assertTrue( $searchA !== $searchC );
-	}
-
+        $this->assertTrue($searchA === $searchB);
+        $this->assertTrue($searchA !== $searchC);
+    }
 }

@@ -56,14 +56,15 @@ $autoloader->setFallbackAutoloader(true);
 */
 
 // Do test environment initializiation.
-$application = new Zend_Application(APPLICATION_ENV,
-    array(
-        "config" => array(
+$application = new Zend_Application(
+    APPLICATION_ENV,
+    [
+        "config" => [
             APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'config.ini'
-        )
-    )
+        ]
+    ]
 );
 
 Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
 
-$application->bootstrap(array('Database','Temp','OpusLocale'));
+$application->bootstrap(['Database','Temp','OpusLocale']);

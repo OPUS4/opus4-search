@@ -41,262 +41,262 @@ use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 class AdapterIndexingTest extends DocumentBasedTestCase
 {
 
-	public function testService()
+    public function testService()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
-		$this->assertInstanceOf( 'Opus\Search\Solr\Solarium\Adapter', $service );
-	}
+        $service = Service::selectIndexingService(null, 'solr');
+        $this->assertInstanceOf('Opus\Search\Solr\Solarium\Adapter', $service);
+    }
 
-	/**
-	 * @expectedException Exception
-	 */
-	public function testDisfunctServiceFails()
+    /**
+     * @expectedException Exception
+     */
+    public function testDisfunctServiceFails()
     {
-		// need to drop deprecated configuration options for interfering with
-		// intention of this test regarding revised configuration structure, only
-		$this->dropDeprecatedConfiguration();
+        // need to drop deprecated configuration options for interfering with
+        // intention of this test regarding revised configuration structure, only
+        $this->dropDeprecatedConfiguration();
 
-		Service::selectIndexingService( 'disfunct' );
-	}
+        Service::selectIndexingService('disfunct');
+    }
 
-	public function testRemoveAllDocuments()
+    public function testRemoveAllDocuments()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
-		$service->removeAllDocumentsFromIndex();
-	}
+        $service = Service::selectIndexingService(null, 'solr');
+        $service->removeAllDocumentsFromIndex();
+    }
 
-	public function testIndexingArticleWithoutFiles()
+    public function testIndexingArticleWithoutFiles()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testIndexingBookWithoutFiles()
+    public function testIndexingBookWithoutFiles()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'book' );
+        $doc = $this->createDocument('book');
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testIndexingArticleWithPublicFile()
+    public function testIndexingArticleWithPublicFile()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$this->addFileToDocument( $doc, "test.pdf", "PDF Document", true );
+        $this->addFileToDocument($doc, "test.pdf", "PDF Document", true);
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testIndexingArticleWithPublicFiles()
+    public function testIndexingArticleWithPublicFiles()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$this->addFileToDocument( $doc, "test.pdf", "PDF Document", true );
-		$this->addFileToDocument( $doc, "test.ps", "PS Document", true );
+        $this->addFileToDocument($doc, "test.pdf", "PDF Document", true);
+        $this->addFileToDocument($doc, "test.ps", "PS Document", true);
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testIndexingArticleWithHiddenFile()
+    public function testIndexingArticleWithHiddenFile()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$this->addFileToDocument( $doc, "test.pdf", "PDF Document", false );
+        $this->addFileToDocument($doc, "test.pdf", "PDF Document", false);
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testIndexingArticleWithHiddenFiles()
+    public function testIndexingArticleWithHiddenFiles()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$this->addFileToDocument( $doc, "test.pdf", "PDF Document", false );
-		$this->addFileToDocument( $doc, "test.ps", "PS Document", false );
+        $this->addFileToDocument($doc, "test.pdf", "PDF Document", false);
+        $this->addFileToDocument($doc, "test.ps", "PS Document", false);
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testIndexingArticleWithMixedFiles()
+    public function testIndexingArticleWithMixedFiles()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$this->addFileToDocument( $doc, "test.pdf", "PDF Document", false );
-		$this->addFileToDocument( $doc, "test.ps", "PS Document", true );
-		$this->addFileToDocument( $doc, "test.html", "HTML Document", true );
-		$this->addFileToDocument( $doc, "test.odt", "ODT Document", false );
+        $this->addFileToDocument($doc, "test.pdf", "PDF Document", false);
+        $this->addFileToDocument($doc, "test.ps", "PS Document", true);
+        $this->addFileToDocument($doc, "test.html", "HTML Document", true);
+        $this->addFileToDocument($doc, "test.odt", "ODT Document", false);
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testRemovingIndexedArticle()
+    public function testRemovingIndexedArticle()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
+        $service->addDocumentsToIndex($doc);
 
-		$service->removeDocumentsFromIndex( $doc );
-	}
+        $service->removeDocumentsFromIndex($doc);
+    }
 
-	public function testRemovingIndexedArticleById()
+    public function testRemovingIndexedArticleById()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
+        $service->addDocumentsToIndex($doc);
 
-		$service->removeDocumentsFromIndexById( $doc->getId() );
-	}
+        $service->removeDocumentsFromIndexById($doc->getId());
+    }
 
-	public function testRemovingIndexedArticleTwiceFails()
+    public function testRemovingIndexedArticleTwiceFails()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
+        $service->addDocumentsToIndex($doc);
 
-		$service->removeDocumentsFromIndex( $doc );
-		$service->removeDocumentsFromIndex( $doc );
-	}
+        $service->removeDocumentsFromIndex($doc);
+        $service->removeDocumentsFromIndex($doc);
+    }
 
-	public function testRemovingIndexedArticleByIdTwiceFails()
+    public function testRemovingIndexedArticleByIdTwiceFails()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
+        $service->addDocumentsToIndex($doc);
 
-		$service->removeDocumentsFromIndexById( $doc->getId() );
-		$service->removeDocumentsFromIndexById( $doc->getId() );
-	}
+        $service->removeDocumentsFromIndexById($doc->getId());
+        $service->removeDocumentsFromIndexById($doc->getId());
+    }
 
-	public function testMixedRemovingIndexedArticleTwiceFails()
+    public function testMixedRemovingIndexedArticleTwiceFails()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
+        $service->addDocumentsToIndex($doc);
 
-		$service->removeDocumentsFromIndex( $doc );
-		$service->removeDocumentsFromIndexById( $doc->getId() );
-	}
+        $service->removeDocumentsFromIndex($doc);
+        $service->removeDocumentsFromIndexById($doc->getId());
+    }
 
-	public function testMixedRemovingIndexedArticleTwiceFailsAgain()
+    public function testMixedRemovingIndexedArticleTwiceFailsAgain()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
+        $service->addDocumentsToIndex($doc);
 
-		$service->removeDocumentsFromIndexById( $doc->getId() );
-		$service->removeDocumentsFromIndex( $doc );
-	}
+        $service->removeDocumentsFromIndexById($doc->getId());
+        $service->removeDocumentsFromIndex($doc);
+    }
 
-	public function testRemovingNonIndexedArticleFails()
+    public function testRemovingNonIndexedArticleFails()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->removeDocumentsFromIndex( $doc );
-	}
+        $service->removeDocumentsFromIndex($doc);
+    }
 
-	public function testRemovingNonIndexedArticleByIdFails()
+    public function testRemovingNonIndexedArticleByIdFails()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->removeDocumentsFromIndexById( $doc->getId() );
-	}
+        $service->removeDocumentsFromIndexById($doc->getId());
+    }
 
-	public function testIndexingMultipleDocument()
+    public function testIndexingMultipleDocument()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$docA = $this->createDocument( 'article' );
-		$docB = $this->createDocument( 'book' );
-		$docC = $this->createDocument( 'monograph' );
-		$docD = $this->createDocument( 'report' );
+        $docA = $this->createDocument('article');
+        $docB = $this->createDocument('book');
+        $docC = $this->createDocument('monograph');
+        $docD = $this->createDocument('report');
 
-		$service->addDocumentsToIndex( array( $docA, $docB, $docC, $docD ) );
-	}
+        $service->addDocumentsToIndex([ $docA, $docB, $docC, $docD ]);
+    }
 
-	public function testRemovingMultipleIndexedDocuments()
+    public function testRemovingMultipleIndexedDocuments()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$docA = $this->createDocument( 'article' );
-		$docB = $this->createDocument( 'book' );
-		$docC = $this->createDocument( 'monograph' );
-		$docD = $this->createDocument( 'report' );
+        $docA = $this->createDocument('article');
+        $docB = $this->createDocument('book');
+        $docC = $this->createDocument('monograph');
+        $docD = $this->createDocument('report');
 
-		$service->addDocumentsToIndex( array( $docA, $docB, $docC, $docD ) );
-		$service->removeDocumentsFromIndex( array( $docA, $docB, $docC, $docD ) );
-	}
+        $service->addDocumentsToIndex([ $docA, $docB, $docC, $docD ]);
+        $service->removeDocumentsFromIndex([ $docA, $docB, $docC, $docD ]);
+    }
 
-	public function testMultiplyRemovingMultipleIndexedDocumentsFails()
+    public function testMultiplyRemovingMultipleIndexedDocumentsFails()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$docA = $this->createDocument( 'article' );
-		$docB = $this->createDocument( 'book' );
-		$docC = $this->createDocument( 'monograph' );
-		$docD = $this->createDocument( 'report' );
+        $docA = $this->createDocument('article');
+        $docB = $this->createDocument('book');
+        $docC = $this->createDocument('monograph');
+        $docD = $this->createDocument('report');
 
-		$service->addDocumentsToIndex( array( $docA, $docB, $docC, $docD ) );
-		$service->removeDocumentsFromIndex( array( $docA, $docB, $docC, $docD ) );
-		$service->removeDocumentsFromIndex( array( $docA, $docB, $docC, $docD ) );
-	}
+        $service->addDocumentsToIndex([ $docA, $docB, $docC, $docD ]);
+        $service->removeDocumentsFromIndex([ $docA, $docB, $docC, $docD ]);
+        $service->removeDocumentsFromIndex([ $docA, $docB, $docC, $docD ]);
+    }
 
-	public function testMultiplyRemovingMultipleIndexedDocumentsFailsAgain()
+    public function testMultiplyRemovingMultipleIndexedDocumentsFailsAgain()
     {
-		$service = Service::selectIndexingService( null, 'solr' );
+        $service = Service::selectIndexingService(null, 'solr');
 
-		$docA = $this->createDocument( 'article' );
-		$docB = $this->createDocument( 'book' );
-		$docC = $this->createDocument( 'monograph' );
-		$docD = $this->createDocument( 'report' );
+        $docA = $this->createDocument('article');
+        $docB = $this->createDocument('book');
+        $docC = $this->createDocument('monograph');
+        $docD = $this->createDocument('report');
 
-		$service->addDocumentsToIndex( array( $docA, $docB, $docC, $docD ) );
-		$service->removeDocumentsFromIndex( array( $docA, $docB, $docC, $docD ) );
-		$service->removeDocumentsFromIndex( array( $docA ) );
-	}
+        $service->addDocumentsToIndex([ $docA, $docB, $docC, $docD ]);
+        $service->removeDocumentsFromIndex([ $docA, $docB, $docC, $docD ]);
+        $service->removeDocumentsFromIndex([ $docA ]);
+    }
 
-	/**
-	 * @expectedException Exception
-	 */
-	public function testIndexingArticleOnDisfunctServiceFails()
+    /**
+     * @expectedException Exception
+     */
+    public function testIndexingArticleOnDisfunctServiceFails()
     {
-		// need to drop deprecated configuration options for interfering with
-		// intention of this test regarding revised configuration structure, only
-		$this->dropDeprecatedConfiguration();
+        // need to drop deprecated configuration options for interfering with
+        // intention of this test regarding revised configuration structure, only
+        $this->dropDeprecatedConfiguration();
 
-		$service = Service::selectIndexingService( 'disfunct', 'solr' );
+        $service = Service::selectIndexingService('disfunct', 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 }

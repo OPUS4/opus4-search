@@ -47,88 +47,107 @@ class Result
     private $fulltextIDsSuccess;
     private $fulltextIDsFailure;
 
-    public function  __construct() {
+    public function __construct()
+    {
     }
 
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function setId($id) {
+    public function setId($id)
+    {
         $this->id = $id;
     }
 
-    public function getScore() {
+    public function getScore()
+    {
         return $this->score;
     }
 
-    public function setScore($score) {
+    public function setScore($score)
+    {
         $this->score = $score;
     }
 
-    public function getAuthors() {
+    public function getAuthors()
+    {
         return $this->authors;
     }
 
-    public function  setAuthors($authors) {
-        $this->authors = is_array($authors) ? $authors : array($authors);
+    public function setAuthors($authors)
+    {
+        $this->authors = is_array($authors) ? $authors : [$authors];
     }
 
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
     }
 
-    public function getYear() {
+    public function getYear()
+    {
         return $this->year;
     }
 
-    public function setYear($year) {
+    public function setYear($year)
+    {
         $this->year = $year;
     }
 
-    public function getAbstract() {
+    public function getAbstract()
+    {
         return $this->abstract;
     }
 
-    public function setAbstract($abstract) {
+    public function setAbstract($abstract)
+    {
         $this->abstract = $abstract;
     }
 
-    public function getSeriesNumber() {
+    public function getSeriesNumber()
+    {
         return $this->seriesNumber;
     }
 
-    public function setSeriesNumber($seriesNumber) {
+    public function setSeriesNumber($seriesNumber)
+    {
         $this->seriesNumber = $seriesNumber;
     }
 
-    public function getServerDateModified() {
+    public function getServerDateModified()
+    {
         return $this->serverDateModified;
     }
 
-    public function setServerDateModified($serverDateModified) {
+    public function setServerDateModified($serverDateModified)
+    {
         $this->serverDateModified = $serverDateModified;
     }
 
-    public function getFulltextIDsSuccess() {
+    public function getFulltextIDsSuccess()
+    {
         return $this->fulltextIDsSuccess;
     }
 
-    public function setFulltextIDsSuccess($fulltextIDsSuccess) {
-        $this->fulltextIDsSuccess = is_array($fulltextIDsSuccess) ? $fulltextIDsSuccess : array($fulltextIDsSuccess);
+    public function setFulltextIDsSuccess($fulltextIDsSuccess)
+    {
+        $this->fulltextIDsSuccess = is_array($fulltextIDsSuccess) ? $fulltextIDsSuccess : [$fulltextIDsSuccess];
     }
 
-    public function getFulltextIDsFailure() {
+    public function getFulltextIDsFailure()
+    {
         return $this->fulltextIDsFailure;
     }
 
-    public function setFulltextIDsFailure($fulltextIDsFailure) {
-        $this->fulltextIDsFailure = is_array($fulltextIDsFailure) ? $fulltextIDsFailure : array($fulltextIDsFailure);
+    public function setFulltextIDsFailure($fulltextIDsFailure)
+    {
+        $this->fulltextIDsFailure = is_array($fulltextIDsFailure) ? $fulltextIDsFailure : [$fulltextIDsFailure];
     }
-
 }
-

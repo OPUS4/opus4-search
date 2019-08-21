@@ -61,12 +61,12 @@ class SetTest extends SimpleTestCase
 
         $this->assertEquals(10, $authorField->getLimit());
 
-        $facets->overrideLimits(array(
+        $facets->overrideLimits([
             'author_facet' => 10000
-        ));
+        ]);
 
         // this causes the field to be updated after the limit change
-        $facets->setFields(array('author_facet', 'year'));
+        $facets->setFields(['author_facet', 'year']);
 
         $fields = $facets->getFields();
 
@@ -99,16 +99,16 @@ class SetTest extends SimpleTestCase
 
         $this->assertEquals(10, $authorField->getLimit());
 
-        $facets->overrideLimits(array(
+        $facets->overrideLimits([
             'author_facet' => 20
-        ));
+        ]);
 
-        $facets->overrideLimits(array(
+        $facets->overrideLimits([
             'year' => 30
-        ));
+        ]);
 
         // this causes the field to be updated after the limit change
-        $facets->setFields(array('author_facet', 'year'));
+        $facets->setFields(['author_facet', 'year']);
 
         $fields = $facets->getFields();
 
@@ -156,9 +156,9 @@ class SetTest extends SimpleTestCase
 
     public function testAddFieldSettingSorting()
     {
-        \Zend_Registry::set('Zend_Config', \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config(array(
-            'searchengine' => array( 'solr' => array( 'sortcrit' => array( 'institute' => 'lexi' )))
-        ))));
+        \Zend_Registry::set('Zend_Config', \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+            'searchengine' => [ 'solr' => [ 'sortcrit' => [ 'institute' => 'lexi' ]]]
+        ])));
 
         $facets = Set::create();
 
@@ -170,4 +170,3 @@ class SetTest extends SimpleTestCase
         $this->assertTrue($instituteField->getSort());
     }
 }
-

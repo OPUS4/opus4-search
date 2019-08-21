@@ -106,5 +106,4 @@ class QueryTest extends TestCase
         $this->assertEquals('te?t', $query->lowercaseWildcardQuery('TE?t'));
         $this->assertEquals('test*', $query->lowercaseWildcardQuery('TeSt*'));
     }
-
 }

@@ -49,44 +49,44 @@ use Opus\Search\Solr\Document\Xslt;
 class Document extends Xslt
 {
 
-	public function __construct( \Zend_Config $options )
+    public function __construct(\Zend_Config $options)
     {
-		parent::__construct( $options );
-	}
+        parent::__construct($options);
+    }
 
-	/**
-	 * Derives Solr-compatible description in XML format of provided Opus
-	 * document.
-	 *
-	 * @note Parameter $solrDoc must be prepared with reference on Solr document
-	 *       to be added or updated. It is returned on return.
-	 *
-	 * @example
-	 *     $update  = $solariumClient->createUpdate();
-	 *     $solrDoc = $update->addDocument();
-	 *     $solrDoc = $doc->toSolrDocument( $opusDoc, $solrDoc );
-	 *
-	 * @param Opus_Document $opusDoc
-	 * @param \Solarium\QueryType\Update\Query\Document\Document $solrDoc
-	 * @return \Solarium\QueryType\Update\Query\Document\Document
-	 */
-	public function toSolrDocument( \Opus_Document $opusDoc, $solrDoc )
+    /**
+     * Derives Solr-compatible description in XML format of provided Opus
+     * document.
+     *
+     * @note Parameter $solrDoc must be prepared with reference on Solr document
+     *       to be added or updated. It is returned on return.
+     *
+     * @example
+     *     $update  = $solariumClient->createUpdate();
+     *     $solrDoc = $update->addDocument();
+     *     $solrDoc = $doc->toSolrDocument( $opusDoc, $solrDoc );
+     *
+     * @param Opus_Document $opusDoc
+     * @param \Solarium\QueryType\Update\Query\Document\Document $solrDoc
+     * @return \Solarium\QueryType\Update\Query\Document\Document
+     */
+    public function toSolrDocument(\Opus_Document $opusDoc, $solrDoc)
     {
-		if ( !( $solrDoc instanceof \Solarium\QueryType\Update\Query\Document\Document ) ) {
-			throw new \InvalidArgumentException( 'provided Solr document must be instance of Solarium Update Document' );
-		}
+        if (! ( $solrDoc instanceof \Solarium\QueryType\Update\Query\Document\Document )) {
+            throw new \InvalidArgumentException('provided Solr document must be instance of Solarium Update Document');
+        }
 
-		// convert Opus document to Solr XML document for supporting custom transformations
-		$solrDomDoc = parent::toSolrDocument( $opusDoc, new \DOMDocument() );
+        // convert Opus document to Solr XML document for supporting custom transformations
+        $solrDomDoc = parent::toSolrDocument($opusDoc, new \DOMDocument());
 
-		// read back fields from generated Solr XML document
-		$solrXmlDoc = simplexml_import_dom( $solrDomDoc )->doc[0];
+        // read back fields from generated Solr XML document
+        $solrXmlDoc = simplexml_import_dom($solrDomDoc)->doc[0];
 
-		$solrDoc->clear();
-		foreach ( $solrXmlDoc->field as $field ) {
-			$solrDoc->addField( strval( $field['name'] ), strval( $field ) );
-		}
+        $solrDoc->clear();
+        foreach ($solrXmlDoc->field as $field) {
+            $solrDoc->addField(strval($field['name']), strval($field));
+        }
 
-		return $solrDoc;
-	}
+        return $solrDoc;
+    }
 }

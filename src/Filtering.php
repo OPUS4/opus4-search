@@ -33,5 +33,6 @@
 
 namespace Opus\Search;
 
-interface Filtering {
+interface Filtering
+{
 }

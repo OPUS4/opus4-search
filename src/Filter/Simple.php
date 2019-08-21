@@ -46,200 +46,202 @@ use Opus\Search\Filtering;
 class Simple implements Filtering
 {
 
-	const COMPARE_EQUALITY = '=';
-	const COMPARE_INEQUALITY = '<>';
-	const COMPARE_SIMILARITY = '~';
-	const COMPARE_LESS = '<';
-	const COMPARE_LESS_OR_EQUAL = '<=';
-	const COMPARE_GREATER = '>';
-	const COMPARE_GREATER_OR_EQUAL = '>=';
+    const COMPARE_EQUALITY = '=';
+    const COMPARE_INEQUALITY = '<>';
+    const COMPARE_SIMILARITY = '~';
+    const COMPARE_LESS = '<';
+    const COMPARE_LESS_OR_EQUAL = '<=';
+    const COMPARE_GREATER = '>';
+    const COMPARE_GREATER_OR_EQUAL = '>=';
 
-	protected $fieldName;
+    protected $fieldName;
 
-	protected $comparator;
+    protected $comparator;
 
-	protected $fieldValues = array();
+    protected $fieldValues = [];
 
 
-	/**
-	 * @param string $fieldName name of field simple condition applies on
-	 * @param mixed $comparator one out of Opus_Search_Filter_Simple::COMPARE_* constants
-	 */
-	public function __construct( $fieldName, $comparator )
+    /**
+     * @param string $fieldName name of field simple condition applies on
+     * @param mixed $comparator one out of Opus_Search_Filter_Simple::COMPARE_* constants
+     */
+    public function __construct($fieldName, $comparator)
     {
-		if ( !is_string( $fieldName ) || !$fieldName ) {
-			throw new \InvalidArgumentException( 'invalid field name' );
-		}
+        if (! is_string($fieldName) || ! $fieldName) {
+            throw new \InvalidArgumentException('invalid field name');
+        }
 
-		switch ( $comparator ) {
-			case self::COMPARE_EQUALITY :
-			case self::COMPARE_SIMILARITY :
-			case self::COMPARE_LESS :
-			case self::COMPARE_LESS_OR_EQUAL :
-			case self::COMPARE_GREATER :
-			case self::COMPARE_GREATER_OR_EQUAL :
-				break;
-			default :
-				throw new \InvalidArgumentException( 'invalid comparator' );
-		}
+        switch ($comparator) {
+            case self::COMPARE_EQUALITY:
+            case self::COMPARE_SIMILARITY:
+            case self::COMPARE_LESS:
+            case self::COMPARE_LESS_OR_EQUAL:
+            case self::COMPARE_GREATER:
+            case self::COMPARE_GREATER_OR_EQUAL:
+                break;
+            default:
+                throw new \InvalidArgumentException('invalid comparator');
+        }
 
-		$this->fieldName  = $fieldName;
-		$this->comparator = $comparator;
-	}
+        $this->fieldName  = $fieldName;
+        $this->comparator = $comparator;
+    }
 
-	/**
-	 * Creates new simple filter on selected field.
-	 *
-	 * @param string $field name of field filter is testing
-	 * @param string $comparator comparison operator to use on testing field
-	 * @return Simple
-	 */
-	public static function createOnField( $field, $comparator )
+    /**
+     * Creates new simple filter on selected field.
+     *
+     * @param string $field name of field filter is testing
+     * @param string $comparator comparison operator to use on testing field
+     * @return Simple
+     */
+    public static function createOnField($field, $comparator)
     {
-		return new static( $field, $comparator );
-	}
+        return new static( $field, $comparator );
+    }
 
-	/**
-	 * Creates new simple filter for equality-matching any field.
-	 *
-	 * @note This filter is special and might not be supported by all adapters.
-	 *
-	 * @param string $value value to look up in any field of search engine
-	 * @return Simple
-	 */
-	public static function createCatchAll( $value )
+    /**
+     * Creates new simple filter for equality-matching any field.
+     *
+     * @note This filter is special and might not be supported by all adapters.
+     *
+     * @param string $value value to look up in any field of search engine
+     * @return Simple
+     */
+    public static function createCatchAll($value)
     {
-		return static::createOnField( '*', self::COMPARE_EQUALITY )->addValue( $value );
-	}
+        return static::createOnField('*', self::COMPARE_EQUALITY)->addValue($value);
+    }
 
-	/**
-	 * Retrieves name of field simple comparison is performed on.
-	 *
-	 * @return string
-	 */
-	public function getName()
+    /**
+     * Retrieves name of field simple comparison is performed on.
+     *
+     * @return string
+     */
+    public function getName()
     {
-		return $this->fieldName;
-	}
+        return $this->fieldName;
+    }
 
-	/**
-	 * Retrieves operator of simple comparing operation.
-	 *
-	 * @return mixed one out of Opus_Search_Filter_Simple::COMPARE_* constants
-	 */
-	public function getComparator()
+    /**
+     * Retrieves operator of simple comparing operation.
+     *
+     * @return mixed one out of Opus_Search_Filter_Simple::COMPARE_* constants
+     */
+    public function getComparator()
     {
-		return $this->comparator;
-	}
+        return $this->comparator;
+    }
 
-	/**
-	 * Indicates if operand is a numeric range or not.
-	 *
-	 * @return bool
-	 */
-	public function isRangeValue()
+    /**
+     * Indicates if operand is a numeric range or not.
+     *
+     * @return bool
+     */
+    public function isRangeValue()
     {
-		return count( $this->fieldValues ) === 1 && is_array( @$this->fieldValues[0] );
-	}
+        return count($this->fieldValues) === 1 && is_array(@$this->fieldValues[0]);
+    }
 
-	/**
-	 * Adds another value to operand.
-	 *
-	 * @note Adding multiple values is supported on simple conditions for
-	 *       equality or inequality resulting in operations for field values
-	 *       (not) contained in list of added values.
-	 *
-	 * @note Any recently set range is replaced by adding values.
-	 *
-	 * @param string $value
-	 * @return $this fluent interface
-	 */
-	public function addValue( $value )
+    /**
+     * Adds another value to operand.
+     *
+     * @note Adding multiple values is supported on simple conditions for
+     *       equality or inequality resulting in operations for field values
+     *       (not) contained in list of added values.
+     *
+     * @note Any recently set range is replaced by adding values.
+     *
+     * @param string $value
+     * @return $this fluent interface
+     */
+    public function addValue($value)
     {
-		if ( $this->isRangeValue() ) {
-			$this->fieldValues = array();
-		}
+        if ($this->isRangeValue()) {
+            $this->fieldValues = [];
+        }
 
-		if ( $this->comparator !== self::COMPARE_EQUALITY && $this->comparator !== self::COMPARE_INEQUALITY ) {
-			if ( count( $this->fieldValues ) > 0 ) {
-				throw new \InvalidArgumentException( "invalid multi-value comparison" );
-			}
-		}
+        if ($this->comparator !== self::COMPARE_EQUALITY && $this->comparator !== self::COMPARE_INEQUALITY) {
+            if (count($this->fieldValues) > 0) {
+                throw new \InvalidArgumentException("invalid multi-value comparison");
+            }
+        }
 
-		$this->fieldValues[] = strval( $value );
+        $this->fieldValues[] = strval($value);
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Sets one or more values to compare actual values of field with.
-	 *
-	 * @param string|string[] $value
-	 * @return $this fluent interface
-	 */
-	public function setValue( $value )
+    /**
+     * Sets one or more values to compare actual values of field with.
+     *
+     * @param string|string[] $value
+     * @return $this fluent interface
+     */
+    public function setValue($value)
     {
-		if ( is_array( $value ) ) {
-			$this->fieldValues = array_map( function( $i ) { return strval( $i ); }, $value );
-		} else {
-			$this->fieldValues = array( strval( $value ) );
-		}
+        if (is_array($value)) {
+            $this->fieldValues = array_map(function ($i) {
+                return strval($i);
+            }, $value);
+        } else {
+            $this->fieldValues = [ strval($value) ];
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieves value(s) to compare field values with.
-	 *
-	 * @return string[]
-	 */
-	public function getValues()
+    /**
+     * Retrieves value(s) to compare field values with.
+     *
+     * @return string[]
+     */
+    public function getValues()
     {
-		if ( !$this->isRangeValue() ) {
-			return $this->fieldValues;
-		}
+        if (! $this->isRangeValue()) {
+            return $this->fieldValues;
+        }
 
-		throw new \InvalidArgumentException( 'range values must be requested differently' );
-	}
+        throw new \InvalidArgumentException('range values must be requested differently');
+    }
 
-	/**
-	 * Declares range value (replacing any previously set value) to be used in
-	 * comparing.
-	 *
-	 * @note Range values are supported on tests for equality or inequality,
-	 *       only.
-	 *
-	 * @param int|null $lower optional lower (inclusive) end of range
-	 * @param int|null $upper optional upper (inclusive) end of range
-	 * @return $this fluent interface
-	 */
-	public function setRange( $lower, $upper )
+    /**
+     * Declares range value (replacing any previously set value) to be used in
+     * comparing.
+     *
+     * @note Range values are supported on tests for equality or inequality,
+     *       only.
+     *
+     * @param int|null $lower optional lower (inclusive) end of range
+     * @param int|null $upper optional upper (inclusive) end of range
+     * @return $this fluent interface
+     */
+    public function setRange($lower, $upper)
     {
-		if ( $this->comparator !== self::COMPARE_EQUALITY && $this->comparator !== self::COMPARE_INEQUALITY ) {
-			throw new \InvalidArgumentException( "invalid range-value comparison" );
-		}
+        if ($this->comparator !== self::COMPARE_EQUALITY && $this->comparator !== self::COMPARE_INEQUALITY) {
+            throw new \InvalidArgumentException("invalid range-value comparison");
+        }
 
-		$this->fieldValues = array( array( $lower, $upper ) );
+        $this->fieldValues = [ [ $lower, $upper ] ];
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Retrieves some defined range value.
-	 *
-	 * @param int[] $default default value to use if current term doesn't contain range value
-	 * @return int[] two-element array with lower/upper (inclusive) end of range (or null for open ranges at either end)
-	 */
-	public function getRangeValue( $default = null )
+    /**
+     * Retrieves some defined range value.
+     *
+     * @param int[] $default default value to use if current term doesn't contain range value
+     * @return int[] two-element array with lower/upper (inclusive) end of range (or null for open ranges at either end)
+     */
+    public function getRangeValue($default = null)
     {
-		if ( $this->isRangeValue() ) {
-			return $this->fieldValues[0];
-		}
+        if ($this->isRangeValue()) {
+            return $this->fieldValues[0];
+        }
 
-		if ( !is_null( $default ) ) {
-			return $default;
-		}
+        if (! is_null($default)) {
+            return $default;
+        }
 
-		throw new \RuntimeException( 'not a range value' );
-	}
+        throw new \RuntimeException('not a range value');
+    }
 }

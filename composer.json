@@ -9,9 +9,12 @@
   ],
   "homepage": "http://www.opus-repository.org",
   "require": {
+    "php": ">=5.6",
+    "ext-xsl": "*",
+    "ext-dom": "*",
     "solarium/solarium": "3.8.*",
     "opus4-repo/framework": "4.7.x-dev",
-    "opus4-repo/opus4-common": "4.7.x-dev",
+    "opus4-repo/opus4-common": "dev-master",
     "zendframework/zendframework1": "1.12.*"
   },
   "require-dev": {
@@ -38,7 +41,7 @@
     ],
     "test": "phpunit --colors=always",
     "test-coverage": "phpunit --colors=always --coverage-clover build/clover.xml",
-    "cs-check": "phpcs",
+    "cs-check": "phpcs -n",
     "cs-fix": "phpcbf"
   }
 }

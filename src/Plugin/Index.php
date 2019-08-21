@@ -98,7 +98,7 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
             return;
         }
 
-	    $this->removeDocumentFromIndexById($modelId);
+        $this->removeDocumentFromIndexById($modelId);
         return;
     }
 
@@ -107,20 +107,19 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
      *
      * @param $documentId
      */
-    private function removeDocumentFromIndexById( $documentId )
+    private function removeDocumentFromIndexById($documentId)
     {
         $log = \Opus_Log::get();
 
         if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
-
             $log->debug(__METHOD__ . ': ' .'Adding remove-index job for document ' . $documentId . '.');
 
             $job = new \Opus_Job();
             $job->setLabel(IndexOpusDocument::LABEL);
-            $job->setData(array(
+            $job->setData([
                 'documentId' => $documentId,
                 'task' => 'remove'
-            ));
+            ]);
 
             // skip creating job if equal job already exists
             if (true === $job->isUniqueInQueue()) {
@@ -128,18 +127,15 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
             } else {
                 $log->debug(__METHOD__ . ': ' . 'remove-index job for document ' . $documentId . ' already exists!');
             }
-
         } else {
             $log->debug(__METHOD__ . ': ' . 'Removing document ' . $documentId . ' from index.');
             try {
-	            Service::selectIndexingService( 'onDocumentChange' )
-		            ->removeDocumentsFromIndexById( $documentId );
-            }
-            catch (Exception $e) {
+                Service::selectIndexingService('onDocumentChange')
+                    ->removeDocumentsFromIndexById($documentId);
+            } catch (Exception $e) {
                 $log->debug(__METHOD__ . ': ' . 'Removing document-id ' . $documentId . ' from index failed: ' . $e->getMessage());
             }
         }
-
     }
 
     /**
@@ -148,23 +144,23 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
      * @param \Opus_Document $document
      * @return void
      */
-    private function addDocumentToIndex(\Opus_Document $document) {
+    private function addDocumentToIndex(\Opus_Document $document)
+    {
 
-	    $documentId = $document->getId();
+        $documentId = $document->getId();
 
         $log = \Opus_Log::get();
 
         // create job if asynchronous is set
         if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
-
             $log->debug(__METHOD__ . ': ' . 'Adding index job for document ' . $documentId . '.');
 
             $job = new \Opus_Job();
             $job->setLabel(IndexOpusDocument::LABEL);
-            $job->setData(array(
+            $job->setData([
                 'documentId' => $documentId,
                 'task' => 'index'
-            ));
+            ]);
 
             // skip creating job if equal job already exists
             if (true === $job->isUniqueInQueue()) {
@@ -172,18 +168,14 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
             } else {
                 $log->debug(__METHOD__ . ': ' . 'Indexing job for document ' . $documentId . ' already exists!');
             }
-        }
-        else {
-
+        } else {
             $log->debug(__METHOD__ . ': ' . 'Index document ' . $documentId . '.');
 
             try {
-	            Service::selectIndexingService('onDocumentChange')->addDocumentsToIndex($document);
-            }
-            catch (Exception $e) {
+                Service::selectIndexingService('onDocumentChange')->addDocumentsToIndex($document);
+            } catch (Exception $e) {
                 $log->debug(__METHOD__ . ': ' . 'Indexing document ' . $documentId . ' failed: ' . $e->getMessage());
-            }
-            catch (\InvalidArgumentException $e) {
+            } catch (\InvalidArgumentException $e) {
                 $log->warn(__METHOD__ . ': ' . $e->getMessage());
             }
         }

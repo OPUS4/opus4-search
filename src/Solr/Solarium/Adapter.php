@@ -48,575 +48,577 @@ use Opus\Search\Solr\Solarium\Filter\Complex;
 class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extracting
 {
 
-	/**
-	 * @var \Zend_Config
-	 */
-	protected $options;
+    /**
+     * @var \Zend_Config
+     */
+    protected $options;
 
-	/**
-	 * @var \Solarium\Core\Client\Client
-	 */
-	protected $client;
+    /**
+     * @var \Solarium\Core\Client\Client
+     */
+    protected $client;
 
 
-	public function __construct( $serviceName, $options )
+    public function __construct($serviceName, $options)
     {
-		$this->options = $options;
-		$this->client  = new \Solarium\Client( $options );
+        $this->options = $options;
+        $this->client  = new \Solarium\Client($options);
 
-		// ensure service is basically available
-		$ping = $this->client->createPing();
-		$this->execute( $ping, 'failed pinging service ' . $serviceName );
-	}
+        // ensure service is basically available
+        $ping = $this->client->createPing();
+        $this->execute($ping, 'failed pinging service ' . $serviceName);
+    }
 
-	/**
-	 * @param \Solarium\Core\Query\Query $query
-	 * @param string $actionText
-	 * @return \Solarium\Core\Query\Result\ResultInterface
-	 * @throws Exception
-	 * @throws InvalidQueryException
-	 * @throws InvalidServiceException
-	 */
-	protected function execute( $query, $actionText )
+    /**
+     * @param \Solarium\Core\Query\Query $query
+     * @param string $actionText
+     * @return \Solarium\Core\Query\Result\ResultInterface
+     * @throws Exception
+     * @throws InvalidQueryException
+     * @throws InvalidServiceException
+     */
+    protected function execute($query, $actionText)
     {
-		try {
-			$result = $this->client->execute( $query );
-		} catch ( \Solarium\Exception\HttpException $e ) {
-			$msg = sprintf( '%s: %d %s', $actionText, $e->getCode(), $e->getStatusMessage() );
+        try {
+            $result = $this->client->execute($query);
+        } catch (\Solarium\Exception\HttpException $e) {
+            $msg = sprintf('%s: %d %s', $actionText, $e->getCode(), $e->getStatusMessage());
 
-			if ( $e->getCode() == 404 || $e->getCode() >= 500 ) {
-				throw new InvalidServiceException( $msg, $e->getCode(), $e );
-			}
+            if ($e->getCode() == 404 || $e->getCode() >= 500) {
+                throw new InvalidServiceException($msg, $e->getCode(), $e);
+            }
 
-			if ( $e->getCode() == 400 ) {
-				throw new InvalidQueryException( $msg, $e->getCode(), $e );
-			}
+            if ($e->getCode() == 400) {
+                throw new InvalidQueryException($msg, $e->getCode(), $e);
+            }
 
-			throw new Exception( $msg, $e->getCode(), $e );
-		}
+            throw new Exception($msg, $e->getCode(), $e);
+        }
 
-		if ( $result->getStatus() ) {
-			throw new Exception( $actionText, $result->getStatus() );
-		}
+        if ($result->getStatus()) {
+            throw new Exception($actionText, $result->getStatus());
+        }
 
-		return $result;
-	}
+        return $result;
+    }
 
-	/**
-	 * Maps name of field returned by search engine into name of asset to use
-	 * on storing field's value in context of related match.
-	 *
-	 * This mapping relies on runtime configuration. Mapping is defined per
-	 * service in
-	 *
-	 * @param string $fieldName
-	 * @return string
-	 */
-	protected function mapResultFieldToAsset( $fieldName )
+    /**
+     * Maps name of field returned by search engine into name of asset to use
+     * on storing field's value in context of related match.
+     *
+     * This mapping relies on runtime configuration. Mapping is defined per
+     * service in
+     *
+     * @param string $fieldName
+     * @return string
+     */
+    protected function mapResultFieldToAsset($fieldName)
     {
-		if ( $this->options->fieldToAsset instanceof \Zend_Config ) {
-			return $this->options->fieldToAsset->get( $fieldName, $fieldName );
-		}
+        if ($this->options->fieldToAsset instanceof \Zend_Config) {
+            return $this->options->fieldToAsset->get($fieldName, $fieldName);
+        }
 
-		return $fieldName;
-	}
+        return $fieldName;
+    }
 
-	/*
+    /*
 	 *
 	 * -- part of Opus_Search_Adapter --
 	 *
 	 */
 
-	public function getDomain() {
-		return 'solr';
-	}
+    public function getDomain()
+    {
+        return 'solr';
+    }
 
-	/*
+    /*
 	 *
 	 * -- part of Opus_Search_Indexing --
 	 *
 	 */
 
-	protected function normalizeDocuments( $documents )
+    protected function normalizeDocuments($documents)
     {
-		if ( !is_array( $documents ) ) {
-			$documents = array( $documents );
-		}
+        if (! is_array($documents)) {
+            $documents = [ $documents ];
+        }
 
-		foreach ( $documents as $document ) {
-			if ( !( $document instanceof \Opus_Document ) ) {
-				throw new \InvalidArgumentException( "invalid document in provided set" );
-			}
-		}
+        foreach ($documents as $document) {
+            if (! ( $document instanceof \Opus_Document )) {
+                throw new \InvalidArgumentException("invalid document in provided set");
+            }
+        }
 
-		return $documents;
-	}
+        return $documents;
+    }
 
-	protected function normalizeDocumentIds( $documentIds ) {
-		if ( !is_array( $documentIds ) ) {
-			$documentIds = array( $documentIds );
-		}
-
-		foreach ( $documentIds as $id ) {
-			if ( !$id ) {
-				throw new \InvalidArgumentException( "invalid document ID in provided set" );
-			}
-		}
-
-		return $documentIds;
-	}
-
-	public function addDocumentsToIndex( $documents )
+    protected function normalizeDocumentIds($documentIds)
     {
-		$documents = $this->normalizeDocuments( $documents );
+        if (! is_array($documentIds)) {
+            $documentIds = [ $documentIds ];
+        }
 
-		$builder = new Document( $this->options );
+        foreach ($documentIds as $id) {
+            if (! $id) {
+                throw new \InvalidArgumentException("invalid document ID in provided set");
+            }
+        }
 
-		try {
-			// split provided set of documents into chunks of 16 documents
-			$slices = array_chunk( $documents, $this->options->get( 'updateChunkSize', 16 ) );
+        return $documentIds;
+    }
 
-			// update documents of every chunk in a separate request
-			foreach ( $slices as $slice ) {
-				$update = $this->client->createUpdate();
-
-				$updateDocs = array_map( function( $opusDoc ) use ( $builder, $update ) {
-					return $builder->toSolrDocument( $opusDoc, $update->createDocument() );
-				}, $slice );
-
-				$update->addDocuments( $updateDocs );
-
-				$this->execute( $update, 'failed updating slice of documents' );
-			}
-
-			// finally commit all updates
-			$update = $this->client->createUpdate();
-			$update->addCommit();
-
-			$this->execute( $update, 'failed committing update of documents' );
-
-			return $this;
-		}
-        catch ( Exception $e ) {
-			\Opus_Log::get()->err( $e->getMessage() );
-
-			if ( $this->options->get( 'rollback', 1 ) ) {
-				// roll back updates due to failure
-				$update = $this->client->createUpdate();
-				$update->addRollback();
-
-				try {
-					$this->execute( $update, 'failed rolling back update of documents' );
-				} catch ( Exception $inner ) {
-					// SEVERE case: rolling back failed, too
-					\Opus_Log::get()->alert( $inner->getMessage() );
-				}
-			}
-
-			throw $e;
-		}
-	}
-
-	public function removeDocumentsFromIndex( $documents )
+    public function addDocumentsToIndex($documents)
     {
-		$documents = $this->normalizeDocuments( $documents );
+        $documents = $this->normalizeDocuments($documents);
 
-		$documentIds = array_map( function( $doc ) {
-			/** @var Opus_Document $doc */
-			return $doc->getId();
-		}, $documents );
+        $builder = new Document($this->options);
 
-		return $this->removeDocumentsFromIndexById( $documentIds );
-	}
+        try {
+            // split provided set of documents into chunks of 16 documents
+            $slices = array_chunk($documents, $this->options->get('updateChunkSize', 16));
 
-	public function removeDocumentsFromIndexById( $documentIds )
+            // update documents of every chunk in a separate request
+            foreach ($slices as $slice) {
+                $update = $this->client->createUpdate();
+
+                $updateDocs = array_map(function ($opusDoc) use ($builder, $update) {
+                    return $builder->toSolrDocument($opusDoc, $update->createDocument());
+                }, $slice);
+
+                $update->addDocuments($updateDocs);
+
+                $this->execute($update, 'failed updating slice of documents');
+            }
+
+            // finally commit all updates
+            $update = $this->client->createUpdate();
+            $update->addCommit();
+
+            $this->execute($update, 'failed committing update of documents');
+
+            return $this;
+        } catch (Exception $e) {
+            \Opus_Log::get()->err($e->getMessage());
+
+            if ($this->options->get('rollback', 1)) {
+                // roll back updates due to failure
+                $update = $this->client->createUpdate();
+                $update->addRollback();
+
+                try {
+                    $this->execute($update, 'failed rolling back update of documents');
+                } catch (Exception $inner) {
+                    // SEVERE case: rolling back failed, too
+                    \Opus_Log::get()->alert($inner->getMessage());
+                }
+            }
+
+            throw $e;
+        }
+    }
+
+    public function removeDocumentsFromIndex($documents)
     {
-		$documentIds = $this->normalizeDocumentIds( $documentIds );
+        $documents = $this->normalizeDocuments($documents);
 
-		try {
-			// split provided set of documents into chunks of 128 documents
-			$slices = array_chunk( $documentIds, $this->options->get( 'deleteChunkSize', 128 ) );
+        $documentIds = array_map(function ($doc) {
+            /** @var Opus_Document $doc */
+            return $doc->getId();
+        }, $documents);
 
-			// delete documents of every chunk in a separate request
-			foreach ( $slices as $deleteIds ) {
-				$delete = $this->client->createUpdate();
-				$delete->addDeleteByIds( $deleteIds );
+        return $this->removeDocumentsFromIndexById($documentIds);
+    }
 
-				$this->execute( $delete, 'failed deleting slice of documents' );
-			}
+    public function removeDocumentsFromIndexById($documentIds)
+    {
+        $documentIds = $this->normalizeDocumentIds($documentIds);
 
-			// finally commit all deletes
-			$update = $this->client->createUpdate();
-			$update->addCommit();
+        try {
+            // split provided set of documents into chunks of 128 documents
+            $slices = array_chunk($documentIds, $this->options->get('deleteChunkSize', 128));
 
-			$this->execute( $update, 'failed committing deletion of documents' );
+            // delete documents of every chunk in a separate request
+            foreach ($slices as $deleteIds) {
+                $delete = $this->client->createUpdate();
+                $delete->addDeleteByIds($deleteIds);
 
-			return $this;
-		} catch ( Exception $e ) {
-			\Opus_log::get()->err( $e->getMessage() );
+                $this->execute($delete, 'failed deleting slice of documents');
+            }
 
-			if ( $this->options->get( 'rollback', 1 ) ) {
-				// roll back deletes due to failure
-				$update = $this->client->createUpdate();
-				$update->addRollback();
+            // finally commit all deletes
+            $update = $this->client->createUpdate();
+            $update->addCommit();
 
-				try {
-					$this->execute( $update, 'failed rolling back update of documents' );
-				} catch ( Exception $inner ) {
-					// SEVERE case: rolling back failed, too
-					Opus_Log::get()->alert( $inner->getMessage() );
-				}
-			}
+            $this->execute($update, 'failed committing deletion of documents');
 
-			throw $e;
-		}
-	}
+            return $this;
+        } catch (Exception $e) {
+            \Opus_log::get()->err($e->getMessage());
 
-	public function removeAllDocumentsFromIndex() {
-		$update = $this->client->createUpdate();
+            if ($this->options->get('rollback', 1)) {
+                // roll back deletes due to failure
+                $update = $this->client->createUpdate();
+                $update->addRollback();
 
-		$update->addDeleteQuery( '*:*' );
-		$update->addCommit();
+                try {
+                    $this->execute($update, 'failed rolling back update of documents');
+                } catch (Exception $inner) {
+                    // SEVERE case: rolling back failed, too
+                    Opus_Log::get()->alert($inner->getMessage());
+                }
+            }
 
-		$this->execute( $update, 'failed removing all documents from index' );
+            throw $e;
+        }
+    }
 
-		return $this;
-	}
+    public function removeAllDocumentsFromIndex()
+    {
+        $update = $this->client->createUpdate();
+
+        $update->addDeleteQuery('*:*');
+        $update->addCommit();
+
+        $this->execute($update, 'failed removing all documents from index');
+
+        return $this;
+    }
 
 
-	/*
+    /*
 	 *
 	 * -- part of Opus_Search_Searching --
 	 *
 	 */
 
-	public function customSearch( Query $query )
+    public function customSearch(Query $query)
     {
-		$search = $this->client->createSelect();
+        $search = $this->client->createSelect();
 
-		return $this->processQuery( $this->applyParametersOnQuery( $search, $query, false ) );
-	}
+        return $this->processQuery($this->applyParametersOnQuery($search, $query, false));
+    }
 
-	public function namedSearch( $name, Query $customization = null )
+    public function namedSearch($name, Query $customization = null)
     {
-		if ( !preg_match( '/^[a-z_]+$/i', $name ) ) {
-			throw new Exception( 'invalid name of pre-defined query: ' . $name );
-		}
+        if (! preg_match('/^[a-z_]+$/i', $name)) {
+            throw new Exception('invalid name of pre-defined query: ' . $name);
+        }
 
-		// lookup named query in configuration of current service
-		if ( isset( $this->options->query->{$name} ) ) {
-			$definition = $this->options->query->{$name};
-		} else {
-			$definition = null;
-		}
+        // lookup named query in configuration of current service
+        if (isset($this->options->query->{$name})) {
+            $definition = $this->options->query->{$name};
+        } else {
+            $definition = null;
+        }
 
-		if ( !$definition || !( $definition instanceof \Zend_Config ) ) {
-			throw new InvalidQueryException( 'selected query is not pre-defined: ' . $name );
-		}
+        if (! $definition || ! ( $definition instanceof \Zend_Config )) {
+            throw new InvalidQueryException('selected query is not pre-defined: ' . $name);
+        }
 
-		$search = $this->client->createSelect( $definition );
+        $search = $this->client->createSelect($definition);
 
-		return $this->processQuery( $this->applyParametersOnQuery( $search, $customization, true ) );
-	}
+        return $this->processQuery($this->applyParametersOnQuery($search, $customization, true));
+    }
 
-	public function createQuery() {
-		return new Query();
-	}
+    public function createQuery()
+    {
+        return new Query();
+    }
 
-	public function createFilter() {
-		return new Complex( $this->client );
-	}
+    public function createFilter()
+    {
+        return new Complex($this->client);
+    }
 
-	/**
-	 * Executs prepared query fetching all listed instances of Opus_Document on
-	 * success.
-	 *
-	 * @param \Solarium\QueryType\Select\Query\Query $query
-	 * @return Base
-	 * @throws Exception
-	 */
-	protected function processQuery( $query ) {
-		// send search query to service
-		$request = $this->execute( $query, 'failed querying search engine' );
+    /**
+     * Executs prepared query fetching all listed instances of Opus_Document on
+     * success.
+     *
+     * @param \Solarium\QueryType\Select\Query\Query $query
+     * @return Base
+     * @throws Exception
+     */
+    protected function processQuery($query)
+    {
+        // send search query to service
+        $request = $this->execute($query, 'failed querying search engine');
 
-		/** @var \Solarium\QueryType\Select\Result\Result $request */
+        /** @var \Solarium\QueryType\Select\Result\Result $request */
 
-		// create result descriptor
-		$result = Base::create()
-			->setAllMatchesCount( $request->getNumFound() )
-			->setQueryTime( $request->getQueryTime() );
+        // create result descriptor
+        $result = Base::create()
+            ->setAllMatchesCount($request->getNumFound())
+            ->setQueryTime($request->getQueryTime());
 
-		// add description on every returned match
-		$excluded = 0;
-		foreach ( $request->getDocuments() as $document ) {
-			/** @var \Solarium\QueryType\Select\Result\Document $document */
-			$fields = $document->getFields();
+        // add description on every returned match
+        $excluded = 0;
+        foreach ($request->getDocuments() as $document) {
+            /** @var \Solarium\QueryType\Select\Result\Document $document */
+            $fields = $document->getFields();
 
-			if ( array_key_exists( 'id', $fields ) ) {
-				$match = $result->addMatch( $fields['id'] );
+            if (array_key_exists('id', $fields)) {
+                $match = $result->addMatch($fields['id']);
 
-				foreach ( $fields as $fieldName => $fieldValue ) {
-					switch ( $fieldName ) {
-						case 'id' :
-							break;
+                foreach ($fields as $fieldName => $fieldValue) {
+                    switch ($fieldName) {
+                        case 'id':
+                            break;
 
-						case 'score' :
-							$match->setScore( $fieldValue );
-							break;
+                        case 'score':
+                            $match->setScore($fieldValue);
+                            break;
 
-						case 'server_date_modified' :
-							$match->setServerDateModified( $fieldValue );
-							break;
+                        case 'server_date_modified':
+                            $match->setServerDateModified($fieldValue);
+                            break;
 
-						case 'fulltext_id_success' :
-							$match->setFulltextIDsSuccess( $fieldValue );
-							break;
+                        case 'fulltext_id_success':
+                            $match->setFulltextIDsSuccess($fieldValue);
+                            break;
 
-						case 'fulltext_id_failure' :
-							$match->setFulltextIDsFailure( $fieldValue );
-							break;
+                        case 'fulltext_id_failure':
+                            $match->setFulltextIDsFailure($fieldValue);
+                            break;
 
-						default :
-							$match->setAsset( $this->mapResultFieldToAsset( $fieldName ), $fieldValue );
-							break;
-					}
-				}
+                        default:
+                            $match->setAsset($this->mapResultFieldToAsset($fieldName), $fieldValue);
+                            break;
+                    }
+                }
+            } else {
+                $excluded++;
+            }
+        }
 
-			} else {
-				$excluded++;
-			}
-		}
-
-		if ( $excluded > 0 ) {
-			\Opus_Log::get()->warn( sprintf(
-			    'search yielded %d matches not available in result set for missing ID of related document',
+        if ($excluded > 0) {
+            \Opus_Log::get()->warn(sprintf(
+                'search yielded %d matches not available in result set for missing ID of related document',
                 $excluded
             ));
-		}
+        }
 
-		// add returned results of faceted search
-		$facetResult = $request->getFacetSet();
-		if ( $facetResult ) {
-			foreach ( $facetResult->getFacets() as $fieldName => $facets ) {
-				foreach ( $facets as $value => $occurrences ) {
-					$result->addFacet( $fieldName, $value, $occurrences );
-				}
-			}
-		}
+        // add returned results of faceted search
+        $facetResult = $request->getFacetSet();
+        if ($facetResult) {
+            foreach ($facetResult->getFacets() as $fieldName => $facets) {
+                foreach ($facets as $value => $occurrences) {
+                    $result->addFacet($fieldName, $value, $occurrences);
+                }
+            }
+        }
 
-		return $result;
-	}
+        return $result;
+    }
 
-	/**
-	 * Adjusts provided query depending on explicitly defined parameters.
-	 *
-	 * @param \Solarium\QueryType\Select\Query\Query $query
-	 * @param Query $parameters
-	 * @param bool $preferOriginalQuery true for keeping existing query in $query
-	 * @return mixed
-	 */
-	protected function applyParametersOnQuery( \Solarium\QueryType\Select\Query\Query $query,
-                                               Query $parameters = null, $preferOriginalQuery = false )
-    {
-		if ( $parameters ) {
+    /**
+     * Adjusts provided query depending on explicitly defined parameters.
+     *
+     * @param \Solarium\QueryType\Select\Query\Query $query
+     * @param Query $parameters
+     * @param bool $preferOriginalQuery true for keeping existing query in $query
+     * @return mixed
+     */
+    protected function applyParametersOnQuery(
+        \Solarium\QueryType\Select\Query\Query $query,
+        Query $parameters = null,
+        $preferOriginalQuery = false
+    ) {
 
-			$subfilters = $parameters->getSubFilters();
-			if ( $subfilters !== null ) {
-				foreach ( $subfilters as $name => $subfilter ) {
-					if ( $subfilter instanceof Raw || $subfilter instanceof Complex ) {
-						$query->createFilterQuery( $name )
-						      ->setQuery( $subfilter->compile( $query ) );
-					}
-				}
-			}
+        if ($parameters) {
+            $subfilters = $parameters->getSubFilters();
+            if ($subfilters !== null) {
+                foreach ($subfilters as $name => $subfilter) {
+                    if ($subfilter instanceof Raw || $subfilter instanceof Complex) {
+                        $query->createFilterQuery($name)
+                              ->setQuery($subfilter->compile($query));
+                    }
+                }
+            }
 
-			$filter = $parameters->getFilter();
-			if ( $filter instanceof Raw || $filter instanceof Complex ) {
-				if ( !$query->getQuery() || !$preferOriginalQuery ) {
-					$compiled = $filter->compile( $query );
-					if ( $compiled !== null ) {
-						// compile() hasn't implicitly assigned query before
-						$query->setQuery( $compiled );
-					}
-				}
-			}
+            $filter = $parameters->getFilter();
+            if ($filter instanceof Raw || $filter instanceof Complex) {
+                if (! $query->getQuery() || ! $preferOriginalQuery) {
+                    $compiled = $filter->compile($query);
+                    if ($compiled !== null) {
+                        // compile() hasn't implicitly assigned query before
+                        $query->setQuery($compiled);
+                    }
+                }
+            }
 
-			$start = $parameters->getStart();
-			if ( $start !== null ) {
-				$query->setStart( intval( $start ) );
-			}
+            $start = $parameters->getStart();
+            if ($start !== null) {
+                $query->setStart(intval($start));
+            }
 
-			$rows = $parameters->getRows();
-			if ( $rows !== null ) {
-				$query->setRows( intval( $rows ) );
-			}
+            $rows = $parameters->getRows();
+            if ($rows !== null) {
+                $query->setRows(intval($rows));
+            }
 
-			$union = $parameters->getUnion();
-			if ( $union !== null ) {
-				$query->setQueryDefaultOperator( $union ? 'OR' : 'AND' );
-			}
+            $union = $parameters->getUnion();
+            if ($union !== null) {
+                $query->setQueryDefaultOperator($union ? 'OR' : 'AND');
+            }
 
-			$fields = $parameters->getFields();
-			if ( $fields !== null ) {
-				$query->setFields( $fields );
-			}
+            $fields = $parameters->getFields();
+            if ($fields !== null) {
+                $query->setFields($fields);
+            }
 
-			$sortings = $parameters->getSort();
-			if ( $sortings !== null ) {
-				$query->setSorts( $sortings );
-			}
+            $sortings = $parameters->getSort();
+            if ($sortings !== null) {
+                $query->setSorts($sortings);
+            }
 
-			$facet = $parameters->getFacet();
-			if ( $facet !== null ) {
-				$facetSet = $query->getFacetSet();
-				foreach ( $facet->getFields() as $field ) {
-					$facetSet->createFacetField( $field->getName() )
-					         ->setField( $field->getName() )
-					         ->setMinCount( $field->getMinCount() )
-					         ->setLimit( $field->getLimit() )
-                             ->setSort( $field->getSort() ? 'index' : null );
-				}
+            $facet = $parameters->getFacet();
+            if ($facet !== null) {
+                $facetSet = $query->getFacetSet();
+                foreach ($facet->getFields() as $field) {
+                    $facetSet->createFacetField($field->getName())
+                             ->setField($field->getName())
+                             ->setMinCount($field->getMinCount())
+                             ->setLimit($field->getLimit())
+                             ->setSort($field->getSort() ? 'index' : null);
+                }
 
-				if ( $facet->isFacetOnly() ) {
-					$query->setFields( array() );
-				}
-			}
+                if ($facet->isFacetOnly()) {
+                    $query->setFields([]);
+                }
+            }
+        }
 
-		}
-
-		return $query;
-	}
+        return $query;
+    }
 
 
-	/*
+    /*
 	 *
 	 * -- part of Opus_Search_Extracting --
 	 *
 	 */
 
-	public function extractDocumentFile( \Opus_File $file, \Opus_Document $document = null )
+    public function extractDocumentFile(\Opus_File $file, \Opus_Document $document = null)
     {
-		\Opus_Log::get()->debug( 'extracting fulltext from ' . $file->getPath() );
+        \Opus_Log::get()->debug('extracting fulltext from ' . $file->getPath());
 
-		try {
-			// ensure file is basically available and extracting is supported
-			if ( !$file->exists() ) {
-				throw new \Opus_Storage_FileNotFoundException( $file->getPath() . ' does not exist.' );
-			}
+        try {
+            // ensure file is basically available and extracting is supported
+            if (! $file->exists()) {
+                throw new \Opus_Storage_FileNotFoundException($file->getPath() . ' does not exist.');
+            }
 
-			if ( !$file->isReadable() ) {
-				throw new \Opus_Storage_FileAccessException( $file->getPath() . ' is not readable.' );
-			}
+            if (! $file->isReadable()) {
+                throw new \Opus_Storage_FileAccessException($file->getPath() . ' is not readable.');
+            }
 
-			if ( !$this->isMimeTypeSupported( $file ) ) {
-				throw new Exception( $file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported' );
-			}
-
-
-			// use cached result of previous extraction if available
-			$fulltext = FulltextFileCache::readOnFile( $file );
-			if ( $fulltext !== false ) {
-				\Opus_Log::get()->info( 'Found cached fulltext for file ' . $file->getPath() );
-				return $fulltext;
-			}
+            if (! $this->isMimeTypeSupported($file)) {
+                throw new Exception($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
+            }
 
 
-			if ( filesize( $file->getPath() ) ) {
-
-				// query Solr service for extracting fulltext data
-				$extract = $this->client->createExtract()
-				                        ->setExtractOnly( true )
-				                        ->setFile( $file->getPath() )
-				                        ->setCommit( true );
-
-				$result = $this->execute( $extract, 'failed extracting fulltext data' );
-				/** @var \Solarium\QueryType\Extract\Result $response */
-
-				// got response -> extract
-				$response = $result->getData();
-				$fulltext = null;
-
-				if ( is_array( $response ) ) {
-					$keys = array_keys( $response );
-					foreach ( $keys as $k => $key ) {
-						if ( substr( $key, -9 ) === '_metadata' && array_key_exists( substr( $key, 0, -9 ), $response ) ) {
-							unset( $response[$key] );
-						}
-					}
-
-					$fulltextData = array_shift( $response );
-					if ( is_string( $fulltextData ) ) {
-						if ( substr( $fulltextData, 0, 6 ) === '<?xml ' ) {
-							$dom = new \DOMDocument();
-							$dom->loadHTML( $fulltextData );
-							$body = $dom->getElementsByTagName( "body" )->item( 0 );
-							if ( $body ) {
-								$fulltext = $body->textContent;
-							} else {
-								$fulltext = $dom->textContent;
-							}
-						} else {
-							$fulltext = $fulltextData;
-						}
-					}
-				}
-
-				if ( is_null( $fulltext ) ) {
-					\Opus_Log::get()->err( 'failed extracting fulltext data from solr response' );
-					$fulltext = '';
-				} else {
-					$fulltext = trim( $fulltext );
-				}
-
-			} else {
-				// empty file -> empty fulltext index
-				$fulltext = '';
-			}
+            // use cached result of previous extraction if available
+            $fulltext = FulltextFileCache::readOnFile($file);
+            if ($fulltext !== false) {
+                \Opus_Log::get()->info('Found cached fulltext for file ' . $file->getPath());
+                return $fulltext;
+            }
 
 
-			// always write returned fulltext data to cache to keep client from
-			// re-extracting same file as query has been processed properly this
-			// time
-			FulltextFileCache::writeOnFile( $file, $fulltext );
+            if (filesize($file->getPath())) {
+                // query Solr service for extracting fulltext data
+                $extract = $this->client->createExtract()
+                                        ->setExtractOnly(true)
+                                        ->setFile($file->getPath())
+                                        ->setCommit(true);
 
-			return $fulltext;
+                $result = $this->execute($extract, 'failed extracting fulltext data');
+                /** @var \Solarium\QueryType\Extract\Result $response */
 
-		} catch ( Exception $e ) {
-			if ( !( $e instanceof Exception ) && !( $e instanceof \Opus_Storage_Exception ) ) {
-				$e = new Exception( 'error while extracting fulltext from file ' . $file->getPath(), null, $e );
-			}
+                // got response -> extract
+                $response = $result->getData();
+                $fulltext = null;
 
-			\Opus_Log::get()->err( $e->getMessage() );
-			throw $e;
-		}
-	}
+                if (is_array($response)) {
+                    $keys = array_keys($response);
+                    foreach ($keys as $k => $key) {
+                        if (substr($key, -9) === '_metadata' && array_key_exists(substr($key, 0, -9), $response)) {
+                            unset($response[$key]);
+                        }
+                    }
 
-	/**
-	 * Detects if provided file has MIME type supported for extracting fulltext
-	 * data.
-	 *
-	 * @param Opus_File $file
-	 * @return bool
-	 */
-	protected function isMimeTypeSupported( \Opus_File $file )
+                    $fulltextData = array_shift($response);
+                    if (is_string($fulltextData)) {
+                        if (substr($fulltextData, 0, 6) === '<?xml ') {
+                            $dom = new \DOMDocument();
+                            $dom->loadHTML($fulltextData);
+                            $body = $dom->getElementsByTagName("body")->item(0);
+                            if ($body) {
+                                $fulltext = $body->textContent;
+                            } else {
+                                $fulltext = $dom->textContent;
+                            }
+                        } else {
+                            $fulltext = $fulltextData;
+                        }
+                    }
+                }
+
+                if (is_null($fulltext)) {
+                    \Opus_Log::get()->err('failed extracting fulltext data from solr response');
+                    $fulltext = '';
+                } else {
+                    $fulltext = trim($fulltext);
+                }
+            } else {
+                // empty file -> empty fulltext index
+                $fulltext = '';
+            }
+
+
+            // always write returned fulltext data to cache to keep client from
+            // re-extracting same file as query has been processed properly this
+            // time
+            FulltextFileCache::writeOnFile($file, $fulltext);
+
+            return $fulltext;
+        } catch (Exception $e) {
+            if (! ( $e instanceof Exception ) && ! ( $e instanceof \Opus_Storage_Exception )) {
+                $e = new Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
+            }
+
+            \Opus_Log::get()->err($e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Detects if provided file has MIME type supported for extracting fulltext
+     * data.
+     *
+     * @param Opus_File $file
+     * @return bool
+     */
+    protected function isMimeTypeSupported(\Opus_File $file)
     {
-		$mimeType = $file->getMimeType();
+        $mimeType = $file->getMimeType();
 
-		$mimeType = preg_split( '/[;\s]+/', trim( $mimeType ), null, PREG_SPLIT_NO_EMPTY )[0];
+        $mimeType = preg_split('/[;\s]+/', trim($mimeType), null, PREG_SPLIT_NO_EMPTY)[0];
 
-		if ( $mimeType ) {
-			$supported = $this->options->get( "supportedMimeType", array(
-				'text/html',
-				'text/plain',
-				'application/pdf',
-				'application/postscript',
-				'application/xhtml+xml',
-				'application/xml',
-			) );
+        if ($mimeType) {
+            $supported = $this->options->get("supportedMimeType", [
+                'text/html',
+                'text/plain',
+                'application/pdf',
+                'application/postscript',
+                'application/xhtml+xml',
+                'application/xml',
+            ]);
 
-			return in_array( $mimeType, (array) $supported );
-		}
+            return in_array($mimeType, (array) $supported);
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

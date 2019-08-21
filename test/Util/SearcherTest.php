@@ -52,7 +52,7 @@ class SearcherTest extends TestCase
     public function testLatestDocumentsQuery()
     {
         $rows = 5;
-        $ids = array();
+        $ids = [];
         for ($i = 0; $i < $rows; $i++) {
             $document = new \Opus_Document();
             $document->setServerState('published');
@@ -286,7 +286,7 @@ class SearcherTest extends TestCase
     {
         $query = new Query(Query::SIMPLE);
         $query->setCatchAll('*:*');
-        if (!is_null($collId)) {
+        if (! is_null($collId)) {
             $query->addFilterQuery('collection_ids', $collId);
         }
         $searcher = new Searcher();
@@ -385,7 +385,6 @@ class SearcherTest extends TestCase
         $this->assertEquals(0, count($failure));
         $this->assertEquals($valueFile1, $success[0]);
         $this->assertEquals($valueFile2, $success[1]);
-
     }
 
     public function testGetDefaultRows()
@@ -394,14 +393,13 @@ class SearcherTest extends TestCase
         $config = \Zend_Registry::get('Zend_Config');
         if (isset($config->searchengine->solr->numberOfDefaultSearchResults)) {
             $this->assertTrue($rows == $config->searchengine->solr->numberOfDefaultSearchResults);
-        }
-        else {
+        } else {
             $this->assertTrue($rows == Query::DEFAULT_ROWS);
         }
-
     }
 
-    private function getFulltextDir() {
+    private function getFulltextDir()
+    {
         return APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'TestAsset'
             . DIRECTORY_SEPARATOR . 'fulltexts' . DIRECTORY_SEPARATOR;
     }
@@ -420,7 +418,7 @@ class SearcherTest extends TestCase
         $file->setVisibleInFrontdoor('1');
         $doc->store();
 
-        if (!is_null($fulltext2)) {
+        if (! is_null($fulltext2)) {
             $doc = new \Opus_Document($doc->getId());
             $file = $doc->addFile();
             $file->setTempFile($fulltextDir . $fulltext2);
@@ -438,7 +436,7 @@ class SearcherTest extends TestCase
         $config = \Zend_Registry::get('Zend_Config');
         $path = $config->workspacePath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $docId;
         unlink($path . DIRECTORY_SEPARATOR . $fulltext1);
-        if (!is_null($fulltext2)) {
+        if (! is_null($fulltext2)) {
             unlink($path . DIRECTORY_SEPARATOR . $fulltext2);
         }
         rmdir($path);
@@ -454,4 +452,3 @@ class SearcherTest extends TestCase
         return $results[0];
     }
 }
-

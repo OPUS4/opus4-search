@@ -45,39 +45,39 @@ use Opus\Search\Result\Base;
 interface Searching
 {
 
-	/**
-	 * Queries search database for set of entries matching some prepared set of
-	 * query parameters.
-	 *
-	 * @param Query $query
-	 * @return Base set of documents matching query
-	 * @throws Exception in case of error
-	 */
-	public function customSearch( Query $query );
+    /**
+     * Queries search database for set of entries matching some prepared set of
+     * query parameters.
+     *
+     * @param Query $query
+     * @return Base set of documents matching query
+     * @throws Exception in case of error
+     */
+    public function customSearch(Query $query);
 
-	/**
-	 * Queries search database for set of matching entries using some named
-	 * query defined in configuration.
-	 *
-	 * @param string $name name of query defined in configuration
-	 * @param Query $customization set of customizations to selected query
-	 * @returns Base set of documents matching query
-	 * @throws Exception in case of error
-	 */
-	public function namedSearch( $name, Query $customization = null );
+    /**
+     * Queries search database for set of matching entries using some named
+     * query defined in configuration.
+     *
+     * @param string $name name of query defined in configuration
+     * @param Query $customization set of customizations to selected query
+     * @returns Base set of documents matching query
+     * @throws Exception in case of error
+     */
+    public function namedSearch($name, Query $customization = null);
 
-	/**
-	 * Creates query to use on searching documents with current adapter.
-	 *
-	 * @return Query
-	 */
-	public function createQuery();
+    /**
+     * Creates query to use on searching documents with current adapter.
+     *
+     * @return Query
+     */
+    public function createQuery();
 
-	/**
-	 * Creates new complex filter instance for describing set of documents to
-	 * search for.
-	 *
-	 * @return Complex
-	 */
-	public function createFilter();
+    /**
+     * Creates new complex filter instance for describing set of documents to
+     * search for.
+     *
+     * @return Complex
+     */
+    public function createFilter();
 }

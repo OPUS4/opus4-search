@@ -43,7 +43,7 @@ class ConsistencyCheck extends \Opus_Job_Worker_Abstract
 {
 
     const LABEL = 'opus-consistency-check';
-    
+
     private $logfilePath = null;
 
     public function __construct()
@@ -89,7 +89,7 @@ class ConsistencyCheck extends \Opus_Job_Worker_Abstract
         if (file_exists($lockFile)) {
             unlink($lockFile);
         }
-        
+
         touch($lockFile);
         $consistencyChecker = new \Opus\Search\Util\ConsistencyCheck($this->_logger);
         $consistencyChecker->run();
@@ -98,7 +98,7 @@ class ConsistencyCheck extends \Opus_Job_Worker_Abstract
 
     public function setLogger($logger = null)
     {
-        if (!is_null($this->logfilePath)) {
+        if (! is_null($this->logfilePath)) {
             $logfile = @fopen($this->logfilePath, 'w', false);
             $writer = new \Zend_Log_Writer_Stream($logfile);
 
@@ -107,8 +107,7 @@ class ConsistencyCheck extends \Opus_Job_Worker_Abstract
             $writer->setFormatter($formatter);
 
             parent::setLogger(new \Zend_Log($writer));
-        }
-        else {
+        } else {
             parent::setLogger(null);
         }
     }

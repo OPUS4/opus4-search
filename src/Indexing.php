@@ -41,55 +41,54 @@ namespace Opus\Search;
 interface Indexing
 {
 
-	/**
-	 * Adds provided set of Opus_Document instances to index.
-	 *
-	 * @note Implementing methods MUST ensure to keep index in consistent state
-	 *       by adding all listed documents as part of a transaction to be
-	 *       rolled back on any error.
-	 *
-	 * @param \Opus_Document|\Opus_Document[] $documents set of documents to add
-	 * @return Indexing
-	 * @throws Exception in case of error
-	 */
-	public function addDocumentsToIndex( $documents );
+    /**
+     * Adds provided set of Opus_Document instances to index.
+     *
+     * @note Implementing methods MUST ensure to keep index in consistent state
+     *       by adding all listed documents as part of a transaction to be
+     *       rolled back on any error.
+     *
+     * @param \Opus_Document|\Opus_Document[] $documents set of documents to add
+     * @return Indexing
+     * @throws Exception in case of error
+     */
+    public function addDocumentsToIndex($documents);
 
-	/**
-	 * Removes provided set of Opus_Document instances from index.
-	 *
-	 * @note Implementing methods MUST ensure to keep index in consistent state
-	 *       by adding all listed documents as part of a transaction to be
-	 *       rolled back on any error.
-	 *
-	 * @param \Opus_Document|\Opus_Document[] $documents set of document to remove
-	 * @return Indexing
-	 * @throws Exception in case of error
-	 */
-	public function removeDocumentsFromIndex( $documents );
+    /**
+     * Removes provided set of Opus_Document instances from index.
+     *
+     * @note Implementing methods MUST ensure to keep index in consistent state
+     *       by adding all listed documents as part of a transaction to be
+     *       rolled back on any error.
+     *
+     * @param \Opus_Document|\Opus_Document[] $documents set of document to remove
+     * @return Indexing
+     * @throws Exception in case of error
+     */
+    public function removeDocumentsFromIndex($documents);
 
-	/**
-	 * Removes provided set of Opus_Document instances from index.
-	 *
-	 * @note Implementing methods MUST ensure to keep index in consistent state
-	 *       by adding all listed documents as part of a transaction to be
-	 *       rolled back on any error.
-	 *
-	 * @param int|int[] $documentIds set of IDs of documents to remove
-	 * @return Indexing
-	 * @throws Exception in case of error
-	 */
-	public function removeDocumentsFromIndexById( $documentIds );
+    /**
+     * Removes provided set of Opus_Document instances from index.
+     *
+     * @note Implementing methods MUST ensure to keep index in consistent state
+     *       by adding all listed documents as part of a transaction to be
+     *       rolled back on any error.
+     *
+     * @param int|int[] $documentIds set of IDs of documents to remove
+     * @return Indexing
+     * @throws Exception in case of error
+     */
+    public function removeDocumentsFromIndexById($documentIds);
 
-	/**
-	 * Removes all documents from index.
-	 *
-	 * @note Implementing methods MUST ensure to keep index in consistent state
-	 *       by adding all listed documents as part of a transaction to be
-	 *       rolled back on any error.
-	 *
-	 * @return Indexing
-	 * @throws Exception in case of error
-	 */
-	public function removeAllDocumentsFromIndex();
-
+    /**
+     * Removes all documents from index.
+     *
+     * @note Implementing methods MUST ensure to keep index in consistent state
+     *       by adding all listed documents as part of a transaction to be
+     *       rolled back on any error.
+     *
+     * @return Indexing
+     * @throws Exception in case of error
+     */
+    public function removeAllDocumentsFromIndex();
 }

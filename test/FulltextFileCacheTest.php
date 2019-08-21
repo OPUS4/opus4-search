@@ -67,7 +67,8 @@ class FulltextFileCacheTest extends TestCase
 
         $this->assertContains(
             'solr_cache---1ba50dc8abc619cea3ba39f77c75c0fe' .
-            '-f87dffb1d8f33844154e214711674407e2493e6188b1411481e6a38fe071064e.txt', $name
+            '-f87dffb1d8f33844154e214711674407e2493e6188b1411481e6a38fe071064e.txt',
+            $name
         );
 
         $file2 = new \Opus_File($file->getId());
@@ -78,5 +79,4 @@ class FulltextFileCacheTest extends TestCase
 
         $this->assertTrue(file_exists($name2));
     }
-
 }

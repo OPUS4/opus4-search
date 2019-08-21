@@ -66,11 +66,11 @@ class Query
     private $rows = self::DEFAULT_ROWS;
     private $sortField = self::DEFAULT_SORTFIELD;
     private $sortOrder = self::DEFAULT_SORTORDER;
-    private $filterQueries = array();
+    private $filterQueries = [];
     private $catchAll;
     private $searchType;
     private $modifier;
-    private $fieldValues = array();
+    private $fieldValues = [];
     private $escapingEnabled = true;
     private $q;
     private $facetField;
@@ -82,7 +82,7 @@ class Query
      * @param string $searchType
      * @throws Exception If $searchType is not supported.
      */
-    public function  __construct($searchType = self::SIMPLE)
+    public function __construct($searchType = self::SIMPLE)
     {
         $this->invalidQCache();
 
@@ -112,39 +112,48 @@ class Query
         throw new Exception("searchtype $searchType is not supported");
     }
 
-    public function getSearchType() {
+    public function getSearchType()
+    {
         return $this->searchType;
     }
 
-    public function getFacetField() {
+    public function getFacetField()
+    {
         return $this->facetField;
     }
 
-    public function setFacetField($facetField) {
+    public function setFacetField($facetField)
+    {
         $this->facetField = $facetField;
     }
 
-    public function getStart() {
+    public function getStart()
+    {
         return $this->start;
     }
 
-    public function setStart($start) {
+    public function setStart($start)
+    {
         $this->start = $start;
     }
 
-    public static function getDefaultRows() {
+    public static function getDefaultRows()
+    {
         return \Opus\Search\Query::getDefaultRows();
     }
 
-    public function getRows() {
+    public function getRows()
+    {
         return $this->rows;
     }
 
-    public function setRows($rows) {
+    public function setRows($rows)
+    {
         $this->rows = $rows;
     }
 
-    public function getSortField() {
+    public function getSortField()
+    {
         return $this->sortField;
     }
 
@@ -155,8 +164,7 @@ class Query
                 // change the default sortfield for searchtype all
                 // since sorting by relevance does not make any sense here
                 $this->sortField = 'server_date_published';
-            }
-            else {
+            } else {
                 $this->sortField = self::DEFAULT_SORTFIELD;
             }
             return;
@@ -171,15 +179,18 @@ class Query
         }
     }
 
-    public function getSortOrder() {
+    public function getSortOrder()
+    {
         return $this->sortOrder;
     }
 
-    public function setSortOrder($sortOrder) {
+    public function setSortOrder($sortOrder)
+    {
         $this->sortOrder = $sortOrder;
     }
 
-    public function getSeriesId() {
+    public function getSeriesId()
+    {
         return $this->seriesId;
     }
 
@@ -187,7 +198,8 @@ class Query
      *
      * @return array An array that contains all specified filter queries.
      */
-    public function getFilterQueries() {
+    public function getFilterQueries()
+    {
         return $this->filterQueries;
     }
 
@@ -196,11 +208,11 @@ class Query
      * @param string $filterField The field that should be used in a filter query.
      * @param string $filterValue The field value that should be used in a filter query.
      */
-    public function addFilterQuery($filterField, $filterValue) {
+    public function addFilterQuery($filterField, $filterValue)
+    {
         if ($filterField == 'has_fulltext') {
             $filterQuery = $filterField . ':' . $filterValue;
-        }
-        else {
+        } else {
             $filterQuery = '{!raw f=' . $filterField . '}' . $filterValue;
         }
         array_push($this->filterQueries, $filterQuery);
@@ -216,15 +228,18 @@ class Query
      *
      * @param array $filterQueries An array of queries that should be used as filter queries.
      */
-    public function setFilterQueries($filterQueries) {
+    public function setFilterQueries($filterQueries)
+    {
         $this->filterQueries = $filterQueries;
     }
 
-    public function getCatchAll() {
+    public function getCatchAll()
+    {
         return $this->catchAll;
     }
 
-    public function setCatchAll($catchAll) {
+    public function setCatchAll($catchAll)
+    {
         $this->catchAll = $catchAll;
         $this->invalidQCache();
     }
@@ -235,8 +250,9 @@ class Query
      * @param string $value
      * @param string $modifier
      */
-    public function setField($name, $value, $modifier = self::SEARCH_MODIFIER_CONTAINS_ALL) {
-        if (!empty($value)) {
+    public function setField($name, $value, $modifier = self::SEARCH_MODIFIER_CONTAINS_ALL)
+    {
+        if (! empty($value)) {
             $this->fieldValues[$name] = $value;
             $this->modifier[$name] = $modifier;
             $this->invalidQCache();
@@ -248,7 +264,8 @@ class Query
      * @param string $name
      * @return null if no values was specified for the given field name.
      */
-    public function getField($name) {
+    public function getField($name)
+    {
         if (array_key_exists($name, $this->fieldValues)) {
             return $this->fieldValues[$name];
         }
@@ -260,14 +277,16 @@ class Query
      * @param string $fieldname
      * @return null if no modifier was specified for the given field name.
      */
-    public function getModifier($fieldname) {
+    public function getModifier($fieldname)
+    {
         if (array_key_exists($fieldname, $this->modifier)) {
             return $this->modifier[$fieldname];
         }
         return null;
     }
 
-    public function getQ() {
+    public function getQ()
+    {
         if (is_null($this->q)) {
             // earlier cached query was marked as invalid: perform new setup of query cache
             $this->q = $this->setupQCache();
@@ -277,7 +296,8 @@ class Query
         return $this->q;
     }
 
-    private function setupQCache() {
+    private function setupQCache()
+    {
         if ($this->searchType === self::SIMPLE) {
             if ($this->getCatchAll() === '*:*') {
                 return $this->catchAll;
@@ -293,18 +313,19 @@ class Query
         return $this->buildAdvancedQString();
     }
 
-    private function invalidQCache() {
+    private function invalidQCache()
+    {
         $this->q = null;
     }
 
-    private function buildAdvancedQString() {
+    private function buildAdvancedQString()
+    {
         $q = "{!lucene q.op=AND}";
         $first = true;
         foreach ($this->fieldValues as $fieldname => $fieldvalue) {
             if ($first) {
                 $first = false;
-            }
-            else {
+            } else {
                 $q .= ' ';
             }
 
@@ -324,15 +345,15 @@ class Query
         return $q;
     }
 
-    private function combineSearchTerms($fieldname, $fieldvalue, $conjunction = null) {
+    private function combineSearchTerms($fieldname, $fieldvalue, $conjunction = null)
+    {
         $result = $fieldname . ':(';
         $firstTerm = true;
         $queryTerms = preg_split("/[\s]+/", $this->escape($fieldvalue), null, PREG_SPLIT_NO_EMPTY);
         foreach ($queryTerms as $queryTerm) {
             if ($firstTerm) {
                 $firstTerm = false;
-            }
-            else {
+            } else {
                 $result .= is_null($conjunction) ? " " : " $conjunction ";
             }
             $result .= $queryTerm;
@@ -341,7 +362,8 @@ class Query
         return $result;
     }
 
-    public function disableEscaping() {
+    public function disableEscaping()
+    {
         $this->invalidQCache();
         $this->escapingEnabled = false;
     }
@@ -356,8 +378,7 @@ class Query
      */
     public function escape($query)
     {
-        if (!$this->escapingEnabled)
-        {
+        if (! $this->escapingEnabled) {
             return $query;
         }
         $query = trim($query);
@@ -374,11 +395,10 @@ class Query
         foreach (explode('"', $query) as $phrase) {
             if ($insidePhrase) {
                 $result .= '"' . $phrase . '"';
-            }
-            else {
+            } else {
                 $result .= preg_replace('/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\)/', '\\\$1', $this->lowercaseWildcardQuery($phrase));
             }
-            $insidePhrase = !$insidePhrase;
+            $insidePhrase = ! $insidePhrase;
         }
 
         // add one " to the end of $query if it contains an odd number of "
@@ -390,16 +410,18 @@ class Query
         return $result;
     }
 
-    public function lowercaseWildcardQuery($query) {
+    public function lowercaseWildcardQuery($query)
+    {
         // check if $query is a wildcard query
-        if (strpos($query, '*') === FALSE && strpos($query, '?') === FALSE) {
+        if (strpos($query, '*') === false && strpos($query, '?') === false) {
             return $query;
         }
         // lowercase query
         return strtolower($query);
     }
 
-    public function  __toString() {
+    public function __toString()
+    {
         if ($this->searchType === self::SIMPLE) {
             return 'simple search with query ' . $this->getQ();
         }
@@ -435,4 +457,3 @@ class Query
         return $this->returnIdsOnly;
     }
 }
-

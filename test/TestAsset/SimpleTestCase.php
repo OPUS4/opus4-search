@@ -58,22 +58,22 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
      * @param callable $callback callback to invoke with adjusted configuration before enabling e.g. to delete some options
      * @return \Zend_Config reference on previously set configuration
      */
-    protected function adjustConfiguration( $overlay, $callback = null )
+    protected function adjustConfiguration($overlay, $callback = null)
     {
-        $previous = \Zend_Registry::get( 'Zend_Config' );
-        $updated  = new \Zend_Config( array(), true );
+        $previous = \Zend_Registry::get('Zend_Config');
+        $updated  = new \Zend_Config([], true);
 
         $updated
-            ->merge( $previous )
-            ->merge( new \Zend_Config( $overlay ) );
+            ->merge($previous)
+            ->merge(new \Zend_Config($overlay));
 
-        if ( is_callable( $callback ) ) {
-            $updated = call_user_func( $callback, $updated );
+        if (is_callable($callback)) {
+            $updated = call_user_func($callback, $updated);
         }
 
         $updated->setReadOnly();
 
-        \Zend_Registry::set( 'Zend_Config', $updated );
+        \Zend_Registry::set('Zend_Config', $updated);
 
         Config::dropCached();
 
@@ -111,8 +111,8 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
 
         $workspacePath = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'build' .DIRECTORY_SEPARATOR . 'workspace';
 
-        self::createFolder( $workspacePath . DIRECTORY_SEPARATOR . 'cache');
-        self::createFolder( $workspacePath . DIRECTORY_SEPARATOR . 'log');
+        self::createFolder($workspacePath . DIRECTORY_SEPARATOR . 'cache');
+        self::createFolder($workspacePath . DIRECTORY_SEPARATOR . 'log');
         self::createFolder($workspacePath . DIRECTORY_SEPARATOR . 'files');
 
         /*
@@ -130,7 +130,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
 
     public static function createFolder($path)
     {
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             mkdir($path, 0700, true);
         }
     }
@@ -145,14 +145,14 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
         parent::setUp();
 
         $config = \Zend_Registry::get('Zend_Config');
-        if (!is_null($config)) {
+        if (! is_null($config)) {
             $this->config_backup = clone $config;
         }
     }
 
-    protected function  tearDown()
+    protected function tearDown()
     {
-        if (!is_null($this->config_backup)) {
+        if (! is_null($this->config_backup)) {
             \Zend_Registry::set('Zend_Config', $this->config_backup);
         }
 

@@ -49,9 +49,9 @@ class Searcher
      */
     private $facetArray;
 
-
-
-    public function  __construct() {}
+    public function __construct()
+    {
+    }
 
     /**
      *
@@ -66,113 +66,110 @@ class Searcher
         try {
             \Opus_Log::get()->debug("query: " . $query->getQ());
 
-	        // get service adapter for searching
-	        $service = Service::selectSearchingService( null, 'solr' );
+            // get service adapter for searching
+            $service = Service::selectSearchingService(null, 'solr');
 
-	        // basically create query
-	        $request = $service->createQuery()
-		        ->setFilter( new Raw( $query->getQ() ) )
-		        ->setStart( $query->getStart() )
-		        ->setRows( $query->getRows() );
-
-
-	        switch ( $query->getSearchType() ) {
-		        case Query::LATEST_DOCS :
-			        $request
-				        ->addSorting( $query->getSortField(), $query->getSortOrder() );
-
-		        case Query::DOC_ID :
-					if ( $query->isReturnIdsOnly() ) {
-						$request
-							->setFields( 'id' );
-					} else {
-						$request
-							->setFields( array( '*', 'score' ) );
-					}
-			        break;
-
-		        case Query::FACET_ONLY :
-					$facet = Set::create()
-						->setFacetOnly();
-
-					$facet->addField( $query->getFacetField() )
-						->setMinCount( 1 )
-						->setLimit( -1 );
-
-					$request->setFacet( $facet );
-		            break;
-
-		        default :
-					$request->addSorting( $query->getSortField(), $query->getSortOrder() );
-
-			        if ( $query->isReturnIdsOnly() ) {
-				        $request
-					        ->setFields( 'id' );
-			        } else {
-				        $request
-					        ->setFields( array( '*', 'score' ) );
-
-				        $facet = Set::create();
-
-				        if ( isset( $this->facetArray ) ) {
-					        $facet->overrideLimits( $this->facetArray );
-				        }
-
-		                $fields = Config::getFacetFields( $facet->getSetName(), 'solr' );
-				        if ( empty( $fields ) ) {
-					        // no facets are being configured
-					        \Opus_Log::get()->warn("Key searchengine.solr.facets is not present in config. No facets will be displayed.");
-				        } else {
-					        $request->setFacet( $facet->setFields( $fields ) );
-				        }
-	                }
+            // basically create query
+            $request = $service->createQuery()
+                ->setFilter(new Raw($query->getQ()))
+                ->setStart($query->getStart())
+                ->setRows($query->getRows());
 
 
-			        $fq = $query->getFilterQueries();
+            switch ($query->getSearchType()) {
+                case Query::LATEST_DOCS:
+                    $request
+                        ->addSorting($query->getSortField(), $query->getSortOrder());
+                    // TODO fall through on purpose here?
 
-			        if ( !empty( $fq ) ) {
-				        foreach ( $fq as $index => $sub ) {
-					        $request->setSubFilter( "fq$index", new Raw( $sub ) );
-				        }
-			        }
-	        }
+                case Query::DOC_ID:
+                    if ($query->isReturnIdsOnly()) {
+                        $request
+                            ->setFields('id');
+                    } else {
+                        $request
+                            ->setFields([ '*', 'score' ]);
+                    }
+                    break;
 
-	        $response = $service->customSearch( $request );
+                case Query::FACET_ONLY:
+                    $facet = Set::create()
+                        ->setFacetOnly();
 
-	        if ( $validateDocIds ) {
-		        $response->dropLocallyMissingMatches();
-	        }
+                    $facet->addField($query->getFacetField())
+                        ->setMinCount(1)
+                        ->setLimit(-1);
 
-	        return $response;
+                    $request->setFacet($facet);
+                    break;
+
+                default:
+                    $request->addSorting($query->getSortField(), $query->getSortOrder());
+
+                    if ($query->isReturnIdsOnly()) {
+                        $request
+                            ->setFields('id');
+                    } else {
+                        $request
+                            ->setFields([ '*', 'score' ]);
+
+                        $facet = Set::create();
+
+                        if (isset($this->facetArray)) {
+                            $facet->overrideLimits($this->facetArray);
+                        }
+
+                        $fields = Config::getFacetFields($facet->getSetName(), 'solr');
+                        if (empty($fields)) {
+                            // no facets are being configured
+                            \Opus_Log::get()->warn("Key searchengine.solr.facets is not present in config. No facets will be displayed.");
+                        } else {
+                            $request->setFacet($facet->setFields($fields));
+                        }
+                    }
+
+
+                    $fq = $query->getFilterQueries();
+
+                    if (! empty($fq)) {
+                        foreach ($fq as $index => $sub) {
+                            $request->setSubFilter("fq$index", new Raw($sub));
+                        }
+                    }
+            }
+
+            $response = $service->customSearch($request);
+
+            if ($validateDocIds) {
+                $response->dropLocallyMissingMatches();
+            }
+
+            return $response;
+        } catch (InvalidServiceException $e) {
+            return $this->mapException(Exception::SERVER_UNREACHABLE, $e);
+        } catch (InvalidQueryException $e) {
+            return $this->mapException(Exception::INVALID_QUERY, $e);
+        } catch (Exception $e) {
+            return $this->mapException(null, $e);
         }
-        catch (InvalidServiceException $e) {
-	        return $this->mapException(Exception::SERVER_UNREACHABLE, $e);
-        }
-        catch (InvalidQueryException $e ) {
-	        return $this->mapException(Exception::INVALID_QUERY, $e);
-        }
-	    catch ( Exception $e ) {
-		    return $this->mapException( null, $e );
-	    }
     }
 
-	/**
-	 * @param mixed $type
-	 * @param \Exception $previousException
-	 * @throws Exception
-	 * @return no-return
-	 */
-	private function mapException( $type, \Exception $previousException )
+    /**
+     * @param mixed $type
+     * @param \Exception $previousException
+     * @throws Exception
+     * @return no-return
+     */
+    private function mapException($type, \Exception $previousException)
     {
-		$msg = 'Solr server responds with an error ' . $previousException->getMessage();
-		\Opus_Log::get()->err($msg);
+        $msg = 'Solr server responds with an error ' . $previousException->getMessage();
+        \Opus_Log::get()->err($msg);
 
-		throw new Exception($msg, $type, $previousException);
-	}
+        throw new Exception($msg, $type, $previousException);
+    }
 
     public function setFacetArray($array)
     {
         $this->facetArray = $array;
     }
 }
-

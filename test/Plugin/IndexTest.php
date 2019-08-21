@@ -43,19 +43,19 @@ class IndexTest extends TestCase
     {
         parent::setUp();
         $config = \Zend_Registry::get('Zend_Config');
-        $config->merge(new \Zend_Config(array('runjobs' => array('asynchronous' => true))));
+        $config->merge(new \Zend_Config(['runjobs' => ['asynchronous' => true]]));
     }
-    
+
     public function testCreateIndexJob()
     {
-        $indexJobsBefore = \Opus_Job::getByLabels(array('opus-index-document'));
+        $indexJobsBefore = \Opus_Job::getByLabels(['opus-index-document']);
         $jobCountBefore = count($indexJobsBefore);
 
         $document = new \Opus_Document();
         $document->setServerState('published');
         $documentId = $document->store();
 
-        $indexJobs = \Opus_Job::getByLabels(array('opus-index-document'));
+        $indexJobs = \Opus_Job::getByLabels(['opus-index-document']);
 
         $this->assertEquals(++$jobCountBefore, count($indexJobs), 'Expected new job');
 
@@ -65,7 +65,7 @@ class IndexTest extends TestCase
         $this->assertEquals('index', $newJob->getData()->task);
 
         $document->deletePermanent();
-        if (!is_null($newJob)) {
+        if (! is_null($newJob)) {
             $newJob->delete();
         }
     }
@@ -73,15 +73,15 @@ class IndexTest extends TestCase
     public function testDoNotCreateIndexJobIfAsyncDisabled()
     {
         \Zend_Registry::get('Zend_Config')->runjobs->asynchronous = 0;
-        
-        $indexJobsBefore = \Opus_Job::getByLabels(array('opus-index-document'));
+
+        $indexJobsBefore = \Opus_Job::getByLabels(['opus-index-document']);
         $jobCountBefore = count($indexJobsBefore);
 
         $document = new \Opus_Document();
         $document->setServerState('published');
         $documentId = $document->store();
 
-        $indexJobs = \Opus_Job::getByLabels(array('opus-index-document'));
+        $indexJobs = \Opus_Job::getByLabels(['opus-index-document']);
 
         $this->assertEquals($jobCountBefore, count($indexJobs), 'Expected equal job count before and after storing document.');
 
@@ -91,23 +91,23 @@ class IndexTest extends TestCase
 
     public function testCreateRemoveIndexJob()
     {
-        $removeIndexJobsBefore = \Opus_Job::getByLabels(array('opus-remove-index-document'));
+        $removeIndexJobsBefore = \Opus_Job::getByLabels(['opus-remove-index-document']);
         $jobCountBefore = count($removeIndexJobsBefore);
 
         $document = new \Opus_Document();
         $document->setServerState('published');
         $documentId = $document->store();
 
-        $indexJobs = \Opus_Job::getByLabels(array('opus-index-document'));
+        $indexJobs = \Opus_Job::getByLabels(['opus-index-document']);
         $newIndexJob = $this->getCreatedJob($documentId, $indexJobs);
         $this->assertNotNull($newIndexJob, 'Expected new opus-index-document job');
 
-        if (!is_null($newIndexJob)) {
+        if (! is_null($newIndexJob)) {
             $newIndexJob->delete();
         }
 
         $document->delete();
-        $removeIndexJobs = \Opus_Job::getByLabels(array('opus-index-document'));
+        $removeIndexJobs = \Opus_Job::getByLabels(['opus-index-document']);
         $this->assertEquals(++$jobCountBefore, count($removeIndexJobs), 'Expected increased opus-remove-index-document job count');
 
         $newJob = $this->getCreatedJob($documentId, $removeIndexJobs);
@@ -121,7 +121,7 @@ class IndexTest extends TestCase
     {
         \Zend_Registry::get('Zend_Config')->runjobs->asynchronous = 0;
 
-        $removeIndexJobsBefore = \Opus_Job::getByLabels(array('opus-remove-index-document'));
+        $removeIndexJobsBefore = \Opus_Job::getByLabels(['opus-remove-index-document']);
         $jobCountBefore = count($removeIndexJobsBefore);
 
 
@@ -130,17 +130,17 @@ class IndexTest extends TestCase
         $documentId = $document->store();
 
         $newIndexJob = null;
-        $indexJobs = \Opus_Job::getByLabels(array('opus-index-document'));
+        $indexJobs = \Opus_Job::getByLabels(['opus-index-document']);
         $newIndexJob = $this->getCreatedJob($documentId, $indexJobs);
         $this->assertNull($newIndexJob, 'Expected that no opus-index-document job was created');
 
-        if (!is_null($newIndexJob)) {
+        if (! is_null($newIndexJob)) {
             $newIndexJob->delete();
         }
 
         $document->delete();
 
-        $removeIndexJobs = \Opus_Job::getByLabels(array('opus-remove-index-document'));
+        $removeIndexJobs = \Opus_Job::getByLabels(['opus-remove-index-document']);
         $this->assertEquals($jobCountBefore, count($removeIndexJobs), 'Expected equal job count before and after storing document.');
 
         $newJob = $this->getCreatedJob($documentId, $removeIndexJobs);

@@ -40,159 +40,160 @@ use Opus\Search\QueryFactory;
 use Opus\Search\Service;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
-class AdapterSearchingTest extends DocumentBasedTestCase {
+class AdapterSearchingTest extends DocumentBasedTestCase
+{
 
-	public function testService()
+    public function testService()
     {
-		$search = Service::selectSearchingService( null, 'solr' );
-		$this->assertInstanceOf( 'Opus\Search\Solr\Solarium\Adapter', $search );
-	}
+        $search = Service::selectSearchingService(null, 'solr');
+        $this->assertInstanceOf('Opus\Search\Solr\Solarium\Adapter', $search);
+    }
 
-	/**
-	 * @expectedException Exception
-	 */
-	public function testDisfunctServiceFails()
+    /**
+     * @expectedException Exception
+     */
+    public function testDisfunctServiceFails()
     {
-		// need to drop deprecated configuration options for interfering with
-		// intention of this test regarding revised configuration structure, only
-		$this->dropDeprecatedConfiguration();
+        // need to drop deprecated configuration options for interfering with
+        // intention of this test regarding revised configuration structure, only
+        $this->dropDeprecatedConfiguration();
 
-		Service::selectSearchingService( 'disfunct', 'solr' );
-	}
+        Service::selectSearchingService('disfunct', 'solr');
+    }
 
-	public function testEmptyIndex()
+    public function testEmptyIndex()
     {
-		$search = Service::selectSearchingService( null, 'solr' );
-		$result = $search->customSearch( QueryFactory::selectAllDocuments( $search ) );
+        $search = Service::selectSearchingService(null, 'solr');
+        $result = $search->customSearch(QueryFactory::selectAllDocuments($search));
 
-		$this->assertEquals( 0, $result->getAllMatchesCount() );
-	}
+        $this->assertEquals(0, $result->getAllMatchesCount());
+    }
 
-	public function testEmptyIndexNamed()
+    public function testEmptyIndexNamed()
     {
-		$search = Service::selectSearchingService( null, 'solr' );
-		$result = $search->namedSearch( 'alldocs' );
+        $search = Service::selectSearchingService(null, 'solr');
+        $result = $search->namedSearch('alldocs');
 
-		$this->assertEquals( 0, $result->getAllMatchesCount() );
-	}
+        $this->assertEquals(0, $result->getAllMatchesCount());
+    }
 
-	public function testSingleDoc()
+    public function testSingleDoc()
     {
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$index = Service::selectIndexingService( null, 'solr' );
-		$index->addDocumentsToIndex( $doc );
-		$search = Service::selectSearchingService( null, 'solr' );
-		$result = $search->customSearch( QueryFactory::selectAllDocuments( $search ) );
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex($doc);
+        $search = Service::selectSearchingService(null, 'solr');
+        $result = $search->customSearch(QueryFactory::selectAllDocuments($search));
 
-		$this->assertEquals( 1, $result->getAllMatchesCount() );
+        $this->assertEquals(1, $result->getAllMatchesCount());
 
-		$this->assertEquals( $doc->getId(), $result->getReturnedMatches()[0]->getId() );
-	}
+        $this->assertEquals($doc->getId(), $result->getReturnedMatches()[0]->getId());
+    }
 
-	public function testSingleDocNamed()
+    public function testSingleDocNamed()
     {
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$index = Service::selectIndexingService( null, 'solr' );
-		$index->addDocumentsToIndex( $doc );
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex($doc);
 
-		$search = Service::selectSearchingService( null, 'solr' );
-		$result = $search->namedSearch( 'alldocs' );
+        $search = Service::selectSearchingService(null, 'solr');
+        $result = $search->namedSearch('alldocs');
 
-		$this->assertEquals( 1, $result->getAllMatchesCount() );
+        $this->assertEquals(1, $result->getAllMatchesCount());
 
-		$this->assertEquals( $doc->getId(), $result->getReturnedMatches()[0]->getId() );
-	}
+        $this->assertEquals($doc->getId(), $result->getReturnedMatches()[0]->getId());
+    }
 
-	public function testClearedIndex()
+    public function testClearedIndex()
     {
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$index = Service::selectIndexingService( null, 'solr' );
-		$index->addDocumentsToIndex( $doc );
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex($doc);
 
-		$index->removeDocumentsFromIndexbyId( $doc->getId() );
+        $index->removeDocumentsFromIndexbyId($doc->getId());
 
-		$search = Service::selectSearchingService( null, 'solr' );
-		$result = $search->customSearch(QueryFactory::selectAllDocuments( $search ) );
+        $search = Service::selectSearchingService(null, 'solr');
+        $result = $search->customSearch(QueryFactory::selectAllDocuments($search));
 
-		$this->assertEquals( 0, $result->getAllMatchesCount() );
-	}
+        $this->assertEquals(0, $result->getAllMatchesCount());
+    }
 
-	public function testClearedIndexNamed()
+    public function testClearedIndexNamed()
     {
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$index = Service::selectIndexingService( null, 'solr' );
-		$index->addDocumentsToIndex( $doc );
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex($doc);
 
-		$index->removeDocumentsFromIndex( $doc );
+        $index->removeDocumentsFromIndex($doc);
 
-		$search = Service::selectSearchingService( null, 'solr' );
-		$result = $search->namedSearch( 'alldocs' );
+        $search = Service::selectSearchingService(null, 'solr');
+        $result = $search->namedSearch('alldocs');
 
-		$this->assertEquals( 0, $result->getAllMatchesCount() );
-	}
+        $this->assertEquals(0, $result->getAllMatchesCount());
+    }
 
-	public function testTwoDocs()
+    public function testTwoDocs()
     {
-		$docA = $this->createDocument( 'article' );
-		$docB = $this->createDocument( 'book' );
+        $docA = $this->createDocument('article');
+        $docB = $this->createDocument('book');
 
-		$index = Service::selectIndexingService( null, 'solr' );
-		$index->addDocumentsToIndex( array( $docA, $docB ) );
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex([ $docA, $docB ]);
 
-		$search = Service::selectSearchingService( null, 'solr' );
-		$result = $search->customSearch(QueryFactory::selectAllDocuments( $search ) );
+        $search = Service::selectSearchingService(null, 'solr');
+        $result = $search->customSearch(QueryFactory::selectAllDocuments($search));
 
-		$this->assertEquals( 2, $result->getAllMatchesCount() );
-	}
+        $this->assertEquals(2, $result->getAllMatchesCount());
+    }
 
-	public function testTwoDocsNamed()
+    public function testTwoDocsNamed()
     {
-		$docA = $this->createDocument( 'article' );
-		$docB = $this->createDocument( 'book' );
+        $docA = $this->createDocument('article');
+        $docB = $this->createDocument('book');
 
-		$index = Service::selectIndexingService( null, 'solr' );
-		$index->addDocumentsToIndex( array( $docA, $docB ) );
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex([ $docA, $docB ]);
 
-		$search = Service::selectSearchingService( null, 'solr' );
-		$result = $search->namedSearch( 'alldocs' );
+        $search = Service::selectSearchingService(null, 'solr');
+        $result = $search->namedSearch('alldocs');
 
-		$this->assertEquals( 2, $result->getAllMatchesCount() );
-	}
+        $this->assertEquals(2, $result->getAllMatchesCount());
+    }
 
-	public function testTwoDocsNamedSpecial()
+    public function testTwoDocsNamedSpecial()
     {
-		$docA = $this->createDocument( 'article' );
-		$docB = $this->createDocument( 'book' );
+        $docA = $this->createDocument('article');
+        $docB = $this->createDocument('book');
 
-		$index = Service::selectIndexingService( null, 'solr' );
-		$index->addDocumentsToIndex( array( $docA, $docB ) );
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex([ $docA, $docB ]);
 
-		$search = Service::selectSearchingService( null, 'solr' );
-		$result = $search->namedSearch( 'onedoc' );
+        $search = Service::selectSearchingService(null, 'solr');
+        $result = $search->namedSearch('onedoc');
 
-		$this->assertEquals( 2, $result->getAllMatchesCount() );
-		$this->assertEquals( 1, count( $result->getReturnedMatches() ) );
-	}
+        $this->assertEquals(2, $result->getAllMatchesCount());
+        $this->assertEquals(1, count($result->getReturnedMatches()));
+    }
 
-	public function testTwoDocsNamedSpecialAdjusted()
+    public function testTwoDocsNamedSpecialAdjusted()
     {
-		$docA = $this->createDocument( 'article' );
-		$docB = $this->createDocument( 'book' );
+        $docA = $this->createDocument('article');
+        $docB = $this->createDocument('book');
 
-		$index = Service::selectIndexingService( null, 'solr' );
-		$index->addDocumentsToIndex( array( $docA, $docB ) );
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex([ $docA, $docB ]);
 
-		$opts = new Query();
-		$opts->setRows( 1 );
+        $opts = new Query();
+        $opts->setRows(1);
 
-		$search = Service::selectSearchingService( null, 'solr' );
-		$result = $search->namedSearch( 'alldocs', $opts );
+        $search = Service::selectSearchingService(null, 'solr');
+        $result = $search->namedSearch('alldocs', $opts);
 
-		$this->assertEquals( 2, $result->getAllMatchesCount() );
-		$this->assertEquals( 1, count( $result->getReturnedMatches() ) );
-	}
+        $this->assertEquals(2, $result->getAllMatchesCount());
+        $this->assertEquals(1, count($result->getReturnedMatches()));
+    }
 }

@@ -63,12 +63,12 @@ class Exception extends \Exception
     }
 
 
-	public function __toString()
+    public function __toString()
     {
-		$previousMessage = '';
-		if ( !is_null( $this->getPrevious() ) ) {
-			$previousMessage = $this->getPrevious()->getMessage();
-		}
+        $previousMessage = '';
+        if (! is_null($this->getPrevious())) {
+            $previousMessage = $this->getPrevious()->getMessage();
+        }
 
         if ($this->isServerUnreachable()) {
             return "solr server is unreachable: $previousMessage";
@@ -78,6 +78,6 @@ class Exception extends \Exception
             return "given search query is invalid: $previousMessage";
         }
 
-		return 'unknown error while trying to search: ' . $previousMessage;
-	}
+        return 'unknown error while trying to search: ' . $previousMessage;
+    }
 }

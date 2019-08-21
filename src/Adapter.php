@@ -45,10 +45,10 @@ namespace Opus\Search;
 
 abstract class Adapter
 {
-	/**
-	 * Retrieves name of current adapter's search engine domain.
-	 *
-	 * @return string
-	 */
-	abstract public function getDomain();
+    /**
+     * Retrieves name of current adapter's search engine domain.
+     *
+     * @return string
+     */
+    abstract public function getDomain();
 }

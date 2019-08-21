@@ -54,10 +54,10 @@ class ConsistencyCheckTest extends TestCase
     {
         parent::setUp();
 
-	    $this->doc = new \Opus_Document();
+        $this->doc = new \Opus_Document();
         $this->doc->setServerState('published');
         $this->docId = $this->doc->store();
-   }
+    }
 
     public function testWithConsistentState()
     {
@@ -106,7 +106,7 @@ class ConsistencyCheckTest extends TestCase
         try {
             $this->doc->setServerState('unpublished');
             $this->doc->store();
-        } catch (Exception $e ) {
+        } catch (Exception $e) {
         }
 
         $this->restoreSolrConfig();
@@ -120,10 +120,10 @@ class ConsistencyCheckTest extends TestCase
 
     public function testWithInconsistentStateAfterModifyingDocument()
     {
-	    $searcher = Service::selectSearchingService();
-	    $query    = QueryFactory::selectDocumentById( $searcher, $this->docId );
+        $searcher = Service::selectSearchingService();
+        $query    = QueryFactory::selectDocumentById($searcher, $this->docId);
 
-	    $result = $searcher->customSearch( $query );
+        $result = $searcher->customSearch($query);
         $resultList = $result->getReturnedMatches();
 
         $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
@@ -138,9 +138,9 @@ class ConsistencyCheckTest extends TestCase
         $this->restoreSolrConfig();
 
         $searcher = Service::selectSearchingService();
-        $query    = QueryFactory::selectDocumentById( $searcher, $this->docId );
+        $query    = QueryFactory::selectDocumentById($searcher, $this->docId);
 
-        $result = $searcher->customSearch( $query );
+        $result = $searcher->customSearch($query);
         $resultList = $result->getReturnedMatches();
 
         $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
@@ -149,13 +149,13 @@ class ConsistencyCheckTest extends TestCase
         $consistencyCheck = new ConsistencyCheck();
         $consistencyCheck->run();
 
-	    $searcher = Service::selectSearchingService();
-	    $query    = QueryFactory::selectDocumentById( $searcher, $this->docId );
+        $searcher = Service::selectSearchingService();
+        $query    = QueryFactory::selectDocumentById($searcher, $this->docId);
 
-	    $result = $searcher->customSearch( $query );
-	    $resultList = $result->getReturnedMatches();
+        $result = $searcher->customSearch($query);
+        $resultList = $result->getReturnedMatches();
 
-	    $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
+        $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
         $this->assertTrue($resultList[0]->getServerDateModified()->getUnixTimestamp() == $this->doc->getServerDateModified()->getUnixTimestamp());
     }
 
@@ -164,8 +164,8 @@ class ConsistencyCheckTest extends TestCase
         $this->assertTrue($this->isDocumentInSearchIndex(), 'asserting that document ' . $this->docId . ' is in search index');
 
         // remove document from search index directly
-	    $indexer = Service::selectIndexingService();
-	    $indexer->removeDocumentsFromIndexById( $this->docId );
+        $indexer = Service::selectIndexingService();
+        $indexer->removeDocumentsFromIndexById($this->docId);
 
         $this->assertFalse($this->isDocumentInSearchIndex(), 'asserting that document ' . $this->docId . ' is not in search index');
 
@@ -182,17 +182,17 @@ class ConsistencyCheckTest extends TestCase
         $config = \Zend_Registry::get('Zend_Config');
         $this->indexHost = $config->searchengine->solr->default->service->endpoint;
 
-        $this->adjustConfiguration( array(), function( $config ) {
-            $config->searchengine->solr->default->service->default->endpoint = new \Zend_Config( array( 'primary' => array(
+        $this->adjustConfiguration([], function ($config) {
+            $config->searchengine->solr->default->service->default->endpoint = new \Zend_Config([ 'primary' => [
                 'host' => '1.2.3.4',
                 'port' => '8983',
                 'path' => '/solr/solr',
-            ) ) );
+            ] ]);
 
             return $config;
-        } );
+        });
 
-	    $this->assertEquals( '1.2.3.4', Config::getServiceConfiguration( 'index', null, 'solr' )->endpoint->primary->host );
+        $this->assertEquals('1.2.3.4', Config::getServiceConfiguration('index', null, 'solr')->endpoint->primary->host);
 
         Service::dropCached();
     }
@@ -201,22 +201,22 @@ class ConsistencyCheckTest extends TestCase
     {
         $saved = $this->indexHost;
 
-        $this->adjustConfiguration( array(), function( $config ) use ( $saved ) {
+        $this->adjustConfiguration([], function ($config) use ($saved) {
             $config->searchengine->solr->default->service->default->endpoint = $saved;
 
             return $config;
-        } );
+        });
 
-	    $this->assertNotEquals( 'example.org', Config::getServiceConfiguration( 'index', null, 'solr' )->endpoint->primary->host );
+        $this->assertNotEquals('example.org', Config::getServiceConfiguration('index', null, 'solr')->endpoint->primary->host);
 
         Service::dropCached();
     }
 
     private function isDocumentInSearchIndex()
     {
-	    $searcher = Service::selectSearchingService();
-	    $query    = QueryFactory::selectDocumentById( $searcher, $this->docId );
-        $result   = $searcher->customSearch( $query );
+        $searcher = Service::selectSearchingService();
+        $query    = QueryFactory::selectDocumentById($searcher, $this->docId);
+        $result   = $searcher->customSearch($query);
         return $result->getAllMatchesCount() == 1;
     }
 }

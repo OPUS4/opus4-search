@@ -32,6 +32,7 @@
  */
 
 namespace OpusTest\Search\TestAsset;
+
 use Opus\Search\Config;
 use Opus\Search\Service;
 
@@ -87,7 +88,7 @@ class TestCase extends SimpleTestCase
      */
     protected function clearSolrIndex()
     {
-	    Service::selectIndexingService( null, 'solr' )->removeAllDocumentsFromIndex();
+        Service::selectIndexingService(null, 'solr')->removeAllDocumentsFromIndex();
     }
 
     /**
@@ -102,11 +103,10 @@ class TestCase extends SimpleTestCase
             }
             $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'build' . DIRECTORY_SEPARATOR . 'workspace'
                 . DIRECTORY_SEPARATOR . 'files';
-            $files = array_diff(scandir($filesDir), array('.', '..', '.gitignore'));
-        }
-        else {
+            $files = array_diff(scandir($filesDir), ['.', '..', '.gitignore']);
+        } else {
             $filesDir = $directory;
-            $files = array_diff(scandir($filesDir), array('.', '..'));
+            $files = array_diff(scandir($filesDir), ['.', '..']);
         }
 
         foreach ($files as $file) {
@@ -114,13 +114,12 @@ class TestCase extends SimpleTestCase
 
             if (is_dir($path)) {
                 $this->clearFiles($path);
-            }
-            else {
+            } else {
                 unlink($path);
             }
         }
 
-        if (!is_null($directory)) {
+        if (! is_null($directory)) {
             rmdir($directory);
         }
 

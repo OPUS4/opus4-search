@@ -47,13 +47,13 @@ class Raw extends Base
 
     protected $rawTerm;
 
-	public function __construct( $rawTerm )
+    public function __construct($rawTerm)
     {
-		$this->rawTerm = $rawTerm;
-	}
+        $this->rawTerm = $rawTerm;
+    }
 
-	public function compile( $context )
+    public function compile($context)
     {
-		return $this->rawTerm;
-	}
+        return $this->rawTerm;
+    }
 }

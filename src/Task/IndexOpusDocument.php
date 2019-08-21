@@ -36,6 +36,7 @@
  */
 
 namespace Opus\Search\Task;
+
 use Opus\Search\Service;
 
 /**
@@ -90,11 +91,9 @@ class IndexOpusDocument implements \Opus_Job_Worker_Interface
     {
         if (null === $logger) {
             $this->_logger = new \Zend_Log(new \Zend_Log_Writer_Null());
-        }
-        else if ($logger instanceof \Zend_Log) {
+        } elseif ($logger instanceof \Zend_Log) {
             $this->_logger = $logger;
-        }
-        else {
+        } else {
             throw new \InvalidArgumentException('Zend_Log instance expected.');
         }
     }
@@ -106,7 +105,7 @@ class IndexOpusDocument implements \Opus_Job_Worker_Interface
      */
     public function setIndex()
     {
-        throw new \RuntimeException( 'Indexing service cannot be set programmatically anymore! Use runtime configuration defining solr service named "jobRunner" instead!' );
+        throw new \RuntimeException('Indexing service cannot be set programmatically anymore! Use runtime configuration defining solr service named "jobRunner" instead!');
     }
 
     /**
@@ -127,7 +126,7 @@ class IndexOpusDocument implements \Opus_Job_Worker_Interface
         $this->_job = $job;
         $data = $job->getData();
 
-        if (!(is_object($data) && isset($data->documentId) && isset($data->task))) {
+        if (! (is_object($data) && isset($data->documentId) && isset($data->task))) {
             throw new \Opus_Job_Worker_InvalidJobException("Incomplete or missing data.");
         }
 
@@ -137,16 +136,13 @@ class IndexOpusDocument implements \Opus_Job_Worker_Interface
 
         // create index document or remove index, depending on task
         if ($data->task === 'index') {
-	        $document = new \Opus_Document($data->documentId);
+            $document = new \Opus_Document($data->documentId);
 
-	        Service::selectIndexingService( 'jobRunner' )->addDocumentsToIndex($document);
-        }
-        else if ($data->task === 'remove') {
-            Service::selectIndexingService( 'jobRunner' )->removeDocumentsFromIndexById($data->documentId);
-        }
-        else {
+            Service::selectIndexingService('jobRunner')->addDocumentsToIndex($document);
+        } elseif ($data->task === 'remove') {
+            Service::selectIndexingService('jobRunner')->removeDocumentsFromIndexById($data->documentId);
+        } else {
             throw new \Opus_Job_Worker_InvalidJobException("unknown task '{$data->task}'.");
         }
     }
 }
-

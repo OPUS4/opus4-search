@@ -42,12 +42,12 @@ namespace Opus\Search;
 interface Extracting
 {
 
-	/**
-	 * Extracts provided file of document.
-	 *
-	 * @param \Opus_File $file
-	 * @param \Opus_Document $document
-	 * @return Extracting fluent interface
-	 */
-	public function extractDocumentFile( \Opus_File $file, \Opus_Document $document = null );
+    /**
+     * Extracts provided file of document.
+     *
+     * @param \Opus_File $file
+     * @param \Opus_Document $document
+     * @return Extracting fluent interface
+     */
+    public function extractDocumentFile(\Opus_File $file, \Opus_Document $document = null);
 }

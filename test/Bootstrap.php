@@ -50,5 +50,4 @@ class Bootstrap extends \Opus_Bootstrap_Base
     {
         Opus_Document::addDefaultPlugin('Opus\Search\Plugin\Index');
     }
-
 }

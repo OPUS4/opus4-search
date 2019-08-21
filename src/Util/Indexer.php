@@ -90,10 +90,10 @@ class Indexer
 
         $config = \Zend_Registry::get('Zend_Config');
         // check if all config params exist and are not empty
-        foreach(array('index', 'extract') as $server) {
+        foreach (['index', 'extract'] as $server) {
             $errMsg = "Configuration parameter searchengine.%s.%s does not exist in config file.";
-            foreach (array('host', 'port', 'app') as $param) {
-                if (!isset($config->searchengine->$server->$param)) {
+            foreach (['host', 'port', 'app'] as $param) {
+                if (! isset($config->searchengine->$server->$param)) {
                     $errMsg = sprintf($errMsg, $server, $param);
                     $this->log->err($errMsg);
                     throw new InvalidConfigurationException($errMsg);
@@ -143,7 +143,7 @@ class Indexer
 
         $serverVarName = $server.'_server';
 
-        if(isset($this->$serverVarName)
+        if (isset($this->$serverVarName)
         && $this->$serverVarName instanceof \Apache_Solr_Service) {
             return $this->$serverVarName;
         }
@@ -151,11 +151,11 @@ class Indexer
         try {
             $config = \Zend_Registry::get('Zend_Config');
             $this->$serverVarName = new \Apache_Solr_Service(
-                    $config->searchengine->$server->host,
-                    $config->searchengine->$server->port,
-                    $config->searchengine->$server->app);
-        }
-        catch (\Apache_Solr_Exception $e) {
+                $config->searchengine->$server->host,
+                $config->searchengine->$server->port,
+                $config->searchengine->$server->app
+            );
+        } catch (\Apache_Solr_Exception $e) {
             $msg = 'Connection to Solr server' . $this->{$server . '_server_url'} . 'could not be established';
             $this->log->err($msg . ": " . $e->getMessage());
             throw new Exception($msg, null, $e);
@@ -201,8 +201,7 @@ class Indexer
             // send xml directly to solr server instead of wrapping the document data
             // into an Apache_Solr_Document object provided by the solr php client library
             $this->sendSolrXmlToServer($this->getSolrXmlDocument($doc));
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $msg = 'Error while adding document with id ' . $doc->getId();
             $this->log->err("$msg : " . get_class($e) .': '. $e->getMessage());
             throw new Exception($msg, 0, $e);
@@ -246,8 +245,7 @@ class Indexer
         }
         try {
             $this->getSolrServer('index')->deleteById($documentId);
-        }
-        catch (\Apache_Solr_Exception $e) {
+        } catch (\Apache_Solr_Exception $e) {
             $msg = 'Error while deleting document with id ' . $documentId;
             $this->log->err("$msg : " . $e->getMessage());
             throw new Exception($msg, 0, $e);
@@ -281,14 +279,14 @@ class Indexer
 
         // Set up XSLT stylesheet
         $xslt = new \DomDocument;
-        if ( isset( $config->searchengine->solr->xsltfile ) ) {
+        if (isset($config->searchengine->solr->xsltfile)) {
             $xsltFilePath = $config->searchengine->solr->xsltfile;
-            if ( !file_exists( $xsltFilePath ) ) {
-                throw new \Application_Exception( 'Solr XSLT file not found.' );
+            if (! file_exists($xsltFilePath)) {
+                throw new \Application_Exception('Solr XSLT file not found.');
             }
-            $xslt->load( $xsltFilePath );
+            $xslt->load($xsltFilePath);
         } else {
-            throw new \Application_Exception( 'Missing configuration of Solr XSLT file used to prepare Opus documents for indexing.' );
+            throw new \Application_Exception('Missing configuration of Solr XSLT file used to prepare Opus documents for indexing.');
         }
 
         // Set up XSLT processor
@@ -325,7 +323,9 @@ class Indexer
             return;
         }
         // only consider files which are visible in frontdoor
-        $files = array_filter($files, function ($file) { return $file->getVisibleInFrontdoor() === '1'; });
+        $files = array_filter($files, function ($file) {
+            return $file->getVisibleInFrontdoor() === '1';
+        });
 
         if (count($files) == 0) {
             $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'false'));
@@ -336,9 +336,8 @@ class Indexer
             $fulltext = '';
             try {
                 $this->totalFileCount++;
-                $fulltext = trim(iconv("UTF-8","UTF-8//IGNORE", $this->getFileContent($file)));
-            }
-            catch (Exception $e) {
+                $fulltext = trim(iconv("UTF-8", "UTF-8//IGNORE", $this->getFileContent($file)));
+            } catch (Exception $e) {
                 $this->errorFileCount++;
                 $this->log->err('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
             }
@@ -351,8 +350,7 @@ class Indexer
                 $element = $modelXml->createElement('Fulltext_ID_Success');
                 $element->appendChild($modelXml->createTextNode($this->getFulltextHash($file)));
                 $docXml->appendChild($element);
-            }
-            else {
+            } else {
                 $element = $modelXml->createElement('Fulltext_ID_Failure');
                 $element->appendChild($modelXml->createTextNode($this->getFulltextHash($file)));
                 $docXml->appendChild($element);
@@ -370,8 +368,7 @@ class Indexer
         $hash = '';
         try {
             $hash = $file->getRealHash('md5');
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $this->log->err('could not compute MD5 hash for ' . $file->getPath() . ' : ' . $e);
         }
         return $file->getId() . ":" . $hash;
@@ -388,15 +385,15 @@ class Indexer
     private function getFileContent(\Opus_File $file)
     {
         $this->log->debug('extracting fulltext from ' . $file->getPath());
-        if (!$file->exists()) {
+        if (! $file->exists()) {
             $this->log->err($file->getPath() . ' does not exist.');
             throw new Exception($file->getPath() . ' does not exist.');
         }
-        if (!$file->isReadable()) {
+        if (! $file->isReadable()) {
             $this->log->err($file->getPath() . ' is not readable.');
             throw new Exception($file->getPath() . ' is not readable.');
         }
-        if (!$this->hasSupportedMimeType($file)) {
+        if (! $this->hasSupportedMimeType($file)) {
             $this->log->err($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
             throw new Exception($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
         }
@@ -408,7 +405,7 @@ class Indexer
             return $fulltext;
         }
 
-        $params = array( 'extractOnly' => 'true', 'extractFormat' => 'text' );
+        $params = [ 'extractOnly' => 'true', 'extractFormat' => 'text' ];
         try {
             $response = $this->getSolrServer('extract')->extract($file->getPath(), $params);
             // TODO add mime type information
@@ -420,8 +417,7 @@ class Indexer
                 return $fulltext;
                 // TODO evaluate additional data in json response
             }
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $this->log->err('error while extracting fulltext from file ' . $file->getPath());
             throw new Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
         }
@@ -440,8 +436,7 @@ class Indexer
         $config = \Zend_Registry::get('Zend_Config');
         try {
             $hash = $file->getRealHash('md5') . "-" . $file->getRealHash('sha256');
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $this->log->err(__CLASS__ . '::' . __METHOD__ . ' : could not compute hash values for ' . $file->getPath() . " : $e");
             return null;
         }
@@ -502,8 +497,8 @@ class Indexer
     {
         $cache_file = $this->getCachedFileName($file);
 
-        if (!is_null($cache_file) && is_readable($cache_file)) {
-            $max_cache_file_size = 1024*1024*16;
+        if (! is_null($cache_file) && is_readable($cache_file)) {
+            $max_cache_file_size = 1024 * 1024 * 16;
             if (filesize($cache_file) > $max_cache_file_size) {
                 $this->log->info('Skipped reading fulltext HUGE cache file ' . $cache_file);
                 return;
@@ -515,8 +510,8 @@ class Indexer
             }
 
             $fulltext_buffer = '';
-            while (!feof($cache_fh)) {
-               $fulltext_buffer .= fread($cache_fh, 1024*1024);
+            while (! feof($cache_fh)) {
+                $fulltext_buffer .= fread($cache_fh, 1024 * 1024);
             }
 
             fclose($cache_fh);
@@ -534,13 +529,13 @@ class Indexer
      */
     private function hasSupportedMimeType($file)
     {
-        if (    $file->getMimeType() === 'text/html' ||
+        if ($file->getMimeType() === 'text/html' ||
                 $file->getMimeType() === 'text/plain' ||
                 $file->getMimeType() === 'application/pdf' ||
                 $file->getMimeType() === 'application/postscript' ||
                 $file->getMimeType() === 'application/xhtml+xml' ||
                 $file->getMimeType() === 'application/xml') {
-         return true;
+            return true;
         }
         return false;
     }
@@ -553,7 +548,8 @@ class Indexer
      * @throws Exception If deletion of all documents failed.
      * @return void
      */
-    public function deleteAllDocs() {
+    public function deleteAllDocs()
+    {
         $this->deleteDocsByQuery("*:*");
     }
 
@@ -571,8 +567,7 @@ class Indexer
         try {
             $this->getSolrServer('index')->deleteByQuery($query);
             $this->log->info('deleted all docs that match ' . $query);
-        }
-        catch (\Apache_Solr_Exception $e) {
+        } catch (\Apache_Solr_Exception $e) {
             $msg = 'Error while deleting all documents that match query ' . $query;
             $this->log->err("$msg : " . $e->getMessage());
             throw new Exception($msg, 0, $e);
@@ -590,18 +585,18 @@ class Indexer
         $stream = stream_context_create();
         stream_context_set_option(
             $stream,
-            array(
-                'http' => array(
+            [
+                'http' => [
                     'method' => 'POST',
                     'header' => 'Content-Type: text/xml; charset=UTF-8',
                     'content' => $solrXml->saveXML(),
                     'timeout' => '3600'
-                )
-            )
+                ]
+            ]
         );
         $response = new \Apache_Solr_Response(@file_get_contents($this->index_server_url . '/update', false, $stream));
         $this->log->debug('Solr Response Status: ' . $response->getHttpStatus());
-        if (!$response->getRawResponse()) {
+        if (! $response->getRawResponse()) {
             throw new Exception("Solr Server {$this->index_server_url} not responding.");
         }
     }
@@ -616,8 +611,7 @@ class Indexer
     {
         try {
             $this->getSolrServer('index')->commit();
-        }
-        catch (\Apache_Solr_Exception $e) {
+        } catch (\Apache_Solr_Exception $e) {
             $msg = 'Error while committing changes';
             $this->log->err("$msg : " . $e->getMessage());
             throw new Exception($msg, 0, $e);
@@ -634,8 +628,7 @@ class Indexer
     {
         try {
             $this->getSolrServer('index')->optimize();
-        }
-        catch (\Apache_Solr_Exception $e) {
+        } catch (\Apache_Solr_Exception $e) {
             $msg = 'Error while performing index optimization';
             $this->log->err("$msg : " . $e->getMessage());
             throw new Exception($msg, 0, $e);
@@ -651,5 +644,4 @@ class Indexer
     {
         return $this->totalFileCount;
     }
-
 }
