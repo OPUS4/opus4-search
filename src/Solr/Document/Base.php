@@ -27,7 +27,8 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -61,8 +62,13 @@ abstract class Base
 
         $modelXml = $caching_xml_model->getDomDocument();
 
+        $config = \Opus_Config::get();
+
         // extract fulltext from file and append it to the generated xml.
-        $this->attachFulltextToXml($modelXml, $opusDoc->getFile(), $opusDoc->getId());
+        if (! isset($config->search->indexFiles)
+            || filter_var($config->search->indexFiles, FILTER_VALIDATE_BOOLEAN)) {
+            $this->attachFulltextToXml($modelXml, $opusDoc->getFile(), $opusDoc->getId());
+        }
 
         return $modelXml;
     }

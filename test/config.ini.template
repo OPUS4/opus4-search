@@ -123,6 +123,12 @@ searchengine.solr.xsltfile = APPLICATION_PATH "/tests/resources/solr.xslt"
 log.prepare.xml = false
 log.level = DEBUG
 
+; Plugins used by Opus_Document
+model.plugins.document[] = 'Opus\Search\Plugin\Index'
+model.plugins.document[] = 'Opus_Document_Plugin_XmlCache'
+model.plugins.document[] = 'Opus_Document_Plugin_IdentifierUrn'
+model.plugins.document[] = 'Opus_Document_Plugin_IdentifierDoi'
+
 [testing : production]
 sql.schema.path =
 

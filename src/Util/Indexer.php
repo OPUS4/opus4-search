@@ -275,7 +275,10 @@ class Indexer
         $modelXml = $caching_xml_model->getDomDocument();
 
         // extract fulltext from file and append it to the generated xml.
-        $this->attachFulltextToXml($modelXml, $doc->getFile(), $doc->getId());
+        if (! isset($config->search->indexFiles)
+            || filter_var($config->search->indexFiles, FILTER_VALIDATE_BOOLEAN)) {
+            $this->attachFulltextToXml($modelXml, $doc->getFile(), $doc->getId());
+        }
 
         // Set up XSLT stylesheet
         $xslt = new \DomDocument;
@@ -297,7 +300,7 @@ class Indexer
         $solrXmlDocument->preserveWhiteSpace = false;
         $solrXmlDocument->loadXML($proc->transformToXML($modelXml));
 
-        if (isset($config->log->prepare->xml) && $config->log->prepare->xml) {
+        if (isset($config->log->prepare->xml) && filter_var($config->log->prepare->xml, FILTER_VALIDATE_BOOLEAN)) {
             $modelXml->formatOutput = true;
             $this->log->debug("input xml\n" . $modelXml->saveXML());
             $solrXmlDocument->formatOutput = true;

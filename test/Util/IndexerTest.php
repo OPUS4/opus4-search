@@ -273,7 +273,7 @@ class IndexerTest extends TestCase
     public function testPrepareAndOutputXML()
     {
         $this->adjustConfiguration([
-            'log' => ['prepare' => ['xml' => true]]
+            'log' => [ 'prepare' => [ 'xml' => self::CONFIG_VALUE_TRUE ] ]
         ]);
 
         $this->_addOneDocumentToIndex();

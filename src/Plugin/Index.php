@@ -111,7 +111,7 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
     {
         $log = \Opus_Log::get();
 
-        if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
+        if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug(__METHOD__ . ': ' .'Adding remove-index job for document ' . $documentId . '.');
 
             $job = new \Opus_Job();
@@ -152,7 +152,7 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
         $log = \Opus_Log::get();
 
         // create job if asynchronous is set
-        if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
+        if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug(__METHOD__ . ': ' . 'Adding index job for document ' . $documentId . '.');
 
             $job = new \Opus_Job();

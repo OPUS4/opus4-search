@@ -145,8 +145,8 @@ class SearcherTest extends TestCase
         $docId = $doc->store();
 
         $result = $this->searchDocumentsAssignedToCollection($collId);
-        $this->assertEquals(0, count($result));
-        $this->assertEquals(0, count($doc->getCollection()), "Document $docId was already assigned to a collection");
+        $this->assertCount(0, $result);
+        $this->assertCount(0, $doc->getCollection(), "Document $docId was already assigned to a collection");
 
         sleep(1);
 
@@ -155,8 +155,8 @@ class SearcherTest extends TestCase
         $doc->store();
 
         $result = $this->searchDocumentsAssignedToCollection($collId);
-        $this->assertEquals(1, count($result));
-        $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
+        $this->assertCount(1, $result);
+        $this->assertCount(1, $doc->getCollection(), "Document $docId is not assigned to collection $collId");
         $serverDateModified1 = $result[0]->getServerDateModified();
 
         sleep(1);
@@ -166,8 +166,8 @@ class SearcherTest extends TestCase
         $root->store();
 
         $result = $this->searchDocumentsAssignedToCollection($collId);
-        $this->assertEquals(1, count($result));
-        $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
+        $this->assertCount(1, $result);
+        $this->assertCount(1, $doc->getCollection(), "Document $docId is not assigned to collection $collId");
 
         $serverDateModified2 = $result[0]->getServerDateModified();
         $this->assertTrue($serverDateModified1->compare($serverDateModified2) == 0);
@@ -180,8 +180,8 @@ class SearcherTest extends TestCase
         // document in search index was not updated: connection between document $doc
         // and collection $root is still present in search index
         $result = $this->searchDocumentsAssignedToCollection($collId);
-        $this->assertEquals(1, count($result), "Deletion of Collection $collId was propagated to Solr index");
-        $this->assertEquals(0, count($doc->getCollection()), "Document $docId is still assigned to collection $collId");
+        $this->assertCount(1, $result, "Deletion of Collection $collId was propagated to Solr index");
+        $this->assertCount(0, $doc->getCollection(), "Document $docId is still assigned to collection $collId");
 
         $serverDateModified3 = $result[0]->getServerDateModified();
         $this->assertTrue($serverDateModified2->compare($serverDateModified3) == 0);
@@ -204,7 +204,7 @@ class SearcherTest extends TestCase
         $result = $this->searchDocumentsAssignedToCollection($collId);
         $this->assertEquals(0, count($result));
 
-        $result = $this->searchDocumentsAssignedToCollection();
+        $result = $this->searchDocumentsAssignedToCollection(); // searches for all documents
         $this->assertEquals(1, count($result));
 
         $serverDateModified4 = $result[0]->getServerDateModified();

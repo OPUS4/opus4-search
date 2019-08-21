@@ -29,7 +29,6 @@
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 namespace Opus\Search;

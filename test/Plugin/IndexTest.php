@@ -28,7 +28,7 @@
  * @package     Opus_Document_Plugin
  * @author      Edouard Simon edouard.simon@zib.de
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -42,8 +42,9 @@ class IndexTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $config = \Zend_Registry::get('Zend_Config');
-        $config->merge(new \Zend_Config(['runjobs' => ['asynchronous' => true]]));
+        \Zend_Registry::get('Zend_Config')->merge(
+            new \Zend_Config(['runjobs' => ['asynchronous' => self::CONFIG_VALUE_TRUE]])
+        );
     }
 
     public function testCreateIndexJob()

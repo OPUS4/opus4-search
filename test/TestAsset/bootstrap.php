@@ -48,13 +48,6 @@ $scriptDir = dirname(__FILE__);
 
 require_once APPLICATION_PATH . DIRECTORY_SEPARATOR . 'vendor/' . 'autoload.php';
 
-// enable fallback autoloader for testing
-/*
-$autoloader = Zend_Loader_Autoloader::getInstance();
-$autoloader->suppressNotFoundWarnings(false);
-$autoloader->setFallbackAutoloader(true);
-*/
-
 // Do test environment initializiation.
 $application = new Zend_Application(
     APPLICATION_ENV,
@@ -65,6 +58,7 @@ $application = new Zend_Application(
     ]
 );
 
+// TODO should not be necessary for search tests
 Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
 
 $application->bootstrap(['Database','Temp','OpusLocale']);

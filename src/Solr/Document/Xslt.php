@@ -81,7 +81,7 @@ class Xslt extends Base
         $solrDoc->preserveWhiteSpace = false;
         $solrDoc->loadXML($this->processor->transformToXML($modelXml));
 
-        if (\Opus_Config::get()->log->prepare->xml) {
+        if (filter_var(\Opus_Config::get()->log->prepare->xml, FILTER_VALIDATE_BOOLEAN)) {
             $modelXml->formatOutput = true;
             \Opus_Log::get()->debug("input xml\n" . $modelXml->saveXML());
             $solrDoc->formatOutput = true;
