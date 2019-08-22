@@ -12,6 +12,8 @@
     "php": ">=5.6",
     "ext-xsl": "*",
     "ext-dom": "*",
+    "ext-iconv": "*",
+    "ext-simplexml": "*",
     "solarium/solarium": "3.8.*",
     "opus4-repo/framework": "4.7.x-dev",
     "opus4-repo/opus4-common": "dev-master",
