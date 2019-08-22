@@ -11,6 +11,7 @@ addons:
   apt:
     packages:
       - ant
+      - libxml2-utils
 cache:
   directories:
     - $HOME/.composer/cache
@@ -19,12 +20,12 @@ before_install:
   - jdk_switcher use openjdk8
 before_script: composer install
 script:
-  - java -version
   - mysql --version
+  - java -version
   - ant -version
   - travis_fold start "prepare_dependencies"
   - ant prepare-workspace
-  - ant prepare-config -DdbAdminName=root
+  - ant prepare-config -DdbUserName=root -DdbAdminName=root
   - php test/TestAsset/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
   - ant download-solr -DsolrVersion=7.7.1 -DdownloadDir=$HOME/downloads
