@@ -116,7 +116,7 @@ searchengine.extract.port = @searchengine.index.port@
 searchengine.extract.app = @searchengine.index.app@
 searchengine.extract.timeout = 10
 searchengine.solr.facets = author_facet,year,doctype,language,has_fulltext,belongs_to_bibliography,subject,project,institute
-searchengine.solr.xsltfile = APPLICATION_PATH "/tests/resources/solr.xslt"
+searchengine.solr.xsltfile = APPLICATION_PATH "/test/Solr/solr.xslt"
 
 ;LOGGING RELATED SETTINGS
 ; if set to true all xml that is generated while indexing is prepared for logging
