@@ -32,7 +32,7 @@
 
 // Define path to application directory
 defined('APPLICATION_PATH')
-|| define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
+|| define('APPLICATION_PATH', realpath(dirname(dirname(dirname(__FILE__)))));
 
 // Define application environment
 defined('APPLICATION_ENV')
