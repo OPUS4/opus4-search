@@ -47,7 +47,7 @@
     </target>
 
     <target name="prepare-config">
-        <copy file="${basedir}/test/config.ini.template" toFile="${basedir}/tests/config.ini" filtering="true"
+        <copy file="${basedir}/test/config.ini.template" toFile="${basedir}/test/config.ini" filtering="true"
                 overwrite="true">
             <filterset>
                 <filter token="db.user.name" value="${dbUserName}" />
