@@ -23,7 +23,7 @@ script:
   - mysql --version
   - ant --version
   - travis_fold start "prepare_dependencies"
-  - mkdir -p build/workspace/cache build/workspace/files build/workspace/log build/workspace/tmp
+  - ant prepare-workspace
   - ant prepare-config -DdbAdminName=root
   - php vendor/opus4-repo/framework/db/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
