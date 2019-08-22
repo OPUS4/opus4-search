@@ -1,6 +1,7 @@
 # Local files
 build
 test/config.ini
+cache.properties
 
 # IDE files
 .idea
@@ -11,4 +12,3 @@ nbproject
 composer.lock
 composer.phar
 vendor
-
