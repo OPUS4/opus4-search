@@ -299,4 +299,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
 
         $service->addDocumentsToIndex($doc);
     }
+
+    public function testIndexingAuthorWithoutFirstName()
+    {
+        $this->markTestIncomplete('Add tests for OPUSVIER-3890');
+    }
 }
