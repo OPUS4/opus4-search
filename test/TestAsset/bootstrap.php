@@ -61,4 +61,4 @@ $application = new Zend_Application(
 // TODO should not be necessary for search tests
 Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
 
-$application->bootstrap(['Database','Temp','OpusLocale']);
+$application->bootstrap(['Database','Temp','OpusLocale','IndexPlugin']);

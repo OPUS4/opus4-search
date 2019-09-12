@@ -48,6 +48,6 @@ class Bootstrap extends \Opus_Bootstrap_Base
 
     protected function _initIndexPlugin()
     {
-        Opus_Document::addDefaultPlugin('Opus\Search\Plugin\Index');
+        \Opus_Model_Xml_Cache::setIndexPluginClass('Opus\Search\Plugin\Index');
     }
 }
