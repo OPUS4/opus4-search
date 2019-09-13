@@ -8,7 +8,7 @@ cache.properties
 *.iml
 nbproject
 
-# Ignore Composer files
+# Composer files and dependencies
 composer.lock
 composer.phar
 vendor
