@@ -27,7 +27,8 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -41,13 +42,18 @@ class Xslt extends Base
      */
     protected $processor;
 
+    private $options;
+
     public function __construct(\Zend_Config $options)
     {
         parent::__construct($options);
 
+        $this->options = $options;
+
         try {
             $xslt = new \DomDocument;
-            $xslt->load($options->xsltfile);
+
+            $xslt->load($this->getXsltFile());
 
             $this->processor = new \XSLTProcessor;
             $this->processor->importStyleSheet($xslt);
@@ -72,7 +78,7 @@ class Xslt extends Base
      */
     public function toSolrDocument(\Opus_Document $opusDoc, $solrDoc)
     {
-        if (! ( $solrDoc instanceof \DOMDocument )) {
+        if (! ($solrDoc instanceof \DOMDocument)) {
             throw new \InvalidArgumentException('provided Solr document must be instance of DOMDocument');
         }
 
@@ -89,5 +95,16 @@ class Xslt extends Base
         }
 
         return $solrDoc;
+    }
+
+    public function getXsltFile()
+    {
+        $path = $this->options->xsltfile;
+
+        if (strlen(trim($path)) === 0) {
+            $path = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'solr.xslt';
+        }
+
+        return $path;
     }
 }
