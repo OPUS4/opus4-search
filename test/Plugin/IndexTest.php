@@ -84,7 +84,11 @@ class IndexTest extends TestCase
 
         $indexJobs = \Opus_Job::getByLabels(['opus-index-document']);
 
-        $this->assertEquals($jobCountBefore, count($indexJobs), 'Expected equal job count before and after storing document.');
+        $this->assertEquals(
+            $jobCountBefore,
+            count($indexJobs),
+            'Expected equal job count before and after storing document.'
+        );
 
         $newJob = $this->getCreatedJob($documentId, $indexJobs);
         $this->assertNull($newJob, 'Expected that no job was created');
@@ -92,7 +96,7 @@ class IndexTest extends TestCase
 
     public function testCreateRemoveIndexJob()
     {
-        $removeIndexJobsBefore = \Opus_Job::getByLabels(['opus-remove-index-document']);
+        $removeIndexJobsBefore = \Opus_Job::getByLabels(['opus-index-document']);
         $jobCountBefore = count($removeIndexJobsBefore);
 
         $document = new \Opus_Document();
@@ -108,14 +112,36 @@ class IndexTest extends TestCase
         }
 
         $document->delete();
-        $removeIndexJobs = \Opus_Job::getByLabels(['opus-index-document']);
-        $this->assertEquals(++$jobCountBefore, count($removeIndexJobs), 'Expected increased opus-remove-index-document job count');
 
-        $newJob = $this->getCreatedJob($documentId, $removeIndexJobs);
-        $this->assertNotNull($newJob, 'Expected new opus-remove-index-document job');
-        $this->assertEquals('remove', $newJob->getData()->task);
+        $indexJobs = \Opus_Job::getByLabels(['opus-index-document']);
+
+        $this->assertEquals(
+            ++$jobCountBefore,
+            count($indexJobs),
+            'Expected increased opus-index-document job count'
+        );
+
+        $newJob = $this->getCreatedJob($documentId, $indexJobs);
+        $this->assertNotNull($newJob, 'Expected new opus-index-document job');
+        $this->assertEquals('index', $newJob->getData()->task);
+
+        \Opus_Job::deleteAll();
+
+        $jobCountBefore = 0;
 
         $document->deletePermanent();
+
+        $removeIndexJobs = \Opus_Job::getByLabels(['opus-index-document']);
+
+        $this->assertEquals(
+            ++$jobCountBefore,
+            count($removeIndexJobs),
+            'Expected increased opus-index-document job count'
+        );
+
+        $newJob = $this->getCreatedJob($documentId, $removeIndexJobs);
+        $this->assertNotNull($newJob, 'Expected new opus-index-document job');
+        $this->assertEquals('remove', $newJob->getData()->task);
     }
 
     public function testDoNotCreateRemoveIndexJobIfAsyncDisabled()
@@ -124,7 +150,6 @@ class IndexTest extends TestCase
 
         $removeIndexJobsBefore = \Opus_Job::getByLabels(['opus-remove-index-document']);
         $jobCountBefore = count($removeIndexJobsBefore);
-
 
         $document = new \Opus_Document();
         $document->setServerState('published');
@@ -142,7 +167,11 @@ class IndexTest extends TestCase
         $document->delete();
 
         $removeIndexJobs = \Opus_Job::getByLabels(['opus-remove-index-document']);
-        $this->assertEquals($jobCountBefore, count($removeIndexJobs), 'Expected equal job count before and after storing document.');
+        $this->assertEquals(
+            $jobCountBefore,
+            count($removeIndexJobs),
+            'Expected equal job count before and after storing document.'
+        );
 
         $newJob = $this->getCreatedJob($documentId, $removeIndexJobs);
         $this->assertNull($newJob, 'Expected that no new opus-remove-index-document job was created');

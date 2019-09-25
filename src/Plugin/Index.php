@@ -76,23 +76,32 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
         // unmodified and clean...
         // TODO: Write unit test.
         $model = new \Opus_Document($model->getId());
-        if ($model->getServerState() !== 'published') {
-            if ($model->getServerState() !== 'temporary') {
-                $this->removeDocumentFromIndexById($model->getId());
-            }
+
+        if ($model->getServerState() === 'temporary') {
+            // TODO does this make sense here - do we need it?
+            $this->removeDocumentFromIndexById($model->getId());
             return;
         }
 
         $this->addDocumentToIndex($model);
     }
 
-    /**
-     * Post-delete-hook for document class: Remove document from index.
-     *
-     * @param mixed $modelId ID of item deleted before
-     * @see {Opus_Model_Plugin_Interface::postDelete}
-     */
+        /**
+         * Post-delete-hook for document class: Remove document from index.
+         *
+         * @param mixed $modelId ID of item deleted before
+         * @see {Opus_Model_Plugin_Interface::postDelete}
+         */
     public function postDelete($modelId)
+    {
+        if (null === $modelId) {
+            return;
+        }
+
+        return;
+    }
+
+    public function postDeletePermanent($modelId)
     {
         if (null === $modelId) {
             return;
