@@ -213,6 +213,12 @@
                     <xsl:value-of select="/Opus/Opus_Document/@Type" />
                 </xsl:element>
 
+                <!-- state -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">server_state</xsl:attribute>
+                    <xsl:value-of select="/Opus/Opus_Document/@ServerState" />
+                </xsl:element>
+
                 <!-- subject (swd) -->
                 <xsl:for-each select="/Opus/Opus_Document/Subject[@Type = 'swd']">
                     <xsl:element name="field">
