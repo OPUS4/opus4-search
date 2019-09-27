@@ -129,6 +129,8 @@
 
         <!-- Catchall field for simple search without fulltext. -->
         <field name="simple" type="text" indexed="true" stored="false" multiValued="true" omitNorms="false"/>
+
+        <dynamicField name="enrichment_*" multiValued="true" stored="true" indexed="true" type="string" />
     </fields>
 
     <uniqueKey>id</uniqueKey>
@@ -151,6 +153,7 @@
     <copyField source="publisher_place" dest="text"/>
     <copyField source="identifier" dest="text"/>
     <copyField source="persons" dest="text"/>
+    <copyField source="enrichment_*" dest="text"/>
     <!-- Add fulltext to text field for simple search with fulltext. -->
     <copyField source="fulltext" dest="text"/>
 

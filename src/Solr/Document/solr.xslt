@@ -357,6 +357,15 @@
                     </xsl:element>
                 </xsl:for-each>
 
+                <!-- enrichment -->
+                <!-- TODO configurable inclusion of enrichments -->
+                <xsl:for-each select="/Opus/Opus_Document/Enrichment">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">enrichment_<xsl:value-of select="./@KeyName" /></xsl:attribute>
+                        <xsl:value-of select="@Value" />
+                    </xsl:element>
+                </xsl:for-each>
+
             </xsl:element>
         </xsl:element>
     </xsl:template>
