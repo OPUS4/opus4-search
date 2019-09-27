@@ -62,7 +62,6 @@ class Searcher
      */
     public function search($query, $validateDocIds = true)
     {
-
         try {
             \Opus_Log::get()->debug("query: " . $query->getQ());
 
@@ -74,7 +73,6 @@ class Searcher
                 ->setFilter(new Raw($query->getQ()))
                 ->setStart($query->getStart())
                 ->setRows($query->getRows());
-
 
             switch ($query->getSearchType()) {
                 case Query::LATEST_DOCS:
@@ -128,6 +126,7 @@ class Searcher
                         }
                     }
 
+                    $query->addFilterQuery('server_state', 'published');
 
                     $fq = $query->getFilterQueries();
 
