@@ -27,9 +27,8 @@
  *
  * @category    Test
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 namespace OpusTest\Search;
@@ -77,5 +76,42 @@ class ServiceTest extends TestCase
 
         $this->assertTrue($searchA === $searchB);
         $this->assertTrue($searchA !== $searchC);
+    }
+
+    public function testGetQualifiedDomain()
+    {
+        $domain = Service::getQualifiedDomain();
+
+        $this->assertEquals('solr', $domain);
+
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+            'searchengine' => ['domain' => 'elastic']
+        ]));
+
+        $domain = Service::getQualifiedDomain();
+
+        $this->assertEquals('elastic', $domain);
+
+        $domain = Service::getQualifiedDomain('mysql');
+
+        $this->assertEquals('mysql', $domain);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage invalid default search domain
+     */
+    public function testGetQualifiedDomainInvalidDomainNotAString()
+    {
+        $domain = Service::getQualifiedDomain(10);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage invalid default search domain
+     */
+    public function testGetQualifiedDomainInvalidDomainEmpty()
+    {
+        $domain = Service::getQualifiedDomain('   ');
     }
 }
