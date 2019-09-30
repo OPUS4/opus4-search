@@ -41,6 +41,9 @@ namespace Opus\Search;
  * accessible in code. This API implements some merging of existing
  * configuration to support fallback.
  *
+ * TODO resolve deprecated configuration vs new configuration (cleanup)
+ * TODO new configuration very complicated for most usage scenarios
+ *
  * @see https://github.com/soletan/opus4-framework/wiki/Runtime-Configuration
  *
  * @author Thomas Urban <thomas.urban@cepharum.de>
@@ -49,8 +52,6 @@ class Config
 {
 
     protected static $configurationsPool = [];
-
-
 
     /**
      * Drops any cached configuration.

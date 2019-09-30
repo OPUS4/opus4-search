@@ -126,7 +126,10 @@ class Searcher
                         }
                     }
 
-                    $query->addFilterQuery('server_state', 'published');
+                    // TODO make this dependend on user
+                    if (! $this->isAdmin()) {
+                        $query->addFilterQuery('server_state', 'published');
+                    }
 
                     $fq = $query->getFilterQueries();
 
@@ -170,5 +173,25 @@ class Searcher
     public function setFacetArray($array)
     {
         $this->facetArray = $array;
+    }
+
+    /**
+     * Checks if user is document administrator.
+     *
+     * This allows access to documents that have not been published yet.
+     *
+     * @return bool
+     * @throws \Zend_Exception
+     */
+    public function isAdmin()
+    {
+        $acl = \Zend_Registry::isRegistered('Opus_Acl') ? \Zend_Registry::get('Opus_Acl') : null;
+        if (! is_null($acl)) {
+            // TODO dependency to Application_Security_AclProvider::ACTIVE_ROLE = '_user';
+            // TODO knowledge from application ('documents') - delegate implementation to application
+            return $acl->isAllowed('_user', 'documents');
+        } else {
+            return false;
+        }
     }
 }
