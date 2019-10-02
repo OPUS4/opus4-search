@@ -476,10 +476,17 @@ class Config
     {
         $names = \Opus_EnrichmentKey::getKeys();
 
-        /* TODO filter enrichments by configuration
-        $names = array_filter($names, function($value) {
-            return substr($value, 0, 5) !== 'opus.';
-        }); */
+        $config = \Opus_Config::get();
+
+        $facetConfiguration = $config->search->facet;
+
+        $names = array_filter($names, function($value) use ($facetConfiguration) {
+            if (isset($facetConfiguration->$value)) {
+                $include = filter_var($facetConfiguration->$value->get('active'), FILTER_VALIDATE_BOOLEAN);
+            }
+
+            return $include;
+        });
 
         $facets = array_map(function ($value) {
             $name = str_replace('.', '_', $value);
@@ -487,5 +494,10 @@ class Config
         }, $names);
 
         return $facets;
+    }
+
+    public static function getEnrichmentConfig($name)
+    {
+
     }
 }
