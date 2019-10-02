@@ -35,6 +35,7 @@
 namespace OpusTest\Search\Solr\Solarium;
 
 use Opus\Search\Exception;
+use Opus\Search\QueryFactory;
 use Opus\Search\Service;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
@@ -303,5 +304,35 @@ class AdapterIndexingTest extends DocumentBasedTestCase
     public function testIndexingAuthorWithoutFirstName()
     {
         $this->markTestIncomplete('Add tests for OPUSVIER-3890');
+    }
+
+    public function testTemporaryDocumentsAreNotIndexed()
+    {
+        $service = Service::selectIndexingService(null, 'solr');
+
+        $document = $this->createDocument('article');
+        $document->setServerState('temporary');
+        $docId = $document->store();
+
+        $service->addDocumentsToIndex($document);
+
+        $search = Service::selectSearchingService(null, 'solr');
+
+        $result = $search->customSearch(QueryFactory::selectDocumentById($search, $docId));
+
+        $this->assertEquals(0, $result->getAllMatchesCount());
+
+        // prevent automatic indexing - cache currently triggers indexing directly
+        $document->unregisterPlugin('Opus\Search\Plugin\Index');
+        $document->unregisterPlugin('Opus_Document_Plugin_XmlCache');
+
+        $document->setServerState('unpublished');
+        $document->store();
+
+        $service->addDocumentsToIndex($document);
+
+        $result = $search->customSearch(QueryFactory::selectDocumentById($search, $docId));
+
+        $this->assertEquals(1, $result->getAllMatchesCount());
     }
 }

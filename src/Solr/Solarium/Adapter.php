@@ -141,16 +141,21 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
     protected function normalizeDocuments($documents)
     {
         if (! is_array($documents)) {
-            $documents = [ $documents ];
+            $documents = [$documents];
         }
+
+        $validDocuments = [];
 
         foreach ($documents as $document) {
             if (! ( $document instanceof \Opus_Document )) {
                 throw new \InvalidArgumentException("invalid document in provided set");
             }
+            if ($document->getServerState() !== 'temporary') {
+                $validDocuments[] = $document;
+            }
         }
 
-        return $documents;
+        return $validDocuments;
     }
 
     protected function normalizeDocumentIds($documentIds)
