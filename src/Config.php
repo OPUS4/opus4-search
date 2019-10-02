@@ -356,6 +356,13 @@ class Config
             $set = [];
         }
 
+        if (! in_array('server_state', $set)) {
+            $set[] = 'server_state';
+        }
+
+        $enrichmentFacets = self::getEnrichmentFacets();
+
+        $set = array_merge($set, $enrichmentFacets);
 
         return $set;
     }
@@ -463,5 +470,22 @@ class Config
         }
 
         return $set;
+    }
+
+    public static function getEnrichmentFacets()
+    {
+        $names = \Opus_EnrichmentKey::getKeys();
+
+        /* TODO filter enrichments by configuration
+        $names = array_filter($names, function($value) {
+            return substr($value, 0, 5) !== 'opus.';
+        }); */
+
+        $facets = array_map(function ($value) {
+            $name = str_replace('.', '_', $value);
+            return "enrichment_$name";
+        }, $names);
+
+        return $facets;
     }
 }
