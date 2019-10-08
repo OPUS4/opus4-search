@@ -504,6 +504,5 @@ class Config
 
     public static function getEnrichmentConfig($name)
     {
-
     }
 }
