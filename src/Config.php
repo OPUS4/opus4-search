@@ -478,20 +478,26 @@ class Config
 
         $config = \Opus_Config::get();
 
-        $facetConfiguration = $config->search->facet;
+        if (isset($config->search->facet)) {
+            $facetConfiguration = $config->search->facet;
 
-        $names = array_filter($names, function($value) use ($facetConfiguration) {
-            if (isset($facetConfiguration->$value)) {
-                $include = filter_var($facetConfiguration->$value->get('active'), FILTER_VALIDATE_BOOLEAN);
-            }
+            $names = array_filter($names, function ($value) use ($facetConfiguration) {
+                if (isset($facetConfiguration->$value)) {
+                    $include = filter_var($facetConfiguration->$value->get('active'), FILTER_VALIDATE_BOOLEAN);
+                } else {
+                    $include = false;
+                }
 
-            return $include;
-        });
+                return $include;
+            });
 
-        $facets = array_map(function ($value) {
-            $name = str_replace('.', '_', $value);
-            return "enrichment_$name";
-        }, $names);
+            $facets = array_map(function ($value) {
+                $name = str_replace('.', '_', $value);
+                return "enrichment_$name";
+            }, $names);
+        } else {
+            $facets = [];
+        }
 
         return $facets;
     }

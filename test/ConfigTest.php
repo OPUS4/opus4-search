@@ -396,11 +396,12 @@ class ConfigTest extends TestCase
 
     public function testGetFacetFieldsContainsEnrichments()
     {
-
+        $this->markTestIncomplete('not fully implemented yet');
     }
 
     public function testGetEnrichmentFacets()
     {
+        $this->markTestIncomplete('not fully implemented yet');
         $enrichment = \Opus_EnrichmentKey::fetchByName('test');
 
         if (is_null($enrichment)) {
