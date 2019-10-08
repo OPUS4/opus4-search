@@ -67,13 +67,15 @@
                     </xsl:choose>
                 </xsl:variable>
 
-                <xsl:element name="field">
-                    <xsl:attribute name="name">year</xsl:attribute>
-                    <xsl:value-of select="$year"/>
-                </xsl:element>
+                <xsl:if test="$year != ''">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">year</xsl:attribute>
+                        <xsl:value-of select="$year"/>
+                    </xsl:element>
+                </xsl:if>
 
                 <!-- year inverted -->
-                <xsl:if test="$year">
+                <xsl:if test="$year != ''">
                     <xsl:variable name="yearInverted" select="65535 - $year"/>
                     <xsl:element name="field">
                         <xsl:attribute name="name">year_inverted</xsl:attribute>
@@ -99,10 +101,12 @@
 
                 <!-- language -->
                 <xsl:variable name="language" select="/Opus/Opus_Document/@Language" />
-                <xsl:element name="field">
-                    <xsl:attribute name="name">language</xsl:attribute>
-                    <xsl:value-of select="$language" />
-                </xsl:element>
+                <xsl:if test="$language != ''">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">language</xsl:attribute>
+                        <xsl:value-of select="$language" />
+                    </xsl:element>
+                </xsl:if>
 
                 <!-- title / title_output -->
                 <xsl:for-each select="/Opus/Opus_Document/TitleMain">
@@ -145,15 +149,21 @@
                 </xsl:for-each>
 
                 <!-- author_sort -->
-                <xsl:element name="field">
-                    <xsl:attribute name="name">author_sort</xsl:attribute>
+                <xsl:variable name="authorSort">
                     <xsl:for-each select="/Opus/Opus_Document/PersonAuthor">
                         <xsl:value-of select="@LastName" />
                         <xsl:text> </xsl:text>
                         <xsl:value-of select="@FirstName" />
                         <xsl:text> </xsl:text>
                     </xsl:for-each>
-                </xsl:element>
+                </xsl:variable>
+
+                <xsl:if test="$authorSort != ''">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">author_sort</xsl:attribute>
+                        <xsl:value-of select="$authorSort" />
+                    </xsl:element>
+                </xsl:if>
 
                 <!-- fulltext -->
                 <xsl:for-each select="/Opus/Opus_Document/Fulltext_Index">
@@ -208,10 +218,13 @@
                 </xsl:for-each>
 
                 <!-- doctype -->
-                <xsl:element name="field">
-                    <xsl:attribute name="name">doctype</xsl:attribute>
-                    <xsl:value-of select="/Opus/Opus_Document/@Type" />
-                </xsl:element>
+                <xsl:variable name="doctype" select="/Opus/Opus_Document/@Type" />
+                <xsl:if test="$doctype != ''">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">doctype</xsl:attribute>
+                        <xsl:value-of select="/Opus/Opus_Document/@Type" />
+                    </xsl:element>
+                </xsl:if>
 
                 <!-- state -->
                 <xsl:element name="field">
