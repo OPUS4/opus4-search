@@ -36,6 +36,7 @@
             <filter class="solr.LowerCaseFilterFactory"/>
             <!--filter class="solr.ReversedWildcardFilterFactory" withOriginal="true" maxPosAsterisk="3" maxPosQuestion="2"
                     maxFractionAsterisk="0.33"/-->
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
         </analyzer>
         <analyzer type="query">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
@@ -49,6 +50,7 @@
                     splitOnNumerics="0"
                     preserveOriginal="1" />
             <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
         </analyzer>
     </fieldType>
 
