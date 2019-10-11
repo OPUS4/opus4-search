@@ -359,6 +359,12 @@ class Config
         if (! in_array('server_state', $set)) {
             $set[] = 'server_state';
         }
+        if (! in_array('doctype', $set)) {
+            $set[] = 'doctype';
+        }
+        if (! in_array('year', $set)) {
+            $set[] = 'year';
+        }
 
         $enrichmentFacets = self::getEnrichmentFacets();
 
