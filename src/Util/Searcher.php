@@ -125,19 +125,19 @@ class Searcher
                             $request->setFacet($facet->setFields($fields));
                         }
                     }
+            }
 
-                    // TODO make this dependend on user
-                    if (! $this->isAdmin()) {
-                        $query->addFilterQuery('server_state', 'published');
-                    }
+            // TODO make this dependend on user
+            if (! $this->isAdmin()) {
+                $query->addFilterQuery('server_state', 'published');
+            }
 
-                    $fq = $query->getFilterQueries();
+            $fq = $query->getFilterQueries();
 
-                    if (! empty($fq)) {
-                        foreach ($fq as $index => $sub) {
-                            $request->setSubFilter("fq$index", new Raw($sub));
-                        }
-                    }
+            if (! empty($fq)) {
+                foreach ($fq as $index => $sub) {
+                    $request->setSubFilter("fq$index", new Raw($sub));
+                }
             }
 
             $response = $service->customSearch($request);
