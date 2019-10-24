@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    TODO Add OPUS 4 licence header
+-->
+
+<!--
+    Schema file for OPUS 4 and Solr 5.x. The file should be named "schema.xml" and
+    should be in the conf directory under the solr home (i.e. ./solr/conf/schema.xml by default).
+-->
+
+<!--
+    TODO What is the version for Solr 5.x?
+-->
+<schema name="OPUS 4" version="1.2">
+
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+
+    <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
+
+    <fieldtype name="binary" class="solr.BinaryField"/>
+
+    <fieldType name="int" class="solr.IntPointField" omitNorms="true" positionIncrementGap="0"/>
+
+    <fieldType name="slong" class="solr.LongPointField" sortMissingLast="true" omitNorms="true"/>
+
+    <fieldType name="text" class="solr.TextField" positionIncrementGap="100" omitNorms="true">
+        <analyzer type="index">
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory"
+                    generateWordParts="1"
+                    generateNumberParts="1"
+                    catenateWords="1"
+                    catenateNumbers="1"
+                    catenateAll="1"
+                    splitOnCaseChange="1"
+                    preserveOriginal="1" />
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <!--filter class="solr.ReversedWildcardFilterFactory" withOriginal="true" maxPosAsterisk="3" maxPosQuestion="2"
+                    maxFractionAsterisk="0.33"/-->
+        </analyzer>
+        <analyzer type="query">
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory"
+                    generateWordParts="0"
+                    generateNumberParts="0"
+                    catenateWords="1"
+                    catenateNumbers="1"
+                    catenateAll="1"
+                    splitOnCaseChange="0"
+                    splitOnNumerics="0"
+                    preserveOriginal="1" />
+            <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
+
+    <fieldType name="alphaOnlySort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+        <analyzer>
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.TrimFilterFactory"/>
+        </analyzer>
+    </fieldType>
+
+    <fields>
+        <field name="id" type="string" indexed="true" stored="true" required="true"/>
+        <field name="year" type="string" indexed="true" stored="true"/>
+        <field name="year_inverted" type="string" indexed="true" stored="false"/>
+
+        <field name="abstract" type="text" indexed="true" stored="false" multiValued="true" omitNorms="false"/>
+        <field name="abstract_output" type="text" indexed="false" stored="true"/>
+
+        <field name="title" type="text" indexed="true" stored="false" multiValued="true"/>
+        <field name="title_output" type="text" indexed="false" stored="true"/>
+
+        <field name="author" type="text" indexed="true" stored="true" multiValued="true"/>
+        <field name="author_facet" type="string" indexed="true" stored="false" multiValued="true"/>
+        <field name="referee" type="text" indexed="true" stored="false" multiValued="true"/>
+        <field name="fulltext" type="text" indexed="true" stored="false" multiValued="true" omitNorms="false"/>
+        <field name="persons" type="text" indexed="true" stored="false" multiValued="true"/>
+        <field name="language" type="string" indexed="true" stored="false"/>
+        <field name="subject" type="string" indexed="true" stored="false" multiValued="true"/>
+        <field name="doctype" type="string" indexed="true" stored="false"/>
+
+        <!-- Feld für die Sammlung 'institutes', um die Intitute-Facette anzeigen zu können. -->
+        <field name="institute" type="string" indexed="true" stored="false" multiValued="true"/>
+
+        <!-- Feld für die Sammlung 'projects', um die Projekt-Facette anzeigen zu können. -->
+        <field name="project" type="string" indexed="true" stored="false" multiValued="true"/>
+
+        <field name="has_fulltext" type="boolean" indexed="true" stored="false"/>
+        <field name="belongs_to_bibliography" type="string" indexed="true" stored="false"/>
+        <field name="collection_ids" type="string" indexed="true" stored="false" multiValued="true"/>
+        <field name="series_ids" type="string" indexed="true" stored="true" multiValued="true"/>
+
+        <field name="identifier" type="string" indexed="true" stored="false" multiValued="true"/>
+
+        <dynamicField name="series_number_for_id_*" type="string" indexed="false" stored="true"/>
+        <dynamicField name="doc_sort_order_for_seriesid_*" type="int" indexed="true" stored="false"/>
+
+        <!-- fields that are only used as source in copy field -->
+        <field name="title_parent" type="string" indexed="false" stored="false" multiValued="true"/>
+        <field name="title_additional" type="string" indexed="false" stored="false" multiValued="true"/>
+        <field name="title_sub" type="string" indexed="false" stored="false" multiValued="true"/>
+        <field name="creating_corporation" type="string" indexed="false" stored="false"/>
+        <field name="contributing_corporation" type="string" indexed="false" stored="false"/>
+
+
+        <field name="publisher_name" type="string" indexed="false" stored="false"/>
+        <field name="publisher_place" type="string" indexed="false" stored="false"/>
+
+        <!-- special fields used for sorting -->
+        <field name="author_sort" type="alphaOnlySort" indexed="true" stored="false" omitNorms="true"/>
+        <field name="year_sort" type="string" indexed="true" stored="false" omitNorms="true"/>
+        <field name="title_sort" type="alphaOnlySort" indexed="true" stored="false" omitNorms="true"/>
+        <field name="server_date_published" type="slong" indexed="true" stored="false" omitNorms="true"/>
+
+        <!-- special fields for internal index management -->
+        <field name="server_date_modified" type="slong" indexed="false" stored="true"/>
+        <field name="fulltext_id_success" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="fulltext_id_failure" type="string" indexed="true" stored="true" multiValued="true"/>
+
+        <!--
+            Catchall field, containing all other searchable text fields (implemented
+            via copyField further on in this schema)
+            indexes tokens both normally and in reverse for efficient
+            leading wildcard queries.
+        -->
+        <field name="text" type="text" indexed="true" stored="false" multiValued="true" omitNorms="false"/>
+
+        <!-- Catchall field for simple search without fulltext. -->
+        <field name="simple" type="text" indexed="true" stored="false" multiValued="true" omitNorms="false"/>
+    </fields>
+
+    <uniqueKey>id</uniqueKey>
+
+    <!--
+        Copy all searchable text fields into catchall field for keyword searches across everything.
+
+        TODO Werden alle Titel und Zusammenfassungen indiziert oder nur die in der Sprache des Dokuments?
+    -->
+    <copyField source="abstract" dest="text"/>
+    <copyField source="title" dest="text"/>
+    <copyField source="author" dest="text"/>
+    <copyField source="subject" dest="text"/>
+    <copyField source="title_parent" dest="text"/>
+    <copyField source="title_additional" dest="text"/>
+    <copyField source="title_sub" dest="text"/>
+    <copyField source="creating_corporation" dest="text"/>
+    <copyField source="contributing_corporation" dest="text"/>
+    <copyField source="publisher_name" dest="text"/>
+    <copyField source="publisher_place" dest="text"/>
+    <copyField source="identifier" dest="text"/>
+    <copyField source="persons" dest="text"/>
+    <!-- Add fulltext to text field for simple search with fulltext. -->
+    <copyField source="fulltext" dest="text"/>
+
+    <!-- Duplicate content of text in simple field for simple search without fulltext. -->
+    <copyField source="abstract" dest="simple"/>
+    <copyField source="title" dest="simple"/>
+    <copyField source="author" dest="simple"/>
+    <copyField source="subject" dest="simple"/>
+    <copyField source="title_parent" dest="simple"/>
+    <copyField source="title_additional" dest="simple"/>
+    <copyField source="title_sub" dest="simple"/>
+    <copyField source="creating_corporation" dest="simple"/>
+    <copyField source="contributing_corporation" dest="simple"/>
+    <copyField source="publisher_name" dest="simple"/>
+    <copyField source="publisher_place" dest="simple"/>
+    <copyField source="identifier" dest="simple"/>
+    <copyField source="persons" dest="simple"/>
+
+    <!-- TODO why -->
+    <copyField source="author" dest="author_facet"/>
+
+    <!-- TODO why -->
+    <copyField source="title_output" dest="title_sort"/>
+
+    <!-- TODO why -->
+    <copyField source="year" dest="year_sort"/>
+</schema>

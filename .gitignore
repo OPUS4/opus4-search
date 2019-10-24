@@ -1,3 +1,14 @@
+# Local files
+build
+test/config.ini
+cache.properties
+
 # IDE files
 .idea
 *.iml
+nbproject
+
+# Composer files and dependencies
+composer.lock
+composer.phar
+vendor

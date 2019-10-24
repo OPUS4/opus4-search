@@ -1,0 +1,44 @@
+sudo: required
+dist: trusty
+language: php
+php:
+  - 7.0
+jdk:
+  - openjdk8
+services:
+  - mysql
+addons:
+  apt:
+    packages:
+      - ant
+      - libxml2-utils
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - $HOME/downloads
+before_install:
+  - jdk_switcher use openjdk8
+before_script: composer install
+script:
+  - mysql --version
+  - java -version
+  - ant -version
+  - travis_fold start "prepare_dependencies"
+  - ant prepare-workspace
+  - ant prepare-config -DdbUserName=root -DdbAdminName=root
+  - php test/TestAsset/createdb.php
+  - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
+  - ant download-solr -DsolrVersion=7.7.1 -DdownloadDir=$HOME/downloads
+  - cd solr-7.7.1
+  - ./bin/solr start
+  - ./bin/solr create -c opus4
+  - cd server/solr/opus4/conf
+  - rm -f managed-schema schema.xml solrconfig.xml
+  - ln -s "$TRAVIS_BUILD_DIR/config/schema.xml" schema.xml
+  - ln -s "$TRAVIS_BUILD_DIR/config/solrconfig.xml" solrconfig.xml
+  - cd ../../../../
+  - ./bin/solr restart
+  - cd ..
+  - travis_fold end "prepare_dependencies"
+  - composer cs-check
+  - ./vendor/bin/phpunit --configuration ./phpunit.xml --no-coverage
