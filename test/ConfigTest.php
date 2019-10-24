@@ -35,9 +35,9 @@
 namespace OpusTest;
 
 use Opus\Search\Config;
-use OpusTest\Search\TestAsset\SimpleTestCase;
+use OpusTest\Search\TestAsset\TestCase;
 
-class ConfigTest extends SimpleTestCase
+class ConfigTest extends TestCase
 {
 
     public function testProvidesSearchConfiguration()
@@ -375,5 +375,44 @@ class ConfigTest extends SimpleTestCase
         $this->assertNotEquals('1.2.3.4', $config->endpoint->primary->host);
         $this->assertNotEquals('12345', $config->endpoint->primary->port);
         $this->assertNotEquals('/solr-disfunct/', $config->endpoint->primary->path);
+    }
+
+    public function testGetFacetFieldsServerStateAdded()
+    {
+        $config = Config::getDomainConfiguration();
+
+        $facetList = $config->facets;
+
+        $this->assertNotContains(
+            'server_state',
+            $facetList,
+            'Facet configuration for testing should not contain server_state'
+        );
+
+        $facets = Config::getFacetFields();
+
+        $this->assertContains('server_state', $facets);
+    }
+
+    public function testGetFacetFieldsContainsEnrichments()
+    {
+        $this->markTestIncomplete('not fully implemented yet');
+    }
+
+    public function testGetEnrichmentFacets()
+    {
+        $this->markTestIncomplete('not fully implemented yet');
+        $enrichment = \Opus_EnrichmentKey::fetchByName('test');
+
+        if (is_null($enrichment)) {
+            $enrichment = new \Opus_EnrichmentKey();
+            $enrichment->setName('test');
+            $enrichment->store();
+        }
+
+        $enrichments = Config::getEnrichmentFacets();
+
+        $this->assertCount(1, $enrichments);
+        $this->assertContains('enrichment_test', $enrichments);
     }
 }

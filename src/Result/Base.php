@@ -269,7 +269,7 @@ class Base
 
             $returnedIds = $this->getReturnedMatchingIds();
             $existingIds = $finder
-                ->setServerState('published')
+                // ->setServerState('published') // TODO unless user does not have access to unpublished documents
                 ->setIdSubset($returnedIds)
                 ->ids();
 

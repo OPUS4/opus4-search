@@ -65,10 +65,7 @@ class QueryFactory
      */
     public static function selectDocument(Searching $adapter, \Opus_Document $document)
     {
-        $filter = $adapter->createFilter();
-        $filter->createSimpleEqualityFilter('id')->addValue($document->getId());
-
-        return $adapter->createQuery()->setFilter($filter);
+        return self::selectDocumentById($document->getId());
     }
 
     /**

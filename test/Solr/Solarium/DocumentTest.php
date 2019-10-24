@@ -55,8 +55,8 @@ class DocumentTest extends DocumentBasedTestCase
         $fields = $solrDoc->getFields();
 
         $this->assertArrayHasKey('id', $fields);
-        $this->assertArrayHasKey('year', $fields);
-        $this->assertArrayHasKey('year_inverted', $fields);
+        //$this->assertArrayHasKey('year', $fields);
+        //$this->assertArrayHasKey('year_inverted', $fields);
         //$this->assertArrayHasKey( 'server_date_published', $fields );
         $this->assertArrayHasKey('server_date_modified', $fields);
         $this->assertArrayHasKey('language', $fields);
@@ -65,7 +65,7 @@ class DocumentTest extends DocumentBasedTestCase
         //$this->assertArrayHasKey( 'abstract', $fields );
         //$this->assertArrayHasKey( 'abstract_output', $fields );
         //$this->assertArrayHasKey( 'author', $fields );
-        $this->assertArrayHasKey('author_sort', $fields);
+        //$this->assertArrayHasKey('author_sort', $fields);
         //$this->assertArrayHasKey( 'fulltext', $fields );
         $this->assertArrayHasKey('has_fulltext', $fields);
         //$this->assertArrayHasKey( 'fulltext_id_success', $fields );

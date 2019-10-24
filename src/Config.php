@@ -41,6 +41,9 @@ namespace Opus\Search;
  * accessible in code. This API implements some merging of existing
  * configuration to support fallback.
  *
+ * TODO resolve deprecated configuration vs new configuration (cleanup)
+ * TODO new configuration very complicated for most usage scenarios
+ *
  * @see https://github.com/soletan/opus4-framework/wiki/Runtime-Configuration
  *
  * @author Thomas Urban <thomas.urban@cepharum.de>
@@ -49,8 +52,6 @@ class Config
 {
 
     protected static $configurationsPool = [];
-
-
 
     /**
      * Drops any cached configuration.
@@ -355,6 +356,19 @@ class Config
             $set = [];
         }
 
+        if (! in_array('server_state', $set)) {
+            $set[] = 'server_state';
+        }
+        if (! in_array('doctype', $set)) {
+            $set[] = 'doctype';
+        }
+        if (! in_array('year', $set)) {
+            $set[] = 'year';
+        }
+
+        $enrichmentFacets = self::getEnrichmentFacets();
+
+        $set = array_merge($set, $enrichmentFacets);
 
         return $set;
     }
@@ -462,5 +476,39 @@ class Config
         }
 
         return $set;
+    }
+
+    public static function getEnrichmentFacets()
+    {
+        $names = \Opus_EnrichmentKey::getKeys();
+
+        $config = \Opus_Config::get();
+
+        if (isset($config->search->facet)) {
+            $facetConfiguration = $config->search->facet;
+
+            $names = array_filter($names, function ($value) use ($facetConfiguration) {
+                if (isset($facetConfiguration->$value)) {
+                    $include = filter_var($facetConfiguration->$value->get('active'), FILTER_VALIDATE_BOOLEAN);
+                } else {
+                    $include = false;
+                }
+
+                return $include;
+            });
+
+            $facets = array_map(function ($value) {
+                $name = str_replace('.', '_', $value);
+                return "enrichment_$name";
+            }, $names);
+        } else {
+            $facets = [];
+        }
+
+        return $facets;
+    }
+
+    public static function getEnrichmentConfig($name)
+    {
     }
 }

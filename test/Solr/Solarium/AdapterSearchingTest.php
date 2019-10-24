@@ -38,6 +38,7 @@ use Opus\Search\Exception;
 use Opus\Search\Query;
 use Opus\Search\QueryFactory;
 use Opus\Search\Service;
+use Opus\Search\Util\Searcher;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
 class AdapterSearchingTest extends DocumentBasedTestCase
@@ -195,5 +196,39 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
         $this->assertEquals(2, $result->getAllMatchesCount());
         $this->assertEquals(1, count($result->getReturnedMatches()));
+    }
+
+    public function testSearchWithDiacritics()
+    {
+        $docA = $this->createDocument('article');
+        $docA->setServerState('published');
+        $author = new \Opus_Person();
+        $author->setLastName('Müller');
+        $docA->addPersonAuthor($author);
+        $docA->store();
+
+        $docB = $this->createDocument('book');
+        $docB->setServerState('published');
+        $author = new \Opus_Person();
+        $author->setLastName('Muller');
+        $docB->addPersonAuthor($author);
+        $docB->store();
+
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex([ $docA, $docB ]);
+
+        $search = new Searcher();
+
+        $query = new \Opus\Search\Util\Query(\Opus\Search\Util\Query::SIMPLE);
+        $query->setCatchAll('muller');
+        $result = $search->search($query);
+
+        $this->assertEquals(2, $result->getAllMatchesCount());
+
+        $query = new \Opus\Search\Util\Query(\Opus\Search\Util\Query::SIMPLE);
+        $query->setCatchAll('müller');
+        $result = $search->search($query);
+
+        $this->assertEquals(2, $result->getAllMatchesCount());
     }
 }

@@ -75,11 +75,10 @@ class XsltTest extends DocumentBasedTestCase
         $this->assertEquals($document->getId(), $field->item(0)->nodeValue);
 
         $field = $xpath->query('/add/doc/field[@name="year"]');
-        $this->assertEquals(1, $field->length);
-        $this->assertEquals('', $field->item(0)->nodeValue);
+        $this->assertEquals(0, $field->length);
 
         $field = $xpath->query('/add/doc/field[@name="year_inverted"]');
-        $this->assertEquals(1, $field->length);
+        $this->assertEquals(0, $field->length);
 
         $field = $xpath->query('/add/doc/field[@name="server_date_published"]');
         $this->assertEquals(0, $field->length);
@@ -107,7 +106,7 @@ class XsltTest extends DocumentBasedTestCase
         $this->assertEquals(0, $field->length);
 
         $field = $xpath->query('/add/doc/field[@name="author_sort"]');
-        $this->assertEquals(1, $field->length);
+        $this->assertEquals(0, $field->length);
 
         $field = $xpath->query('/add/doc/field[@name="fulltext"]');
         $this->assertEquals(0, $field->length);
@@ -213,11 +212,10 @@ class XsltTest extends DocumentBasedTestCase
         $this->assertEquals($document->getId(), $field->item(0)->nodeValue);
 
         $field = $xpath->query('/add/doc/field[@name="year"]');
-        $this->assertEquals(1, $field->length);
-        $this->assertEquals('', $field->item(0)->nodeValue);
+        $this->assertEquals(0, $field->length);
 
         $field = $xpath->query('/add/doc/field[@name="year_inverted"]');
-        $this->assertEquals(1, $field->length);
+        $this->assertEquals(0, $field->length);
 
         $field = $xpath->query('/add/doc/field[@name="server_date_published"]');
         $this->assertEquals(0, $field->length);
@@ -320,5 +318,22 @@ class XsltTest extends DocumentBasedTestCase
 
         $field = $xpath->query('/add/doc/field[@name="identifier"]');
         $this->assertEquals(0, $field->length);
+    }
+
+    public function testNoEmptyFields()
+    {
+        $document = $this->createDocument([]);
+        $document->store();
+
+        $converter = new Xslt(Config::getDomainConfiguration('solr'));
+        $solr = $converter->toSolrDocument($document, new \DOMDocument());
+
+        $this->assertInstanceOf('DOMDocument', $solr);
+
+        $xpath = new \DOMXPath($solr);
+
+        $emptyFields = $xpath->query('//field[not(text())]');
+
+        $this->assertEquals(0, $emptyFields->length);
     }
 }

@@ -33,6 +33,15 @@
 
 namespace Opus\Search;
 
+/**
+ * Class Service
+ * @package Opus\Search
+ *
+ * Using search domains allows to configure more than one solr core for the same task like indexing.
+ * This can be used to have an old and a new index while reindexing all the documents.
+ *
+ * TODO Is domain needed? Is OPUS going to have more than one searchengine?
+ */
 class Service
 {
 

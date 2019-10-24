@@ -4,8 +4,7 @@
 -->
 
 <!--
-    Schema file for OPUS 4 and Solr 5.x. The file should be named "schema.xml" and
-    should be in the conf directory under the solr home (i.e. ./solr/conf/schema.xml by default).
+    Schema file for OPUS 4 and Solr 7.x.
 -->
 
 <!--
@@ -37,6 +36,7 @@
             <filter class="solr.LowerCaseFilterFactory"/>
             <!--filter class="solr.ReversedWildcardFilterFactory" withOriginal="true" maxPosAsterisk="3" maxPosQuestion="2"
                     maxFractionAsterisk="0.33"/-->
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
         </analyzer>
         <analyzer type="query">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
@@ -50,6 +50,7 @@
                     splitOnNumerics="0"
                     preserveOriginal="1" />
             <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
         </analyzer>
     </fieldType>
 
@@ -80,6 +81,7 @@
         <field name="language" type="string" indexed="true" stored="false"/>
         <field name="subject" type="string" indexed="true" stored="false" multiValued="true"/>
         <field name="doctype" type="string" indexed="true" stored="false"/>
+        <field name="server_state" type="string" indexed="true" stored="false" />
 
         <!-- Feld für die Sammlung 'institutes', um die Intitute-Facette anzeigen zu können. -->
         <field name="institute" type="string" indexed="true" stored="false" multiValued="true"/>
@@ -129,6 +131,8 @@
 
         <!-- Catchall field for simple search without fulltext. -->
         <field name="simple" type="text" indexed="true" stored="false" multiValued="true" omitNorms="false"/>
+
+        <dynamicField name="enrichment_*" multiValued="true" stored="true" indexed="true" type="string" />
     </fields>
 
     <uniqueKey>id</uniqueKey>
@@ -151,6 +155,7 @@
     <copyField source="publisher_place" dest="text"/>
     <copyField source="identifier" dest="text"/>
     <copyField source="persons" dest="text"/>
+    <copyField source="enrichment_*" dest="text"/>
     <!-- Add fulltext to text field for simple search with fulltext. -->
     <copyField source="fulltext" dest="text"/>
 
