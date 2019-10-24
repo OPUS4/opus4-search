@@ -451,4 +451,9 @@ class SearcherTest extends TestCase
         $this->assertEquals(1, count($results));
         return $results[0];
     }
+
+    public function testFilterFacetQueriesByServerStatePublishedForUsers()
+    {
+        $this->markTestIncomplete('test not implemented yet - waiting for refactoring of isAdmin implementation');
+    }
 }
