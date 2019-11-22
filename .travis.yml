@@ -28,8 +28,8 @@ script:
   - ant prepare-config -DdbUserName=root -DdbAdminName=root
   - php test/TestAsset/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
-  - ant download-solr -DsolrVersion=7.7.1 -DdownloadDir=$HOME/downloads
-  - cd solr-7.7.1
+  - ant download-solr -DsolrVersion=7.7.2 -DdownloadDir=$HOME/downloads
+  - cd solr-7.7.2
   - ./bin/solr start
   - ./bin/solr create -c opus4
   - cd server/solr/opus4/conf
