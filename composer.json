@@ -26,7 +26,8 @@
     "phpunit/phpunit-selenium": "1.4.2",
     "zendframework/zend-coding-standard": "~1.0.0",
     "phpmd/phpmd": "@stable",
-    "phploc/phploc": "@stable"
+    "phploc/phploc": "@stable",
+    "sebastian/phpcpd": "*"
   },
   "autoload": {
     "psr-4": {
@@ -40,14 +41,28 @@
   },
   "scripts": {
     "check": [
+      "Composer\\Config::disableProcessTimeout",
+      "@prepare",
       "@cs-check",
+      "@phpmd",
+      "@phpcpd",
       "@test"
     ],
-    "test": "phpunit --colors=always",
-    "test-coverage": "phpunit --colors=always --coverage-clover build/clover.xml",
-    "cs-check": "phpcs -n",
+    "check-full": [
+      "Composer\\Config::disableProcessTimeout",
+      "@prepare",
+      "@cs-check",
+      "@phpmd",
+      "@phpcpd",
+      "@test-coverage"
+    ],
+    "prepare": "mkdir -p build",
+    "test": "phpunit --colors=always --log-junit build/phpunit.xml",
+    "test-coverage": "phpunit --log-junit build/phpunit.xml --colors=always --coverage-html build/ --coverage-clover build/clover.xml",
+    "cs-check": "phpcs -n --report=checkstyle --report-file=build/checkstyle.xml",
     "cs-fix": "phpcbf",
-    "phpmd": "phpmd src xml cleancode,unusedcode,design,naming --reportfile build/phpmd.xml",
-    "phploc": "phploc --log-csv build/phploc.csv src"
+    "phpmd": "phpmd src xml cleancode,unusedcode,design,naming --reportfile build/phpmd.xml --ignore-violations-on-exit",
+    "phploc": "phploc --log-csv build/phploc.csv src",
+    "phpcpd": "phpcpd . --min-lines 3 --min-tokens 30 --log-pmd build/pmd-cpd.xml --progress || true"
   }
 }
