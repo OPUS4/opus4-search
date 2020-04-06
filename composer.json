@@ -29,6 +29,8 @@
     "phploc/phploc": "@stable",
     "sebastian/phpcpd": "*"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "autoload": {
     "psr-4": {
       "Opus\\Search\\": "src/"
