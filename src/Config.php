@@ -362,7 +362,7 @@ class Config
         if (! in_array('doctype', $set)) {
             $set[] = 'doctype';
         }
-        if (! in_array('year', $set)) {
+        if (! in_array('year', $set) && ! in_array('year_inverted')) {
             $set[] = 'year';
         }
 
