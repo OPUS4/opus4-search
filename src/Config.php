@@ -391,17 +391,23 @@ class Config
             throw new \InvalidArgumentException('invalid facet set name');
         }
 
-
+        // TODO consolidate configuraton
         $config = static::getDomainConfiguration($serviceDomain);
+        $searchConfig = \Opus_Config::get()->search; // new search configuration
+        if ($searchConfig && isset($searchConfig->facet->default)) {
+            $defaultOptions = $searchConfig->facet->default;
+        } else {
+            $defaultOptions = new \Zend_Config([]);
+        }
 
         // get configured limits from configuration
         $fieldLimits = $config->get('facetlimit', (object) []);
         $globalLimit = (int) $config->get('globalfacetlimit', 10);
+        $globalLimit = (int) $defaultOptions->get('limit', $globalLimit);
 
         $set = [
             '__global__' => $globalLimit
         ];
-
 
         $fields = static::getFacetFields($facetSetName, $serviceDomain);
 
@@ -414,8 +420,6 @@ class Config
         }
 
         // TODO hack to support new configuration
-        $searchConfig = \Opus_Config::get()->search;
-
         if ($searchConfig) {
             $facetConfig = $searchConfig->get('facet');
             if ($facetConfig) {
@@ -463,6 +467,15 @@ class Config
 
         $fields = static::getFacetFields($facetSetName, $serviceDomain);
         $config = static::getDomainConfiguration($serviceDomain)->get('sortcrit', null);
+        $searchConfig = \Opus_Config::get()->search; // TODO new configuration (consolidate with old above)
+
+        if ($searchConfig && isset($searchConfig->facet->default->sort)
+                && $searchConfig->facet->default->sort == 'lexi') {
+            $defaultSort = 'lexi';
+        } else {
+            $defaultSort = null;
+        }
+
 
         if ($config instanceof \Zend_Config) {
             // BEST: try configuration in searchengine.solr.sortcrit.$facetSetName
@@ -488,13 +501,13 @@ class Config
             foreach ($fields as $field) {
                 if ($config->get($field) == 'lexi') {
                     $set[$field] = 'index';
+                } else if ($config->get($field) !== 'count' && $defaultSort == 'lexi') {
+                    $set[$field] = 'index';
                 }
             }
         }
 
         // TODO hack to support new configuration
-        $searchConfig = \Opus_Config::get()->search;
-
         if ($searchConfig) {
             $facetConfig = $searchConfig->get('facet');
             if ($facetConfig) {
@@ -502,6 +515,8 @@ class Config
                     $sortCrit = $options->get('sort');
                     if ($sortCrit == 'lexi') {
                         $set[$name] = 'index';
+                    } else if ($sortCrit == 'count') {
+                        unset($set[$name]);
                     }
                 }
             }
