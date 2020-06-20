@@ -415,4 +415,59 @@ class ConfigTest extends TestCase
         $this->assertCount(1, $enrichments);
         $this->assertContains('enrichment_test', $enrichments);
     }
+
+    public function testGetFacetLimits()
+    {
+        $limits = Config::getFacetLimits();
+
+        $this->assertInternalType('array', $limits);
+        $this->assertCount(11, $limits);
+        $this->assertArrayHasKey('__global__', $limits);
+        $this->assertEquals(10, $limits['__global__']);
+        $this->assertArrayHasKey('author_facet', $limits);
+        $this->assertEquals(10, $limits['author_facet']);
+        $this->assertEquals(10, $limits['subject']);
+        $this->assertEquals(10, $limits['year']);
+
+        Config::dropCached();
+
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+            'searchengine' => ['solr' => [
+                'globalfacetlimit' => 20,
+                'facetlimit' => ['subject' => 30]
+            ]],
+            'search' => ['facet' => ['year' => ['limit' => 15]]]
+        ]));
+
+        $limits = Config::getFacetLimits();
+
+        $this->assertEquals(20, $limits['__global__']);
+        $this->assertArrayHasKey('author_facet', $limits);
+        $this->assertEquals(20, $limits['author_facet']);
+        $this->assertEquals(30, $limits['subject']);
+        $this->assertEquals(15, $limits['year']);
+    }
+
+    public function testGetFacetSorting()
+    {
+        $sorting = Config::getFacetSorting();
+
+        $this->assertInternalType('array', $sorting);
+        $this->assertCount(0, $sorting);
+
+        Config::dropCached();
+
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+            'searchengine' => ['solr' => ['sortcrit' => ['year' => 'lexi']]],
+            'search' => ['facet' => ['subject' => ['sort' => 'lexi']]]
+        ]));
+
+        $sorting = Config::getFacetSorting();
+
+        $this->assertCount(2, $sorting);
+        $this->assertEquals([
+            'year' => 'index',
+            'subject' => 'index'
+        ], $sorting);
+    }
 }

@@ -43,6 +43,9 @@ namespace Opus\Search;
  *
  * TODO resolve deprecated configuration vs new configuration (cleanup)
  * TODO new configuration very complicated for most usage scenarios
+ * TODO refactor for facet focus configuration
+ * TODO get rid of service domains (just one search configuration) while still supporting usage of multiple
+ *      searchengines for redundancy etc.
  *
  * @see https://github.com/soletan/opus4-framework/wiki/Runtime-Configuration
  *
@@ -410,6 +413,20 @@ class Config
             }
         }
 
+        // TODO hack to support new configuration
+        $searchConfig = \Opus_Config::get()->search;
+
+        if ($searchConfig) {
+            $facetConfig = $searchConfig->get('facet');
+            if ($facetConfig) {
+                foreach ($facetConfig as $name => $options) {
+                    $limit = $options->get('limit');
+                    if (! is_null($limit)) {
+                        $set[$name] = $limit;
+                    }
+                }
+            }
+        }
 
         // if facet-name is 'year_inverted', the facet values have to be sorted vice versa
         // however, the facet-name should be 'year' (reset in framework ResponseRenderer::getFacets())
@@ -471,6 +488,21 @@ class Config
             foreach ($fields as $field) {
                 if ($config->get($field) == 'lexi') {
                     $set[$field] = 'index';
+                }
+            }
+        }
+
+        // TODO hack to support new configuration
+        $searchConfig = \Opus_Config::get()->search;
+
+        if ($searchConfig) {
+            $facetConfig = $searchConfig->get('facet');
+            if ($facetConfig) {
+                foreach ($facetConfig as $name => $options) {
+                    $sortCrit = $options->get('sort');
+                    if ($sortCrit == 'lexi') {
+                        $set[$name] = 'index';
+                    }
                 }
             }
         }
