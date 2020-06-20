@@ -448,6 +448,26 @@ class ConfigTest extends TestCase
         $this->assertEquals(15, $limits['year']);
     }
 
+    public function testGetFacetLimitsDefault()
+    {
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+            'searchengine' => ['solr' => [
+                'globalfacetlimit' => 20,
+            ]],
+            'search' => ['facet' => [
+                'default' => ['limit' => 15],
+                'year' => ['limit' => 30]
+            ]],
+        ]));
+
+        $limits = Config::getFacetLimits();
+
+        $this->assertEquals(15, $limits['__global__']);
+        $this->assertArrayHasKey('author_facet', $limits);
+        $this->assertEquals(15, $limits['subject']);
+        $this->assertEquals(30, $limits['year']);
+    }
+
     public function testGetFacetSorting()
     {
         $sorting = Config::getFacetSorting();
@@ -469,5 +489,27 @@ class ConfigTest extends TestCase
             'year' => 'index',
             'subject' => 'index'
         ], $sorting);
+    }
+
+    public function testGetFacetSortingDefault()
+    {
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+            'searchengine' => ['solr' => ['sortcrit' => ['year' => 'count']]],
+            'search' => ['facet' => [
+                'default' => ['sort' => 'lexi'],
+                'subject' => ['sort' => 'count']
+            ]]
+        ]));
+
+        $sorting = Config::getFacetSorting();
+
+        $this->assertCount(9, $sorting);
+        $this->assertArrayNotHasKey('subject', $sorting);
+        $this->assertArrayNotHasKey('year', $sorting);
+
+        // there should only be 'index' as sorting value in array
+        $sorting = array_unique(array_values($sorting));
+        $this->assertCount(1, $sorting);
+        $this->assertContains('index', $sorting);
     }
 }
