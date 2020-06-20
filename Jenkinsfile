@@ -1,6 +1,10 @@
+// Jenkinsfile for the application
+
+// Defining Area
 def jobNameParts = JOB_NAME.tokenize('/') as String[]
 def projectName = jobNameParts[0]
 
+// Set buildType to a complete Build with Coverage, if projectName contains night and Branch-Name fits
 if (projectName.contains('night') && (env.BRANCH_NAME == '4.7' || env.BRANCH_NAME == 'master')) {
     buildType = "long"
 } else {
@@ -8,8 +12,10 @@ if (projectName.contains('night') && (env.BRANCH_NAME == '4.7' || env.BRANCH_NAM
 }
 
 pipeline {
+    // Set agent -> Where the pipeline is executed -> Docker build from dockerfile and run as root (necessary)
     agent { dockerfile {args "-u root -v /var/run/docker.sock:/var/run/docker.sock"}}
 
+    // Set trigger if build is long -> Every day 3:00
     triggers {
         cron(buildType.equals('long') ? 'H 3 * * *' : '')
     }
@@ -17,6 +23,7 @@ pipeline {
     stages {
         stage('Composer') {
             steps {
+                // Update and install Composer
                 sh 'sudo apt-get update'
                 sh 'curl -s http://getcomposer.org/installer | php && php composer.phar self-update && php composer.phar install'
             }
@@ -36,6 +43,7 @@ pipeline {
 
         stage('Prepare Opus4') {
             steps {
+                // Prepare OPUS4 with ant, Install XDebug, initialize DB and change user for the repository
                 sh 'pecl install xdebug-2.8.0 && echo "zend_extension=/usr/lib/php/20151012/xdebug.so" >> /etc/php/7.0/cli/php.ini'
                 sh 'ant prepare-workspace prepare-config lint -DdbUserPassword=root -DdbAdminPassword=root'
                 sh 'php test/TestAsset/createdb.php'
@@ -58,6 +66,7 @@ pipeline {
 
     post {
         always {
+            // Change Permissions -> So workspace can be deleted
             sh "chmod -R 777 ."
             step([
                 $class: 'JUnitResultArchiver',
