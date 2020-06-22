@@ -169,4 +169,50 @@ class SetTest extends SimpleTestCase
         $this->assertNotNull($instituteField->getSort());
         $this->assertTrue($instituteField->getSort());
     }
+
+    public function testGetFacetLimitsFromInput()
+    {
+        $limits = Set::getFacetLimitsFromInput([]);
+        $this->assertNull($limits);
+
+        $limits = Set::getFacetLimitsFromInput([
+            'facetNumber_year' => 'all',
+            'facetNumber_doctype' => 'all'
+        ]);
+        $this->assertEquals([
+            'year' => 10000,
+            'doctype' => 10000
+        ], $limits);
+    }
+
+    public function testGetFacetLimitsFromInputYearInverted()
+    {
+        $limits = Set::getFacetLimitsFromInput([
+            'facetNumber_year' => 'all',
+        ]);
+        $this->assertEquals([
+            'year' => 10000,
+        ], $limits);
+
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+            'searchengine' => ['solr' => ['facets' => 'doctype,year_inverted']]
+        ]));
+
+        $limits = Set::getFacetLimitsFromInput([
+            'facetNumber_year' => 'all',
+        ]);
+        $this->assertEquals([
+            'year' => 10000,
+            'year_inverted' => 10000
+        ], $limits);
+    }
+
+    public function testGetFacetLimitFromInputForEnrichment()
+    {
+        $limits = Set::getFacetLimitsFromInput([
+            'facetNumber_enrichment_Country' => 'all'
+        ]);
+        $this->assertNotNull($limits);
+        $this->assertEquals(['enrichment_Country' => 10000], $limits);
+    }
 }
