@@ -248,11 +248,8 @@ class Set
 
         $limits = [];
 
-        if (isset($input['facetNumber_author_facet'])) {
-            $limits['author_facet'] = $limit;
-        }
-
         if (isset($input['facetNumber_year'])) {
+            // TODO get rid of special hack here
             if (in_array('year_inverted', Config::getFacetFields())) {
                 // 'year_inverted' is used in framework and result is returned as 'year'
                 $limits['year_inverted'] = $limit;
@@ -261,20 +258,14 @@ class Set
             $limits['year'] = $limit;
         }
 
-        if (isset($input['facetNumber_doctype'])) {
-            $limits['doctype'] = $limit;
-        }
+        $prefix = 'facetNumber_';
+        $prefixLength = strlen($prefix);
 
-        if (isset($input['facetNumber_language'])) {
-            $limits['language'] = $limit;
-        }
-
-        if (isset($input['facetNumber_subject'])) {
-            $limits['subject'] = $limit;
-        }
-
-        if (isset($input['facetNumber_institute'])) {
-            $limits['institute'] = $limit;
+        foreach ($input as $key => $value) {
+            if (substr($key, 0, $prefixLength) === $prefix) {
+                $facet = substr($key, $prefixLength);
+                $limits[$facet] = $limit;
+            }
         }
 
         return count($limits) ? $limits : null;
