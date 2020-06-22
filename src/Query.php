@@ -131,7 +131,7 @@ class Query
 
             $fieldNames = preg_split('/[\s,]+/', $field, null, PREG_SPLIT_NO_EMPTY);
             foreach ($fieldNames as $name) {
-                if (! preg_match('/^(?:\*|[a-z_][a-z0-9_]*)$/i', $name)) {
+                if (! preg_match('/^(?:\*|[a-z_][a-z0-9_.]*)$/i', $name)) {
                     throw new \InvalidArgumentException('malformed field selector: ' . $name);
                 }
 
