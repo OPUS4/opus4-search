@@ -359,19 +359,32 @@ class Config
             $set = [];
         }
 
+        // TODO refactor to have generic handling of required facets
         if (! in_array('server_state', $set)) {
             $set[] = 'server_state';
         }
         if (! in_array('doctype', $set)) {
             $set[] = 'doctype';
         }
-        if (! in_array('year', $set) && ! in_array('year_inverted', $set)) {
+        if (! in_array('year', $set)) {
             $set[] = 'year';
         }
+
 
         $enrichmentFacets = self::getEnrichmentFacets();
 
         $set = array_merge($set, $enrichmentFacets);
+
+        $fullConfig = \Opus_Config::get();
+
+        // Map facet names to configured index fields
+        $set = array_map(function ($value) use ($fullConfig) {
+            if (isset($fullConfig->search->facet->$value->indexField)) {
+                return $fullConfig->search->facet->$value->indexField;
+            } else {
+                return $value;
+            }
+        }, $set);
 
         return $set;
     }
@@ -431,14 +444,6 @@ class Config
                 }
             }
         }
-
-        // if facet-name is 'year_inverted', the facet values have to be sorted vice versa
-        // however, the facet-name should be 'year' (reset in framework ResponseRenderer::getFacets())
-        if (array_key_exists('year_inverted', $set)) {
-            $set['year'] = $set['year_inverted'];
-            $set['year_inverted']; // leave set for query to solr 'year_inverted' facet
-        }
-
 
         return $set;
     }

@@ -512,4 +512,18 @@ class ConfigTest extends TestCase
         $this->assertCount(1, $sorting);
         $this->assertContains('index', $sorting);
     }
+
+    public function testGetFacetFieldsWithMapping()
+    {
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+            'search' => ['facet' => [
+                'year' => ['indexField' => 'completed_year']
+            ]]
+        ]));
+
+        $facets = Config::getFacetFields();
+
+        $this->assertNotContains('year', $facets);
+        $this->assertContains('completed_year', $facets);
+    }
 }

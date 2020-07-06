@@ -248,16 +248,6 @@ class Set
 
         $limits = [];
 
-        if (isset($input['facetNumber_year'])) {
-            // TODO get rid of special hack here
-            if (in_array('year_inverted', Config::getFacetFields())) {
-                // 'year_inverted' is used in framework and result is returned as 'year'
-                $limits['year_inverted'] = $limit;
-            }
-
-            $limits['year'] = $limit;
-        }
-
         $prefix = 'facetNumber_';
         $prefixLength = strlen($prefix);
 
