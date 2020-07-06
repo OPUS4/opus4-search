@@ -116,6 +116,8 @@ searchengine.extract.app = @searchengine.index.app@
 searchengine.extract.timeout = 10
 searchengine.solr.facets = author_facet,year,doctype,language,has_fulltext,belongs_to_bibliography,subject,project,institute
 
+search.facet.year.indexField = 'published_year'
+
 ;LOGGING RELATED SETTINGS
 ; if set to true all xml that is generated while indexing is prepared for logging
 log.prepare.xml = false
