@@ -330,7 +330,7 @@ class Config
      * @return string[] probably empty set of found field names to use in faceted search
      * @throws \Zend_Config_Exception
      */
-    public static function getFacetFields($facetSetName = null, $serviceDomain = null)
+    public static function getFacetNames($facetSetName = null, $serviceDomain = null)
     {
         $facetSetName = is_null($facetSetName) ? 'default' : trim($facetSetName);
         if (! $facetSetName) {
@@ -370,23 +370,46 @@ class Config
             $set[] = 'year';
         }
 
-
         $enrichmentFacets = self::getEnrichmentFacets();
 
         $set = array_merge($set, $enrichmentFacets);
 
-        $fullConfig = \Opus_Config::get();
+        return $set;
+    }
+
+    public static function getFacetFields($facetSetName = null, $serviceDomain = null)
+    {
+        $names = self::getFacetNames($facetSetName, $serviceDomain);
+
+        $config = \Opus_Config::get();
 
         // Map facet names to configured index fields
-        $set = array_map(function ($value) use ($fullConfig) {
-            if (isset($fullConfig->search->facet->$value->indexField)) {
-                return $fullConfig->search->facet->$value->indexField;
+        $fields = array_map(function($name) use ($config) {
+            if (isset($config->search->facet->$name->indexField)) {
+                return $config->search->facet->$name->indexField;
             } else {
-                return $value;
+                return $name;
             }
-        }, $set);
+        }, $names);
 
-        return $set;
+        return $fields;
+    }
+
+    protected static function mapFacetFields($facets)
+    {
+        $config = \Opus_Config::get();
+
+        $fields = [];
+
+        foreach ($facets as $name => $value) {
+            if (isset($config->search->facet->$name->indexField)) {
+                $fields[$config->search->facet->$name->indexField] = $value;
+            } else {
+                $fields[$name] = $value;
+            }
+        }
+
+        return $fields;
     }
 
     /**
@@ -422,7 +445,7 @@ class Config
             '__global__' => $globalLimit
         ];
 
-        $fields = static::getFacetFields($facetSetName, $serviceDomain);
+        $fields = static::getFacetNames($facetSetName, $serviceDomain);
 
         foreach ($fields as $field) {
             if (isset($fieldLimits->$field)) {
@@ -444,6 +467,8 @@ class Config
                 }
             }
         }
+
+        $set = self::mapFacetFields($set);
 
         return $set;
     }
@@ -469,8 +494,7 @@ class Config
             throw new \InvalidArgumentException('invalid facet set name');
         }
 
-
-        $fields = static::getFacetFields($facetSetName, $serviceDomain);
+        $fields = static::getFacetNames($facetSetName, $serviceDomain);
         $config = static::getDomainConfiguration($serviceDomain)->get('sortcrit', null);
         $searchConfig = \Opus_Config::get()->search; // TODO new configuration (consolidate with old above)
 
@@ -526,6 +550,8 @@ class Config
                 }
             }
         }
+
+        $set = self::mapFacetFields($set);
 
         return $set;
     }
