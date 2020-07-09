@@ -384,7 +384,7 @@ class Config
         $config = \Opus_Config::get();
 
         // Map facet names to configured index fields
-        $fields = array_map(function($name) use ($config) {
+        $fields = array_map(function ($name) use ($config) {
             if (isset($config->search->facet->$name->indexField)) {
                 return $config->search->facet->$name->indexField;
             } else {
@@ -530,7 +530,7 @@ class Config
             foreach ($fields as $field) {
                 if ($config->get($field) == 'lexi') {
                     $set[$field] = 'index';
-                } else if ($config->get($field) !== 'count' && $defaultSort == 'lexi') {
+                } elseif ($config->get($field) !== 'count' && $defaultSort == 'lexi') {
                     $set[$field] = 'index';
                 }
             }
@@ -544,7 +544,7 @@ class Config
                     $sortCrit = $options->get('sort');
                     if ($sortCrit == 'lexi') {
                         $set[$name] = 'index';
-                    } else if ($sortCrit == 'count') {
+                    } elseif ($sortCrit == 'count') {
                         unset($set[$name]);
                     }
                 }
