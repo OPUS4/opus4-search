@@ -203,7 +203,6 @@ class SetTest extends SimpleTestCase
         ]);
         $this->assertEquals([
             'year' => 10000,
-            'year_inverted' => 10000
         ], $limits);
     }
 

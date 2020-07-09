@@ -45,7 +45,7 @@ class BaseTest extends SimpleTestCase
 
         $model->addFacet('year_inverted', '65212:2013', 3);
 
-        $facet = $model->getFacet('year');
+        $facet = $model->getFacet('year_inverted');
 
         $this->assertCount(1, $facet);
 
@@ -53,7 +53,7 @@ class BaseTest extends SimpleTestCase
 
         $this->assertNotNull($value);
         $this->assertInstanceOf('Opus\Search\Result\Facet', $value);
-        $this->assertEquals('2013', $value->getText());
+        $this->assertEquals('65212:2013', $value->getText());
         $this->assertEquals(3, $value->getCount());
     }
 
