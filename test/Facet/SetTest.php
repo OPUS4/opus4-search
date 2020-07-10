@@ -214,4 +214,18 @@ class SetTest extends SimpleTestCase
         $this->assertNotNull($limits);
         $this->assertEquals(['enrichment_Country' => 10000], $limits);
     }
+
+    public function testSetFieldsWithEnrichmentFacetUsingDot()
+    {
+        $facets = Set::create();
+
+        $facets->setFields(['author_facet', 'year', 'enrichment_opus.source']);
+
+        $fields = $facets->getFields();
+
+        $this->assertCount(3, $fields);
+        $this->assertArrayHasKey('author_facet', $fields);
+        $this->assertArrayHasKey('year', $fields);
+        $this->assertArrayHasKey('enrichment_opus.source', $fields);
+    }
 }
