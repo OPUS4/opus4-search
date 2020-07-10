@@ -194,7 +194,7 @@ class Set
 
             $fieldNames = preg_split('/[\s,]+/', $field, null, PREG_SPLIT_NO_EMPTY);
             foreach ($fieldNames as $name) {
-                if (! preg_match('/^[a-z_][a-z0-9_]*$/i', $name)) {
+                if (! preg_match('/^[a-z_][a-z0-9_\.]*$/i', $name)) {
                     throw new \InvalidArgumentException('malformed field selector: ' . $name);
                 }
 
@@ -247,16 +247,6 @@ class Set
         $limit = intval($limit);
 
         $limits = [];
-
-        if (isset($input['facetNumber_year'])) {
-            // TODO get rid of special hack here
-            if (in_array('year_inverted', Config::getFacetFields())) {
-                // 'year_inverted' is used in framework and result is returned as 'year'
-                $limits['year_inverted'] = $limit;
-            }
-
-            $limits['year'] = $limit;
-        }
 
         $prefix = 'facetNumber_';
         $prefixLength = strlen($prefix);

@@ -46,8 +46,6 @@
       "Composer\\Config::disableProcessTimeout",
       "@prepare",
       "@cs-check",
-      "@phpmd",
-      "@phpcpd",
       "@test"
     ],
     "check-full": [

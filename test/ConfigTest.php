@@ -427,7 +427,7 @@ class ConfigTest extends TestCase
         $this->assertArrayHasKey('author_facet', $limits);
         $this->assertEquals(10, $limits['author_facet']);
         $this->assertEquals(10, $limits['subject']);
-        $this->assertEquals(10, $limits['year']);
+        $this->assertEquals(10, $limits['published_year']);
 
         Config::dropCached();
 
@@ -445,7 +445,7 @@ class ConfigTest extends TestCase
         $this->assertArrayHasKey('author_facet', $limits);
         $this->assertEquals(20, $limits['author_facet']);
         $this->assertEquals(30, $limits['subject']);
-        $this->assertEquals(15, $limits['year']);
+        $this->assertEquals(15, $limits['published_year']);
     }
 
     public function testGetFacetLimitsDefault()
@@ -465,7 +465,7 @@ class ConfigTest extends TestCase
         $this->assertEquals(15, $limits['__global__']);
         $this->assertArrayHasKey('author_facet', $limits);
         $this->assertEquals(15, $limits['subject']);
-        $this->assertEquals(30, $limits['year']);
+        $this->assertEquals(30, $limits['published_year']);
     }
 
     public function testGetFacetSorting()
@@ -486,7 +486,7 @@ class ConfigTest extends TestCase
 
         $this->assertCount(2, $sorting);
         $this->assertEquals([
-            'year' => 'index',
+            'published_year' => 'index',
             'subject' => 'index'
         ], $sorting);
     }
@@ -511,5 +511,19 @@ class ConfigTest extends TestCase
         $sorting = array_unique(array_values($sorting));
         $this->assertCount(1, $sorting);
         $this->assertContains('index', $sorting);
+    }
+
+    public function testGetFacetFieldsWithMapping()
+    {
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+            'search' => ['facet' => [
+                'year' => ['indexField' => 'completed_year']
+            ]]
+        ]));
+
+        $facets = Config::getFacetFields();
+
+        $this->assertNotContains('year', $facets);
+        $this->assertContains('completed_year', $facets);
     }
 }
