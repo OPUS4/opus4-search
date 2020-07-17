@@ -231,4 +231,25 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
         $this->assertEquals(2, $result->getAllMatchesCount());
     }
+
+    public function testMapYearFacetIndexFieldsToYearAsset()
+    {
+        $doc = $this->createDocument('article');
+        $doc->setPublishedYear('2012');
+        $doc->setServerState('published');
+        $docId = $doc->store();
+
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex([$doc]);
+
+        $search = new Searcher();
+
+        $query = new \Opus\Search\Util\Query(\Opus\Search\Util\Query::SIMPLE);
+        $query->setCatchAll('*:*'); // TODO why do I have to set this?
+        $query->addFilterQuery('published_year', '2012');
+
+        $result = $search->search($query);
+
+        $this->assertEquals(1, $result->getAllMatchesCount());
+    }
 }
