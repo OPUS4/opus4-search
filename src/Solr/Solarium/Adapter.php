@@ -118,6 +118,19 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
             return $this->options->fieldToAsset->get($fieldName, $fieldName);
         }
 
+        // TODO hack to map published_year_inverted (all year index fields) to year asset (should be cleaned up)
+        $config = \Opus_Config::get();
+
+        if (isset($config->search->facet)) {
+            $facets = $config->search->facet;
+            foreach($facets as $facetName => $facetConfig) {
+                $indexField = $facetConfig->get('indexField');
+                if ($indexField === $fieldName) {
+                    $fieldName = $facetName;
+                }
+            }
+        }
+
         return $fieldName;
     }
 
