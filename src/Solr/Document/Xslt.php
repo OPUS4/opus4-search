@@ -141,7 +141,7 @@ class Xslt extends Base
 
     private static $yearOrder;
 
-    private static function getYearOrder()
+    public static function getYearOrder()
     {
         if (is_null(self::$yearOrder)) {
             $config = \Opus_Config::get();
@@ -158,5 +158,14 @@ class Xslt extends Base
         }
 
         return self::$yearOrder;
+    }
+
+    /**
+     * @param $order
+     * TODO hack necessary for testing - refactor all of this
+     */
+    public static function setYearOrder($order)
+    {
+        self::$yearOrder = $order;
     }
 }
