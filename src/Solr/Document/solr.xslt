@@ -38,7 +38,9 @@
 
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:php="http://php.net/xsl"
+    exclude-result-prefixes="php">
 
     <xsl:output method="xml" indent="yes" />
 
@@ -54,6 +56,31 @@
                     <xsl:attribute name="name">id</xsl:attribute>
                     <xsl:value-of select="/Opus/Opus_Document/@Id" />
                 </xsl:element>
+
+                <!-- year -->
+                <xsl:variable name="year">
+                    <xsl:value-of select="php:functionString('Opus\Search\Solr\Document\Xslt::indexYear',
+                        /Opus/Opus_Document/PublishedDate/@Year,
+                        /Opus/Opus_Document/@PublishedYear,
+                        /Opus/Opus_Document/CompletedDate/@Year,
+                        /Opus/Opus_Document/@CompletedYear)" />
+                </xsl:variable>
+
+                <xsl:if test="$year != ''">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">year</xsl:attribute>
+                        <xsl:value-of select="$year"/>
+                    </xsl:element>
+                </xsl:if>
+
+                <!-- year_inverted -->
+                <xsl:if test="$year != ''">
+                    <xsl:variable name="yearInverted" select="65535 - $year"/>
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">year_inverted</xsl:attribute>
+                        <xsl:value-of select="$yearInverted"/>:<xsl:value-of select="$year"/>
+                    </xsl:element>
+                </xsl:if>
 
                 <!-- published_year -->
                 <xsl:variable name="publishedYear">
