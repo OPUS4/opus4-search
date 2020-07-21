@@ -57,7 +57,10 @@
       "@test-coverage"
     ],
     "prepare": "mkdir -p build",
-    "test": "phpunit --colors=always --log-junit build/phpunit.xml",
+    "test": [
+      "Composer\\Config::disableProcessTimeout",
+      "phpunit --colors=always --log-junit build/phpunit.xml"
+    ],
     "test-coverage": "phpunit --log-junit build/phpunit.xml --colors=always --coverage-html build/ --coverage-clover build/clover.xml",
     "cs-check": "phpcs -n --report=checkstyle --report-file=build/checkstyle.xml",
     "cs-fix": "phpcbf",
