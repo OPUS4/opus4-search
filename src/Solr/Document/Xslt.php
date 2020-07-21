@@ -57,6 +57,7 @@ class Xslt extends Base
 
             $this->processor = new \XSLTProcessor;
             $this->processor->importStyleSheet($xslt);
+            $this->processor->registerPHPFunctions('Opus\Search\Solr\Document\Xslt::indexYear');
         } catch (\Exception $e) {
             throw new \InvalidArgumentException('invalid XSLT file for deriving Solr documents', 0, $e);
         }
@@ -106,5 +107,65 @@ class Xslt extends Base
         }
 
         return $path;
+    }
+
+    /**
+     * TODO move somewhere else
+     * TODO do not use static functions (see ApplicationXslt)
+     * TODO handle configuration more efficiently
+     */
+    public static function indexYear($publishedDateYear, $publishedYear, $completedDateYear, $completedYear)
+    {
+        $fields = [];
+        $fields['PublishedDate'] = $publishedDateYear;
+        $fields['PublishedYear'] = $publishedYear;
+        $fields['CompletedDate'] = $completedDateYear;
+        $fields['CompletedYear'] = $completedYear;
+
+        $year = '';
+
+        $order = self::getYearOrder();
+
+        foreach ($order as $fieldName) {
+            if (array_key_exists($fieldName, $fields)) {
+                $year = $fields[$fieldName];
+                if (ctype_digit($year)) {
+                    // use the first value found
+                    break;
+                }
+            }
+        }
+
+        return $year;
+    }
+
+    private static $yearOrder;
+
+    public static function getYearOrder()
+    {
+        if (is_null(self::$yearOrder)) {
+            $config = \Opus_Config::get();
+
+            if (isset($config->search->index->field->year->order)) {
+                $orderConfig = $config->search->index->field->year->order;
+            } else {
+                $orderConfig = 'PublishedDate,PublishedYear'; // old default
+            }
+
+            $order = preg_split('/[\s,]+/', trim($orderConfig), null, PREG_SPLIT_NO_EMPTY);
+
+            self::$yearOrder = $order;
+        }
+
+        return self::$yearOrder;
+    }
+
+    /**
+     * @param $order
+     * TODO hack necessary for testing - refactor all of this
+     */
+    public static function setYearOrder($order)
+    {
+        self::$yearOrder = $order;
     }
 }

@@ -60,6 +60,8 @@
 
     <fields>
         <field name="id" type="string" indexed="true" stored="true" required="true"/>
+        <field name="year" type="string" indexed="true" stored="true"/>
+        <field name="year_inverted" type="string" indexed="true" stored="true"/>
         <field name="completed_year" type="string" indexed="true" stored="true"/>
         <field name="completed_year_inverted" type="string" indexed="true" stored="true"/>
         <field name="published_year" type="string" indexed="true" stored="true"/>

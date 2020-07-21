@@ -336,4 +336,75 @@ class XsltTest extends DocumentBasedTestCase
 
         $this->assertEquals(0, $emptyFields->length);
     }
+
+    public function testConfiguredIndexingOfYearField()
+    {
+        $document = $this->createDocument('book');
+        $date = new \Opus_Date();
+        $date->setNow();
+        $document->setPublishedDate($date);
+        $document->setPublishedYear(2010);
+        $document->store();
+
+        $converter = new Xslt(Config::getDomainConfiguration('solr'));
+        $solr = $converter->toSolrDocument($document, new \DOMDocument());
+
+        $this->assertInstanceOf('DOMDocument', $solr);
+
+        $xpath = new \DOMXPath($solr);
+    }
+
+    public function testIndexYearDefaultConfig()
+    {
+        $this->assertEquals(
+            '2010',
+            Xslt::indexYear(2010, 2011, 2012, 2013)
+        );
+
+        $this->assertEquals(
+            '2011',
+            Xslt::indexYear('', 2011, 2012, 2013)
+        );
+
+        $this->assertEquals(
+            '',
+            Xslt::indexYear('', '', 2012, 2013)
+        );
+
+        $this->assertEquals(
+            '',
+            Xslt::indexYear('', '', '', 2013)
+        );
+    }
+
+    public function testIndexYearCustomConfig()
+    {
+        Xslt::setYearOrder(null);
+
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+            'search' => ['index' => ['field' => ['year' => [
+                'order' => 'PublishedDate,PublishedYear,CompletedDate,CompletedYear'
+            ]]]]
+        ]));
+
+        $this->assertEquals(
+            '2010',
+            Xslt::indexYear(2010, 2011, 2012, 2013)
+        );
+
+        $this->assertEquals(
+            '2011',
+            Xslt::indexYear('', 2011, 2012, 2013)
+        );
+
+        $this->assertEquals(
+            '2012',
+            Xslt::indexYear('', '', 2012, 2013)
+        );
+
+        $this->assertEquals(
+            '2013',
+            Xslt::indexYear('', '', '', 2013)
+        );
+    }
 }
