@@ -77,9 +77,9 @@ class SetTest extends SimpleTestCase
         $this->assertEquals(10000, $authorField->getLimit());
 
         // check other field still has limit
-        $this->assertArrayHasKey('year', $fields);
+        $this->assertArrayHasKey('published_year', $fields);
 
-        $yearField = $fields['year'];
+        $yearField = $fields['published_year'];
 
         $this->assertEquals(10, $yearField->getLimit());
     }
@@ -119,9 +119,9 @@ class SetTest extends SimpleTestCase
         $this->assertEquals(20, $authorField->getLimit());
 
         // check other field still has limit
-        $this->assertArrayHasKey('year', $fields);
+        $this->assertArrayHasKey('published_year', $fields);
 
-        $yearField = $fields['year'];
+        $yearField = $fields['published_year']; // Name of index field used for search
 
         $this->assertEquals(30, $yearField->getLimit());
     }
@@ -225,7 +225,7 @@ class SetTest extends SimpleTestCase
 
         $this->assertCount(3, $fields);
         $this->assertArrayHasKey('author_facet', $fields);
-        $this->assertArrayHasKey('year', $fields);
+        $this->assertArrayHasKey('published_year', $fields);
         $this->assertArrayHasKey('enrichment_opus.source', $fields);
     }
 }

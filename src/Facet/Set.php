@@ -235,8 +235,16 @@ class Set
             $this->fields = [];
         }
 
+        $config = \Opus_Config::get();
+
         foreach ($this->normalizeFields($fieldNames) as $name) {
-            $this->addField($name);
+            $indexField = $name;
+
+            if (isset($config->search->facet->$name->indexField)) {
+                $indexField = $config->search->facet->$name->indexField;
+            }
+
+            $this->addField($indexField);
         }
 
         return $this;
