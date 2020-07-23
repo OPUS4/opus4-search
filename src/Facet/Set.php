@@ -110,9 +110,22 @@ class Set
     public function overrideLimits($limits)
     {
         if (is_array($limits)) {
+            $config = \Opus_Config::get();
+
+            $mappedLimits = [];
+
+            // TODO cleanup, centralize mapping, so it does not have to happen in various places
+            foreach ($limits as $name => $value) {
+                if (isset($config->search->facet->$name->indexField)) {
+                    $mappedLimits[$config->search->facet->$name->indexField] = $value;
+                } else {
+                    $mappedLimits[$name] = $value;
+                }
+            };
+
             // replace field-specific limits but keep previously cached global
             // limit unless provided set is overriding that as well.
-            $this->config[self::LIMIT_KEY] = array_replace($this->config[self::LIMIT_KEY], $limits);
+            $this->config[self::LIMIT_KEY] = array_replace($this->config[self::LIMIT_KEY], $mappedLimits);
         } elseif (preg_match('/^[+-]?\d+$/', $limits)) {
             // got single integer ... reset limits to use given one globally, only
             $this->config[self::LIMIT_KEY] = [ self::GLOBABL_KEY => intval($limits) ];
