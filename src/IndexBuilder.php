@@ -31,14 +31,14 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Search;
+
 /**
  * Indexes all or a range of documents.
  *
  * If all documents are indexed the index is cleared first.
- *
- * TODO move to class and unit test
  */
-class SolrIndexBuilder
+class IndexBuilder
 {
 
     /**
@@ -158,7 +158,7 @@ EOT;
         }
 
         if (is_null($this->_start) && is_null($this->_end)) {
-            // TODO gesondertes Argument für Indexdeletion einführen
+            // TODO gesondertes Argument für Index deletion einführen
             $this->_deleteAllDocs = true;
         }
     }
@@ -186,7 +186,7 @@ EOT;
         try {
             $runtime = $this->index($this->_start, $this->_end);
             echo PHP_EOL . "Operation completed successfully in $runtime seconds." . PHP_EOL;
-        } catch (Opus\Search\Exception $e) {
+        } catch (Exception $e) {
             echo PHP_EOL . "An error occurred while indexing.";
             echo PHP_EOL . "Error Message: " . $e->getMessage();
             if (!is_null($e->getPrevious())) {
@@ -203,7 +203,7 @@ EOT;
 
         $docIds = $this->getDocumentIds($startId, $endId);
 
-        $indexer = Opus\Search\Service::selectIndexingService('indexBuilder');
+        $indexer = Service::selectIndexingService('indexBuilder');
 
         if ($this->_deleteAllDocs) {
             echo 'Removing all documents from the index ...' . PHP_EOL;
@@ -218,7 +218,7 @@ EOT;
 
         // measure time for each document
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache = new \Opus_Model_Xml_Cache();
 
         foreach ($docIds as $docId) {
             $timeStart = microtime(true);
@@ -227,7 +227,7 @@ EOT;
                 $cache->remove($docId);
             }
 
-            $doc = new Opus_Document($docId);
+            $doc = new \Opus_Document($docId);
 
             // dirty hack: disable implicit reindexing of documents in case of cache misses
             $doc->unregisterPlugin('Opus\Search\Plugin\Index');
@@ -275,7 +275,7 @@ EOT;
      */
     private function getDocumentIds($start, $end)
     {
-        $finder = new Opus_DocumentFinder();
+        $finder = new \Opus_DocumentFinder();
 
         if (isset($start)) {
             $finder->setIdRangeStart($start);
@@ -314,7 +314,7 @@ EOT;
         } catch (Opus\Search\Exception $e) {
             // echo date('Y-m-d H:i:s') . " ERROR: Failed indexing document $docId.\n";
             echo date('Y-m-d H:i:s') . "        {$e->getMessage()}\n";
-        } catch (Opus_Storage_Exception $e) {
+        } catch (\Opus_Storage_Exception $e) {
             // echo date('Y-m-d H:i:s') . " ERROR: Failed indexing unavailable file on document $docId.\n";
             echo date('Y-m-d H:i:s') . "        {$e->getMessage()}\n";
         }
@@ -322,20 +322,20 @@ EOT;
 
     private function forceSyncMode()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         if (isset($config->runjobs->asynchronous) && filter_var($config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $this->_syncMode = false;
             $config->runjobs->asynchronous = ''; // false
-            Zend_Registry::set('Zend_Config', $config);
+            \Zend_Registry::set('Zend_Config', $config);
         }
     }
 
     private function resetMode()
     {
         if (!$this->_syncMode) {
-            $config = Zend_Registry::get('Zend_Config');
+            $config = \Zend_Registry::get('Zend_Config');
             $config->runjobs->asynchronous = '1'; // true
-            Zend_Registry::set('Zend_Config', $config);
+            \Zend_Registry::set('Zend_Config', $config);
         }
     }
 
