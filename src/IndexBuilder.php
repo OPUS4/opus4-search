@@ -152,7 +152,7 @@ EOT;
         }
 
         // check if only end is set (happens when options are used)
-        if (is_null($this->_start) && !is_null($this->_end)) {
+        if (is_null($this->_start) && ! is_null($this->_end)) {
             $this->_start = $this->_end;
             $this->_end = null;
         }
@@ -175,9 +175,9 @@ EOT;
             return;
         }
 
-        if (!is_null($this->_end)) {
+        if (! is_null($this->_end)) {
             echo PHP_EOL . "Indexing documents {$this->_start} to {$this->_end} ..." . PHP_EOL;
-        } elseif (!is_null($this->_start)) {
+        } elseif (! is_null($this->_start)) {
             echo PHP_EOL . "Indexing documents starting at ID = {$this->_start} ..." . PHP_EOL;
         } else {
             echo PHP_EOL . 'Indexing all documents ...' . PHP_EOL;
@@ -189,7 +189,7 @@ EOT;
         } catch (Exception $e) {
             echo PHP_EOL . "An error occurred while indexing.";
             echo PHP_EOL . "Error Message: " . $e->getMessage();
-            if (!is_null($e->getPrevious())) {
+            if (! is_null($e->getPrevious())) {
                 echo PHP_EOL . "Caused By: " . $e->getPrevious()->getMessage();
             }
             echo PHP_EOL . "Stack Trace:" . PHP_EOL . $e->getTraceAsString();
@@ -332,7 +332,7 @@ EOT;
 
     private function resetMode()
     {
-        if (!$this->_syncMode) {
+        if (! $this->_syncMode) {
             $config = \Zend_Registry::get('Zend_Config');
             $config->runjobs->asynchronous = '1'; // true
             \Zend_Registry::set('Zend_Config', $config);
