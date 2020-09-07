@@ -45,43 +45,43 @@ class IndexBuilder
      * Start of document ID range for indexing (first command line parameter).
      * @var int
      */
-    private $_start = null;
+    private $start = null;
 
     /**
      * End of document ID range for indexing (second command line parameter).
      * @var int
      */
-    private $_end = null;
+    private $end = null;
 
     /**
      * Flag for deleting all documents from index before indexing.
      * @var bool
      */
-    private $_deleteAllDocs = false;
+    private $deleteAllDocs = false;
 
     /**
      * Temporary variable for storing sync mode.
      * @var bool
      */
-    private $_syncMode = true;
+    private $syncMode = true;
 
     /**
      * Flag for showing help information (command line parameter '--help' or '-h')
      * @var bool
      */
-    private $_showHelp = false;
+    private $showHelp = false;
 
     /**
      * Flag for deleting document xml cache before indexing.
      * @var bool
      */
-    private $_clearCache = false;
+    private $clearCache = false;
 
     /**
      * Flag for debug output.
      * @var bool
      */
-    private $_debugEnabled = false;
+    private $debugEnabled = false;
 
     /**
      * Prints a help message to the console.
@@ -124,16 +124,16 @@ EOT;
         $options = getopt("cdh", ['help', 'debug']);
 
         if (array_key_exists('debug', $options) || array_key_exists('d', $options)) {
-            $this->_debugEnabled = true;
+            $this->debugEnabled = true;
         }
 
         if (array_key_exists('help', $options) || array_key_exists('h', $options)) {
-            $this->_showHelp = true;
+            $this->showHelp = true;
             return;
         }
 
         if (true === array_key_exists('c', $options)) {
-            $this->_clearCache = true;
+            $this->clearCache = true;
         }
 
         if ($argc == 2) {
@@ -144,22 +144,22 @@ EOT;
         }
 
         if (is_numeric($start) && ctype_digit($start)) {
-            $this->_start = $start;
+            $this->start = $start;
         }
 
         if (is_numeric($end) && ctype_digit($end)) {
-            $this->_end = $end;
+            $this->end = $end;
         }
 
         // check if only end is set (happens when options are used)
-        if (is_null($this->_start) && ! is_null($this->_end)) {
-            $this->_start = $this->_end;
-            $this->_end = null;
+        if (is_null($this->start) && ! is_null($this->end)) {
+            $this->start = $this->end;
+            $this->end = null;
         }
 
-        if (is_null($this->_start) && is_null($this->_end)) {
+        if (is_null($this->start) && is_null($this->end)) {
             // TODO gesondertes Argument für Index deletion einführen
-            $this->_deleteAllDocs = true;
+            $this->deleteAllDocs = true;
         }
     }
 
@@ -170,21 +170,21 @@ EOT;
     {
         $this->evaluateArguments($argc, $argv);
 
-        if ($this->_showHelp) {
+        if ($this->showHelp) {
             $this->printHelpMessage($argv);
             return;
         }
 
-        if (! is_null($this->_end)) {
-            echo PHP_EOL . "Indexing documents {$this->_start} to {$this->_end} ..." . PHP_EOL;
-        } elseif (! is_null($this->_start)) {
-            echo PHP_EOL . "Indexing documents starting at ID = {$this->_start} ..." . PHP_EOL;
+        if (! is_null($this->end)) {
+            echo PHP_EOL . "Indexing documents {$this->start} to {$this->end} ..." . PHP_EOL;
+        } elseif (! is_null($this->start)) {
+            echo PHP_EOL . "Indexing documents starting at ID = {$this->start} ..." . PHP_EOL;
         } else {
             echo PHP_EOL . 'Indexing all documents ...' . PHP_EOL;
         }
 
         try {
-            $runtime = $this->index($this->_start, $this->_end);
+            $runtime = $this->index($this->start, $this->end);
             echo PHP_EOL . "Operation completed successfully in $runtime seconds." . PHP_EOL;
         } catch (Exception $e) {
             echo PHP_EOL . "An error occurred while indexing.";
@@ -205,7 +205,7 @@ EOT;
 
         $indexer = Service::selectIndexingService('indexBuilder');
 
-        if ($this->_deleteAllDocs) {
+        if ($this->deleteAllDocs) {
             echo 'Removing all documents from the index ...' . PHP_EOL;
             $indexer->removeAllDocumentsFromIndex();
         }
@@ -223,7 +223,7 @@ EOT;
         foreach ($docIds as $docId) {
             $timeStart = microtime(true);
 
-            if ($this->_clearCache) {
+            if ($this->clearCache) {
                 $cache->remove($docId);
             }
 
@@ -324,7 +324,7 @@ EOT;
     {
         $config = \Zend_Registry::get('Zend_Config');
         if (isset($config->runjobs->asynchronous) && filter_var($config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
-            $this->_syncMode = false;
+            $this->syncMode = false;
             $config->runjobs->asynchronous = ''; // false
             \Zend_Registry::set('Zend_Config', $config);
         }
@@ -332,7 +332,7 @@ EOT;
 
     private function resetMode()
     {
-        if (! $this->_syncMode) {
+        if (! $this->syncMode) {
             $config = \Zend_Registry::get('Zend_Config');
             $config->runjobs->asynchronous = '1'; // true
             \Zend_Registry::set('Zend_Config', $config);
