@@ -89,30 +89,30 @@ class SolrIndexBuilder
     private function printHelpMessage($argv)
     {
         $text = <<<EOT
-    OPUS 4 SolrIndexBuilder
+OPUS 4 SolrIndexBuilder
 
-    This program can be used to build up an initial Solr index (e.g., useful when
-    migrating instances).
+This program can be used to build up an initial Solr index (e.g., useful when
+migrating instances).
 
-    Usage:
+Usage:
 
-    php $argv[0] [-c] [Start ID] [End ID]
+php $argv[0] [-c] [Start ID] [End ID]
 
-    [Start ID] ID of document where indexing should start
-    [End ID]   ID of document where indexing should stop
+[Start ID] ID of document where indexing should start
+[End ID]   ID of document where indexing should stop
 
-    If only the starting ID is specified all remaining documents with higher IDs
-    will be indexed.
+If only the starting ID is specified all remaining documents with higher IDs
+will be indexed.
 
-    If no ID is specified the entire index will be cleared before reindexing all
-    documents.
+If no ID is specified the entire index will be cleared before reindexing all
+documents.
 
-    Options:
-    -c : Clear document XML cache entries before indexing
-    -h : Shows this help message (--help)
-    -d : Enables debug output (--debug) - NOT IMPLEMENTED YET
+Options:
+-c : Clear document XML cache entries before indexing
+-h : Shows this help message (--help)
+-d : Enables debug output (--debug) - NOT IMPLEMENTED YET
 
-    EOT;
+EOT;
         $this->write($text . PHP_EOL);
     }
 
