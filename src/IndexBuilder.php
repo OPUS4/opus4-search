@@ -34,36 +34,22 @@ namespace Opus\Search;
 
 use Opus\Search\IndexBuilder\IndexCommand;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Indexes all or a range of documents.
  *
  * If all documents are indexed the index is cleared first.
  */
-class IndexBuilder
+class IndexBuilder extends Application
 {
 
-    /**
-     * Builds command line interface.
-     * TODO add to application help
-     * $text = 'This script can be used to build up an initial Solr index (e.g., useful when migrating instances).';
-     */
-    public function buildInterface()
+    public function __construct()
     {
-        $app = new Application();
-        $app->setName('OPUS 4 Index Builder');
-        $app->setDefaultCommand('index');
-        $app->add(new IndexCommand());
-        return $app;
-    }
-
-    /**
-     * Starts an Opus console.
-     * @throws \Exception
-     */
-    public function run()
-    {
-        $app = $this->buildInterface();
-        $app->run();
+        parent::__construct('OPUS 4 Index Builder');
+        $this->setDefaultCommand('index');
+        $this->add(new IndexCommand());
     }
 }

@@ -70,10 +70,6 @@ class IndexCommand extends Command
     private $syncMode = true;
 
     /**
-     * TODO start id
-     * TODO end id
-     * TODO block size option
-     * TODO
      */
     protected function configure()
     {
@@ -82,12 +78,35 @@ class IndexCommand extends Command
 
         $this->setName('index')
             ->setDescription('Indexes documents')
-            ->addOption(self::OPTION_BLOCKSIZE, 'b', InputOption::VALUE_REQUIRED, 'Max number of documents indexed together')
-            ->addOption(self::OPTION_OPTIMIZE, 'o', null, 'Optimize index after indexing')
-            ->addOption(self::OPTION_CLEAR_CACHE, 'c', null, 'Clear document XML cache entries before indexing')
-            ->addArgument('StartID', InputArgument::OPTIONAL, 'ID of document where indexing should start')
-            ->addArgument('EndID', InputArgument::OPTIONAL, 'ID of document where indexing should stop')
-            ->setHelp($help);
+            ->setHelp($help)
+            ->addOption(
+                self::OPTION_BLOCKSIZE,
+                'b',
+                InputOption::VALUE_REQUIRED,
+                'Max number of documents indexed together'
+            )
+            ->addOption(
+                self::OPTION_OPTIMIZE,
+                'o',
+                null,
+                'Optimize index after indexing'
+            )
+            ->addOption(
+                self::OPTION_CLEAR_CACHE,
+                'c',
+                null,
+                'Clear document XML cache entries before indexing'
+            )
+            ->addArgument(
+                'StartID',
+                InputArgument::OPTIONAL,
+                'ID of document where indexing should start'
+            )
+            ->addArgument(
+                'EndID',
+                InputArgument::OPTIONAL,
+                'ID of document where indexing should stop'
+            );
     }
 
     /**
