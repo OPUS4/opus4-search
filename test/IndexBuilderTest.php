@@ -7,11 +7,12 @@
  *
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
- * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
- * the Saarland University and State Library, the Saxon State Library -
- * Dresden State and University Library, the Bielefeld University Library and
- * the University Library of Hamburg University of Technology with funding from
- * the German Research Foundation and the European Regional Development Fund.
+ * Baden-Wuerttemberg, the North Rhine-Westphalian Library Service Center,
+ * the Cooperative Library Network Berlin-Brandenburg, the Saarland University
+ * and State Library, the Saxon State Library - Dresden State and University
+ * Library, the Bielefeld University Library and the University Library of
+ * Hamburg University of Technology with funding from the German Research
+ * Foundation and the European Regional Development Fund.
  *
  * LICENCE
  * OPUS is free software; you can redistribute it and/or modify it under the
@@ -26,31 +27,15 @@
  *
  * @category    Application
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Search;
+namespace OpusTest\Search;
 
-use Opus\Search\IndexBuilder\IndexCommand;
-use Opus\Search\IndexBuilder\OptimizeCommand;
-use Opus\Search\IndexBuilder\RemoveCommand;
+
 use Symfony\Component\Console\Application;
 
-/**
- * Indexes all or a range of documents.
- *
- * If all documents are indexed the index is cleared first.
- */
-class IndexBuilder extends Application
+class IndexBuilderTest extends TestCase
 {
-
-    public function __construct()
-    {
-        parent::__construct('OPUS 4 Index Builder');
-        $this->add(new IndexCommand());
-        $this->add(new RemoveCommand());
-        $this->add(new OptimizeCommand());
-        $this->setDefaultCommand('index:index');
-    }
 }
