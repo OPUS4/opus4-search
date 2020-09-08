@@ -135,8 +135,6 @@ EOT;
 
         $blockSize = ltrim($blockSize, '=');
 
-        var_dump($blockSize);
-
         if ($blockSize !== null && (! ctype_digit($blockSize) || ! $blockSize > 0)) {
             throw new InvalidOptionException('Blocksize must be an integer >= 1');
         } else {
