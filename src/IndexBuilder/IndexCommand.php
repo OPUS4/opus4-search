@@ -35,9 +35,7 @@ namespace Opus\Search\IndexBuilder;
 
 use Opus\Search\Exception;
 use Opus\Search\Service;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Exception\InvalidArgumentException;
-use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -47,8 +45,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @package Opus\Search\IndexBuilder
  *
  * TODO move indexing code into different class
+ * TODO handle single document indexing
+ * TODO handle bad single document id
+ * TODO handle optimize option
+ * TODO handle blocksize option
  */
-class IndexCommand extends Command
+class IndexCommand extends AbstractIndexCommand
 {
 
     const OPTION_BLOCKSIZE = 'blocksize';
@@ -56,10 +58,6 @@ class IndexCommand extends Command
     const OPTION_CLEAR_CACHE = 'clear-cache';
 
     const OPTION_OPTIMIZE = 'optimize';
-
-    const ARGUMENT_START_ID = 'StartID';
-
-    const ARGUMENT_END_ID = 'EndID';
 
     protected static $defaultName = 'index';
 
@@ -69,21 +67,51 @@ class IndexCommand extends Command
      */
     private $syncMode = true;
 
+    protected $blockSize = 10;
+
     /**
+     *
+     * TODO update help text
+     * TODO style output
      */
     protected function configure()
     {
-        $help = 'If only StartID is specified all remaining documents with higher IDs will be indexed.' . PHP_EOL;
-        $help .= 'If no ID is specified the entire index will be cleared before reindexing all documents.';
+        parent::configure();
 
-        $this->setName('index')
+        $help = <<< EOT
+The <fg=green>index:index</> (short <fg=green>i:i</>) command can be used to index a single document or a 
+range of documents.
+
+If no <fg=green>ID</> is provided, all documents will be indexed. Before the indexing starts, 
+all documents will be removed from the search index.   
+
+You can use a dash (<fg=yellow>-</>) as <fg=green>StartID</> or <fg=green>EndID</>, if you want to index all document up 
+to or starting from an ID. 
+
+Examples:
+  <fg=yellow></>        will index all documents 
+  <fg=yellow>50</>      will index document 50
+  <fg=yellow>20 60</>   will index documents 20 to 60
+  <fg=yellow>20 -</>    will index all documents starting from 20
+  <fg=yellow>- 50</>    will index all documents up to 50
+  
+You can use the <fg=green>blocksize</> option to specify how many documents should be indexed 
+in a single request to the Solr server. Indexing multiple documents per request 
+improves performance. However sometimes this can cause problems if the indexing 
+fails for one of the documents included in the block. In that case you can set
+the <fg=green>blocksize</> to <fg=yellow>1</> in order to index every document separately.
+EOT;
+
+
+        $this->setName('index:index')
             ->setDescription('Indexes documents')
             ->setHelp($help)
             ->addOption(
                 self::OPTION_BLOCKSIZE,
                 'b',
                 InputOption::VALUE_REQUIRED,
-                'Max number of documents indexed together'
+                'Max number of documents indexed together',
+                10
             )
             ->addOption(
                 self::OPTION_OPTIMIZE,
@@ -96,17 +124,24 @@ class IndexCommand extends Command
                 'c',
                 null,
                 'Clear document XML cache entries before indexing'
-            )
-            ->addArgument(
-                'StartID',
-                InputArgument::OPTIONAL,
-                'ID of document where indexing should start'
-            )
-            ->addArgument(
-                'EndID',
-                InputArgument::OPTIONAL,
-                'ID of document where indexing should stop'
             );
+    }
+
+    protected function processArguments(InputInterface $input)
+    {
+        parent::processArguments($input);
+
+        $blockSize = $input->getOption(self::OPTION_BLOCKSIZE);
+
+        $blockSize = ltrim($blockSize, '=');
+
+        var_dump($blockSize);
+
+        if ($blockSize !== null && (! ctype_digit($blockSize) || ! $blockSize > 0)) {
+            throw new InvalidOptionException('Blocksize must be an integer >= 1');
+        } else {
+            $this->blockSize = $blockSize;
+        }
     }
 
     /**
@@ -118,28 +153,12 @@ class IndexCommand extends Command
     {
         $optimize = $input->getOption(self::OPTION_OPTIMIZE);
         $clearCache = $input->getOption(self::OPTION_CLEAR_CACHE);
-        $blockSize = $input->getOption(self::OPTION_BLOCKSIZE);
-        $startId = $input->getArgument(self::ARGUMENT_START_ID);
-        $endId = $input->getArgument(self::ARGUMENT_END_ID);
 
-        if ($startId !== null && ! ctype_digit($startId)) {
-            throw new InvalidArgumentException('StartID needs to be an integer.');
-        }
+        $this->processArguments($input);
 
-        if ($endId !== null && ! ctype_digit($endId)) {
-            throw new InvalidArgumentException('EndID needs to be an integer.');
-        }
-
-        if ($startId === null && $endId === null) {
-            $removeAll = true;
-        } else {
-            $removeAll = false;
-            if ($startId > $endId) {
-                $tmp = $startId;
-                $startId = $endId;
-                $endId = $tmp;
-            }
-        }
+        $startId = $this->startId;
+        $endId = $this->endId;
+        $removeAll = $this->removeAll;
 
         if (! is_null($endId)) {
             $output->writeln("Indexing documents {$startId} to {$endId} ...");
@@ -164,11 +183,27 @@ class IndexCommand extends Command
         }
     }
 
+    /**
+     * @param $startId
+     * @param $endId
+     * @param false $removeAll
+     * @param false $clearCache
+     * @return float|string
+     * @throws Exception
+     * @throws \Opus\Model\Exception
+     * @throws \Zend_Config_Exception
+     */
     private function index($startId, $endId, $removeAll = false, $clearCache = false)
     {
+        $blockSize = $this->blockSize;
+
         $this->forceSyncMode();
 
-        $docIds = $this->getDocumentIds($startId, $endId);
+        if ($this->singleDocument) {
+            $docIds = [$startId];
+        } else {
+            $docIds = $this->getDocumentIds($startId, $endId);
+        }
 
         $indexer = Service::selectIndexingService('indexBuilder');
 
@@ -196,7 +231,7 @@ class IndexCommand extends Command
 
             $doc = new \Opus_Document($docId);
 
-            // dirty hack: disable implicit reindexing of documents in case of cache misses
+            // TODO dirty hack: disable implicit reindexing of documents in case of cache misses
             $doc->unregisterPlugin('Opus\Search\Plugin\Index');
 
             $docs[] = $doc;
@@ -208,7 +243,7 @@ class IndexCommand extends Command
 
             $numOfDocs++;
 
-            if ($numOfDocs % 10 == 0) {
+            if ($numOfDocs % $blockSize == 0) {
                 $this->addDocumentsToIndex($indexer, $docs);
                 $docs = [];
                 $this->outputProgress($runtime, $numOfDocs);
