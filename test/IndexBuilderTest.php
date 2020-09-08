@@ -33,9 +33,13 @@
 
 namespace OpusTest\Search;
 
-
-use Symfony\Component\Console\Application;
+use OpusTest\Search\TestAsset\TestCase;
 
 class IndexBuilderTest extends TestCase
 {
+
+    public function testDefaultComment()
+    {
+        $this->markTestIncomplete();
+    }
 }

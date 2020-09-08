@@ -62,9 +62,9 @@ abstract class AbstractIndexCommand extends Command
     protected function configure()
     {
         $this->addArgument(
-        self::ARGUMENT_START_ID,
-        InputArgument::OPTIONAL,
-        'ID of document where indexing should start (or \'-\')'
+            self::ARGUMENT_START_ID,
+            InputArgument::OPTIONAL,
+            'ID of document where indexing should start (or \'-\')'
         )
         ->addArgument(
             self::ARGUMENT_END_ID,
@@ -121,7 +121,7 @@ abstract class AbstractIndexCommand extends Command
         } else {
             $this->removeAll = false;
 
-            if ($startId !== null && $endId !==null && $startId > $endId) {
+            if ($startId !== null && $endId !== null && $startId > $endId) {
                 $tmp = $startId;
                 $startId = $endId;
                 $endId = $tmp;
