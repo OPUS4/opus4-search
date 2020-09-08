@@ -14,6 +14,7 @@
     "ext-dom": "*",
     "ext-iconv": "*",
     "ext-simplexml": "*",
+    "ext-mbstring": "*",
     "solarium/solarium": "3.8.*",
     "opus4-repo/framework": "dev-master",
     "opus4-repo/opus4-common": "dev-master",
