@@ -149,10 +149,9 @@ EOT;
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $optimize = $input->getOption(self::OPTION_OPTIMIZE);
-        $clearCache = $input->getOption(self::OPTION_CLEAR_CACHE);
+        parent::execute($input, $output);
 
-        $this->processArguments($input);
+        $clearCache = $input->getOption(self::OPTION_CLEAR_CACHE);
 
         $startId = $this->startId;
         $endId = $this->endId;

@@ -32,9 +32,6 @@
 
 namespace Opus\Search\Console;
 
-use Opus\Search\Console\IndexCommand;
-use Opus\Search\Console\OptimizeCommand;
-use Opus\Search\Console\RemoveCommand;
 use Symfony\Component\Console\Application;
 
 /**

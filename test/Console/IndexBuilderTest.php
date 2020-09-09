@@ -31,7 +31,7 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace OpusTest\Search;
+namespace OpusTest\Search\Console;
 
 use OpusTest\Search\TestAsset\TestCase;
 

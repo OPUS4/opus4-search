@@ -37,6 +37,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class AbstractIndexCommand
@@ -130,5 +131,10 @@ abstract class AbstractIndexCommand extends Command
 
         $this->startId = $startId;
         $this->endId = $endId;
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $this->processArguments($input);
     }
 }
