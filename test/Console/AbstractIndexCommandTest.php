@@ -38,6 +38,10 @@ use OpusTest\Search\TestAsset\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * Class AbstractIndexCommandTest
+ * @package OpusTest\Search\Console
+ */
 class AbstractIndexCommandTest extends TestCase
 {
 

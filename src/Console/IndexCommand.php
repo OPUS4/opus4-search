@@ -163,7 +163,7 @@ EOT;
         }
 
         try {
-            $runtime = $this->index($startId, $endId, $removeAll, $clearCache);
+            $runtime = $this->index($output, $startId, $endId, $removeAll, $clearCache);
             $output->writeln("Operation completed successfully in $runtime seconds.");
         } catch (Exception $e) {
             $output->writeln('An error occurred while indexing.');
@@ -187,7 +187,7 @@ EOT;
      * @throws \Opus\Model\Exception
      * @throws \Zend_Config_Exception
      */
-    private function index($startId, $endId, $removeAll = false, $clearCache = false)
+    private function index(OutputInterface $output, $startId, $endId, $removeAll = false, $clearCache = false)
     {
         $blockSize = $this->blockSize;
 
@@ -202,11 +202,12 @@ EOT;
         $indexer = Service::selectIndexingService('indexBuilder');
 
         if ($removeAll) {
-            echo 'Removing all documents from the index ...' . PHP_EOL;
+            $output->writeln('Removing all documents from the index ...');
             $indexer->removeAllDocumentsFromIndex();
         }
 
-        echo date('Y-m-d H:i:s') . " Start indexing of " . count($docIds) . " documents.\n";
+        $docCount = count($docIds);
+        $output->writeln(date('Y-m-d H:i:s') . " Start indexing of $docCount documents.");
         $numOfDocs = 0;
         $runtime = microtime(true);
 
@@ -232,30 +233,31 @@ EOT;
 
             $timeDelta = microtime(true) - $timeStart;
             if ($timeDelta > 30) {
-                echo date('Y-m-d H:i:s') . " WARNING: Indexing document $docId took $timeDelta seconds.\n";
+                $output->writeln(date('Y-m-d H:i:s') . " WARNING: Indexing document $docId took $timeDelta seconds.");
             }
 
             $numOfDocs++;
 
             if ($numOfDocs % $blockSize == 0) {
-                $this->addDocumentsToIndex($indexer, $docs);
+                $this->addDocumentsToIndex($output, $indexer, $docs);
                 $docs = [];
-                $this->outputProgress($runtime, $numOfDocs);
+                $this->outputProgress($output, $runtime, $numOfDocs);
             }
         }
 
         // Index leftover documents
         if (count($docs) > 0) {
-            $this->addDocumentsToIndex($indexer, $docs);
-            $this->outputProgress($runtime, $numOfDocs);
+            $this->addDocumentsToIndex($output, $indexer, $docs);
+            $this->outputProgress($output, $runtime, $numOfDocs);
         }
 
         $runtime = microtime(true) - $runtime;
-        echo PHP_EOL . date('Y-m-d H:i:s') . ' Finished indexing.' . PHP_EOL;
+        $output->writeln('');
+        $output->writeln(date('Y-m-d H:i:s') . ' Finished indexing.');
         // new search API doesn't track number of indexed files, but issues are being written to log file
         //echo "\n\nErrors appeared in " . $indexer->getErrorFileCount() . " of " . $indexer->getTotalFileCount()
         //    . " files. Details were written to opus-console.log";
-        echo PHP_EOL . 'Details were written to opus-console.log';
+        $output->writeln('Details were written to opus-console.log');
 
         $this->resetMode();
 
@@ -290,7 +292,7 @@ EOT;
      * @param $runtime long Time of start of processing
      * @param $numOfDocs Number of processed documents
      */
-    private function outputProgress($runtime, $numOfDocs)
+    private function outputProgress($output, $runtime, $numOfDocs)
     {
         $memNow = round(memory_get_usage() / 1024 / 1024);
         $memPeak = round(memory_get_peak_usage() / 1024 / 1024);
@@ -299,25 +301,27 @@ EOT;
         $docPerSecond = round($deltaTime) == 0 ? 'inf' : round($numOfDocs / $deltaTime, 2);
         $secondsPerDoc = round($deltaTime / $numOfDocs, 2);
 
-        echo date('Y-m-d H:i:s') . " Stats after $numOfDocs documents -- memory $memNow MB,"
-            . " peak memory $memPeak (MB), $docPerSecond docs/second, $secondsPerDoc seconds/doc" . PHP_EOL;
+        $output->writeln(
+            date('Y-m-d H:i:s') . " Stats after $numOfDocs documents -- memory $memNow MB,"
+            . " peak memory $memPeak (MB), $docPerSecond docs/second, $secondsPerDoc seconds/doc"
+        );
     }
 
-    private function addDocumentsToIndex($indexer, $docs)
+    private function addDocumentsToIndex($output, $indexer, $docs)
     {
         try {
             $indexer->addDocumentsToIndex($docs);
         } catch (Opus\Search\Exception $e) {
             // echo date('Y-m-d H:i:s') . " ERROR: Failed indexing document $docId.\n";
-            echo date('Y-m-d H:i:s') . "        {$e->getMessage()}\n";
+            $output->writeln(date('Y-m-d H:i:s') . "        {$e->getMessage()}");
         } catch (\Opus_Storage_Exception $e) {
             // echo date('Y-m-d H:i:s') . " ERROR: Failed indexing unavailable file on document $docId.\n";
-            echo date('Y-m-d H:i:s') . "        {$e->getMessage()}\n";
+            $output->writeln(date('Y-m-d H:i:s') . "        {$e->getMessage()}");
         }
     }
 
     /**
-     * Find better way to enable/disable sync mode during indexing.
+     * TODO Find better way to enable/disable sync mode during indexing.
      */
     private function forceSyncMode()
     {
