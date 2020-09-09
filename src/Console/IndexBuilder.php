@@ -50,7 +50,6 @@ class IndexBuilder extends Application
         parent::__construct('OPUS 4 Index Builder');
         $this->add(new IndexCommand());
         $this->add(new RemoveCommand());
-        $this->add(new OptimizeCommand());
         $this->setDefaultCommand('index:index');
     }
 }
