@@ -31,7 +31,7 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Search\IndexBuilder;
+namespace Opus\Search\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidArgumentException;

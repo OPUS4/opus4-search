@@ -30,11 +30,11 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Search;
+namespace Opus\Search\Console;
 
-use Opus\Search\IndexBuilder\IndexCommand;
-use Opus\Search\IndexBuilder\OptimizeCommand;
-use Opus\Search\IndexBuilder\RemoveCommand;
+use Opus\Search\Console\IndexCommand;
+use Opus\Search\Console\OptimizeCommand;
+use Opus\Search\Console\RemoveCommand;
 use Symfony\Component\Console\Application;
 
 /**

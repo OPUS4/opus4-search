@@ -34,6 +34,9 @@
 namespace OpusTest\Search\Console\Command;
 
 use OpusTest\Search\TestAsset\TestCase;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Tests\Output\TestOutput;
 
 class IndexCommandTest extends TestCase
 {
@@ -60,6 +63,15 @@ class IndexCommandTest extends TestCase
      */
     public function testBlockSizeOption($arguments, $blocksize)
     {
+
+
+        $command = new IndexCommand();
+
+        $input = new ArrayInput();
+        $output = new TestOutput();
+
+        $command->execute($input, $output);
+
         // TODO need to access protected variables
         $this->markTestIncomplete('IMPORTANT tricky code');
     }
