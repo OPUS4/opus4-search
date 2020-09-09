@@ -70,9 +70,6 @@ class IndexCommand extends AbstractIndexCommand
     protected $blockSize = 10;
 
     /**
-     *
-     * TODO update help text
-     * TODO style output
      */
     protected function configure()
     {
@@ -98,7 +95,7 @@ Examples:
 You can use the <fg=green>blocksize</> option to specify how many documents should be indexed 
 in a single request to the Solr server. Indexing multiple documents per request 
 improves performance. However sometimes this can cause problems if the indexing 
-fails for one of the documents included in the block. In that case you can set
+fails for one of the documents included in a block. In that case you can set
 the <fg=green>blocksize</> to <fg=yellow>1</> in order to index every document separately.
 EOT;
 

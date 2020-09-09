@@ -33,10 +33,10 @@
 
 namespace OpusTest\Search\Console;
 
+use Opus\Search\Console\IndexCommand;
 use OpusTest\Search\TestAsset\TestCase;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Tests\Output\TestOutput;
+use Symfony\Component\Console\Exception\InvalidOptionException;
+use Symfony\Component\Console\Tester\CommandTester;
 
 class IndexCommandTest extends TestCase
 {
@@ -46,33 +46,63 @@ class IndexCommandTest extends TestCase
      *
      * TODO add more test cases (longform as well)
      */
-    public function argumentsProvider()
+    public function blockSizeOptionProvider()
     {
         return [
-            ['', 10],
+            [null, 10],
+            [ '1', 1],
+            ['=5', 5]
         ];
     }
 
     /**
-     * @param $arguments
-     * @param $startId
-     * @param $endId
-     * @param $singleDocument
-     *
-     * @dataProvider argumentsProvider
+     * @dataProvider blockSizeOptionProvider
      */
-    public function testBlockSizeOption($arguments, $blocksize)
+    public function testBlockSizeOption($option, $blockSize)
     {
-
-
         $command = new IndexCommand();
 
-        $input = new ArrayInput();
-        $output = new TestOutput();
+        $input = [];
 
-        $command->execute($input, $output);
+        if ($option !== null) {
+            $input['--blocksize'] = $option;
+        }
 
-        // TODO need to access protected variables
-        $this->markTestIncomplete('IMPORTANT tricky code');
+        $tester = new CommandTester($command);
+        $tester->execute($input);
+
+        $ref = new \ReflectionClass('Opus\Search\Console\IndexCommand');
+
+        $refBlockSize = $ref->getProperty('blockSize');
+        $refBlockSize->setAccessible(true);
+
+        $this->assertEquals($blockSize, $refBlockSize->getValue($command));
+    }
+
+    public function invalidBlockSizeOptionProvider()
+    {
+        return [
+            ['a'],
+            ['0'],
+            ['-1']
+        ];
+    }
+
+    /**
+     * @param $value
+     *
+     * @dataProvider invalidBlockSizeOptionProvider
+     */
+    public function testInvalidBlockSizeOption($value)
+    {
+        $command = new IndexCommand();
+
+        $tester = new CommandTester($command);
+
+        $this->setExpectedException(InvalidOptionException::class, 'Blocksize must be an integer >= 1');
+
+        $tester->execute([
+            '--blocksize' => $value
+        ]);
     }
 }
