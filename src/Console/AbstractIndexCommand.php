@@ -60,17 +60,21 @@ abstract class AbstractIndexCommand extends Command
 
     protected $singleDocument = false;
 
+    protected $argStartIdDescription = 'ID of document where indexing should start (or \'-\')';
+
+    protected $argEndIdDescription = 'ID of document where indexing should stop (or \'-\')';
+
     protected function configure()
     {
         $this->addArgument(
             self::ARGUMENT_START_ID,
             InputArgument::OPTIONAL,
-            'ID of document where indexing should start (or \'-\')'
+            $this->argStartIdDescription
         )
         ->addArgument(
             self::ARGUMENT_END_ID,
             InputArgument::OPTIONAL,
-            'ID of document where indexing should stop (or \'-\')'
+            $this->argEndIdDescription
         );
     }
 
@@ -136,5 +140,27 @@ abstract class AbstractIndexCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->processArguments($input);
+    }
+
+    /**
+     * Returns IDs for published documents in range.
+     *
+     * @param $start int Start of ID range
+     * @param $end int End of ID range
+     * @return array Array of document IDs
+     */
+    protected function getDocumentIds($start, $end)
+    {
+        $finder = new \Opus_DocumentFinder();
+
+        if (isset($start)) {
+            $finder->setIdRangeStart($start);
+        }
+
+        if (isset($end)) {
+            $finder->setIdRangeEnd($end);
+        }
+
+        return $finder->ids();
     }
 }

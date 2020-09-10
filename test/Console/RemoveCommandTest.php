@@ -33,80 +33,12 @@
 
 namespace OpusTest\Search\Console;
 
-use Opus\Search\Console\IndexCommand;
 use OpusTest\Search\TestAsset\TestCase;
-use Symfony\Component\Console\Exception\InvalidOptionException;
-use Symfony\Component\Console\Tester\CommandTester;
 
-class IndexCommandTest extends TestCase
+class RemoveCommandTest extends TestCase
 {
 
-    /**
-     * @return array[] option string, block size
-     *
-     * TODO add more test cases (longform as well)
-     */
-    public function blockSizeOptionProvider()
-    {
-        return [
-            [null, 10],
-            [ '1', 1],
-            ['=5', 5]
-        ];
-    }
-
-    /**
-     * @dataProvider blockSizeOptionProvider
-     */
-    public function testBlockSizeOption($option, $blockSize)
-    {
-        $command = new IndexCommand();
-
-        $input = [];
-
-        if ($option !== null) {
-            $input['--blocksize'] = $option;
-        }
-
-        $tester = new CommandTester($command);
-        $tester->execute($input);
-
-        $ref = new \ReflectionClass('Opus\Search\Console\IndexCommand');
-
-        $refBlockSize = $ref->getProperty('blockSize');
-        $refBlockSize->setAccessible(true);
-
-        $this->assertEquals($blockSize, $refBlockSize->getValue($command));
-    }
-
-    public function invalidBlockSizeOptionProvider()
-    {
-        return [
-            ['a'],
-            ['0'],
-            ['-1']
-        ];
-    }
-
-    /**
-     * @param $value
-     *
-     * @dataProvider invalidBlockSizeOptionProvider
-     */
-    public function testInvalidBlockSizeOption($value)
-    {
-        $command = new IndexCommand();
-
-        $tester = new CommandTester($command);
-
-        $this->setExpectedException(InvalidOptionException::class, 'Blocksize must be an integer >= 1');
-
-        $tester->execute([
-            '--blocksize' => $value
-        ]);
-    }
-
-    public function testIndexing()
+    public function testRemoving()
     {
         $this->markTestIncomplete();
     }

@@ -45,10 +45,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @package Opus\Search\IndexBuilder
  *
  * TODO move indexing code into different class
- * TODO handle single document indexing
- * TODO handle bad single document id
- * TODO handle optimize option
- * TODO handle blocksize option
  */
 class IndexCommand extends AbstractIndexCommand
 {
@@ -56,8 +52,6 @@ class IndexCommand extends AbstractIndexCommand
     const OPTION_BLOCKSIZE = 'blocksize';
 
     const OPTION_CLEAR_CACHE = 'clear-cache';
-
-    const OPTION_OPTIMIZE = 'optimize';
 
     protected static $defaultName = 'index';
 
@@ -111,17 +105,11 @@ EOT;
                 10
             )
             ->addOption(
-                self::OPTION_OPTIMIZE,
-                'o',
-                null,
-                'Optimize index after indexing'
-            )
-            ->addOption(
                 self::OPTION_CLEAR_CACHE,
                 'c',
                 null,
                 'Clear document XML cache entries before indexing'
-            );
+            )->setAliases(['index']);
     }
 
     protected function processArguments(InputInterface $input)
@@ -262,28 +250,6 @@ EOT;
         $this->resetMode();
 
         return $runtime;
-    }
-
-    /**
-     * Returns IDs for published documents in range.
-     *
-     * @param $start int Start of ID range
-     * @param $end int End of ID range
-     * @return array Array of document IDs
-     */
-    private function getDocumentIds($start, $end)
-    {
-        $finder = new \Opus_DocumentFinder();
-
-        if (isset($start)) {
-            $finder->setIdRangeStart($start);
-        }
-
-        if (isset($end)) {
-            $finder->setIdRangeEnd($end);
-        }
-
-        return $finder->ids();
     }
 
     /**
