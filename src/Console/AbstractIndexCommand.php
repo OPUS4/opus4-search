@@ -141,26 +141,4 @@ abstract class AbstractIndexCommand extends Command
     {
         $this->processArguments($input);
     }
-
-    /**
-     * Returns IDs for published documents in range.
-     *
-     * @param $start int Start of ID range
-     * @param $end int End of ID range
-     * @return array Array of document IDs
-     */
-    protected function getDocumentIds($start, $end)
-    {
-        $finder = new \Opus_DocumentFinder();
-
-        if (isset($start)) {
-            $finder->setIdRangeStart($start);
-        }
-
-        if (isset($end)) {
-            $finder->setIdRangeEnd($end);
-        }
-
-        return $finder->ids();
-    }
 }

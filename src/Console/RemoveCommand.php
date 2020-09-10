@@ -96,7 +96,8 @@ EOT;
                 $indexer->removeDocumentsFromIndexById([$startId]);
                 $output->writeln('done');
             } else {
-                $documents = $this->getDocumentIds($startId, $endId);
+                $builder = new IndexBuilder();
+                $documents = $builder->getDocumentIds($startId, $endId);
                 $docCount = count($documents);
                 $output->write("Removing $docCount documents from index ... ");
                 $indexer->removeDocumentsFromIndexById($documents);
