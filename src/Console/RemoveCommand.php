@@ -47,7 +47,6 @@ class RemoveCommand extends AbstractIndexCommand
     protected $endIdDescription = 'ID of document where removing should stop (or \'-\')';
 
     /**
-     * TODO update help text
      */
     protected function configure()
     {

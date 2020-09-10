@@ -43,8 +43,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class IndexCommand
  * @package Opus\Search\IndexBuilder
- *
- * TODO move indexing code into different class
  */
 class IndexCommand extends AbstractIndexCommand
 {

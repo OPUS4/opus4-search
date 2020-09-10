@@ -283,8 +283,6 @@ class IndexBuilder
      * @param $start int Start of ID range
      * @param $end int End of ID range
      * @return array Array of document IDs
-     *
-     * TODO exists here and in AbstractIndexCommand
      */
     public function getDocumentIds($start, $end)
     {
