@@ -64,6 +64,11 @@ Examples:
   <fg=yellow>20 60</>   will remove documents 20 to 60
   <fg=yellow>20 -</>    will remove all documents starting from 20
   <fg=yellow>- 50</>    will remove all documents up to 50
+  
+The command does not check if the documents are present in the index before 
+removing them. 
+There will be an error message when trying to remove a single document <fg=green>ID</> 
+that does not exist at all.
 EOT;
 
         $this->setName('index:remove')
@@ -81,15 +86,21 @@ EOT;
         $indexer = Service::selectIndexingService('indexBuilder');
 
         if ($this->removeAll) {
-            $output->writeln('Removing all documents from the index ...');
+            $output->write('Removing all documents from index ... ');
             $indexer->removeAllDocumentsFromIndex();
+            $output->writeln('done');
         } else {
             if ($this->singleDocument) {
                 $doc = new \Opus_Document($startId);
+                $output->write("Removing document $startId from index ... ");
                 $indexer->removeDocumentsFromIndexById([$startId]);
+                $output->writeln('done');
             } else {
                 $documents = $this->getDocumentIds($startId, $endId);
+                $docCount = count($documents);
+                $output->write("Removing $docCount documents from index ... ");
                 $indexer->removeDocumentsFromIndexById($documents);
+                $output->writeln('done');
             }
         }
     }
