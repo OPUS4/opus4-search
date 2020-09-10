@@ -42,9 +42,9 @@ class RemoveCommand extends AbstractIndexCommand
 
     protected static $defaultName = 'index:remove';
 
-    protected $argStartIdDescription = 'ID of document where removing should start (or \'-\')';
+    protected $startIdDescription = 'ID of document where removing should start (or \'-\')';
 
-    protected $argEndIdDescription = 'ID of document where removing should stop (or \'-\')';
+    protected $endIdDescription = 'ID of document where removing should stop (or \'-\')';
 
     /**
      * TODO update help text

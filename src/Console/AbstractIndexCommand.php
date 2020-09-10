@@ -60,21 +60,21 @@ abstract class AbstractIndexCommand extends Command
 
     protected $singleDocument = false;
 
-    protected $argStartIdDescription = 'ID of document where indexing should start (or \'-\')';
+    protected $startIdDescription = 'ID of document where indexing should start (or \'-\')';
 
-    protected $argEndIdDescription = 'ID of document where indexing should stop (or \'-\')';
+    protected $endIdDescription = 'ID of document where indexing should stop (or \'-\')';
 
     protected function configure()
     {
         $this->addArgument(
             self::ARGUMENT_START_ID,
             InputArgument::OPTIONAL,
-            $this->argStartIdDescription
+            $this->startIdDescription
         )
         ->addArgument(
             self::ARGUMENT_END_ID,
             InputArgument::OPTIONAL,
-            $this->argEndIdDescription
+            $this->endIdDescription
         );
     }
 
