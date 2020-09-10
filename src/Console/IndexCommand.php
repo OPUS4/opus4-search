@@ -65,6 +65,8 @@ class IndexCommand extends AbstractIndexCommand
 
     protected $blockSize = 10;
 
+    protected $docMaxDigits;
+
     /**
      */
     protected function configure()
@@ -93,6 +95,9 @@ in a single request to the Solr server. Indexing multiple documents per request
 improves performance. However sometimes this can cause problems if the indexing 
 fails for one of the documents included in a block. In that case you can set
 the <fg=green>blocksize</> to <fg=yellow>1</> in order to index every document separately.
+
+Using <fg=green>--verbose</> (<fg=green>-v</>) will show the lowest and highest document ID found in the 
+specified range.
 EOT;
 
 
@@ -153,7 +158,8 @@ EOT;
 
         try {
             $runtime = $this->index($output, $startId, $endId, $remove, $clearCache);
-            $output->writeln("Operation completed successfully in $runtime seconds.");
+            $message = sprintf('Operation completed successfully in <fg=yellow>%.2f</> seconds.', $runtime);
+            $output->writeln($message);
         } catch (Exception $e) {
             $output->writeln('An error occurred while indexing.');
             $output->writeln('Error Message: ' . $e->getMessage());
@@ -175,9 +181,6 @@ EOT;
      * @throws Exception
      * @throws \Opus\Model\Exception
      * @throws \Zend_Config_Exception
-     *
-     * TODO modify output for single documents
-     * TODO output correct range
      */
     private function index(OutputInterface $output, $startId, $endId, $remove = false, $clearCache = false)
     {
@@ -192,6 +195,7 @@ EOT;
         }
 
         $docCount = count($docIds);
+        $this->docMaxDigits = strlen(( string )$docCount);
 
         if ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
             if (! $this->singleDocument) {
@@ -230,7 +234,7 @@ EOT;
             $output->writeln('Indexing <fg=yellow>all</> documents ...');
         }
 
-        $output->writeln(date('Y-m-d H:i:s') . " Start indexing of $docCount documents.");
+        $output->writeln(date('Y-m-d H:i:s') . " Start indexing of <fg=yellow>$docCount</> documents ... ");
         $numOfDocs = 0;
         $runtime = microtime(true);
 
@@ -279,7 +283,7 @@ EOT;
         // new search API doesn't track number of indexed files, but issues are being written to log file
         //echo "\n\nErrors appeared in " . $indexer->getErrorFileCount() . " of " . $indexer->getTotalFileCount()
         //    . " files. Details were written to opus-console.log";
-        $output->writeln('Details were written to opus-console.log');
+        $output->writeln('Details were written to <fg=green>opus-console.log</>');
 
         $this->resetMode();
 
@@ -292,7 +296,7 @@ EOT;
      * @param $runtime long Time of start of processing
      * @param $numOfDocs Number of processed documents
      */
-    private function outputProgress($output, $runtime, $numOfDocs)
+    private function outputProgress(OutputInterface $output, $runtime, $numOfDocs)
     {
         $memNow = round(memory_get_usage() / 1024 / 1024);
         $memPeak = round(memory_get_peak_usage() / 1024 / 1024);
@@ -301,10 +305,11 @@ EOT;
         $docPerSecond = round($deltaTime) == 0 ? 'inf' : round($numOfDocs / $deltaTime, 2);
         $secondsPerDoc = round($deltaTime / $numOfDocs, 2);
 
-        $output->writeln(
-            date('Y-m-d H:i:s') . " Stats after $numOfDocs documents -- memory $memNow MB,"
-            . " peak memory $memPeak (MB), $docPerSecond docs/second, $secondsPerDoc seconds/doc"
+        $message = sprintf(
+            "%s Stats after <fg=yellow>%{$this->docMaxDigits}d</> docs -- mem <fg=yellow>%3d</> MB, peak <fg=yellow>%3d</> MB, <fg=yellow>%6.2f</> docs/s, <fg=yellow>%5.2f</> s/doc",
+            date('Y-m-d H:i:s'), $numOfDocs, $memNow, $memPeak, $docPerSecond, $secondsPerDoc
         );
+        $output->writeln($message);
     }
 
     private function addDocumentsToIndex($output, $indexer, $docs)
