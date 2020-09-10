@@ -181,6 +181,8 @@ EOT;
      * @throws Exception
      * @throws \Opus\Model\Exception
      * @throws \Zend_Config_Exception
+     *
+     * TODO Is the timestamp in the console output useful?
      */
     private function index(OutputInterface $output, $startId, $endId, $remove = false, $clearCache = false)
     {
@@ -260,6 +262,7 @@ EOT;
 
             $timeDelta = microtime(true) - $timeStart;
             if ($timeDelta > 30) {
+                // TODO does this still work
                 $output->writeln(date('Y-m-d H:i:s') . " WARNING: Indexing document $docId took $timeDelta seconds.");
             }
 
