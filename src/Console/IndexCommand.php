@@ -53,6 +53,8 @@ class IndexCommand extends AbstractIndexCommand
 
     const OPTION_CLEAR_CACHE = 'clear-cache';
 
+    const OPTION_REMOVE = 'remove';
+
     protected static $defaultName = 'index';
 
     /**
@@ -109,7 +111,14 @@ EOT;
                 'c',
                 null,
                 'Clear document XML cache entries before indexing'
-            )->setAliases(['index']);
+            )
+            ->addOption(
+                self::OPTION_REMOVE,
+                'r',
+                null,
+                'Remove documents before indexing'
+            )
+            ->setAliases(['index']);
     }
 
     protected function processArguments(InputInterface $input)
@@ -137,21 +146,13 @@ EOT;
         parent::execute($input, $output);
 
         $clearCache = $input->getOption(self::OPTION_CLEAR_CACHE);
+        $remove = $input->getOption(self::OPTION_REMOVE);
 
         $startId = $this->startId;
         $endId = $this->endId;
-        $removeAll = $this->removeAll;
-
-        if (! is_null($endId)) {
-            $output->writeln("Indexing documents {$startId} to {$endId} ...");
-        } elseif (! is_null($startId)) {
-            $output->writeln("Indexing documents starting at ID = {$startId} ...");
-        } else {
-            $output->writeln('Indexing all documents ...');
-        }
 
         try {
-            $runtime = $this->index($output, $startId, $endId, $removeAll, $clearCache);
+            $runtime = $this->index($output, $startId, $endId, $remove, $clearCache);
             $output->writeln("Operation completed successfully in $runtime seconds.");
         } catch (Exception $e) {
             $output->writeln('An error occurred while indexing.');
@@ -174,8 +175,11 @@ EOT;
      * @throws Exception
      * @throws \Opus\Model\Exception
      * @throws \Zend_Config_Exception
+     *
+     * TODO modify output for single documents
+     * TODO output correct range
      */
-    private function index(OutputInterface $output, $startId, $endId, $removeAll = false, $clearCache = false)
+    private function index(OutputInterface $output, $startId, $endId, $remove = false, $clearCache = false)
     {
         $blockSize = $this->blockSize;
 
@@ -187,14 +191,45 @@ EOT;
             $docIds = $this->getDocumentIds($startId, $endId);
         }
 
-        $indexer = Service::selectIndexingService('indexBuilder');
+        $docCount = count($docIds);
 
-        if ($removeAll) {
-            $output->writeln('Removing all documents from the index ...');
-            $indexer->removeAllDocumentsFromIndex();
+        if ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
+            if (! $this->singleDocument) {
+                $minId = min($docIds);
+                $maxId = max($docIds);
+                if ($docCount === 1) {
+                    $output->writeln("Found <fg=yellow>1</> document (<fg=yellow>$minId</>)");
+                } else {
+                    $output->writeln("Found <fg=yellow>$docCount</> documents (<fg=yellow>$minId</> - <fg=yellow>$maxId</>)");
+                }
+            }
         }
 
-        $docCount = count($docIds);
+        $indexer = Service::selectIndexingService('indexBuilder');
+
+        if ($remove) {
+            if ($this->singleDocument) {
+                $output->writeln("Removing document <fg=yellow>$startId</> from index ... ");
+                $indexer->removeDocumentsFromIndexById($docIds);
+            } elseif ($this->removeAll) {
+                $output->writeln('Removing <fg=yellow>all</> documents from index ... ');
+                $indexer->removeAllDocumentsFromIndex();
+            } else {
+                $output->writeln("Removing <fg=yellow>$docCount</> documents from index ... ");
+                $indexer->removeDocumentsFromIndexById($docIds);
+            }
+        }
+
+        if ($this->singleDocument) {
+            $output->writeln("Indexing document <fg=yellow>$startId</> ...");
+        } elseif (! is_null($endId)) {
+            $output->writeln("Indexing document from <fg=yellow>$startId</> to <fg=yellow>$endId</> ...");
+        } elseif (! is_null($startId)) {
+            $output->writeln("Indexing documents starting at <fg=yellow>$startId</> ...");
+        } else {
+            $output->writeln('Indexing <fg=yellow>all</> documents ...');
+        }
+
         $output->writeln(date('Y-m-d H:i:s') . " Start indexing of $docCount documents.");
         $numOfDocs = 0;
         $runtime = microtime(true);
@@ -240,7 +275,6 @@ EOT;
         }
 
         $runtime = microtime(true) - $runtime;
-        $output->writeln('');
         $output->writeln(date('Y-m-d H:i:s') . ' Finished indexing.');
         // new search API doesn't track number of indexed files, but issues are being written to log file
         //echo "\n\nErrors appeared in " . $indexer->getErrorFileCount() . " of " . $indexer->getTotalFileCount()

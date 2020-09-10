@@ -110,4 +110,9 @@ class IndexCommandTest extends TestCase
     {
         $this->markTestIncomplete();
     }
+
+    public function testRemoveOption()
+    {
+        $this->markTestIncomplete();
+    }
 }
