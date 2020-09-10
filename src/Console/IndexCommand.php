@@ -310,7 +310,12 @@ EOT;
 
         $message = sprintf(
             "%s Stats after <fg=yellow>%{$this->docMaxDigits}d</> docs -- mem <fg=yellow>%3d</> MB, peak <fg=yellow>%3d</> MB, <fg=yellow>%6.2f</> docs/s, <fg=yellow>%5.2f</> s/doc",
-            date('Y-m-d H:i:s'), $numOfDocs, $memNow, $memPeak, $docPerSecond, $secondsPerDoc
+            date('Y-m-d H:i:s'),
+            $numOfDocs,
+            $memNow,
+            $memPeak,
+            $docPerSecond,
+            $secondsPerDoc
         );
         $output->writeln($message);
     }
