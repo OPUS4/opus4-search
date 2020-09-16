@@ -34,7 +34,6 @@
 namespace Opus\Search\Console;
 
 use Opus\Search\Exception;
-use Opus\Search\Service;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -53,7 +52,7 @@ class IndexCommand extends AbstractIndexCommand
 
     const OPTION_REMOVE = 'remove';
 
-    protected static $defaultName = 'index';
+    protected static $defaultName = 'index:index';
 
     protected $blockSize = 10;
 
@@ -70,7 +69,7 @@ range of documents.
 If no <fg=green>ID</> is provided, all documents will be indexed. Before the indexing starts, 
 all documents will be removed from the search index.   
 
-You can use a dash (<fg=yellow>-</>) as <fg=green>StartID</> or <fg=green>EndID</>, if you want to index all document up 
+You can use a dash (<fg=yellow>-</>) as <fg=green>StartID</> or <fg=green>EndID</>, if you want to index all documents up 
 to or starting from an ID. 
 
 Examples:
