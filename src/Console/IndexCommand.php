@@ -33,6 +33,8 @@
 
 namespace Opus\Search\Console;
 
+use Opus\Console\BaseDocumentCommand;
+use Opus\Search\Console\Helper\IndexHelper;
 use Opus\Search\Exception;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,7 +45,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class IndexCommand
  * @package Opus\Search\IndexBuilder
  */
-class IndexCommand extends AbstractIndexCommand
+class IndexCommand extends BaseDocumentCommand
 {
 
     const OPTION_BLOCKSIZE = 'blocksize';
@@ -145,14 +147,14 @@ EOT;
         $startId = $this->startId;
         $endId = $this->endId;
 
-        $builder = new IndexBuilder();
+        $builder = new IndexHelper();
         $builder->setOutput($output);
         $builder->setBlockSize($this->blockSize);
         $builder->setClearCache($clearCache);
         $builder->setRemoveBeforeIndexing($remove);
 
         try {
-            if ($this->singleDocument) {
+            if ($this->isSingleDocument()) {
                 $runtime = $builder->index($startId);
             } else {
                 $runtime = $builder->index($startId, $endId);

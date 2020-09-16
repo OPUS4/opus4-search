@@ -30,9 +30,12 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Search\Console;
+namespace Opus\Search\Console\Helper;
 
+use Opus\Console\Helper\ProgressBar;
+use Opus\Console\Helper\ProgressOutput;
 use Opus\Search\Exception;
+use Opus\Search\Indexing;
 use Opus\Search\Service;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -40,8 +43,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Indexes all or a range of documents.
  *
  * If all documents are indexed the index is cleared first.
+ *
+ * TODO cleanup and document
  */
-class IndexBuilder
+class IndexHelper
 {
 
     /**
@@ -50,14 +55,14 @@ class IndexBuilder
      */
     private $syncMode = true;
 
-    protected $docMaxDigits;
-
     /**
      * @var OutputInterface
      */
     private $output;
 
     private $blockSize = 10;
+
+    private $cache;
 
     private $clearCache = false;
 
@@ -92,14 +97,15 @@ class IndexBuilder
             }
         }
 
+        $documentHelper = new DocumentHelper();
+
         if ($singleDocument) {
             $docIds = [$startId];
         } else {
-            $docIds = $this->getDocumentIds($startId, $endId);
+            $docIds = $documentHelper->getDocumentIds($startId, $endId);
         }
 
         $docCount = count($docIds);
-        $this->docMaxDigits = strlen(( string )$docCount);
 
         if ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
             if (! $singleDocument) {
@@ -140,54 +146,112 @@ class IndexBuilder
 
         $output->writeln(date('Y-m-d H:i:s') . " Start indexing of <fg=yellow>$docCount</> documents ... ");
         $numOfDocs = 0;
-        $runtime = microtime(true);
+
+        switch ($output->getVerbosity()) {
+            case $output::VERBOSITY_VERBOSE:
+                $progress = new ProgressOutput($output, $docCount);
+                break;
+            default:
+                $progress = new ProgressBar($output, $docCount);
+                break;
+        }
+        $progress->start();
 
         $docs = [];
 
         // measure time for each document
-
-        $cache = new \Opus_Model_Xml_Cache();
-
-        $clearCache = $this->getClearCache();
+        // TODO removed timing of single document indexing (detect long indexing processes) - add again?
 
         foreach ($docIds as $docId) {
-            $timeStart = microtime(true);
-
-            if ($clearCache) {
-                $cache->remove($docId);
-            }
-
-            $doc = new \Opus_Document($docId);
-
-            // TODO dirty hack: disable implicit reindexing of documents in case of cache misses
-            $doc->unregisterPlugin('Opus\Search\Plugin\Index');
+            $doc = $this->getDocument($docId);
 
             $docs[] = $doc;
-
-            $timeDelta = microtime(true) - $timeStart;
-            if ($timeDelta > 30) {
-                // TODO does this still work
-                $output->writeln(date('Y-m-d H:i:s') . " WARNING: Indexing document $docId took $timeDelta seconds.");
-            }
 
             $numOfDocs++;
 
             if ($numOfDocs % $blockSize == 0) {
                 $this->addDocumentsToIndex($indexer, $docs);
                 $docs = [];
-                $this->outputProgress($runtime, $numOfDocs);
+                $progress->setProgress($numOfDocs);
             }
         }
 
         // Index leftover documents
         if (count($docs) > 0) {
             $this->addDocumentsToIndex($indexer, $docs);
-            $this->outputProgress($runtime, $numOfDocs);
+            $docs = [];
+            $progress->setProgress($numOfDocs);
         }
 
-        $runtime = microtime(true) - $runtime;
+        $progress->finish();
+
         $output->writeln(date('Y-m-d H:i:s') . ' Finished indexing.');
         // new search API doesn't track number of indexed files, but issues are being written to log file
+        //echo "\n\nErrors appeared in " . $indexer->getErrorFileCount() . " of " . $indexer->getTotalFileCount()
+        //    . " files. Details were written to opus-console.log";
+        $output->writeln('Details were written to <fg=green>opus-console.log</>');
+
+        $this->resetMode();
+
+        return $progress->getRuntime();
+    }
+
+    public function extract($startId, $endId)
+    {
+        $output = $this->getOutput();
+
+        $this->forceSyncMode();
+
+        $docIds = $this->getDocumentIds($startId, $endId);
+
+        $extractor = Service::selectIndexingService('indexBuilder');
+
+        $docCount = count($docIds);
+
+        $output->writeln(date('Y-m-d H:i:s') . " Start indexing of <fg=yellow>$docCount</> documents.");
+        $numOfDocs = 0;
+        $runtime = microtime(true);
+
+        $progress = new ProgressBar($output, $docCount);
+        $progress->start();
+
+        // measure time for each document
+
+        foreach ($docIds as $docId) {
+            $timeStart = microtime(true);
+
+            $doc = new \Opus_Document($docId);
+
+            foreach ($doc->getFile() as $file) {
+                try {
+                    $extractor->extractDocumentFile($file, $doc);
+                } catch (Exception $e) {
+                    $output->writeln(date('Y-m-d H:i:s') . " ERROR: Failed extracting document $docId.");
+                    $output->writeln(date('Y-m-d H:i:s') . "        {$e->getMessage()}");
+                } catch (\Opus_Storage_Exception $e) {
+                    $output->writeln(date('Y-m-d H:i:s') . " ERROR: Failed extracting unavailable file on document $docId.");
+                    $output->writeln(date('Y-m-d H:i:s') . "        {$e->getMessage()}");
+                }
+            }
+
+            $timeDelta = microtime(true) - $timeStart;
+            if ($timeDelta > 30) {
+                $output->writeln(date('Y-m-d H:i:s') . " WARNING: Extracting document $docId took $timeDelta seconds.");
+            }
+
+            $numOfDocs++;
+            $progress->advance();
+
+            if ($numOfDocs % 10 == 0) {
+                // TODO $this->outputProgress($runtime, $numOfDocs);
+            }
+        }
+
+        $progress->finish();
+
+        $runtime = microtime(true) - $runtime;
+        $output->writeln(date('Y-m-d H:i:s') . ' Finished extracting.');
+        // new search API doesn't track number of indexed files, but issues are kept written to log file
         //echo "\n\nErrors appeared in " . $indexer->getErrorFileCount() . " of " . $indexer->getTotalFileCount()
         //    . " files. Details were written to opus-console.log";
         $output->writeln('Details were written to <fg=green>opus-console.log</>');
@@ -197,36 +261,7 @@ class IndexBuilder
         return $runtime;
     }
 
-    /**
-     * Output current processing status and performance.
-     *
-     * @param $runtime long Time of start of processing
-     * @param $numOfDocs Number of processed documents
-     */
-    private function outputProgress($runtime, $numOfDocs)
-    {
-        $output = $this->getOutput();
-
-        $memNow = round(memory_get_usage() / 1024 / 1024);
-        $memPeak = round(memory_get_peak_usage() / 1024 / 1024);
-
-        $deltaTime = microtime(true) - $runtime;
-        $docPerSecond = round($deltaTime) == 0 ? 'inf' : round($numOfDocs / $deltaTime, 2);
-        $secondsPerDoc = round($deltaTime / $numOfDocs, 2);
-
-        $message = sprintf(
-            "%s Stats after <fg=yellow>%{$this->docMaxDigits}d</> docs -- mem <fg=yellow>%3d</> MB, peak <fg=yellow>%3d</> MB, <fg=yellow>%6.2f</> docs/s, <fg=yellow>%5.2f</> s/doc",
-            date('Y-m-d H:i:s'),
-            $numOfDocs,
-            $memNow,
-            $memPeak,
-            $docPerSecond,
-            $secondsPerDoc
-        );
-        $output->writeln($message);
-    }
-
-    private function addDocumentsToIndex($indexer, $docs)
+    private function addDocumentsToIndex(Indexing $indexer, $docs)
     {
         $output = $this->getOutput();
 
@@ -243,6 +278,7 @@ class IndexBuilder
 
     /**
      * TODO Find better way to enable/disable sync mode during indexing.
+     * TODO not IndexHelper specific functionality
      */
     private function forceSyncMode()
     {
@@ -277,26 +313,19 @@ class IndexBuilder
         return $this->output;
     }
 
-    /**
-     * Returns IDs for published documents in range.
-     *
-     * @param $start int Start of ID range
-     * @param $end int End of ID range
-     * @return array Array of document IDs
-     */
-    public function getDocumentIds($start, $end)
+    protected function getDocument($docId)
     {
-        $finder = new \Opus_DocumentFinder();
-
-        if (isset($start)) {
-            $finder->setIdRangeStart($start);
+        if ($this->getClearCache()) {
+            $cache = $this->getCache();
+            $cache->remove($docId);
         }
 
-        if (isset($end)) {
-            $finder->setIdRangeEnd($end);
-        }
+        $doc = new \Opus_Document($docId);
 
-        return $finder->ids();
+        // TODO dirty hack: disable implicit reindexing of documents in case of cache misses
+        $doc->unregisterPlugin('Opus\Search\Plugin\Index');
+
+        return $doc;
     }
 
     public function setBlockSize($blockSize)
@@ -327,5 +356,19 @@ class IndexBuilder
     public function getRemoveBeforeIndexing()
     {
         return $this->removeBeforeIndexing;
+    }
+
+    public function getCache()
+    {
+        if ($this->cache === null) {
+            $this->cache = new \Opus_Model_Xml_Cache();
+        }
+
+        return $this->cache;
+    }
+
+    public function setCache($cache)
+    {
+        $this->cache = $cache;
     }
 }
