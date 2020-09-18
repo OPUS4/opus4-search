@@ -39,6 +39,7 @@ use Opus\Search\FulltextFileCache;
 use Opus\Search\Indexing;
 use Opus\Search\InvalidQueryException;
 use Opus\Search\InvalidServiceException;
+use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Query;
 use Opus\Search\Result\Base;
 use Opus\Search\Searching;
@@ -527,6 +528,17 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 	 *
 	 */
 
+    /**
+     * @param \Opus_File $file
+     * @param \Opus_Document|null $document
+     * @return Extracting|string
+     * @throws Exception
+     * @throws \Opus_Storage_Exception
+     * @throws \Opus_Storage_FileAccessException
+     * @throws \Opus_Storage_FileNotFoundException
+     * @throws MimeTypeNotSupportedException
+     * @throws \Zend_Exception
+     */
     public function extractDocumentFile(\Opus_File $file, \Opus_Document $document = null)
     {
         \Opus_Log::get()->debug('extracting fulltext from ' . $file->getPath());
@@ -534,7 +546,14 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         try {
             // ensure file is basically available and extracting is supported
             if (! $file->exists()) {
-                throw new \Opus_Storage_FileNotFoundException($file->getPath() . ' does not exist.');
+                $path = $file->getPath();
+
+                /** TODO shorten path
+                if (substr($path, 0, strlen(APPLICATION_PATH)) == APPLICATION_PATH) {
+                    $path = substr($path, strlen(APPLICATION_PATH) + 1);
+                }
+                 */
+                throw new \Opus_Storage_FileNotFoundException($path);
             }
 
             if (! $file->isReadable()) {
@@ -542,7 +561,9 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
             }
 
             if (! $this->isMimeTypeSupported($file)) {
-                throw new Exception($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
+                throw new MimeTypeNotSupportedException(
+                    "Extracting MIME type {$file->getMimeType()} not supported ({$file->getPath()})"
+                );
             }
 
 
@@ -627,6 +648,8 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
      *
      * @param Opus_File $file
      * @return bool
+     *
+     * TODO make list configurable
      */
     protected function isMimeTypeSupported(\Opus_File $file)
     {

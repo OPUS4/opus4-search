@@ -42,10 +42,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class Application_Console_Index_ExtractCommand
  *
  * TODO extract single file
- * TODO extract single file that is provided as option
+ * TODO extract single file that is provided as argument
  * TODO use some kind of helper instead of base class (or use base class for all OPUS 4 commands)
  *      basically AbstractIndexCommand -> AbstractCommand or BaseDocumentCommand (for all that use startId and endId)
- * TODO move to opus4-common
+ * TODO need to have a way to access/check cache (perhaps another command)
+ * TODO need to have a way of clearing cache (perhaps an option and/or another command)
  */
 class ExtractCommand extends BaseDocumentCommand
 {
@@ -80,7 +81,7 @@ Examples:
 EOT;
 
         $this->setName($this->defaultName)
-            ->setDescription('Extracts full text from files for indexing')
+            ->setDescription('Extracts text from document files for indexing')
             ->setHelp($help);
     }
 
@@ -98,9 +99,6 @@ EOT;
         $helper = new IndexHelper();
         $helper->setOutput($output);
 
-        $runtime = $helper->extract($this->startId, $this->endId);
-
-        $message = sprintf('Operation completed successfully in <fg=yellow>%.2f</> seconds.', $runtime);
-        $output->writeln($message);
+        $helper->extract($this->startId, $this->endId);
     }
 }

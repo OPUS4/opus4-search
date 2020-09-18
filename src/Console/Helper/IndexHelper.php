@@ -33,9 +33,12 @@
 namespace Opus\Search\Console\Helper;
 
 use Opus\Console\Helper\ProgressBar;
+use Opus\Console\Helper\ProgressMatrix;
 use Opus\Console\Helper\ProgressOutput;
+use Opus\Console\Helper\ProgressReport;
 use Opus\Search\Exception;
 use Opus\Search\Indexing;
+use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Service;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -196,42 +199,76 @@ class IndexHelper
         return $progress->getRuntime();
     }
 
+    /**
+     * @param $startId
+     * @param $endId
+     * @return float|string
+     * @throws \Opus\Model\Exception
+     * @throws \Zend_Config_Exception
+     *
+     * TODO perhaps support different output formats (like XML for automated processing)
+     * TODO show documents without files
+     * TODO step = file instead of step = document = n-files (requires SQL query to get all linked files)
+     */
     public function extract($startId, $endId)
     {
         $output = $this->getOutput();
 
         $this->forceSyncMode();
 
-        $docIds = $this->getDocumentIds($startId, $endId);
+        $documentHelper = new DocumentHelper();
+
+        $docIds = $documentHelper->getDocumentIds($startId, $endId);
 
         $extractor = Service::selectIndexingService('indexBuilder');
 
         $docCount = count($docIds);
 
-        $output->writeln(date('Y-m-d H:i:s') . " Start indexing of <fg=yellow>$docCount</> documents.");
+        $output->writeln("Start extracting text from files for <fg=yellow>$docCount</> documents.");
+        $output->writeln('');
+
         $numOfDocs = 0;
         $runtime = microtime(true);
 
-        $progress = new ProgressBar($output, $docCount);
+        $report = new ProgressReport();
+
+        $progress = new ProgressMatrix($output, $docCount);
         $progress->start();
 
         // measure time for each document
 
         foreach ($docIds as $docId) {
+            $status = null;
+
             $timeStart = microtime(true);
 
             $doc = new \Opus_Document($docId);
 
-            foreach ($doc->getFile() as $file) {
-                try {
-                    $extractor->extractDocumentFile($file, $doc);
-                } catch (Exception $e) {
-                    $output->writeln(date('Y-m-d H:i:s') . " ERROR: Failed extracting document $docId.");
-                    $output->writeln(date('Y-m-d H:i:s') . "        {$e->getMessage()}");
-                } catch (\Opus_Storage_Exception $e) {
-                    $output->writeln(date('Y-m-d H:i:s') . " ERROR: Failed extracting unavailable file on document $docId.");
-                    $output->writeln(date('Y-m-d H:i:s') . "        {$e->getMessage()}");
+            $files = $doc->getFile();
+
+            if (count($files) > 0) {
+                foreach ($files as $file) {
+                    try {
+                        $extractor->extractDocumentFile($file, $doc);
+                    } catch (MimeTypeNotSupportedException $e) {
+                        // TODO depending on verbosity show a message for this
+                        // TODO don't overwrite higher status like 'F'
+                        if ($output->isVerbose()) {
+                            if ($status === null) {
+                                $status = '<fg=yellow>S</>';
+                            }
+                            $report->addException($e);
+                        }
+                    } catch (\Opus_Storage_Exception $e) {
+                        $report->addException($e);
+                        $status = '<fg=red>E</>';
+                    } catch (Exception $e) {
+                        $report->addException($e);
+                        $status = '<fg=red>E</>';
+                    }
                 }
+            } else {
+                // TODO output doc without files message (only at highest verbosity level)
             }
 
             $timeDelta = microtime(true) - $timeStart;
@@ -240,21 +277,32 @@ class IndexHelper
             }
 
             $numOfDocs++;
-            $progress->advance();
+            $progress->advance(1, $status);
 
-            if ($numOfDocs % 10 == 0) {
-                // TODO $this->outputProgress($runtime, $numOfDocs);
+            if ($status !== null) {
+                $report->setEntryInfo("Document <fg=yellow>$docId</>");
             }
+
+            $report->finishEntry();
         }
 
         $progress->finish();
 
         $runtime = microtime(true) - $runtime;
-        $output->writeln(date('Y-m-d H:i:s') . ' Finished extracting.');
+        $peakMemory = memory_get_peak_usage() / 1024 / 1024;
+
+        // TODO handle longer runtimes (minutes, hours)
+        $output->writeln('');
+        $message = sprintf('Time: <fg=yellow>%.2f</> seconds, Memory: %.2f MB', $runtime, $peakMemory);
+        $output->writeln($message);
+
         // new search API doesn't track number of indexed files, but issues are kept written to log file
         //echo "\n\nErrors appeared in " . $indexer->getErrorFileCount() . " of " . $indexer->getTotalFileCount()
         //    . " files. Details were written to opus-console.log";
-        $output->writeln('Details were written to <fg=green>opus-console.log</>');
+
+        $output->writeln(PHP_EOL . 'Details were written to <fg=green>opus-console.log</>');
+
+        $report->write($output);
 
         $this->resetMode();
 
