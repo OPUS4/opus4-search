@@ -220,7 +220,7 @@ class IndexHelper
 
         $docIds = $documentHelper->getDocumentIds($startId, $endId);
 
-        $extractor = Service::selectIndexingService('indexBuilder');
+        $extractor = Service::selectExtractingService('indexBuilder');
 
         $docCount = count($docIds);
 
