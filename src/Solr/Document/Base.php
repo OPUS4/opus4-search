@@ -35,6 +35,7 @@
 namespace Opus\Search\Solr\Document;
 
 use Opus\Search\Exception;
+use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Service;
 
 abstract class Base
@@ -118,7 +119,7 @@ abstract class Base
             try {
                 $fulltext = $extractingService->extractDocumentFile($file);
                 $fulltext = trim(iconv("UTF-8", "UTF-8//IGNORE", $fulltext));
-            } catch (Exception $e) {
+            } catch (MimeTypeNotSupportedException $e) {
                 \Opus_Log::get()->err(
                     'An error occurred while getting fulltext data for document with id ' . $docId . ': ' .
                     $e->getMessage()
@@ -127,6 +128,11 @@ abstract class Base
                 \Opus_Log::get()->err(
                     'Failed accessing file for extracting fulltext for document with id ' . $docId . ': '
                     . $e->getMessage()
+                );
+            } catch (Exception $e) {
+                \Opus_Log::get()->err(
+                    'An error occurred while getting fulltext data for document with id ' . $docId . ': ' .
+                    $e->getMessage()
                 );
             }
 
