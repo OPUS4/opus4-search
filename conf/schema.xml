@@ -181,5 +181,5 @@
     <copyField source="title_output" dest="title_sort"/>
 
     <!-- TODO why -->
-    <copyField source="published_year" dest="year_sort"/>
+    <copyField source="year" dest="year_sort"/>
 </schema>
