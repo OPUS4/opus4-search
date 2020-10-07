@@ -754,8 +754,8 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
     public function setTimeout($timeout)
     {
-        if ($timeout === null || ! filter_var($timeout, FILTER_VALIDATE_INT)) {
-            throw new \InvalidArgumentException('Argument must be an integer');
+        if ($timeout === null || filter_var($timeout, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE) === null) {
+            throw new \InvalidArgumentException('Argument timeout must be an integer');
         }
 
         $options = $this->client->getOptions();

@@ -78,12 +78,14 @@ EOT;
                 self::ARGUMENT_FILE,
                 InputArgument::REQUIRED,
                 'File for extraction'
-            )->addOption(
+            )
+            ->addOption(
                 self::OPTION_OUTPUT_FILE,
                 'o',
                 InputOption::VALUE_REQUIRED,
                 'Write extraction output to file'
-            )->addOption(
+            )
+            ->addOption(
               self::OPTION_TIMEOUT,
                 't',
                 InputOption::VALUE_REQUIRED,

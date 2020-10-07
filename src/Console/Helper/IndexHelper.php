@@ -71,6 +71,8 @@ class IndexHelper
 
     private $removeBeforeIndexing = false;
 
+    private $timeout = null;
+
     /**
      * @param $startId
      * @param $endId
@@ -123,6 +125,12 @@ class IndexHelper
         }
 
         $indexer = Service::selectIndexingService('indexBuilder');
+
+        $timeout = $this->getTimeout();
+
+        if ($timeout !== null) {
+            $indexer->setTimeout($timeout);
+        }
 
         if ($this->getRemoveBeforeIndexing()) {
             if ($singleDocument) {
@@ -221,6 +229,12 @@ class IndexHelper
         $docIds = $documentHelper->getDocumentIds($startId, $endId);
 
         $extractor = Service::selectExtractingService('indexBuilder');
+
+        $timeout = $this->getTimeout();
+
+        if ($timeout !== null) {
+            $extractor->setTimeout($timeout);
+        }
 
         $docCount = count($docIds);
 
@@ -418,5 +432,13 @@ class IndexHelper
     public function setCache($cache)
     {
         $this->cache = $cache;
+    }
+
+    public function setTimeout($timeout) {
+        $this->timeout = $timeout;
+    }
+
+    public function getTimeout() {
+        return $this->timeout;
     }
 }

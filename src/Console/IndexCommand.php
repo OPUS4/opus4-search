@@ -54,6 +54,8 @@ class IndexCommand extends BaseDocumentCommand
 
     const OPTION_REMOVE = 'remove';
 
+    const OPTION_TIMEOUT = 'timeout';
+
     protected static $defaultName = 'index:index';
 
     protected $blockSize = 10;
@@ -114,6 +116,12 @@ EOT;
                 null,
                 'Remove documents before indexing'
             )
+            ->addOption(
+                self::OPTION_TIMEOUT,
+                't',
+                InputOption::VALUE_REQUIRED,
+                'Timeout for extraction in seconds'
+            )
             ->setAliases(['index']);
     }
 
@@ -143,6 +151,7 @@ EOT;
 
         $clearCache = $input->getOption(self::OPTION_CLEAR_CACHE);
         $remove = $input->getOption(self::OPTION_REMOVE);
+        $timeout = $input->getOption(self::OPTION_TIMEOUT);
 
         $startId = $this->startId;
         $endId = $this->endId;
@@ -152,6 +161,7 @@ EOT;
         $builder->setBlockSize($this->blockSize);
         $builder->setClearCache($clearCache);
         $builder->setRemoveBeforeIndexing($remove);
+        $builder->setTimeout($timeout);
 
         try {
             if ($this->isSingleDocument()) {
