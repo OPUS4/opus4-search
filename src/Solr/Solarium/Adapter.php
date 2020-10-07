@@ -63,7 +63,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
     public function __construct($serviceName, $options)
     {
         $this->options = $options;
-        $this->client  = new \Solarium\Client($options);
+        $this->client = new \Solarium\Client($options);
 
         // ensure service is basically available
         $ping = $this->client->createPing();
@@ -171,7 +171,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         $validDocuments = [];
 
         foreach ($documents as $document) {
-            if (! ( $document instanceof \Opus_Document )) {
+            if (! ($document instanceof \Opus_Document)) {
                 throw new \InvalidArgumentException("invalid document in provided set");
             }
             if ($document->getServerState() !== 'temporary') {
@@ -185,7 +185,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
     protected function normalizeDocumentIds($documentIds)
     {
         if (! is_array($documentIds)) {
-            $documentIds = [ $documentIds ];
+            $documentIds = [$documentIds];
         }
 
         foreach ($documentIds as $id) {
@@ -341,7 +341,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
             $definition = null;
         }
 
-        if (! $definition || ! ( $definition instanceof \Zend_Config )) {
+        if (! $definition || ! ($definition instanceof \Zend_Config)) {
             throw new InvalidQueryException('selected query is not pre-defined: ' . $name);
         }
 
@@ -454,13 +454,14 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         $preferOriginalQuery = false
     ) {
 
+
         if ($parameters) {
             $subfilters = $parameters->getSubFilters();
             if ($subfilters !== null) {
                 foreach ($subfilters as $name => $subfilter) {
                     if ($subfilter instanceof Raw || $subfilter instanceof Complex) {
                         $query->createFilterQuery($name)
-                              ->setQuery($subfilter->compile($query));
+                            ->setQuery($subfilter->compile($query));
                     }
                 }
             }
@@ -506,10 +507,10 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                 $facetSet = $query->getFacetSet();
                 foreach ($facet->getFields() as $field) {
                     $facetSet->createFacetField($field->getName())
-                             ->setField($field->getName())
-                             ->setMinCount($field->getMinCount())
-                             ->setLimit($field->getLimit())
-                             ->setSort($field->getSort() ? 'index' : null);
+                        ->setField($field->getName())
+                        ->setMinCount($field->getMinCount())
+                        ->setLimit($field->getLimit())
+                        ->setSort($field->getSort() ? 'index' : null);
                 }
 
                 if ($facet->isFacetOnly()) {
@@ -549,9 +550,9 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                 $path = $file->getPath();
 
                 /** TODO shorten path
-                if (substr($path, 0, strlen(APPLICATION_PATH)) == APPLICATION_PATH) {
-                    $path = substr($path, strlen(APPLICATION_PATH) + 1);
-                }
+                 * if (substr($path, 0, strlen(APPLICATION_PATH)) == APPLICATION_PATH) {
+                 * $path = substr($path, strlen(APPLICATION_PATH) + 1);
+                 * }
                  */
                 throw new \Opus_Storage_FileNotFoundException($path);
             }
@@ -578,9 +579,9 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
             if (filesize($file->getPath())) {
                 // query Solr service for extracting fulltext data
                 $extract = $this->client->createExtract()
-                                        ->setExtractOnly(true)
-                                        ->setFile($file->getPath())
-                                        ->setCommit(true);
+                    ->setExtractOnly(true)
+                    ->setFile($file->getPath())
+                    ->setCommit(true);
 
                 $result = $this->execute($extract, 'failed extracting fulltext data');
                 /** @var \Solarium\QueryType\Extract\Result $response */
@@ -633,8 +634,86 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
             return $fulltext;
         } catch (Exception $e) {
-            if (! ( $e instanceof Exception ) && ! ( $e instanceof \Opus_Storage_Exception )) {
+            if (! ($e instanceof Exception) && ! ($e instanceof \Opus_Storage_Exception)) {
                 $e = new Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
+            }
+
+            \Opus_Log::get()->err($e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     *
+     */
+    public function extractFile($path)
+    {
+        \Opus_Log::get()->debug('extracting fulltext from ' . $path);
+
+        try {
+            // ensure file is basically available and extracting is supported
+            if (! file_exists($path)) {
+                throw new \Exception("$path not found");
+            }
+
+            if (! is_readable($path)) {
+                throw new \Exception("$path is not readable.");
+            }
+
+            if (filesize($path)) {
+                // query Solr service for extracting fulltext data
+                $extract = $this->client->createExtract()
+                    ->setExtractOnly(true)
+                    ->setFile($path)
+                    ->setCommit(true);
+
+                $result = $this->execute($extract, 'failed extracting fulltext data');
+                // @var \Solarium\QueryType\Extract\Result $response
+
+                // got response -> extract
+                $response = $result->getData();
+                $fulltext = null;
+
+                if (is_array($response)) {
+                    $keys = array_keys($response);
+                    foreach ($keys as $k => $key) {
+                        if (substr($key, -9) === '_metadata' && array_key_exists(substr($key, 0, -9), $response)) {
+                            unset($response[$key]);
+                        }
+                    }
+
+                    $fulltextData = array_shift($response);
+                    if (is_string($fulltextData)) {
+                        if (substr($fulltextData, 0, 6) === '<?xml ') {
+                            $dom = new \DOMDocument();
+                            $dom->loadHTML($fulltextData);
+                            $body = $dom->getElementsByTagName("body")->item(0);
+                            if ($body) {
+                                $fulltext = $body->textContent;
+                            } else {
+                                $fulltext = $dom->textContent;
+                            }
+                        } else {
+                            $fulltext = $fulltextData;
+                        }
+                    }
+                }
+
+                if (is_null($fulltext)) {
+                    \Opus_Log::get()->err('failed extracting fulltext data from solr response');
+                    $fulltext = '';
+                } else {
+                    $fulltext = trim($fulltext);
+                }
+            } else {
+                // empty file -> empty fulltext index
+                $fulltext = '';
+            }
+
+            return $fulltext;
+        } catch (Exception $e) {
+            if (! ($e instanceof Exception) && ! ($e instanceof \Opus_Storage_Exception)) {
+                $e = new Exception("error while extracting fulltext from file $path", null, $e);
             }
 
             \Opus_Log::get()->err($e->getMessage());

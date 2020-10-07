@@ -50,4 +50,11 @@ interface Extracting
      * @return Extracting fluent interface
      */
     public function extractDocumentFile(\Opus_File $file, \Opus_Document $document = null);
+
+    /**
+     * Extracts text from file.
+     * @param $path
+     * @return mixed
+     */
+    public function extractFile($path);
 }
