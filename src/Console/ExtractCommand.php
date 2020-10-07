@@ -36,6 +36,7 @@ namespace Opus\Search\Console;
 use Opus\Console\BaseDocumentCommand;
 use Opus\Search\Console\Helper\IndexHelper;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -50,6 +51,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ExtractCommand extends BaseDocumentCommand
 {
+
+    const OPTION_TIMEOUT = 'timeout';
 
     protected $defaultName = 'index:extract';
 
@@ -82,7 +85,13 @@ EOT;
 
         $this->setName($this->defaultName)
             ->setDescription('Extracts text from document files for indexing')
-            ->setHelp($help);
+            ->setHelp($help)
+            ->addOption(
+                self::OPTION_TIMEOUT,
+                't',
+                InputOption::VALUE_REQUIRED,
+                'Timeout for extraction in seconds'
+            );
     }
 
     /**
@@ -96,8 +105,14 @@ EOT;
     {
         parent::execute($input, $output);
 
+        $timeout = $input->getOption(self::OPTION_TIMEOUT);
+
         $helper = new IndexHelper();
         $helper->setOutput($output);
+
+        if ($timeout !== null) {
+            $helper->setTimeout($timeout);
+        }
 
         $helper->extract($this->startId, $this->endId);
     }
