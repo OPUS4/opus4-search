@@ -35,6 +35,7 @@ namespace Opus\Search\Console;
 
 use Opus\Search\Console\Helper\IndexHelper;
 use Opus\Search\Exception;
+use Opus\Search\Service;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -46,14 +47,16 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * TODO (handle not supported format message) check if mime type is supported?
  * TODO tests
- * TODO add timeout option
+ * TODO make value for -o optional and generate name
  */
 class ExtractFileCommand extends Command
 {
 
-    const ARGUMENT_FILE = 'File';
+    const ARGUMENT_FILE = 'file';
 
-    const OPTION_OUTPUT_FILE = 'Output';
+    const OPTION_OUTPUT_FILE = 'output';
+
+    const OPTION_TIMEOUT = 'timeout';
 
     protected static $defaultName = 'tools:extract-file';
 
@@ -61,8 +64,11 @@ class ExtractFileCommand extends Command
     {
         $help = <<<EOT
 The <fg=green>tools:extract-file</> command can be used to perform the extraction of
-a single file provided as argument. This can be used for testing the extraction of a
-file. 
+a single file. The output can be written to a file. 
+
+Setting the timeout option to 0 disables the timeout. 
+
+This can be used for testing the extraction of a file. 
 EOT;
 
         $this->setName(self::$defaultName)
@@ -77,6 +83,11 @@ EOT;
                 'o',
                 InputOption::VALUE_REQUIRED,
                 'Write extraction output to file'
+            )->addOption(
+              self::OPTION_TIMEOUT,
+                't',
+                InputOption::VALUE_REQUIRED,
+                'Timeout for extraction in seconds'
             );
     }
 
@@ -89,21 +100,37 @@ EOT;
     {
         $file = $input->getArgument(self::ARGUMENT_FILE);
         $target = $input->getOption(self::OPTION_OUTPUT_FILE);
+        $timeout = $input->getOption(self::OPTION_TIMEOUT);
 
         // TODO check if target exists and verify overwriting?
 
         $helper = new IndexHelper();
         $helper->setOutput($output);
 
+        $runtime = microtime(true);
+
         try {
-            $text = $helper->extractFile($file);
+            $extractor = Service::selectExtractingService('indexBuilder');
+
+            if ($timeout !== null) {
+                $extractor->setTimeout($timeout);
+            }
+
+            $text = $extractor->extractFile($file);
         } catch (\Exception $e) {
-            $output->write($e);
+            // TODO write all the information
+            $output->write($e->getTraceAsString());
             throw new Exception($e->getMessage());
         }
 
+        $runtime = microtime(true) - $runtime;
+
         if ($target !== null) {
             file_put_contents($target, $text);
+            if (! $output->isQuiet()) {
+                $message = sprintf('Time: <fg=yellow>%.2f</> seconds' . PHP_EOL, $runtime);
+                $output->write($message);
+            }
         } else {
             $output->writeln($text);
         }

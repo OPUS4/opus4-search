@@ -309,13 +309,6 @@ class IndexHelper
         return $runtime;
     }
 
-    public function extractFile($path)
-    {
-        $extractor = Service::selectExtractingService('indexBuilder');
-
-        return $extractor->extractFile($path);
-    }
-
     private function addDocumentsToIndex(Indexing $indexer, $docs)
     {
         $output = $this->getOutput();

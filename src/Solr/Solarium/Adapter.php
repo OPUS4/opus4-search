@@ -751,4 +751,18 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
         return false;
     }
+
+    public function setTimeout($timeout)
+    {
+        if ($timeout === null || ! filter_var($timeout, FILTER_VALIDATE_INT)) {
+            throw new \InvalidArgumentException('Argument must be an integer');
+        }
+
+        $options = $this->client->getOptions();
+        if (isset($options['endpoint'])) {
+            $keys = array_keys($options['endpoint']);
+            $options['endpoint'][$keys[0]]['timeout'] = $timeout;
+            $this->client->setOptions($options, true);
+        }
+    }
 }
