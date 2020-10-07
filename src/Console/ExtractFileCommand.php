@@ -86,7 +86,7 @@ EOT;
                 'Write extraction output to file'
             )
             ->addOption(
-              self::OPTION_TIMEOUT,
+                self::OPTION_TIMEOUT,
                 't',
                 InputOption::VALUE_REQUIRED,
                 'Timeout for extraction in seconds'

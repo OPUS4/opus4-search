@@ -434,11 +434,13 @@ class IndexHelper
         $this->cache = $cache;
     }
 
-    public function setTimeout($timeout) {
+    public function setTimeout($timeout)
+    {
         $this->timeout = $timeout;
     }
 
-    public function getTimeout() {
+    public function getTimeout()
+    {
         return $this->timeout;
     }
 }
