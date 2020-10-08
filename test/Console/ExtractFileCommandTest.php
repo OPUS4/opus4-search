@@ -34,6 +34,7 @@
 namespace OpusTest\Search\Console;
 
 use Opus\Search\Console\ExtractFileCommand;
+use Opus\Search\Exception;
 use OpusTest\Search\TestAsset\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -42,16 +43,63 @@ class ExtractFileCommandTest extends TestCase
 
     public function testExtractFile()
     {
-        $this->markTestIncomplete();
+        $command = new ExtractFileCommand();
+
+        $tester = new CommandTester($command);
+
+        $tester->execute([
+            'file' => APPLICATION_PATH . '/test/TestAsset/fulltexts/test.pdf'
+        ]);
+
+        $expected = <<<EOT
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut 
+labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et 
+ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum 
+dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore 
+magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet 
+clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+EOT;
+
+        $this->assertEquals($expected, trim($tester->getDisplay()));
     }
 
     public function testTargetOption()
     {
-        $this->markTestIncomplete();
+        $this->markTestIncomplete('waiting for OPUSVIER-4400');
+
+        $command = new ExtractFileCommand();
+
+        $tester = new CommandTester($command);
+
+        $tempFile = '';
+
+        /*
+        $tester->execute([
+            '--output' => $tempFile,
+            'file' => APPLICATION_PATH . '/test/TestAsset/fulltexts/test.pdf'
+        ]);*/
     }
 
     public function testFileTypeNotSupported()
     {
         $this->markTestIncomplete();
+    }
+
+    public function testInvalidFile()
+    {
+        $command = new ExtractFileCommand();
+
+        $tester = new CommandTester($command);
+
+        $this->setExpectedException(Exception::class, 'failed extracting fulltext data');
+
+        $tester->execute([
+            'file' => APPLICATION_PATH . '/test/TestAsset/fulltexts/test-invalid.pdf'
+        ]);
+    }
+
+    public function testMoreTestsForSupportedFileTypes()
+    {
+        $this->markTestIncomplete('placeholder for additional tests');
     }
 }
