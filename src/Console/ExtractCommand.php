@@ -43,11 +43,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class Application_Console_Index_ExtractCommand
  *
  * TODO extract single file
- * TODO extract single file that is provided as argument
- * TODO use some kind of helper instead of base class (or use base class for all OPUS 4 commands)
- *      basically AbstractIndexCommand -> AbstractCommand or BaseDocumentCommand (for all that use startId and endId)
+ * TODO use some kind of helper instead of base class?
  * TODO need to have a way to access/check cache (perhaps another command)
- * TODO need to have a way of clearing cache (perhaps an option and/or another command)
  */
 class ExtractCommand extends BaseDocumentCommand
 {
@@ -98,8 +95,6 @@ EOT;
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int|void|null
-     *
-     * TODO let Symfony handle exception output OR like in IndexCommand do it ourselves?
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -114,6 +109,11 @@ EOT;
             $helper->setTimeout($timeout);
         }
 
-        $helper->extract($this->startId, $this->endId);
+
+        if ($this->isSingleDocument()) {
+            $helper->extract($this->startId);
+        } else {
+            $helper->extract($this->startId, $this->endId);
+        }
     }
 }

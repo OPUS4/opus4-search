@@ -218,7 +218,7 @@ class IndexHelper
      * TODO show documents without files
      * TODO step = file instead of step = document = n-files (requires SQL query to get all linked files)
      */
-    public function extract($startId, $endId)
+    public function extract($startId, $endId = -1)
     {
         $output = $this->getOutput();
 
@@ -226,7 +226,17 @@ class IndexHelper
 
         $documentHelper = new DocumentHelper();
 
-        $docIds = $documentHelper->getDocumentIds($startId, $endId);
+        // TODO this is a hack to detect if $endId has not been specified - better way?
+        if ($endId === -1) {
+            $singleDocument = true;
+            $docIds = [$startId];
+        } else {
+            $singleDocument = false;
+            if ($startId === null && $endId === null) {
+                $removeAll = true;
+            }
+            $docIds = $documentHelper->getDocumentIds($startId, $endId);
+        }
 
         $extractor = Service::selectExtractingService('indexBuilder');
 
@@ -238,7 +248,11 @@ class IndexHelper
 
         $docCount = count($docIds);
 
-        $output->writeln("Start extracting text from files for <fg=yellow>$docCount</> documents.");
+        if ($singleDocument) {
+            $output->writeln("Start extracting text from files for document <fg=yellow>$startId</>.");
+        } else {
+            $output->writeln("Start extracting text from files for <fg=yellow>$docCount</> documents.");
+        }
         $output->writeln('');
 
         $numOfDocs = 0;
