@@ -34,6 +34,8 @@
 
 namespace Opus\Search\Solr\Document;
 
+use Opus\Search\Log;
+
 class Xslt extends Base
 {
 
@@ -90,9 +92,9 @@ class Xslt extends Base
 
         if (filter_var(\Opus_Config::get()->log->prepare->xml, FILTER_VALIDATE_BOOLEAN)) {
             $modelXml->formatOutput = true;
-            \Opus_Log::get()->debug("input xml\n" . $modelXml->saveXML());
+            Log::get()->debug("input xml\n" . $modelXml->saveXML());
             $solrDoc->formatOutput = true;
-            \Opus_Log::get()->debug("transformed solr xml\n" . $solrDoc->saveXML());
+            Log::get()->debug("transformed solr xml\n" . $solrDoc->saveXML());
         }
 
         return $solrDoc;

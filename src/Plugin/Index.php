@@ -34,6 +34,7 @@
 namespace Opus\Search\Plugin;
 
 use Opus\Search\Exception;
+use Opus\Search\Log;
 use Opus\Search\Service;
 use Opus\Search\Task\IndexOpusDocument;
 
@@ -118,7 +119,7 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
      */
     private function removeDocumentFromIndexById($documentId)
     {
-        $log = \Opus_Log::get();
+        $log = Log::get();
 
         if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug(__METHOD__ . ': ' .'Adding remove-index job for document ' . $documentId . '.');
@@ -158,7 +159,7 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
 
         $documentId = $document->getId();
 
-        $log = \Opus_Log::get();
+        $log = Log::get();
 
         // create job if asynchronous is set
         if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
