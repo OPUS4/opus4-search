@@ -33,8 +33,9 @@
 
 namespace Opus\Search\Console;
 
+use Opus\Console\BaseDocumentCommand;
+use Opus\Search\Console\Helper\IndexHelper;
 use Opus\Search\Exception;
-use Opus\Search\Service;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -44,7 +45,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class IndexCommand
  * @package Opus\Search\IndexBuilder
  */
-class IndexCommand extends AbstractIndexCommand
+class IndexCommand extends BaseDocumentCommand
 {
 
     const OPTION_BLOCKSIZE = 'blocksize';
@@ -53,7 +54,9 @@ class IndexCommand extends AbstractIndexCommand
 
     const OPTION_REMOVE = 'remove';
 
-    protected static $defaultName = 'index';
+    const OPTION_TIMEOUT = 'timeout';
+
+    protected static $defaultName = 'index:index';
 
     protected $blockSize = 10;
 
@@ -70,7 +73,7 @@ range of documents.
 If no <fg=green>ID</> is provided, all documents will be indexed. Before the indexing starts, 
 all documents will be removed from the search index.   
 
-You can use a dash (<fg=yellow>-</>) as <fg=green>StartID</> or <fg=green>EndID</>, if you want to index all document up 
+You can use a dash (<fg=yellow>-</>) as <fg=green>StartID</> or <fg=green>EndID</>, if you want to index all documents up 
 to or starting from an ID. 
 
 Examples:
@@ -113,6 +116,12 @@ EOT;
                 null,
                 'Remove documents before indexing'
             )
+            ->addOption(
+                self::OPTION_TIMEOUT,
+                't',
+                InputOption::VALUE_REQUIRED,
+                'Timeout for extraction in seconds'
+            )
             ->setAliases(['index']);
     }
 
@@ -142,18 +151,20 @@ EOT;
 
         $clearCache = $input->getOption(self::OPTION_CLEAR_CACHE);
         $remove = $input->getOption(self::OPTION_REMOVE);
+        $timeout = $input->getOption(self::OPTION_TIMEOUT);
 
         $startId = $this->startId;
         $endId = $this->endId;
 
-        $builder = new IndexBuilder();
+        $builder = new IndexHelper();
         $builder->setOutput($output);
         $builder->setBlockSize($this->blockSize);
         $builder->setClearCache($clearCache);
         $builder->setRemoveBeforeIndexing($remove);
+        $builder->setTimeout($timeout);
 
         try {
-            if ($this->singleDocument) {
+            if ($this->isSingleDocument()) {
                 $runtime = $builder->index($startId);
             } else {
                 $runtime = $builder->index($startId, $endId);

@@ -35,6 +35,8 @@
 namespace Opus\Search\Solr\Document;
 
 use Opus\Search\Exception;
+use Opus\Search\Log;
+use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Service;
 
 abstract class Base
@@ -87,7 +89,7 @@ abstract class Base
         // get root element of XML document containing document's information
         $docXml = $modelXml->getElementsByTagName('Opus_Document')->item(0);
         if (is_null($docXml)) {
-            \Opus_Log::get()->warn(
+            Log::get()->warn(
                 'An error occurred while attaching fulltext information to the xml for document with id '
                 . $docId
             );
@@ -118,15 +120,20 @@ abstract class Base
             try {
                 $fulltext = $extractingService->extractDocumentFile($file);
                 $fulltext = trim(iconv("UTF-8", "UTF-8//IGNORE", $fulltext));
-            } catch (Exception $e) {
-                \Opus_Log::get()->err(
+            } catch (MimeTypeNotSupportedException $e) {
+                Log::get()->err(
                     'An error occurred while getting fulltext data for document with id ' . $docId . ': ' .
                     $e->getMessage()
                 );
             } catch (\Opus_Storage_Exception $e) {
-                \Opus_Log::get()->err(
+                Log::get()->err(
                     'Failed accessing file for extracting fulltext for document with id ' . $docId . ': '
                     . $e->getMessage()
+                );
+            } catch (Exception $e) {
+                Log::get()->err(
+                    'An error occurred while getting fulltext data for document with id ' . $docId . ': ' .
+                    $e->getMessage()
                 );
             }
 
@@ -158,7 +165,7 @@ abstract class Base
         try {
             $hash = $file->getRealHash('md5');
         } catch (\Exception $e) {
-            \Opus_Log::get()->err('could not compute MD5 hash for ' . $file->getPath() . ' : ' . $e);
+            Log::get()->err('could not compute MD5 hash for ' . $file->getPath() . ' : ' . $e);
         }
 
         return $file->getId() . ':' . $hash;

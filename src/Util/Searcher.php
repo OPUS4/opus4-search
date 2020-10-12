@@ -37,6 +37,7 @@ use Opus\Search\Config;
 use Opus\Search\Exception;
 use Opus\Search\Facet\Set;
 use Opus\Search\InvalidServiceException;
+use Opus\Search\Log;
 use Opus\Search\Result\Base;
 use Opus\Search\Service;
 use Opus\Search\Solr\Filter\Raw;
@@ -63,7 +64,7 @@ class Searcher
     public function search($query, $validateDocIds = true)
     {
         try {
-            \Opus_Log::get()->debug("query: " . $query->getQ());
+            Log::get()->debug("query: " . $query->getQ());
 
             // get service adapter for searching
             $service = Service::selectSearchingService(null, 'solr');
@@ -120,7 +121,7 @@ class Searcher
                         $fields = Config::getFacetFields($facet->getSetName(), 'solr');
                         if (empty($fields)) {
                             // no facets are being configured
-                            \Opus_Log::get()->warn("Key searchengine.solr.facets is not present in config. No facets will be displayed.");
+                            Log::get()->warn("Key searchengine.solr.facets is not present in config. No facets will be displayed.");
                         } else {
                             $request->setFacet($facet->setFields($fields));
                         }
@@ -165,7 +166,7 @@ class Searcher
     private function mapException($type, \Exception $previousException)
     {
         $msg = 'Solr server responds with an error ' . $previousException->getMessage();
-        \Opus_Log::get()->err($msg);
+        Log::get()->err($msg);
 
         throw new Exception($msg, $type, $previousException);
     }

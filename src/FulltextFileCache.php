@@ -59,7 +59,7 @@ class FulltextFileCache
             $hash = $file->getRealHash('md5') . '-' . $file->getRealHash('sha256');
             $name = \Opus_Config::get()->workspacePath . "/cache/solr_cache---$hash.txt";
         } catch (Exception $e) {
-            \Opus_Log::get()->err(
+            Log::get()->err(
                 __CLASS__ . '::' . __METHOD__ . ' : could not compute hash values for ' . $file->getPath() . " : $e"
             );
         }
@@ -80,7 +80,7 @@ class FulltextFileCache
             // TODO: Why keeping huge files in cache if not actually using them but trying to fetch extraction
             //       from remote Solr service over and over again?
             if (filesize($fileName) > self::MAX_FILE_SIZE) {
-                \Opus_Log::get()->info('Skipped reading fulltext HUGE cache file ' . $fileName);
+                Log::get()->info('Skipped reading fulltext HUGE cache file ' . $fileName);
             } else {
                 // try reading cached content
                 $fileContent = file_get_contents($fileName);
@@ -88,10 +88,10 @@ class FulltextFileCache
                     return trim($fileContent);
                 }
 
-                \Opus_Log::get()->info('Failed reading fulltext cache file ' . $fileName);
+                Log::get()->info('Failed reading fulltext cache file ' . $fileName);
             }
         } else {
-            \Opus_Log::get()->debug("Fulltext cache miss for (File ID = {$file->getId()}):  . {$file->getPath()}");
+            Log::get()->debug("Fulltext cache miss for (File ID = {$file->getId()}):  . {$file->getPath()}");
         }
 
         return false;
@@ -118,13 +118,13 @@ class FulltextFileCache
                 $tmp_file = tempnam($tmp_path, 'solr_tmp---');
 
                 if (! file_put_contents($tmp_file, trim($fulltext))) {
-                    \Opus_Log::get()->info('Failed writing fulltext temp file ' . $tmp_file);
+                    Log::get()->info('Failed writing fulltext temp file ' . $tmp_file);
                 } else {
                     // writing temporary file succeeded
                     // -> rename to final cache file (single-step-operation)
                     if (! rename($tmp_file, $cache_file)) {
                         // failed renaming
-                        \Opus_Log::get()->info('Failed renaming temp file to fulltext cache file ' . $cache_file);
+                        Log::get()->info('Failed renaming temp file to fulltext cache file ' . $cache_file);
 
                         // don't keep temporary file
                         unlink($tmp_file);

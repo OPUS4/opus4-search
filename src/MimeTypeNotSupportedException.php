@@ -26,35 +26,20 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @author      Michael Lang
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search;
 
 /**
- * Defines API provided for extracting fulltext data from files attached to
- * Opus documents.
  */
-
-interface Extracting
+class MimeTypeNotSupportedException extends \Exception
 {
 
-    /**
-     * Extracts provided file of document.
-     *
-     * @param \Opus_File $file
-     * @param \Opus_Document $document
-     * @return Extracting fluent interface
-     */
-    public function extractDocumentFile(\Opus_File $file, \Opus_Document $document = null);
-
-    /**
-     * Extracts text from file.
-     * @param $path
-     * @return mixed
-     */
-    public function extractFile($path);
+    public function __construct($message = "", $code = 0, Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 }

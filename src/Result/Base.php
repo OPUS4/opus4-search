@@ -194,7 +194,7 @@ class Base
                 $match->getDocument();
                 $matches[] = $match;
             } catch (\Opus_Document_Exception $e) {
-                \Opus_Log::get()->warn('skipping matching but locally missing document #' . $match->getId());
+                Log::get()->warn('skipping matching but locally missing document #' . $match->getId());
             }
         }
 
@@ -259,7 +259,7 @@ class Base
                 ->ids();
 
             if (count($returnedIds) !== count($existingIds)) {
-                \Opus_Log::get()->err(sprintf(
+                Log::get()->err(sprintf(
                     "found inconsistency between database and search index: "
                     . "index returns %d documents, but only %d found in database",
                     count($returnedIds),

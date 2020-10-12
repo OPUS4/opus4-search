@@ -30,9 +30,15 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Search\Console;
+namespace Opus\Search\Console\Helper;
 
+use Opus\Console\Helper\ProgressBar;
+use Opus\Console\Helper\ProgressMatrix;
+use Opus\Console\Helper\ProgressOutput;
+use Opus\Console\Helper\ProgressReport;
 use Opus\Search\Exception;
+use Opus\Search\Indexing;
+use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Service;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -40,8 +46,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Indexes all or a range of documents.
  *
  * If all documents are indexed the index is cleared first.
+ *
+ * TODO cleanup and document
  */
-class IndexBuilder
+class IndexHelper
 {
 
     /**
@@ -50,8 +58,6 @@ class IndexBuilder
      */
     private $syncMode = true;
 
-    protected $docMaxDigits;
-
     /**
      * @var OutputInterface
      */
@@ -59,9 +65,13 @@ class IndexBuilder
 
     private $blockSize = 10;
 
+    private $cache;
+
     private $clearCache = false;
 
     private $removeBeforeIndexing = false;
+
+    private $timeout = null;
 
     /**
      * @param $startId
@@ -92,14 +102,15 @@ class IndexBuilder
             }
         }
 
+        $documentHelper = new DocumentHelper();
+
         if ($singleDocument) {
             $docIds = [$startId];
         } else {
-            $docIds = $this->getDocumentIds($startId, $endId);
+            $docIds = $documentHelper->getDocumentIds($startId, $endId);
         }
 
         $docCount = count($docIds);
-        $this->docMaxDigits = strlen(( string )$docCount);
 
         if ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
             if (! $singleDocument) {
@@ -114,6 +125,12 @@ class IndexBuilder
         }
 
         $indexer = Service::selectIndexingService('indexBuilder');
+
+        $timeout = $this->getTimeout();
+
+        if ($timeout !== null) {
+            $indexer->setTimeout($timeout);
+        }
 
         if ($this->getRemoveBeforeIndexing()) {
             if ($singleDocument) {
@@ -140,52 +157,54 @@ class IndexBuilder
 
         $output->writeln(date('Y-m-d H:i:s') . " Start indexing of <fg=yellow>$docCount</> documents ... ");
         $numOfDocs = 0;
-        $runtime = microtime(true);
+
+        switch ($output->getVerbosity()) {
+            case $output::VERBOSITY_VERBOSE:
+                $progress = new ProgressOutput($output, $docCount);
+                break;
+
+            case $output::VERBOSITY_VERY_VERBOSE:
+            case $output::VERBOSITY_DEBUG:
+                $progress = new ProgressMatrix($output, $docCount);
+                break;
+
+            default:
+                $progress = new ProgressBar($output, $docCount);
+                break;
+        }
+
+        $report = new ProgressReport();
+
+        $progress->start();
 
         $docs = [];
 
         // measure time for each document
-
-        $cache = new \Opus_Model_Xml_Cache();
-
-        $clearCache = $this->getClearCache();
+        // TODO removed timing of single document indexing (detect long indexing processes) - add again?
 
         foreach ($docIds as $docId) {
-            $timeStart = microtime(true);
-
-            if ($clearCache) {
-                $cache->remove($docId);
-            }
-
-            $doc = new \Opus_Document($docId);
-
-            // TODO dirty hack: disable implicit reindexing of documents in case of cache misses
-            $doc->unregisterPlugin('Opus\Search\Plugin\Index');
+            $doc = $this->getDocument($docId);
 
             $docs[] = $doc;
-
-            $timeDelta = microtime(true) - $timeStart;
-            if ($timeDelta > 30) {
-                // TODO does this still work
-                $output->writeln(date('Y-m-d H:i:s') . " WARNING: Indexing document $docId took $timeDelta seconds.");
-            }
 
             $numOfDocs++;
 
             if ($numOfDocs % $blockSize == 0) {
                 $this->addDocumentsToIndex($indexer, $docs);
                 $docs = [];
-                $this->outputProgress($runtime, $numOfDocs);
+                $progress->setProgress($numOfDocs);
             }
         }
 
         // Index leftover documents
         if (count($docs) > 0) {
             $this->addDocumentsToIndex($indexer, $docs);
-            $this->outputProgress($runtime, $numOfDocs);
+            $docs = [];
+            $progress->setProgress($numOfDocs);
         }
 
-        $runtime = microtime(true) - $runtime;
+        $progress->finish();
+
         $output->writeln(date('Y-m-d H:i:s') . ' Finished indexing.');
         // new search API doesn't track number of indexed files, but issues are being written to log file
         //echo "\n\nErrors appeared in " . $indexer->getErrorFileCount() . " of " . $indexer->getTotalFileCount()
@@ -194,39 +213,140 @@ class IndexBuilder
 
         $this->resetMode();
 
-        return $runtime;
+        return $progress->getRuntime();
     }
 
     /**
-     * Output current processing status and performance.
+     * @param $startId
+     * @param $endId
+     * @return float|string
+     * @throws \Opus\Model\Exception
+     * @throws \Zend_Config_Exception
      *
-     * @param $runtime long Time of start of processing
-     * @param $numOfDocs Number of processed documents
+     * TODO perhaps support different output formats (like XML for automated processing)
+     * TODO show documents without files
+     * TODO step = file instead of step = document = n-files (requires SQL query to get all linked files)
      */
-    private function outputProgress($runtime, $numOfDocs)
+    public function extract($startId, $endId = -1)
     {
         $output = $this->getOutput();
 
-        $memNow = round(memory_get_usage() / 1024 / 1024);
-        $memPeak = round(memory_get_peak_usage() / 1024 / 1024);
+        $this->forceSyncMode();
 
-        $deltaTime = microtime(true) - $runtime;
-        $docPerSecond = round($deltaTime) == 0 ? 'inf' : round($numOfDocs / $deltaTime, 2);
-        $secondsPerDoc = round($deltaTime / $numOfDocs, 2);
+        $documentHelper = new DocumentHelper();
 
-        $message = sprintf(
-            "%s Stats after <fg=yellow>%{$this->docMaxDigits}d</> docs -- mem <fg=yellow>%3d</> MB, peak <fg=yellow>%3d</> MB, <fg=yellow>%6.2f</> docs/s, <fg=yellow>%5.2f</> s/doc",
-            date('Y-m-d H:i:s'),
-            $numOfDocs,
-            $memNow,
-            $memPeak,
-            $docPerSecond,
-            $secondsPerDoc
-        );
+        // TODO this is a hack to detect if $endId has not been specified - better way?
+        if ($endId === -1) {
+            $singleDocument = true;
+            $docIds = [$startId];
+        } else {
+            $singleDocument = false;
+            if ($startId === null && $endId === null) {
+                $removeAll = true;
+            }
+            $docIds = $documentHelper->getDocumentIds($startId, $endId);
+        }
+
+        $extractor = Service::selectExtractingService('indexBuilder');
+
+        $timeout = $this->getTimeout();
+
+        if ($timeout !== null) {
+            $extractor->setTimeout($timeout);
+        }
+
+        $docCount = count($docIds);
+
+        if ($singleDocument) {
+            $output->writeln("Start extracting text from files for document <fg=yellow>$startId</>.");
+        } else {
+            $output->writeln("Start extracting text from files for <fg=yellow>$docCount</> documents.");
+        }
+        $output->writeln('');
+
+        $numOfDocs = 0;
+        $runtime = microtime(true);
+
+        $report = new ProgressReport();
+
+        $progress = new ProgressMatrix($output, $docCount);
+        $progress->start();
+
+        // measure time for each document
+
+        foreach ($docIds as $docId) {
+            $status = null;
+
+            $timeStart = microtime(true);
+
+            $doc = new \Opus_Document($docId);
+
+            $files = $doc->getFile();
+
+            if (count($files) > 0) {
+                foreach ($files as $file) {
+                    try {
+                        $extractor->extractDocumentFile($file, $doc);
+                    } catch (MimeTypeNotSupportedException $e) {
+                        // TODO depending on verbosity show a message for this
+                        // TODO don't overwrite higher status like 'F'
+                        if ($output->isVerbose()) {
+                            if ($status === null) {
+                                $status = '<fg=yellow>S</>';
+                            }
+                            $report->addException($e);
+                        }
+                    } catch (\Opus_Storage_Exception $e) {
+                        $report->addException($e);
+                        $status = '<fg=red>E</>';
+                    } catch (Exception $e) {
+                        $report->addException($e);
+                        $status = '<fg=red>E</>';
+                    }
+                }
+            } else {
+                // TODO output doc without files message (only at highest verbosity level)
+            }
+
+            $timeDelta = microtime(true) - $timeStart;
+            if ($timeDelta > 30) {
+                $output->writeln(date('Y-m-d H:i:s') . " WARNING: Extracting document $docId took $timeDelta seconds.");
+            }
+
+            $numOfDocs++;
+            $progress->advance(1, $status);
+
+            if ($status !== null) {
+                $report->setEntryInfo("Document <fg=yellow>$docId</>");
+            }
+
+            $report->finishEntry();
+        }
+
+        $progress->finish();
+
+        $runtime = microtime(true) - $runtime;
+        $peakMemory = memory_get_peak_usage() / 1024 / 1024;
+
+        // TODO handle longer runtimes (minutes, hours)
+        $output->writeln('');
+        $message = sprintf('Time: <fg=yellow>%.2f</> seconds, Memory: %.2f MB', $runtime, $peakMemory);
         $output->writeln($message);
+
+        // new search API doesn't track number of indexed files, but issues are kept written to log file
+        //echo "\n\nErrors appeared in " . $indexer->getErrorFileCount() . " of " . $indexer->getTotalFileCount()
+        //    . " files. Details were written to opus-console.log";
+
+        $output->writeln(PHP_EOL . 'Details were written to <fg=green>opus-console.log</>');
+
+        $report->write($output);
+
+        $this->resetMode();
+
+        return $runtime;
     }
 
-    private function addDocumentsToIndex($indexer, $docs)
+    private function addDocumentsToIndex(Indexing $indexer, $docs)
     {
         $output = $this->getOutput();
 
@@ -243,6 +363,7 @@ class IndexBuilder
 
     /**
      * TODO Find better way to enable/disable sync mode during indexing.
+     * TODO not IndexHelper specific functionality
      */
     private function forceSyncMode()
     {
@@ -277,26 +398,19 @@ class IndexBuilder
         return $this->output;
     }
 
-    /**
-     * Returns IDs for published documents in range.
-     *
-     * @param $start int Start of ID range
-     * @param $end int End of ID range
-     * @return array Array of document IDs
-     */
-    public function getDocumentIds($start, $end)
+    protected function getDocument($docId)
     {
-        $finder = new \Opus_DocumentFinder();
-
-        if (isset($start)) {
-            $finder->setIdRangeStart($start);
+        if ($this->getClearCache()) {
+            $cache = $this->getCache();
+            $cache->remove($docId);
         }
 
-        if (isset($end)) {
-            $finder->setIdRangeEnd($end);
-        }
+        $doc = new \Opus_Document($docId);
 
-        return $finder->ids();
+        // TODO dirty hack: disable implicit reindexing of documents in case of cache misses
+        $doc->unregisterPlugin('Opus\Search\Plugin\Index');
+
+        return $doc;
     }
 
     public function setBlockSize($blockSize)
@@ -327,5 +441,29 @@ class IndexBuilder
     public function getRemoveBeforeIndexing()
     {
         return $this->removeBeforeIndexing;
+    }
+
+    public function getCache()
+    {
+        if ($this->cache === null) {
+            $this->cache = new \Opus_Model_Xml_Cache();
+        }
+
+        return $this->cache;
+    }
+
+    public function setCache($cache)
+    {
+        $this->cache = $cache;
+    }
+
+    public function setTimeout($timeout)
+    {
+        $this->timeout = $timeout;
+    }
+
+    public function getTimeout()
+    {
+        return $this->timeout;
     }
 }

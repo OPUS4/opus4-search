@@ -39,12 +39,20 @@ use Opus\Search\FulltextFileCache;
 use Opus\Search\Indexing;
 use Opus\Search\InvalidQueryException;
 use Opus\Search\InvalidServiceException;
+use Opus\Search\Log;
+use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Query;
 use Opus\Search\Result\Base;
 use Opus\Search\Searching;
 use Opus\Search\Solr\Filter\Raw;
 use Opus\Search\Solr\Solarium\Filter\Complex;
 
+/**
+ * Class Adapter
+ * @package Opus\Search\Solr\Solarium
+ *
+ * TODO document updateChunkSize
+ */
 class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extracting
 {
 
@@ -62,7 +70,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
     public function __construct($serviceName, $options)
     {
         $this->options = $options;
-        $this->client  = new \Solarium\Client($options);
+        $this->client = new \Solarium\Client($options);
 
         // ensure service is basically available
         $ping = $this->client->createPing();
@@ -170,7 +178,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         $validDocuments = [];
 
         foreach ($documents as $document) {
-            if (! ( $document instanceof \Opus_Document )) {
+            if (! ($document instanceof \Opus_Document)) {
                 throw new \InvalidArgumentException("invalid document in provided set");
             }
             if ($document->getServerState() !== 'temporary') {
@@ -184,7 +192,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
     protected function normalizeDocumentIds($documentIds)
     {
         if (! is_array($documentIds)) {
-            $documentIds = [ $documentIds ];
+            $documentIds = [$documentIds];
         }
 
         foreach ($documentIds as $id) {
@@ -196,11 +204,20 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         return $documentIds;
     }
 
+    /**
+     * @param \Opus_Document|\Opus_Document[] $documents
+     * @return $this|Indexing
+     * @throws Exception
+     * @throws InvalidQueryException
+     * @throws InvalidServiceException
+     */
     public function addDocumentsToIndex($documents)
     {
         $documents = $this->normalizeDocuments($documents);
 
         $builder = new Document($this->options);
+
+        $errors = [];
 
         try {
             // split provided set of documents into chunks of 16 documents
@@ -227,7 +244,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
             return $this;
         } catch (Exception $e) {
-            \Opus_Log::get()->err($e->getMessage());
+            Log::get()->err($e->getMessage());
 
             if ($this->options->get('rollback', 1)) {
                 // roll back updates due to failure
@@ -238,7 +255,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                     $this->execute($update, 'failed rolling back update of documents');
                 } catch (Exception $inner) {
                     // SEVERE case: rolling back failed, too
-                    \Opus_Log::get()->alert($inner->getMessage());
+                    Log::get()->alert($inner->getMessage());
                 }
             }
 
@@ -282,7 +299,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
             return $this;
         } catch (Exception $e) {
-            \Opus_log::get()->err($e->getMessage());
+            Log::get()->err($e->getMessage());
 
             if ($this->options->get('rollback', 1)) {
                 // roll back deletes due to failure
@@ -293,7 +310,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                     $this->execute($update, 'failed rolling back update of documents');
                 } catch (Exception $inner) {
                     // SEVERE case: rolling back failed, too
-                    Opus_Log::get()->alert($inner->getMessage());
+                    Log::get()->alert($inner->getMessage());
                 }
             }
 
@@ -340,7 +357,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
             $definition = null;
         }
 
-        if (! $definition || ! ( $definition instanceof \Zend_Config )) {
+        if (! $definition || ! ($definition instanceof \Zend_Config)) {
             throw new InvalidQueryException('selected query is not pre-defined: ' . $name);
         }
 
@@ -420,7 +437,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         }
 
         if ($excluded > 0) {
-            \Opus_Log::get()->warn(sprintf(
+            Log::get()->warn(sprintf(
                 'search yielded %d matches not available in result set for missing ID of related document',
                 $excluded
             ));
@@ -453,13 +470,14 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         $preferOriginalQuery = false
     ) {
 
+
         if ($parameters) {
             $subfilters = $parameters->getSubFilters();
             if ($subfilters !== null) {
                 foreach ($subfilters as $name => $subfilter) {
                     if ($subfilter instanceof Raw || $subfilter instanceof Complex) {
                         $query->createFilterQuery($name)
-                              ->setQuery($subfilter->compile($query));
+                            ->setQuery($subfilter->compile($query));
                     }
                 }
             }
@@ -505,10 +523,10 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                 $facetSet = $query->getFacetSet();
                 foreach ($facet->getFields() as $field) {
                     $facetSet->createFacetField($field->getName())
-                             ->setField($field->getName())
-                             ->setMinCount($field->getMinCount())
-                             ->setLimit($field->getLimit())
-                             ->setSort($field->getSort() ? 'index' : null);
+                        ->setField($field->getName())
+                        ->setMinCount($field->getMinCount())
+                        ->setLimit($field->getLimit())
+                        ->setSort($field->getSort() ? 'index' : null);
                 }
 
                 if ($facet->isFacetOnly()) {
@@ -527,14 +545,32 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 	 *
 	 */
 
+    /**
+     * @param \Opus_File $file
+     * @param \Opus_Document|null $document
+     * @return Extracting|string
+     * @throws Exception
+     * @throws \Opus_Storage_Exception
+     * @throws \Opus_Storage_FileAccessException
+     * @throws \Opus_Storage_FileNotFoundException
+     * @throws MimeTypeNotSupportedException
+     * @throws \Zend_Exception
+     */
     public function extractDocumentFile(\Opus_File $file, \Opus_Document $document = null)
     {
-        \Opus_Log::get()->debug('extracting fulltext from ' . $file->getPath());
+        Log::get()->debug('extracting fulltext from ' . $file->getPath());
 
         try {
             // ensure file is basically available and extracting is supported
             if (! $file->exists()) {
-                throw new \Opus_Storage_FileNotFoundException($file->getPath() . ' does not exist.');
+                $path = $file->getPath();
+
+                /** TODO shorten path
+                 * if (substr($path, 0, strlen(APPLICATION_PATH)) == APPLICATION_PATH) {
+                 * $path = substr($path, strlen(APPLICATION_PATH) + 1);
+                 * }
+                 */
+                throw new \Opus_Storage_FileNotFoundException($path);
             }
 
             if (! $file->isReadable()) {
@@ -542,14 +578,16 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
             }
 
             if (! $this->isMimeTypeSupported($file)) {
-                throw new Exception($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
+                throw new MimeTypeNotSupportedException(
+                    "Extracting MIME type {$file->getMimeType()} not supported ({$file->getPath()})"
+                );
             }
 
 
             // use cached result of previous extraction if available
             $fulltext = FulltextFileCache::readOnFile($file);
             if ($fulltext !== false) {
-                \Opus_Log::get()->info('Found cached fulltext for file ' . $file->getPath());
+                Log::get()->info('Found cached fulltext for file ' . $file->getPath());
                 return $fulltext;
             }
 
@@ -557,9 +595,9 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
             if (filesize($file->getPath())) {
                 // query Solr service for extracting fulltext data
                 $extract = $this->client->createExtract()
-                                        ->setExtractOnly(true)
-                                        ->setFile($file->getPath())
-                                        ->setCommit(true);
+                    ->setExtractOnly(true)
+                    ->setFile($file->getPath())
+                    ->setCommit(true);
 
                 $result = $this->execute($extract, 'failed extracting fulltext data');
                 /** @var \Solarium\QueryType\Extract\Result $response */
@@ -594,7 +632,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                 }
 
                 if (is_null($fulltext)) {
-                    \Opus_Log::get()->err('failed extracting fulltext data from solr response');
+                    Log::get()->err('failed extracting fulltext data from solr response');
                     $fulltext = '';
                 } else {
                     $fulltext = trim($fulltext);
@@ -612,11 +650,89 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
             return $fulltext;
         } catch (Exception $e) {
-            if (! ( $e instanceof Exception ) && ! ( $e instanceof \Opus_Storage_Exception )) {
+            if (! ($e instanceof Exception) && ! ($e instanceof \Opus_Storage_Exception)) {
                 $e = new Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
             }
 
-            \Opus_Log::get()->err($e->getMessage());
+            Log::get()->err($e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     *
+     */
+    public function extractFile($path)
+    {
+        Log::get()->debug('extracting fulltext from ' . $path);
+
+        try {
+            // ensure file is basically available and extracting is supported
+            if (! file_exists($path)) {
+                throw new \Exception("$path not found");
+            }
+
+            if (! is_readable($path)) {
+                throw new \Exception("$path is not readable.");
+            }
+
+            if (filesize($path)) {
+                // query Solr service for extracting fulltext data
+                $extract = $this->client->createExtract()
+                    ->setExtractOnly(true)
+                    ->setFile($path)
+                    ->setCommit(true);
+
+                $result = $this->execute($extract, 'failed extracting fulltext data');
+                // @var \Solarium\QueryType\Extract\Result $response
+
+                // got response -> extract
+                $response = $result->getData();
+                $fulltext = null;
+
+                if (is_array($response)) {
+                    $keys = array_keys($response);
+                    foreach ($keys as $k => $key) {
+                        if (substr($key, -9) === '_metadata' && array_key_exists(substr($key, 0, -9), $response)) {
+                            unset($response[$key]);
+                        }
+                    }
+
+                    $fulltextData = array_shift($response);
+                    if (is_string($fulltextData)) {
+                        if (substr($fulltextData, 0, 6) === '<?xml ') {
+                            $dom = new \DOMDocument();
+                            $dom->loadHTML($fulltextData);
+                            $body = $dom->getElementsByTagName("body")->item(0);
+                            if ($body) {
+                                $fulltext = $body->textContent;
+                            } else {
+                                $fulltext = $dom->textContent;
+                            }
+                        } else {
+                            $fulltext = $fulltextData;
+                        }
+                    }
+                }
+
+                if (is_null($fulltext)) {
+                    Log::get()->err('failed extracting fulltext data from solr response');
+                    $fulltext = '';
+                } else {
+                    $fulltext = trim($fulltext);
+                }
+            } else {
+                // empty file -> empty fulltext index
+                $fulltext = '';
+            }
+
+            return $fulltext;
+        } catch (Exception $e) {
+            if (! ($e instanceof Exception) && ! ($e instanceof \Opus_Storage_Exception)) {
+                $e = new Exception("error while extracting fulltext from file $path", null, $e);
+            }
+
+            Log::get()->err($e->getMessage());
             throw $e;
         }
     }
@@ -627,6 +743,8 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
      *
      * @param Opus_File $file
      * @return bool
+     *
+     * TODO make list configurable
      */
     protected function isMimeTypeSupported(\Opus_File $file)
     {
@@ -648,5 +766,19 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         }
 
         return false;
+    }
+
+    public function setTimeout($timeout)
+    {
+        if ($timeout === null || filter_var($timeout, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE) === null) {
+            throw new \InvalidArgumentException('Argument timeout must be an integer');
+        }
+
+        $options = $this->client->getOptions();
+        if (isset($options['endpoint'])) {
+            $keys = array_keys($options['endpoint']);
+            $options['endpoint'][$keys[0]]['timeout'] = $timeout;
+            $this->client->setOptions($options, true);
+        }
     }
 }

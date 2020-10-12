@@ -33,11 +33,12 @@
 
 namespace Opus\Search\Console;
 
+use Opus\Console\BaseDocumentCommand;
 use Opus\Search\Service;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class RemoveCommand extends AbstractIndexCommand
+class RemoveCommand extends BaseDocumentCommand
 {
 
     protected static $defaultName = 'index:remove';
@@ -84,19 +85,19 @@ EOT;
 
         $indexer = Service::selectIndexingService('indexBuilder');
 
-        if ($this->removeAll) {
+        if ($this->isAllDocuments()) {
             $output->write('Removing all documents from index ... ');
             $indexer->removeAllDocumentsFromIndex();
             $output->writeln('done');
         } else {
-            if ($this->singleDocument) {
+            if ($this->isSingleDocument()) {
                 $doc = new \Opus_Document($startId);
                 $output->write("Removing document $startId from index ... ");
                 $indexer->removeDocumentsFromIndexById([$startId]);
                 $output->writeln('done');
             } else {
-                $builder = new IndexBuilder();
-                $documents = $builder->getDocumentIds($startId, $endId);
+                $helper = new DocumentHelper();
+                $documents = $helper->getDocumentIds($startId, $endId);
                 $docCount = count($documents);
                 $output->write("Removing $docCount documents from index ... ");
                 $indexer->removeDocumentsFromIndexById($documents);
