@@ -47,6 +47,12 @@ use Opus\Search\Searching;
 use Opus\Search\Solr\Filter\Raw;
 use Opus\Search\Solr\Solarium\Filter\Complex;
 
+/**
+ * Class Adapter
+ * @package Opus\Search\Solr\Solarium
+ *
+ * TODO document updateChunkSize
+ */
 class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extracting
 {
 
@@ -198,11 +204,20 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         return $documentIds;
     }
 
+    /**
+     * @param \Opus_Document|\Opus_Document[] $documents
+     * @return $this|Indexing
+     * @throws Exception
+     * @throws InvalidQueryException
+     * @throws InvalidServiceException
+     */
     public function addDocumentsToIndex($documents)
     {
         $documents = $this->normalizeDocuments($documents);
 
         $builder = new Document($this->options);
+
+        $errors = [];
 
         try {
             // split provided set of documents into chunks of 16 documents

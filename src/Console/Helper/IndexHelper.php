@@ -162,10 +162,19 @@ class IndexHelper
             case $output::VERBOSITY_VERBOSE:
                 $progress = new ProgressOutput($output, $docCount);
                 break;
+
+            case $output::VERBOSITY_VERY_VERBOSE:
+            case $output::VERBOSITY_DEBUG:
+                $progress = new ProgressMatrix($output, $docCount);
+                break;
+
             default:
                 $progress = new ProgressBar($output, $docCount);
                 break;
         }
+
+        $report = new ProgressReport();
+
         $progress->start();
 
         $docs = [];
