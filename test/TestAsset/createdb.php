@@ -54,6 +54,10 @@ set_include_path(
 
 require_once 'autoload.php';
 
+// TODO OPUSVIER-4420 remove after switching to Laminas/ZF3
+require_once APPLICATION_PATH . '/vendor/opus4-repo/framework/library/OpusDb/Mysqlutf8.php';
+
+
 // environment initializiation
 $application = new \Zend_Application(
     APPLICATION_ENV,
