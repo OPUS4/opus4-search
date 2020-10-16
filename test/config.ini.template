@@ -127,9 +127,9 @@ log.level = DEBUG
 
 ; Plugins used by Opus_Document
 model.plugins.document[] = 'Opus\Search\Plugin\Index'
-model.plugins.document[] = 'Opus_Document_Plugin_XmlCache'
-model.plugins.document[] = 'Opus_Document_Plugin_IdentifierUrn'
-model.plugins.document[] = 'Opus_Document_Plugin_IdentifierDoi'
+model.plugins.document[] = 'Opus\Document\Plugin\XmlCache'
+model.plugins.document[] = 'Opus\Document\Plugin\IdentifierUrn'
+model.plugins.document[] = 'Opus\Document\Plugin\IdentifierDoi'
 
 [testing : production]
 sql.schema.path =
