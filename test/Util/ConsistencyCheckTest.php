@@ -34,6 +34,7 @@
 
 namespace OpusTest\Util;
 
+use Opus\Document;
 use Opus\Search\Config;
 use Opus\Search\Exception;
 use Opus\Search\QueryFactory;
@@ -54,7 +55,7 @@ class ConsistencyCheckTest extends TestCase
     {
         parent::setUp();
 
-        $this->doc = new \Opus_Document();
+        $this->doc = Document::new();
         $this->doc->setServerState('published');
         $this->docId = $this->doc->store();
     }

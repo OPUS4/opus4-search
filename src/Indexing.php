@@ -34,6 +34,8 @@
 
 namespace Opus\Search;
 
+use Opus\Document;
+
 /**
  * Defines methods provided for indexing data in (Solr-based) search database.
  */
@@ -48,7 +50,7 @@ interface Indexing
      *       by adding all listed documents as part of a transaction to be
      *       rolled back on any error.
      *
-     * @param \Opus_Document|\Opus_Document[] $documents set of documents to add
+     * @param Document|Document[] $documents set of documents to add
      * @return Indexing
      * @throws Exception in case of error
      */
@@ -61,7 +63,7 @@ interface Indexing
      *       by adding all listed documents as part of a transaction to be
      *       rolled back on any error.
      *
-     * @param \Opus_Document|\Opus_Document[] $documents set of document to remove
+     * @param Document|Document[] $documents set of document to remove
      * @return Indexing
      * @throws Exception in case of error
      */

@@ -33,6 +33,10 @@
 
 namespace Opus\Search\Result;
 
+use Opus\Date;
+use Opus\Document;
+use Opus\Model\NotFoundException;
+
 /**
  * Describes local document as a match in context of a related search query.
  */
@@ -46,7 +50,7 @@ class Match
     protected $id = null;
 
     /**
-     * @var \Opus_Document
+     * @var Document
      */
     protected $doc = null;
 
@@ -56,7 +60,7 @@ class Match
     protected $score = null;
 
     /**
-     * @var \Opus_Date
+     * @var Date
      */
     protected $serverDateModified = null;
 
@@ -108,13 +112,13 @@ class Match
     /**
      * Retrieves instance of Opus_Document related to current match.
      *
-     * @throws \Opus_Model_NotFoundException
-     * @return \Opus_Document
+     * @throws NotFoundException
+     * @return Document
      */
     public function getDocument()
     {
         if (is_null($this->doc)) {
-            $this->doc = new \Opus_Document($this->id);
+            $this->doc = Document::get($this->id);
         }
 
         return $this->doc;
@@ -193,7 +197,7 @@ class Match
             throw new \RuntimeException('timestamp of modification has been set before');
         }
 
-        $this->serverDateModified = new \Opus_Date();
+        $this->serverDateModified = new Date();
 
         if (ctype_digit($timestamp = trim($timestamp))) {
             $this->serverDateModified->setTimestamp(intval($timestamp));
@@ -211,7 +215,7 @@ class Match
      * @note This method is used by Opus to detect outdated records in search
      *       index.
      *
-     * @return Opus_Date
+     * @return Date
      */
     public function getServerDateModified()
     {

@@ -33,6 +33,8 @@
 
 namespace OpusTest\Search\Task;
 
+use Opus\Document;
+use Opus\Job;
 use Opus\Search\Task\ConsistencyCheck;
 use OpusTest\Search\TestAsset\TestCase;
 
@@ -42,7 +44,7 @@ class ConsistencyCheckTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->job = new \Opus_Job();
+        $this->job = new Job();
         $this->worker = new ConsistencyCheck();
     }
 
@@ -54,14 +56,14 @@ class ConsistencyCheckTest extends TestCase
     public function testInvalidJobExecution()
     {
         $this->job->setLabel('invalid-label');
-        $this->setExpectedException('Opus_Job_Worker_InvalidJobException');
+        $this->setExpectedException('Opus\Job\Worker\InvalidJobException');
         $this->worker->work($this->job);
     }
 
     public function testValidJobExecution()
     {
         // create a published test doc
-        $doc = new \Opus_Document();
+        $doc = Document::new();
         $doc->setServerState('published');
         $doc->store();
 

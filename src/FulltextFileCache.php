@@ -34,6 +34,8 @@
 
 namespace Opus\Search;
 
+use Opus\File;
+
 /**
  * Cache for fulltext extractions of files.
  *
@@ -51,13 +53,13 @@ class FulltextFileCache
 
     const MAX_FILE_SIZE = 16777216; // 16 MiByte
 
-    public static function getCacheFileName(\Opus_File $file)
+    public static function getCacheFileName(File $file)
     {
         $name = null;
 
         try {
             $hash = $file->getRealHash('md5') . '-' . $file->getRealHash('sha256');
-            $name = \Opus_Config::get()->workspacePath . "/cache/solr_cache---$hash.txt";
+            $name = \Opus\Config::get()->workspacePath . "/cache/solr_cache---$hash.txt";
         } catch (Exception $e) {
             Log::get()->err(
                 __CLASS__ . '::' . __METHOD__ . ' : could not compute hash values for ' . $file->getPath() . " : $e"
@@ -70,10 +72,10 @@ class FulltextFileCache
     /**
      * Tries reading cached fulltext data linked with given Opus file from cache.
      *
-     * @param \Opus_File $file
+     * @param File $file
      * @return false|string found fulltext data, false on missing data in cache
      */
-    public static function readOnFile(\Opus_File $file)
+    public static function readOnFile(File $file)
     {
         $fileName = static::getCacheFileName($file);
         if ($fileName && is_readable($fileName)) {
@@ -103,10 +105,10 @@ class FulltextFileCache
      * @note Writing file might fail without notice. Succeeding tests for cached
      *       record are going to fail then, too.
      *
-     * @param \Opus_File $file
+     * @param File $file
      * @param string $fulltext
      */
-    public static function writeOnFile(\Opus_File $file, $fulltext)
+    public static function writeOnFile(File $file, $fulltext)
     {
         if (is_string($fulltext)) {
             // try deriving cache file's name first
@@ -114,7 +116,7 @@ class FulltextFileCache
             if ($cache_file) {
                 // use intermediate temporary file with random name for writing
                 // to prevent race conditions on writing cache file
-                $tmp_path = realpath(\Opus_Config::get()->workspacePath . '/tmp/');
+                $tmp_path = realpath(\Opus\Config::get()->workspacePath . '/tmp/');
                 $tmp_file = tempnam($tmp_path, 'solr_tmp---');
 
                 if (! file_put_contents($tmp_file, trim($fulltext))) {

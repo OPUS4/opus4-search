@@ -33,6 +33,8 @@
 
 namespace OpusTest\Search\Task;
 
+use Opus\Document;
+use Opus\Job;
 use Opus\Search\Task\IndexOpusDocument;
 use OpusTest\Search\TestAsset\TestCase;
 
@@ -44,12 +46,12 @@ class IndexOpusDocumentTest extends TestCase
      */
     public function testWork()
     {
-        $document = new \Opus_Document();
+        $document = new Document();
         $document->setServerState('published');
         $documentId = $document->store();
 
 
-        $job = new \Opus_Job();
+        $job = new Job();
         $job->setLabel('opus-index-document');
         $job->setData([
             'documentId' => $documentId,

@@ -46,10 +46,13 @@ define('APPLICATION_ENV', 'testing');
 // Configure include path.
 $scriptDir = dirname(__FILE__);
 
-require_once APPLICATION_PATH . DIRECTORY_SEPARATOR . 'vendor/' . 'autoload.php';
+require_once APPLICATION_PATH . '/vendor/autoload.php';
+
+// TODO OPUSVIER-4420 remove after switching to Laminas/ZF3
+require_once APPLICATION_PATH . '/vendor/opus4-repo/framework/library/OpusDb/Mysqlutf8.php';
 
 // Do test environment initializiation.
-$application = new Zend_Application(
+$application = new \Zend_Application(
     APPLICATION_ENV,
     [
         "config" => [
@@ -59,6 +62,6 @@ $application = new Zend_Application(
 );
 
 // TODO should not be necessary for search tests
-Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
+\Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
 
 $application->bootstrap(['Database','Temp','OpusLocale','IndexPlugin']);

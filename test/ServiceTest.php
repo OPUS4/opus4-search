@@ -98,7 +98,7 @@ class ServiceTest extends TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage invalid default search domain
      */
     public function testGetQualifiedDomainInvalidDomainNotAString()
@@ -107,7 +107,7 @@ class ServiceTest extends TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage invalid default search domain
      */
     public function testGetQualifiedDomainInvalidDomainEmpty()

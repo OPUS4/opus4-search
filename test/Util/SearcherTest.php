@@ -35,6 +35,12 @@
 
 namespace OpusTest\Util;
 
+use Opus\Collection;
+use Opus\CollectionRole;
+use Opus\Document;
+use Opus\Model\Xml;
+use Opus\Model\Xml\Cache;
+use Opus\Model\Xml\Version1;
 use Opus\Search\Util\Query;
 use Opus\Search\Util\Searcher;
 use OpusTest\Search\TestAsset\TestCase;
@@ -54,7 +60,7 @@ class SearcherTest extends TestCase
         $rows = 5;
         $ids = [];
         for ($i = 0; $i < $rows; $i++) {
-            $document = new \Opus_Document();
+            $document = Document::new();
             $document->setServerState('published');
             $document->store();
             sleep(1);
@@ -76,12 +82,12 @@ class SearcherTest extends TestCase
 
     public function testIndexFieldServerDateModifiedIsPresent()
     {
-        $doc = new \Opus_Document();
+        $doc = Document::new();
         $doc->setServerState('published');
         $doc->store();
 
         $id = $doc->getId();
-        $doc = new \Opus_Document($id);
+        $doc = Document::get($id);
         $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
 
         $query = new Query(Query::LATEST_DOCS);
@@ -96,7 +102,7 @@ class SearcherTest extends TestCase
 
     public function testIndexFieldServerDateModifiedIsCorrectAfterModification()
     {
-        $doc = new \Opus_Document();
+        $doc = Document::new();
         $doc->setLanguage('deu');
         $doc->setServerState('published');
         $doc->store();
@@ -111,11 +117,11 @@ class SearcherTest extends TestCase
 
         sleep(1);
 
-        $doc = new \Opus_Document($id);
+        $doc = Document::get($id);
         $doc->setLanguage('eng');
         $doc->store();
 
-        $doc = new \Opus_Document($id);
+        $doc = Document::get($id);
         $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
 
         $this->assertTrue($serverDateModified > $result[0]->getServerDateModified()->getUnixTimestamp());
@@ -126,7 +132,7 @@ class SearcherTest extends TestCase
      */
     public function testReindexingIsTriggeredInCaseOfDependentModelChanges()
     {
-        $role = new \Opus_CollectionRole();
+        $role = new CollectionRole();
         $role->setName('foobar-name');
         $role->setOaiName('foobar-oainame');
         $role->store();
@@ -136,11 +142,11 @@ class SearcherTest extends TestCase
 
         $collId = $root->getId();
 
-        $root = new \Opus_Collection($collId);
+        $root = new Collection($collId);
         $root->setVisible(0);
         $root->store();
 
-        $doc = new \Opus_Document();
+        $doc = Document::new();
         $doc->setServerState('published');
         $docId = $doc->store();
 
@@ -150,7 +156,7 @@ class SearcherTest extends TestCase
 
         sleep(1);
 
-        $doc = new \Opus_Document($docId);
+        $doc = Document::get($docId);
         $doc->addCollection($root);
         $doc->store();
 
@@ -161,7 +167,7 @@ class SearcherTest extends TestCase
 
         sleep(1);
 
-        $root = new \Opus_Collection($collId);
+        $root = new Collection($collId);
         $root->setVisible(1);
         $root->store();
 
@@ -175,7 +181,7 @@ class SearcherTest extends TestCase
         sleep(1);
 
         $root->delete();
-        $doc = new \Opus_Document($docId);
+        $doc = Document::get($docId);
 
         // document in search index was not updated: connection between document $doc
         // and collection $root is still present in search index
@@ -191,12 +197,12 @@ class SearcherTest extends TestCase
         // force rebuild of cache entry for current Opus_Document: cache removal
         // was issued by deletion of collection $root
         // side effect of cache rebuild: document will be updated in search index
-        $xmlModel = new \Opus_Model_Xml();
-        $doc = new \Opus_Document($docId);
+        $xmlModel = new Xml();
+        $doc = Document::get($docId);
         $xmlModel->setModel($doc);
         $xmlModel->excludeEmptyFields();
-        $xmlModel->setStrategy(new \Opus_Model_Xml_Version1);
-        $xmlModel->setXmlCache(new \Opus_Model_Xml_Cache);
+        $xmlModel->setStrategy(new Version1());
+        $xmlModel->setXmlCache(new Cache());
         $xmlModel->getDomDocument();
 
         // connection between document $doc and collection $root does not longer
@@ -213,7 +219,7 @@ class SearcherTest extends TestCase
 
     public function testServerDateModifiedIsUpdatedForDependentModelChanges()
     {
-        $role = new \Opus_CollectionRole();
+        $role = new CollectionRole();
         $role->setName('foobar-name');
         $role->setOaiName('foobar-oainame');
         $role->store();
@@ -223,36 +229,36 @@ class SearcherTest extends TestCase
 
         $collId = $root->getId();
 
-        $root = new \Opus_Collection($collId);
+        $root = new Collection($collId);
         $root->setVisible(0);
         $root->store();
 
-        $doc = new \Opus_Document();
+        $doc = Document::new();
         $doc->setServerState('published');
         $docId = $doc->store();
 
-        $doc = new \Opus_Document($docId);
+        $doc = Document::get($docId);
         $this->assertEquals(0, count($doc->getCollection()), "Document $docId was already assigned to collection $collId");
         $serverDateModified1 = $doc->getServerDateModified()->getUnixTimestamp();
 
         sleep(1);
 
-        $doc = new \Opus_Document($docId);
+        $doc = Document::get($docId);
         $doc->addCollection($root);
         $doc->store();
 
-        $doc = new \Opus_Document($docId);
+        $doc = Document::get($docId);
         $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
         $serverDateModified2 = $doc->getServerDateModified()->getUnixTimestamp();
         $this->assertTrue($serverDateModified1 < $serverDateModified2);
 
         sleep(1);
 
-        $root = new \Opus_Collection($collId);
+        $root = new Collection($collId);
         $root->setVisible(1);
         $root->store();
 
-        $doc = new \Opus_Document($docId);
+        $doc = Document::get($docId);
         $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
         $serverDateModified3 = $doc->getServerDateModified()->getUnixTimestamp();
 
@@ -260,7 +266,7 @@ class SearcherTest extends TestCase
 
         $root->delete();
 
-        $doc = new \Opus_Document($docId);
+        $doc = Document::get($docId);
         $this->assertEquals(0, count($doc->getCollection()), "Document $docId is still assigned to collection $collId");
         $serverDateModified4 = $doc->getServerDateModified()->getUnixTimestamp();
         $this->assertTrue($serverDateModified3 < $serverDateModified4, 'Deletion of Collection was not observed by Document');
@@ -269,15 +275,15 @@ class SearcherTest extends TestCase
 
         // force rebuild of cache entry for current Opus_Document: cache removal
         // was issued by deletion of collection $root
-        $xmlModel = new \Opus_Model_Xml();
-        $doc = new \Opus_Document($docId);
+        $xmlModel = new Xml();
+        $doc = Document::get($docId);
         $xmlModel->setModel($doc);
         $xmlModel->excludeEmptyFields();
-        $xmlModel->setStrategy(new \Opus_Model_Xml_Version1);
-        $xmlModel->setXmlCache(new \Opus_Model_Xml_Cache);
+        $xmlModel->setStrategy(new Version1());
+        $xmlModel->setXmlCache(new Cache());
         $xmlModel->getDomDocument();
 
-        $doc = new \Opus_Document($docId);
+        $doc = Document::get($docId);
         $serverDateModified5 = $doc->getServerDateModified()->getUnixTimestamp();
         $this->assertTrue($serverDateModified4 == $serverDateModified5, 'Document and its dependet models were not changed: server_date_modified should not change');
     }
@@ -303,7 +309,7 @@ class SearcherTest extends TestCase
 
         $success = $result->getFulltextIDsSuccess();
 
-        $doc = new \Opus_Document($id);
+        $doc = Document::get($id);
         $file = $doc->getFile();
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->removeFiles($id, $fileName);
@@ -324,7 +330,7 @@ class SearcherTest extends TestCase
 
         $failure = $result->getFulltextIDsFailure();
 
-        $doc = new \Opus_Document($id);
+        $doc = Document::get($id);
         $file = $doc->getFile();
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->removeFiles($id, $fileName);
@@ -353,7 +359,7 @@ class SearcherTest extends TestCase
         $failure = $result->getFulltextIDsFailure();
         $this->assertEquals(1, count($failure));
 
-        $doc = new \Opus_Document($id);
+        $doc = Document::get($id);
         $file = $doc->getFile();
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->assertEquals($value, $success[0]);
@@ -375,7 +381,7 @@ class SearcherTest extends TestCase
         $success = $result->getFulltextIDsSuccess();
         $failure = $result->getFulltextIDsFailure();
 
-        $doc = new \Opus_Document($id);
+        $doc = Document::get($id);
         $file = $doc->getFile();
         $valueFile1 = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $valueFile2 = $file[1]->getId() . ':' . $file[1]->getRealHash('md5');
@@ -406,7 +412,7 @@ class SearcherTest extends TestCase
 
     private function createDocWithFulltext($fulltext1, $fulltext2 = null)
     {
-        $doc = new \Opus_Document();
+        $doc = Document::new();
         $doc->setServerState('published');
 
         $fulltextDir = $this->getFulltextDir();
@@ -419,7 +425,7 @@ class SearcherTest extends TestCase
         $doc->store();
 
         if (! is_null($fulltext2)) {
-            $doc = new \Opus_Document($doc->getId());
+            $doc = Document::get($doc->getId());
             $file = $doc->addFile();
             $file->setTempFile($fulltextDir . $fulltext2);
             $file->setPathName($fulltext2);

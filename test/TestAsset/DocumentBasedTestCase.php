@@ -34,6 +34,11 @@
 
 namespace OpusTest\Search\TestAsset;
 
+use Opus\Document;
+use Opus\Model\AbstractDb;
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Xml\Cache;
+
 class DocumentBasedTestCase extends TestCase
 {
 
@@ -78,7 +83,7 @@ class DocumentBasedTestCase extends TestCase
             'BelongsToBibliography' => 1,
             'EmbargoDate' => '2010-01-04',
             'PersonAuthor' => [
-                'Opus_Person', [
+                'Opus\Person', [
                     'AcademicTitle' => 'Prof.',
                     'FirstName' => 'Jane',
                     'LastName' => 'Doe',
@@ -102,7 +107,7 @@ class DocumentBasedTestCase extends TestCase
             'BelongsToBibliography' => 1,
             'EmbargoDate' => '2010-01-04',
             'PersonAuthor' => [
-                'Opus_Person', [
+                'Opus\Person', [
                     'FirstName' => 'John',
                     'LastName' => 'Doe',
                 ]
@@ -147,7 +152,7 @@ class DocumentBasedTestCase extends TestCase
     public static function getDocumentDescriptionByName($name)
     {
         if (! array_key_exists($name, self::$documentPropertySets)) {
-            throw new InvalidArgumentException("unknown document description");
+            throw new \InvalidArgumentException("unknown document description");
         }
 
         return self::$documentPropertySets[$name];
@@ -158,7 +163,7 @@ class DocumentBasedTestCase extends TestCase
      * description.
      *
      * @param array $documentProperties map of a document's properties into values
-     * @return \Opus_Document created document
+     * @return Document created document
      * @throws \Exception
      */
     protected function createDocument($documentProperties = null)
@@ -169,7 +174,7 @@ class DocumentBasedTestCase extends TestCase
             $documentProperties = self::$documentPropertySets[$documentProperties];
         }
 
-        $document = new \Opus_Document();
+        $document = Document::new();
 
 
         /*
@@ -212,7 +217,7 @@ class DocumentBasedTestCase extends TestCase
 
                 // add another dependent model for every given description
                 foreach ($value as $set) {
-                    /** @var \Opus_Model_Dependent_Abstract $related */
+                    /** @var AbstractDependentModel $related */
                     if ($pre) {
                         $related = $pre->newInstance();
                     } else {
@@ -251,7 +256,7 @@ class DocumentBasedTestCase extends TestCase
         return file_get_contents($this->qualifyTestFilename($filename));
     }
 
-    public function addFileToDocument(\Opus_Document $document, $filename, $label, $visibleInFrontdoor)
+    public function addFileToDocument(Document $document, $filename, $label, $visibleInFrontdoor)
     {
         $file = $document->addFile();
         $file->setTempFile($this->qualifyTestFilename($filename));
@@ -271,12 +276,12 @@ class DocumentBasedTestCase extends TestCase
     {
         parent::tearDown();
 
-        $cache = new \Opus_Model_Xml_Cache(false);
+        $cache = new Cache(false);
         $files = APPLICATION_PATH . '/build/workspace/files/';
 
         foreach ($this->created as $model) {
-            /** @var \Opus_Model_AbstractDb $model */
-            if ($model instanceof \Opus_Document) {
+            /** @var AbstractDb $model */
+            if ($model instanceof Document) {
                 // drop any model XML cached on document to delete next
                 $cache->removeAllEntriesWhereDocumentId($model->getId());
 

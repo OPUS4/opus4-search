@@ -37,13 +37,17 @@
 
 namespace Opus\Search\Task;
 
+use Opus\Document;
+use Opus\Job;
+use Opus\Job\Worker\InvalidJobException;
+use Opus\Job\Worker\WorkerInterface;
 use Opus\Search\Service;
 
 /**
  * Worker class for indexing Opus documents.
  *
  */
-class IndexOpusDocument implements \Opus_Job_Worker_Interface
+class IndexOpusDocument implements WorkerInterface
 {
 
     const LABEL = 'opus-index-document';
@@ -51,7 +55,7 @@ class IndexOpusDocument implements \Opus_Job_Worker_Interface
     /**
      * Holds the job currently worked on.
      *
-     * @var \Opus_Job
+     * @var Job
      */
     private $_job = null;
 
@@ -112,22 +116,22 @@ class IndexOpusDocument implements \Opus_Job_Worker_Interface
      * Load a document from database and optional file(s) and index them,
      * or remove document from index (depending on job)
      *
-     * @param \Opus_Job $job Job description and attached data.
+     * @param Job $job Job description and attached data.
      * @return void
-     * @throws \Opus_Job_Worker_InvalidJobException
+     * @throws InvalidJobException
      */
-    public function work(\Opus_Job $job)
+    public function work(Job $job)
     {
         // make sure we have the right job
         if ($job->getLabel() != $this->getActivationLabel()) {
-            throw new \Opus_Job_Worker_InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
+            throw new InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
         }
 
         $this->_job = $job;
         $data = $job->getData();
 
         if (! (is_object($data) && isset($data->documentId) && isset($data->task))) {
-            throw new \Opus_Job_Worker_InvalidJobException("Incomplete or missing data.");
+            throw new InvalidJobException("Incomplete or missing data.");
         }
 
         if (null !== $this->_logger) {
@@ -136,13 +140,13 @@ class IndexOpusDocument implements \Opus_Job_Worker_Interface
 
         // create index document or remove index, depending on task
         if ($data->task === 'index') {
-            $document = new \Opus_Document($data->documentId);
+            $document = Document::get($data->documentId);
 
             Service::selectIndexingService('jobRunner')->addDocumentsToIndex($document);
         } elseif ($data->task === 'remove') {
             Service::selectIndexingService('jobRunner')->removeDocumentsFromIndexById($data->documentId);
         } else {
-            throw new \Opus_Job_Worker_InvalidJobException("unknown task '{$data->task}'.");
+            throw new InvalidJobException("unknown task '{$data->task}'.");
         }
     }
 }

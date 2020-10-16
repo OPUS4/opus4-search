@@ -34,6 +34,8 @@
 
 namespace OpusTest\Search\Plugin;
 
+use Opus\Document;
+use Opus\Job;
 use OpusTest\Search\TestAsset\TestCase;
 
 class IndexTest extends TestCase
@@ -49,14 +51,14 @@ class IndexTest extends TestCase
 
     public function testCreateIndexJob()
     {
-        $indexJobsBefore = \Opus_Job::getByLabels(['opus-index-document']);
+        $indexJobsBefore = Job::getByLabels(['opus-index-document']);
         $jobCountBefore = count($indexJobsBefore);
 
-        $document = new \Opus_Document();
+        $document = Document::new();
         $document->setServerState('published');
         $documentId = $document->store();
 
-        $indexJobs = \Opus_Job::getByLabels(['opus-index-document']);
+        $indexJobs = Job::getByLabels(['opus-index-document']);
 
         $this->assertEquals(++$jobCountBefore, count($indexJobs), 'Expected new job');
 
@@ -75,14 +77,14 @@ class IndexTest extends TestCase
     {
         \Zend_Registry::get('Zend_Config')->runjobs->asynchronous = 0;
 
-        $indexJobsBefore = \Opus_Job::getByLabels(['opus-index-document']);
+        $indexJobsBefore = Job::getByLabels(['opus-index-document']);
         $jobCountBefore = count($indexJobsBefore);
 
-        $document = new \Opus_Document();
+        $document = Document::new();
         $document->setServerState('published');
         $documentId = $document->store();
 
-        $indexJobs = \Opus_Job::getByLabels(['opus-index-document']);
+        $indexJobs = Job::getByLabels(['opus-index-document']);
 
         $this->assertEquals(
             $jobCountBefore,
@@ -96,14 +98,14 @@ class IndexTest extends TestCase
 
     public function testCreateRemoveIndexJob()
     {
-        $removeIndexJobsBefore = \Opus_Job::getByLabels(['opus-index-document']);
+        $removeIndexJobsBefore = Job::getByLabels(['opus-index-document']);
         $jobCountBefore = count($removeIndexJobsBefore);
 
-        $document = new \Opus_Document();
+        $document = Document::new();
         $document->setServerState('published');
         $documentId = $document->store();
 
-        $indexJobs = \Opus_Job::getByLabels(['opus-index-document']);
+        $indexJobs = Job::getByLabels(['opus-index-document']);
         $newIndexJob = $this->getCreatedJob($documentId, $indexJobs);
         $this->assertNotNull($newIndexJob, 'Expected new opus-index-document job');
 
@@ -113,7 +115,7 @@ class IndexTest extends TestCase
 
         $document->delete();
 
-        $indexJobs = \Opus_Job::getByLabels(['opus-index-document']);
+        $indexJobs = Job::getByLabels(['opus-index-document']);
 
         $this->assertEquals(
             ++$jobCountBefore,
@@ -125,13 +127,13 @@ class IndexTest extends TestCase
         $this->assertNotNull($newJob, 'Expected new opus-index-document job');
         $this->assertEquals('index', $newJob->getData()->task);
 
-        \Opus_Job::deleteAll();
+        Job::deleteAll();
 
         $jobCountBefore = 0;
 
         $document->deletePermanent();
 
-        $removeIndexJobs = \Opus_Job::getByLabels(['opus-index-document']);
+        $removeIndexJobs = Job::getByLabels(['opus-index-document']);
 
         $this->assertEquals(
             ++$jobCountBefore,
@@ -148,15 +150,15 @@ class IndexTest extends TestCase
     {
         \Zend_Registry::get('Zend_Config')->runjobs->asynchronous = 0;
 
-        $removeIndexJobsBefore = \Opus_Job::getByLabels(['opus-remove-index-document']);
+        $removeIndexJobsBefore = Job::getByLabels(['opus-remove-index-document']);
         $jobCountBefore = count($removeIndexJobsBefore);
 
-        $document = new \Opus_Document();
+        $document = Document::new();
         $document->setServerState('published');
         $documentId = $document->store();
 
         $newIndexJob = null;
-        $indexJobs = \Opus_Job::getByLabels(['opus-index-document']);
+        $indexJobs = Job::getByLabels(['opus-index-document']);
         $newIndexJob = $this->getCreatedJob($documentId, $indexJobs);
         $this->assertNull($newIndexJob, 'Expected that no opus-index-document job was created');
 
@@ -166,7 +168,7 @@ class IndexTest extends TestCase
 
         $document->delete();
 
-        $removeIndexJobs = \Opus_Job::getByLabels(['opus-remove-index-document']);
+        $removeIndexJobs = Job::getByLabels(['opus-remove-index-document']);
         $this->assertEquals(
             $jobCountBefore,
             count($removeIndexJobs),

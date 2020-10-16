@@ -34,6 +34,8 @@
 namespace Opus\Search\Console;
 
 use Opus\Console\BaseDocumentCommand;
+use Opus\Document;
+use Opus\Search\Console\Helper\DocumentHelper;
 use Opus\Search\Service;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -91,7 +93,7 @@ EOT;
             $output->writeln('done');
         } else {
             if ($this->isSingleDocument()) {
-                $doc = new \Opus_Document($startId);
+                $doc = Document::get($startId);
                 $output->write("Removing document $startId from index ... ");
                 $indexer->removeDocumentsFromIndexById([$startId]);
                 $output->writeln('done');

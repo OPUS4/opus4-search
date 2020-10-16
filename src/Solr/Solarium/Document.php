@@ -66,11 +66,11 @@ class Document extends Xslt
      *     $solrDoc = $update->addDocument();
      *     $solrDoc = $doc->toSolrDocument( $opusDoc, $solrDoc );
      *
-     * @param Opus_Document $opusDoc
+     * @param \Opus\Document $opusDoc
      * @param \Solarium\QueryType\Update\Query\Document\Document $solrDoc
      * @return \Solarium\QueryType\Update\Query\Document\Document
      */
-    public function toSolrDocument(\Opus_Document $opusDoc, $solrDoc)
+    public function toSolrDocument(\Opus\Document $opusDoc, $solrDoc)
     {
         if (! ( $solrDoc instanceof \Solarium\QueryType\Update\Query\Document\Document )) {
             throw new \InvalidArgumentException('provided Solr document must be instance of Solarium Update Document');

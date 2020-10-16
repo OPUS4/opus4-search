@@ -34,6 +34,7 @@
 
 namespace OpusTest\Search\Solr\Solarium;
 
+use Opus\Person;
 use Opus\Search\Exception;
 use Opus\Search\Query;
 use Opus\Search\QueryFactory;
@@ -202,14 +203,14 @@ class AdapterSearchingTest extends DocumentBasedTestCase
     {
         $docA = $this->createDocument('article');
         $docA->setServerState('published');
-        $author = new \Opus_Person();
+        $author = new Person();
         $author->setLastName('Müller');
         $docA->addPersonAuthor($author);
         $docA->store();
 
         $docB = $this->createDocument('book');
         $docB->setServerState('published');
-        $author = new \Opus_Person();
+        $author = new Person();
         $author->setLastName('Muller');
         $docB->addPersonAuthor($author);
         $docB->store();
