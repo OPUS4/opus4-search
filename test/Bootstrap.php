@@ -33,6 +33,8 @@
 
 namespace OpusTest;
 
+use Opus\Model\Xml\Cache;
+
 /**
  * Class Bootstrap makes loading of Bootstrap with ZF1 easier.
  *
@@ -43,11 +45,11 @@ namespace OpusTest;
  *
  * @package OpusTest
  */
-class Bootstrap extends \Opus_Bootstrap_Base
+class Bootstrap extends \Opus\Db\DatabaseBootstrap
 {
 
     protected function _initIndexPlugin()
     {
-        \Opus_Model_Xml_Cache::setIndexPluginClass('Opus\Search\Plugin\Index');
+        Cache::setIndexPluginClass('Opus\Search\Plugin\Index');
     }
 }

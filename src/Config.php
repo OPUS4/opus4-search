@@ -33,6 +33,8 @@
 
 namespace Opus\Search;
 
+use Opus\EnrichmentKey;
+
 /**
  * Provides access on sections of configuration regarding selected domains of
  * searching and/or particular services or queries defined in either domain.
@@ -73,7 +75,7 @@ class Config
      */
     public static function getConfiguration()
     {
-        return \Opus_Config::get()->searchengine;
+        return \Opus\Config::get()->searchengine;
     }
 
     /**
@@ -217,7 +219,7 @@ class Config
      */
     protected static function mergeWithDeprecatedDomainConfiguration(\Zend_Config $unqualified)
     {
-        $config = \Opus_Config::get();
+        $config = \Opus\Config::get();
 
         if ($unqualified->readOnly()) {
             // create writable copy of provided unqualified configuration
@@ -284,7 +286,7 @@ class Config
         }
 
 
-        $config = \Opus_Config::get();
+        $config = \Opus\Config::get();
 
         if ($unqualified->readOnly()) {
             // create writable copy of provided unqualified configuration
@@ -381,7 +383,7 @@ class Config
     {
         $names = self::getFacetNames($facetSetName, $serviceDomain);
 
-        $config = \Opus_Config::get();
+        $config = \Opus\Config::get();
 
         // Map facet names to configured index fields
         $fields = array_map(function ($name) use ($config) {
@@ -397,7 +399,7 @@ class Config
 
     protected static function mapFacetFields($facets)
     {
-        $config = \Opus_Config::get();
+        $config = \Opus\Config::get();
 
         $fields = [];
 
@@ -429,7 +431,7 @@ class Config
 
         // TODO consolidate configuraton
         $config = static::getDomainConfiguration($serviceDomain);
-        $searchConfig = \Opus_Config::get()->search; // new search configuration
+        $searchConfig = \Opus\Config::get()->search; // new search configuration
         if ($searchConfig && isset($searchConfig->facet->default)) {
             $defaultOptions = $searchConfig->facet->default;
         } else {
@@ -496,7 +498,7 @@ class Config
 
         $fields = static::getFacetNames($facetSetName, $serviceDomain);
         $config = static::getDomainConfiguration($serviceDomain)->get('sortcrit', null);
-        $searchConfig = \Opus_Config::get()->search; // TODO new configuration (consolidate with old above)
+        $searchConfig = \Opus\Config::get()->search; // TODO new configuration (consolidate with old above)
 
         if ($searchConfig && isset($searchConfig->facet->default->sort)
                 && $searchConfig->facet->default->sort == 'lexi') {
@@ -558,9 +560,9 @@ class Config
 
     public static function getEnrichmentFacets()
     {
-        $names = \Opus_EnrichmentKey::getKeys();
+        $names = EnrichmentKey::getKeys();
 
-        $config = \Opus_Config::get();
+        $config = \Opus\Config::get();
 
         if (isset($config->search->facet)) {
             $facetConfiguration = $config->search->facet;

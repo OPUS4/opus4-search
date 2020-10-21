@@ -53,7 +53,7 @@ abstract class Complex extends Base
     /**
      * Lists conditions of current filter.
      *
-     * @var Opus_Search_Filtering[]
+     * @var Filtering[]
      */
     protected $conditions = [];
 
@@ -62,7 +62,7 @@ abstract class Complex extends Base
     /**
      * Adds provided condition to current filter.
      *
-     * @param Opus_Search_Filtering $filter
+     * @param Filtering $filter
      * @return $this
      */
     public function addFilter(Filtering $filter)
@@ -180,7 +180,7 @@ abstract class Complex extends Base
      *
      * @param string $fieldName name of field simple filter applies on
      * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-     * @return Opus_Search_Filter_Simple
+     * @return Simple
      */
     public function createSimpleGreaterOrEqualFilter($fieldName, $addImplicitly = true)
     {
@@ -251,7 +251,7 @@ abstract class Complex extends Base
     }
 
     /**
-     * @return Opus_Search_Filtering[]
+     * @return Filtering[]
      */
     public function getConditions()
     {

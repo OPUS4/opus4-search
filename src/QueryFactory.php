@@ -33,6 +33,8 @@
 
 namespace Opus\Search;
 
+use Opus\Document;
+
 /**
  * Implements globally available methods for creating pre-configured instances
  * of Opus_Search_Query describing search requests frequently used in Opus.
@@ -60,10 +62,10 @@ class QueryFactory
      * Creates query on provided adapter initially searching given document.
      *
      * @param Searching $adapter
-     * @param \Opus_Document $document
+     * @param Document $document
      * @return Query
      */
-    public static function selectDocument(Searching $adapter, \Opus_Document $document)
+    public static function selectDocument(Searching $adapter, Document $document)
     {
         return self::selectDocumentById($document->getId());
     }

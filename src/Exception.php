@@ -39,6 +39,7 @@ namespace Opus\Search;
  * Implements common exception to be used in code of search engine adapters.
  *
  * TODO code duplication in extending classes
+ * TODO rename to SearchException
  */
 class Exception extends \Exception
 {

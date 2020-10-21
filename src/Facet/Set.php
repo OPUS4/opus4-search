@@ -34,6 +34,7 @@
 namespace Opus\Search\Facet;
 
 use Opus\Search\Config;
+use Opus\Search\Query;
 
 /**
  * This class implements API for generically work with search engines supporting
@@ -71,7 +72,7 @@ class Set
     /**
      * @param string $facetSetName name of current set of facets
      * @param string $serviceDomain name of search engine domain used for selecting proper configuration
-     * @throws Zend_Config_Exception
+     * @throws \Zend_Config_Exception
      */
     protected function __construct($facetSetName = 'default', $serviceDomain = null)
     {
@@ -89,8 +90,8 @@ class Set
      * Creates instance of facet-related information to provide in a query for
      * for extending it.
      *
-     * @see Opus_Search_Query::setFacet()
-     * @return Opus_Search_Facet_Set
+     * @see Query::setFacet()
+     * @return Set
      */
     public static function create($facetSetName = 'default', $serviceDomain = null)
     {
@@ -110,7 +111,7 @@ class Set
     public function overrideLimits($limits)
     {
         if (is_array($limits)) {
-            $config = \Opus_Config::get();
+            $config = \Opus\Config::get();
 
             $mappedLimits = [];
 
@@ -150,7 +151,7 @@ class Set
      * Adds another facet field to current facet set.
      *
      * @param string $name name of field to add (existing field is returned if it's been added before)
-     * @return Opus_Search_Facet_Field description of added or already existing field
+     * @return Field description of added or already existing field
      */
     public function addField($name)
     {
@@ -235,7 +236,7 @@ class Set
             $this->fields = [];
         }
 
-        $config = \Opus_Config::get();
+        $config = \Opus\Config::get();
 
         foreach ($this->normalizeFields($fieldNames) as $name) {
             $indexField = $name;

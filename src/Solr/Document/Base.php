@@ -34,10 +34,16 @@
 
 namespace Opus\Search\Solr\Document;
 
+use Opus\Document;
+use Opus\File;
+use Opus\Model\Xml;
+use Opus\Model\Xml\Cache;
+use Opus\Model\Xml\Version1;
 use Opus\Search\Exception;
 use Opus\Search\Log;
 use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Service;
+use Opus\Storage\StorageException;
 
 abstract class Base
 {
@@ -49,22 +55,22 @@ abstract class Base
     /**
      * Retrieves XML describing model data of provided Opus document.
      *
-     * @param \Opus_Document $opusDoc
+     * @param Document $opusDoc
      * @return \DOMDocument
      */
-    protected function getModelXml(\Opus_Document $opusDoc)
+    protected function getModelXml(Document $opusDoc)
     {
         // Set up caching xml-model and get XML representation of document.
-        $caching_xml_model = new \Opus_Model_Xml();
+        $caching_xml_model = new Xml();
         $caching_xml_model->setModel($opusDoc);
         $caching_xml_model->excludeEmptyFields();
-        $caching_xml_model->setStrategy(new \Opus_Model_Xml_Version1());
-        $cache = new \Opus_Model_Xml_Cache(false);
+        $caching_xml_model->setStrategy(new Version1());
+        $cache = new Cache(false);
         $caching_xml_model->setXmlCache($cache);
 
         $modelXml = $caching_xml_model->getDomDocument();
 
-        $config = \Opus_Config::get();
+        $config = \Opus\Config::get();
 
         // extract fulltext from file and append it to the generated xml.
         if (! isset($config->search->indexFiles)
@@ -79,7 +85,7 @@ abstract class Base
      * Appends fulltext data of every listen file to provided XML document.
      *
      * @param \DomDocument $modelXml
-     * @param \Opus_File[] $files
+     * @param File[] $files
      * @param string $docId ID of document
      * @return void
      */
@@ -98,7 +104,7 @@ abstract class Base
 
         // only consider files which are visible in frontdoor
         $files = array_filter($files, function ($file) {
-            /** @var \Opus_File $file */
+            /** @var File $file */
             return $file->getVisibleInFrontdoor() === '1';
         });
 
@@ -125,7 +131,7 @@ abstract class Base
                     'An error occurred while getting fulltext data for document with id ' . $docId . ': ' .
                     $e->getMessage()
                 );
-            } catch (\Opus_Storage_Exception $e) {
+            } catch (StorageException $e) {
                 Log::get()->err(
                     'Failed accessing file for extracting fulltext for document with id ' . $docId . ': '
                     . $e->getMessage()
@@ -155,10 +161,10 @@ abstract class Base
 
     /**
      *
-     * @param \Opus_File $file
+     * @param File $file
      * @return string
      */
-    private function getFulltextHash(\Opus_File $file)
+    private function getFulltextHash(File $file)
     {
         $hash = '';
 
@@ -186,9 +192,9 @@ abstract class Base
      *       API for describing Solr-compatible document. On return the same
      *       reference is returned.
      *
-     * @param Opus_Document $opusDoc
+     * @param Document $opusDoc
      * @param mixed $solrDoc depends on derived implementation
      * @return mixed reference provided in parameter $solrDoc
      */
-    abstract public function toSolrDocument(\Opus_Document $opusDoc, $solrDoc);
+    abstract public function toSolrDocument(Document $opusDoc, $solrDoc);
 }

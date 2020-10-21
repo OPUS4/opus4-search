@@ -33,6 +33,9 @@
 
 namespace Opus\Search\Plugin;
 
+use Opus\Document;
+use Opus\Job;
+use Opus\Model\AbstractDb;
 use Opus\Search\Exception;
 use Opus\Search\Log;
 use Opus\Search\Service;
@@ -62,13 +65,13 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
      *
      * If document state is set to something != published, remove document.
      *
-     * @param \Opus_Model_AbstractDb $model item written to store before
+     * @param AbstractDb $model item written to store before
      * @see {\Opus_Model_Plugin_Interface::postStore}
      */
     public function postStore(\Opus\Model\ModelInterface $model)
     {
         // only index Opus_Document instances
-        if (false === ($model instanceof \Opus_Document)) {
+        if (false === ($model instanceof Document)) {
             return;
         }
 
@@ -76,7 +79,7 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
         // to reload the document, just to make sure the object is new,
         // unmodified and clean...
         // TODO: Write unit test.
-        $model = new \Opus_Document($model->getId());
+        $model = Document::get($model->getId());
 
         if ($model->getServerState() === 'temporary') {
             // TODO does this make sense here - do we need it?
@@ -124,7 +127,7 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
         if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug(__METHOD__ . ': ' .'Adding remove-index job for document ' . $documentId . '.');
 
-            $job = new \Opus_Job();
+            $job = new Job();
             $job->setLabel(IndexOpusDocument::LABEL);
             $job->setData([
                 'documentId' => $documentId,
@@ -151,10 +154,10 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
     /**
      * Helper method to add document to index.
      *
-     * @param \Opus_Document $document
+     * @param Document $document
      * @return void
      */
-    private function addDocumentToIndex(\Opus_Document $document)
+    private function addDocumentToIndex(Document $document)
     {
 
         $documentId = $document->getId();
@@ -165,7 +168,7 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
         if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug(__METHOD__ . ': ' . 'Adding index job for document ' . $documentId . '.');
 
-            $job = new \Opus_Job();
+            $job = new Job();
             $job->setLabel(IndexOpusDocument::LABEL);
             $job->setData([
                 'documentId' => $documentId,

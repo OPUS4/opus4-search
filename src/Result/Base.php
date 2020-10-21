@@ -33,6 +33,11 @@
 
 namespace Opus\Search\Result;
 
+use Opus\Document;
+use Opus\Document\DocumentException;
+use Opus\DocumentFinder;
+use Opus\Search\Log;
+
 /**
  * Implements API for describing successful response to search query.
  */
@@ -193,7 +198,7 @@ class Base
                 /** @var Match $match */
                 $match->getDocument();
                 $matches[] = $match;
-            } catch (\Opus_Document_Exception $e) {
+            } catch (DocumentException $e) {
                 Log::get()->warn('skipping matching but locally missing document #' . $match->getId());
             }
         }
@@ -234,7 +239,7 @@ class Base
      *       prefers "matches" over "results".
      *
      * @deprecated
-     * @return \Opus_Document[]
+     * @return Document[]
      */
     public function getResults()
     {
@@ -250,7 +255,7 @@ class Base
     public function dropLocallyMissingMatches()
     {
         if (! $this->validated) {
-            $finder = new \Opus_DocumentFinder();
+            $finder = new DocumentFinder();
 
             $returnedIds = $this->getReturnedMatchingIds();
             $existingIds = $finder

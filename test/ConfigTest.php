@@ -34,6 +34,7 @@
 
 namespace OpusTest;
 
+use Opus\EnrichmentKey;
 use Opus\Search\Config;
 use OpusTest\Search\TestAsset\TestCase;
 
@@ -207,9 +208,9 @@ class ConfigTest extends TestCase
             'app'  => 'some/fallback'
         ]]]);
 
-        $this->assertEquals('10.1.2.3', \Opus_Config::get()->searchengine->index->host);
-        $this->assertEquals('12345', \Opus_Config::get()->searchengine->index->port);
-        $this->assertEquals('some/fallback', \Opus_Config::get()->searchengine->index->app);
+        $this->assertEquals('10.1.2.3', \Opus\Config::get()->searchengine->index->host);
+        $this->assertEquals('12345', \Opus\Config::get()->searchengine->index->port);
+        $this->assertEquals('some/fallback', \Opus\Config::get()->searchengine->index->app);
 
         // repeat test above now expecting to get overlaid configuration
         $config = Config::getServiceConfiguration('search', null, 'solr');
@@ -253,10 +254,10 @@ class ConfigTest extends TestCase
             'timeout' => 20
         ] ] ]);
 
-        $this->assertEquals('10.1.2.3', \Opus_Config::get()->searchengine->index->host);
-        $this->assertEquals('12345', \Opus_Config::get()->searchengine->index->port);
-        $this->assertEquals('some/fallback', \Opus_Config::get()->searchengine->index->app);
-        $this->assertEquals('20', \Opus_config::get()->searchengine->index->timeout);
+        $this->assertEquals('10.1.2.3', \Opus\Config::get()->searchengine->index->host);
+        $this->assertEquals('12345', \Opus\Config::get()->searchengine->index->port);
+        $this->assertEquals('some/fallback', \Opus\Config::get()->searchengine->index->app);
+        $this->assertEquals('20', \Opus\Config::get()->searchengine->index->timeout);
 
         // repeat test above now expecting to get overlaid configuration
         $config = Config::getServiceConfiguration('index', null, 'solr');
@@ -299,9 +300,9 @@ class ConfigTest extends TestCase
             'app'  => 'some/fallback'
         ] ] ]);
 
-        $this->assertEquals('10.1.2.3', \Opus_Config::get()->searchengine->extract->host);
-        $this->assertEquals('12345', \Opus_Config::get()->searchengine->extract->port);
-        $this->assertEquals('some/fallback', \Opus_Config::get()->searchengine->extract->app);
+        $this->assertEquals('10.1.2.3', \Opus\Config::get()->searchengine->extract->host);
+        $this->assertEquals('12345', \Opus\Config::get()->searchengine->extract->port);
+        $this->assertEquals('some/fallback', \Opus\Config::get()->searchengine->extract->app);
 
         // repeat test above now expecting to get overlaid configuration
         $config = Config::getServiceConfiguration('extract', null, 'solr');
@@ -402,10 +403,10 @@ class ConfigTest extends TestCase
     public function testGetEnrichmentFacets()
     {
         $this->markTestIncomplete('not fully implemented yet');
-        $enrichment = \Opus_EnrichmentKey::fetchByName('test');
+        $enrichment = EnrichmentKey::fetchByName('test');
 
         if (is_null($enrichment)) {
-            $enrichment = new \Opus_EnrichmentKey();
+            $enrichment = new EnrichmentKey();
             $enrichment->setName('test');
             $enrichment->store();
         }

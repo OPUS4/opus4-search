@@ -92,7 +92,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
      */
     protected function dropDeprecatedConfiguration()
     {
-        $config = \Opus_Config::get()->searchengine;
+        $config = \Opus\Config::get()->searchengine;
 
         unset(
             $config->index->host,

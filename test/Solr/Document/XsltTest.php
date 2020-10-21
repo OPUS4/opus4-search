@@ -34,6 +34,7 @@
 
 namespace OpusTest\Search\Solr\Document;
 
+use Opus\Date;
 use Opus\Search\Config;
 use Opus\Search\Solr\Document\Xslt;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
@@ -49,7 +50,7 @@ class XsltTest extends DocumentBasedTestCase
     public function testArticleConversion()
     {
         $document = $this->createDocument('article');
-        $this->assertInstanceOf('Opus_Document', $document);
+        $this->assertInstanceOf('Opus\Document', $document);
 
         $converter = new Xslt(Config::getDomainConfiguration('solr'));
         $solr = $converter->toSolrDocument($document, new \DOMDocument());
@@ -186,7 +187,7 @@ class XsltTest extends DocumentBasedTestCase
     public function testBookConversion()
     {
         $document = $this->createDocument('book');
-        $this->assertInstanceOf('Opus_Document', $document);
+        $this->assertInstanceOf('Opus\Document', $document);
 
         $converter = new Xslt(Config::getDomainConfiguration('solr'));
         $solr = $converter->toSolrDocument($document, new \DOMDocument());
@@ -340,7 +341,7 @@ class XsltTest extends DocumentBasedTestCase
     public function testConfiguredIndexingOfYearField()
     {
         $document = $this->createDocument('book');
-        $date = new \Opus_Date();
+        $date = new Date();
         $date->setNow();
         $document->setPublishedDate($date);
         $document->setPublishedYear(2010);

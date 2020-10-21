@@ -32,6 +32,8 @@
 
 namespace Opus\Search\Console\Helper;
 
+use Opus\DocumentFinder;
+
 /**
  * Class DocumentHelper
  * @package Opus\Search\Console\Helper
@@ -53,7 +55,7 @@ class DocumentHelper
      */
     public function getDocumentIds($start, $end)
     {
-        $finder = new \Opus_DocumentFinder();
+        $finder = new DocumentFinder();
 
         if (isset($start)) {
             $finder->setIdRangeStart($start);

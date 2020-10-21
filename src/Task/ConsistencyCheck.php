@@ -35,11 +35,15 @@
 
 namespace Opus\Search\Task;
 
+use Opus\Job;
+use Opus\Job\Worker\AbstractWorker;
+use Opus\Job\Worker\InvalidJobException;
+
 /**
  * Worker class for checking consistency between documents in database and Solr index.
  *
  */
-class ConsistencyCheck extends \Opus_Job_Worker_Abstract
+class ConsistencyCheck extends AbstractWorker
 {
 
     const LABEL = 'opus-consistency-check';
@@ -75,14 +79,14 @@ class ConsistencyCheck extends \Opus_Job_Worker_Abstract
      * - it exists both in database and Solr index, but server_date_modified
      *   timestamps do not coincide
      *
-     * @param Opus_Job $job Job description and attached data.
+     * @param Job $job Job description and attached data.
      * @return void
      */
-    public function work(\Opus_Job $job)
+    public function work(Job $job)
     {
         // make sure we have the right job
         if ($job->getLabel() != $this->getActivationLabel()) {
-            throw new \Opus_Job_Worker_InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
+            throw new InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
         }
 
         $lockFile = $this->logfilePath . '.lock';

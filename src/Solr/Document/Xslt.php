@@ -34,6 +34,7 @@
 
 namespace Opus\Search\Solr\Document;
 
+use Opus\Document;
 use Opus\Search\Log;
 
 class Xslt extends Base
@@ -75,11 +76,11 @@ class Xslt extends Base
      * @example
      *     $solrXmlDoc = $doc->toSolrDocument( $opusDoc, new DOMDocument() );
      *
-     * @param \Opus_Document $opusDoc
+     * @param Document $opusDoc
      * @param \DOMDocument $solrDoc
      * @return \DOMDocument
      */
-    public function toSolrDocument(\Opus_Document $opusDoc, $solrDoc)
+    public function toSolrDocument(Document $opusDoc, $solrDoc)
     {
         if (! ($solrDoc instanceof \DOMDocument)) {
             throw new \InvalidArgumentException('provided Solr document must be instance of DOMDocument');
@@ -90,7 +91,7 @@ class Xslt extends Base
         $solrDoc->preserveWhiteSpace = false;
         $solrDoc->loadXML($this->processor->transformToXML($modelXml));
 
-        if (filter_var(\Opus_Config::get()->log->prepare->xml, FILTER_VALIDATE_BOOLEAN)) {
+        if (filter_var(\Opus\Config::get()->log->prepare->xml, FILTER_VALIDATE_BOOLEAN)) {
             $modelXml->formatOutput = true;
             Log::get()->debug("input xml\n" . $modelXml->saveXML());
             $solrDoc->formatOutput = true;
@@ -146,7 +147,7 @@ class Xslt extends Base
     public static function getYearOrder()
     {
         if (is_null(self::$yearOrder)) {
-            $config = \Opus_Config::get();
+            $config = \Opus\Config::get();
 
             if (isset($config->search->index->field->year->order)) {
                 $orderConfig = $config->search->index->field->year->order;

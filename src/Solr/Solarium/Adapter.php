@@ -33,6 +33,7 @@
 
 namespace Opus\Search\Solr\Solarium;
 
+use Opus\File;
 use Opus\Search\Exception;
 use Opus\Search\Extracting;
 use Opus\Search\FulltextFileCache;
@@ -46,6 +47,9 @@ use Opus\Search\Result\Base;
 use Opus\Search\Searching;
 use Opus\Search\Solr\Filter\Raw;
 use Opus\Search\Solr\Solarium\Filter\Complex;
+use Opus\Storage\FileAccessException;
+use Opus\Storage\FileNotFoundException;
+use Opus\Storage\StorageException;
 
 /**
  * Class Adapter
@@ -132,7 +136,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         }
 
         // TODO hack to map published_year_inverted (all year index fields) to year asset (should be cleaned up)
-        $config = \Opus_Config::get();
+        $config = \Opus\Config::get();
 
         if (isset($config->search->facet)) {
             $facets = $config->search->facet;
@@ -178,7 +182,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         $validDocuments = [];
 
         foreach ($documents as $document) {
-            if (! ($document instanceof \Opus_Document)) {
+            if (! ($document instanceof \Opus\Document)) {
                 throw new \InvalidArgumentException("invalid document in provided set");
             }
             if ($document->getServerState() !== 'temporary') {
@@ -205,7 +209,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
     }
 
     /**
-     * @param \Opus_Document|\Opus_Document[] $documents
+     * @param \Opus\Document|\Opus\Document[] $documents
      * @return $this|Indexing
      * @throws Exception
      * @throws InvalidQueryException
@@ -268,7 +272,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         $documents = $this->normalizeDocuments($documents);
 
         $documentIds = array_map(function ($doc) {
-            /** @var Opus_Document $doc */
+            /** @var \Opus\Document $doc */
             return $doc->getId();
         }, $documents);
 
@@ -546,17 +550,17 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 	 */
 
     /**
-     * @param \Opus_File $file
-     * @param \Opus_Document|null $document
+     * @param \Opus\File $file
+     * @param \Opus\Document|null $document
      * @return Extracting|string
      * @throws Exception
-     * @throws \Opus_Storage_Exception
-     * @throws \Opus_Storage_FileAccessException
-     * @throws \Opus_Storage_FileNotFoundException
+     * @throws StorageException
+     * @throws FileAccessException
+     * @throws FileNotFoundException
      * @throws MimeTypeNotSupportedException
      * @throws \Zend_Exception
      */
-    public function extractDocumentFile(\Opus_File $file, \Opus_Document $document = null)
+    public function extractDocumentFile(File $file, \Opus\Document $document = null)
     {
         Log::get()->debug('extracting fulltext from ' . $file->getPath());
 
@@ -570,11 +574,11 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                  * $path = substr($path, strlen(APPLICATION_PATH) + 1);
                  * }
                  */
-                throw new \Opus_Storage_FileNotFoundException($path);
+                throw new FileNotFoundException($path);
             }
 
             if (! $file->isReadable()) {
-                throw new \Opus_Storage_FileAccessException($file->getPath() . ' is not readable.');
+                throw new FileAccessException($file->getPath() . ' is not readable.');
             }
 
             if (! $this->isMimeTypeSupported($file)) {
@@ -650,7 +654,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
             return $fulltext;
         } catch (Exception $e) {
-            if (! ($e instanceof Exception) && ! ($e instanceof \Opus_Storage_Exception)) {
+            if (! ($e instanceof Exception) && ! ($e instanceof StorageException)) {
                 $e = new Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
             }
 
@@ -728,7 +732,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
             return $fulltext;
         } catch (Exception $e) {
-            if (! ($e instanceof Exception) && ! ($e instanceof \Opus_Storage_Exception)) {
+            if (! ($e instanceof Exception) && ! ($e instanceof StorageException)) {
                 $e = new Exception("error while extracting fulltext from file $path", null, $e);
             }
 
@@ -741,12 +745,12 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
      * Detects if provided file has MIME type supported for extracting fulltext
      * data.
      *
-     * @param Opus_File $file
+     * @param File $file
      * @return bool
      *
      * TODO make list configurable
      */
-    protected function isMimeTypeSupported(\Opus_File $file)
+    protected function isMimeTypeSupported(File $file)
     {
         $mimeType = $file->getMimeType();
 

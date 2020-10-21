@@ -34,6 +34,9 @@
 
 namespace Opus\Search\Util;
 
+use Opus\Document;
+use Opus\DocumentFinder;
+use Opus\Model\NotFoundException;
 use Opus\Search\Exception;
 use Opus\Search\QueryFactory;
 use Opus\Search\Service;
@@ -93,7 +96,7 @@ class ConsistencyCheck
      */
     private function checkDatabase()
     {
-        $finder = new \Opus_DocumentFinder();
+        $finder = new DocumentFinder();
         $finder->setServerState('published');
         $ids = $finder->ids();
 
@@ -101,8 +104,8 @@ class ConsistencyCheck
 
         foreach ($ids as $id) {
             try {
-                $doc = new \Opus_Document($id);
-            } catch (\Opus_Model_NotFoundException $e) {
+                $doc = Document::get($id);
+            } catch (NotFoundException $e) {
                 // ignore: document was deleted from database in meantime
                 continue;
             }
@@ -152,8 +155,8 @@ class ConsistencyCheck
         $results = $result->getReturnedMatchingIds();
         foreach ($results as $id) {
             try {
-                $doc = new \Opus_Document($id);
-            } catch (\Opus_Model_NotFoundException $e) {
+                $doc = Document::get($id);
+            } catch (NotFoundException $e) {
                 $this->logger->info("inconsistency found for document $id: document is in Solr index, but is not in database.");
                 $this->numOfInconsistencies++;
                 if ($this->removeDocumentFromSearchIndex($id)) {
@@ -174,7 +177,7 @@ class ConsistencyCheck
     /**
      * Forces the reindexing of the given document.
      *
-     * @param \Opus_Document $doc
+     * @param Document $doc
      * @return bool Returns true, iff the given document was successfully updated in Solr index.
      */
     private function forceReindexing($doc)

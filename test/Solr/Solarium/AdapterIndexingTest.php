@@ -324,7 +324,7 @@ class AdapterIndexingTest extends DocumentBasedTestCase
 
         // prevent automatic indexing - cache currently triggers indexing directly
         $document->unregisterPlugin('Opus\Search\Plugin\Index');
-        $document->unregisterPlugin('Opus_Document_Plugin_XmlCache');
+        $document->unregisterPlugin('Opus\Document\Plugin\XmlCache');
 
         $document->setServerState('unpublished');
         $document->store();

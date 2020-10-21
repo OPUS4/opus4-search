@@ -36,10 +36,14 @@ use Opus\Console\Helper\ProgressBar;
 use Opus\Console\Helper\ProgressMatrix;
 use Opus\Console\Helper\ProgressOutput;
 use Opus\Console\Helper\ProgressReport;
+use Opus\Document;
+use Opus\Model\ModelException;
+use Opus\Model\Xml\Cache;
 use Opus\Search\Exception;
 use Opus\Search\Indexing;
 use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Service;
+use Opus\Storage\StorageException;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -78,7 +82,7 @@ class IndexHelper
      * @param $endId
      * @return float|string
      * @throws Exception
-     * @throws \Opus\Model\Exception
+     * @throws ModelException
      * @throws \Zend_Config_Exception
      *
      * TODO Is the timestamp in the console output useful?
@@ -220,7 +224,7 @@ class IndexHelper
      * @param $startId
      * @param $endId
      * @return float|string
-     * @throws \Opus\Model\Exception
+     * @throws ModelException
      * @throws \Zend_Config_Exception
      *
      * TODO perhaps support different output formats (like XML for automated processing)
@@ -279,7 +283,7 @@ class IndexHelper
 
             $timeStart = microtime(true);
 
-            $doc = new \Opus_Document($docId);
+            $doc = Document::get($docId);
 
             $files = $doc->getFile();
 
@@ -296,7 +300,7 @@ class IndexHelper
                             }
                             $report->addException($e);
                         }
-                    } catch (\Opus_Storage_Exception $e) {
+                    } catch (StorageException $e) {
                         $report->addException($e);
                         $status = '<fg=red>E</>';
                     } catch (Exception $e) {
@@ -355,7 +359,7 @@ class IndexHelper
         } catch (Opus\Search\Exception $e) {
             // echo date('Y-m-d H:i:s') . " ERROR: Failed indexing document $docId.\n";
             $output->writeln(date('Y-m-d H:i:s') . "        {$e->getMessage()}");
-        } catch (\Opus_Storage_Exception $e) {
+        } catch (StorageException $e) {
             // echo date('Y-m-d H:i:s') . " ERROR: Failed indexing unavailable file on document $docId.\n";
             $output->writeln(date('Y-m-d H:i:s') . "        {$e->getMessage()}");
         }
@@ -405,7 +409,7 @@ class IndexHelper
             $cache->remove($docId);
         }
 
-        $doc = new \Opus_Document($docId);
+        $doc = Document::get($docId);
 
         // TODO dirty hack: disable implicit reindexing of documents in case of cache misses
         $doc->unregisterPlugin('Opus\Search\Plugin\Index');
@@ -446,7 +450,7 @@ class IndexHelper
     public function getCache()
     {
         if ($this->cache === null) {
-            $this->cache = new \Opus_Model_Xml_Cache();
+            $this->cache = new Cache();
         }
 
         return $this->cache;
