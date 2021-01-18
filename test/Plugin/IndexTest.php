@@ -67,7 +67,7 @@ class IndexTest extends TestCase
         $this->assertNotNull($newJob, 'Expected new job');
         $this->assertEquals('index', $newJob->getData()->task);
 
-        $document->deletePermanent();
+        $document->delete();
         if (! is_null($newJob)) {
             $newJob->delete();
         }
@@ -113,7 +113,8 @@ class IndexTest extends TestCase
             $newIndexJob->delete();
         }
 
-        $document->delete();
+        $document->setServerState(Document::STATE_DELETED);
+        $document->store();
 
         $indexJobs = Job::getByLabels(['opus-index-document']);
 
@@ -131,7 +132,7 @@ class IndexTest extends TestCase
 
         $jobCountBefore = 0;
 
-        $document->deletePermanent();
+        $document->delete();
 
         $removeIndexJobs = Job::getByLabels(['opus-index-document']);
 
@@ -166,7 +167,8 @@ class IndexTest extends TestCase
             $newIndexJob->delete();
         }
 
-        $document->delete();
+        $document->setServerState(Document::STATE_DELETED);
+        $document->store();
 
         $removeIndexJobs = Job::getByLabels(['opus-remove-index-document']);
         $this->assertEquals(

@@ -75,7 +75,8 @@ class ConsistencyCheckTest extends TestCase
         $this->assertTrue($this->isDocumentInSearchIndex(), 'asserting that document ' . $this->docId . ' is in search index');
 
         $this->manipulateSolrConfig();
-        $this->doc->delete();
+        $this->doc->setServerState(Document::STATE_DELETED);
+        $this->doc->store();
         $this->restoreSolrConfig();
 
         $this->assertTrue($this->isDocumentInSearchIndex(), 'asserting that document ' . $this->docId . ' is in search index');
@@ -89,7 +90,7 @@ class ConsistencyCheckTest extends TestCase
     public function testWithInconsistentStateAfterPermanentDeletion()
     {
         $this->manipulateSolrConfig();
-        $this->doc->deletePermanent();
+        $this->doc->delete();
 
         $this->restoreSolrConfig();
         $this->assertTrue($this->isDocumentInSearchIndex(), 'asserting that document ' . $this->docId . ' is in search index');
