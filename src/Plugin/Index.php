@@ -98,21 +98,9 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
          */
     public function postDelete($modelId)
     {
-        if (null === $modelId) {
-            return;
+        if (null !== $modelId) {
+            $this->removeDocumentFromIndexById($modelId);
         }
-
-        return;
-    }
-
-    public function postDeletePermanent($modelId)
-    {
-        if (null === $modelId) {
-            return;
-        }
-
-        $this->removeDocumentFromIndexById($modelId);
-        return;
     }
 
     /**

@@ -281,6 +281,7 @@ class DocumentBasedTestCase extends TestCase
 
         foreach ($this->created as $model) {
             /** @var AbstractDb $model */
+            // TODO the following not be necessary since document will be permanently deleted by delete()
             if ($model instanceof Document) {
                 // drop any model XML cached on document to delete next
                 $cache->removeAllEntriesWhereDocumentId($model->getId());
