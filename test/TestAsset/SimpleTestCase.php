@@ -64,7 +64,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
      */
     protected function adjustConfiguration($overlay, $callback = null)
     {
-        $previous = \Opus\Config::get('Zend_Config');
+        $previous = \Opus\Config::get();
         $updated  = new \Zend_Config([], true);
 
         $updated
