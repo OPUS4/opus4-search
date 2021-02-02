@@ -77,7 +77,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
 
         $updated->setReadOnly();
 
-        Config::set($updated);
+        \Opus\Config::set($updated);
 
         Config::dropCached();
 
@@ -148,7 +148,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $config = Config::get('Zend_Config');
+        $config = \Opus\Config::get('Zend_Config');
         if (! is_null($config)) {
             $this->config_backup = clone $config;
         }
@@ -157,7 +157,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
     protected function tearDown()
     {
         if (! is_null($this->config_backup)) {
-            Config::set($this->config_backup);
+            \Opus\Config::set($this->config_backup);
         }
 
         parent::tearDown();
