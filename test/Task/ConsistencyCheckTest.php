@@ -33,6 +33,7 @@
 
 namespace OpusTest\Search\Task;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Job;
 use Opus\Search\Task\ConsistencyCheck;
@@ -71,7 +72,7 @@ class ConsistencyCheckTest extends TestCase
         $this->worker->work($this->job);
 
         // check if consistency check log file was created and is not empty
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR
             . 'opus_consistency-check.log';
         $this->assertFileExists($logfilePath);

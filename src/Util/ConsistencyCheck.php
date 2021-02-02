@@ -36,6 +36,7 @@ namespace Opus\Search\Util;
 
 use Opus\Document;
 use Opus\DocumentFinder;
+use Opus\Log;
 use Opus\Model\NotFoundException;
 use Opus\Search\Exception;
 use Opus\Search\QueryFactory;
@@ -59,7 +60,7 @@ class ConsistencyCheck
 
     public function __construct($logger = null)
     {
-        $this->logger = is_null($logger) ? \Zend_Registry::get('Zend_Log') : $logger;
+        $this->logger = is_null($logger) ? Log::get() : $logger;
         $this->searcher = Service::selectSearchingService();
         $this->indexer = Service::selectIndexingService();
     }

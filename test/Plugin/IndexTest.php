@@ -44,9 +44,8 @@ class IndexTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        \Zend_Registry::get('Zend_Config')->merge(
-            new \Zend_Config(['runjobs' => ['asynchronous' => self::CONFIG_VALUE_TRUE]])
-        );
+
+        $this->adjustConfiguration(['runjobs' => ['asynchronous' => self::CONFIG_VALUE_TRUE]]);
     }
 
     public function testCreateIndexJob()
@@ -75,7 +74,7 @@ class IndexTest extends TestCase
 
     public function testDoNotCreateIndexJobIfAsyncDisabled()
     {
-        \Zend_Registry::get('Zend_Config')->runjobs->asynchronous = 0;
+        $this->adjustConfiguration(['runjobs' => ['asynchronous' => 0]]);
 
         $indexJobsBefore = Job::getByLabels(['opus-index-document']);
         $jobCountBefore = count($indexJobsBefore);
@@ -149,7 +148,7 @@ class IndexTest extends TestCase
 
     public function testDoNotCreateRemoveIndexJobIfAsyncDisabled()
     {
-        \Zend_Registry::get('Zend_Config')->runjobs->asynchronous = 0;
+        $this->adjustConfiguration(['runjobs' => ['asynchronous' => 0]]);
 
         $removeIndexJobsBefore = Job::getByLabels(['opus-remove-index-document']);
         $jobCountBefore = count($removeIndexJobsBefore);

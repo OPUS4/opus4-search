@@ -382,11 +382,11 @@ class XsltTest extends DocumentBasedTestCase
     {
         Xslt::setYearOrder(null);
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        $this->adjustConfiguration([
             'search' => ['index' => ['field' => ['year' => [
                 'order' => 'PublishedDate,PublishedYear,CompletedDate,CompletedYear'
             ]]]]
-        ]));
+        ]);
 
         $this->assertEquals(
             '2010',

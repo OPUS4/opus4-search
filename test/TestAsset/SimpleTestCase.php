@@ -64,7 +64,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
      */
     protected function adjustConfiguration($overlay, $callback = null)
     {
-        $previous = \Zend_Registry::get('Zend_Config');
+        $previous = \Opus\Config::get('Zend_Config');
         $updated  = new \Zend_Config([], true);
 
         $updated
@@ -77,7 +77,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
 
         $updated->setReadOnly();
 
-        \Zend_Registry::set('Zend_Config', $updated);
+        Config::set($updated);
 
         Config::dropCached();
 
@@ -148,7 +148,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get('Zend_Config');
         if (! is_null($config)) {
             $this->config_backup = clone $config;
         }
@@ -157,7 +157,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
     protected function tearDown()
     {
         if (! is_null($this->config_backup)) {
-            \Zend_Registry::set('Zend_Config', $this->config_backup);
+            Config::set($this->config_backup);
         }
 
         parent::tearDown();

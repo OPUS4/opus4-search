@@ -37,6 +37,7 @@ namespace OpusTest\Util;
 
 use Opus\Collection;
 use Opus\CollectionRole;
+use Opus\Config;
 use Opus\Document;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
@@ -396,7 +397,7 @@ class SearcherTest extends TestCase
     public function testGetDefaultRows()
     {
         $rows = Query::getDefaultRows();
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         if (isset($config->searchengine->solr->numberOfDefaultSearchResults)) {
             $this->assertTrue($rows == $config->searchengine->solr->numberOfDefaultSearchResults);
         } else {
@@ -439,7 +440,7 @@ class SearcherTest extends TestCase
 
     private function removeFiles($docId, $fulltext1, $fulltext2 = null)
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $path = $config->workspacePath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $docId;
         unlink($path . DIRECTORY_SEPARATOR . $fulltext1);
         if (! is_null($fulltext2)) {
