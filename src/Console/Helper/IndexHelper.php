@@ -32,6 +32,7 @@
 
 namespace Opus\Search\Console\Helper;
 
+use Opus\Config;
 use Opus\Console\Helper\ProgressBar;
 use Opus\Console\Helper\ProgressMatrix;
 use Opus\Console\Helper\ProgressOutput;
@@ -371,20 +372,18 @@ class IndexHelper
      */
     private function forceSyncMode()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         if (isset($config->runjobs->asynchronous) && filter_var($config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $this->syncMode = false;
             $config->runjobs->asynchronous = ''; // false
-            \Zend_Registry::set('Zend_Config', $config);
         }
     }
 
     private function resetMode()
     {
         if (! $this->syncMode) {
-            $config = \Zend_Registry::get('Zend_Config');
+            $config = Config::get();
             $config->runjobs->asynchronous = '1'; // true
-            \Zend_Registry::set('Zend_Config', $config);
         }
     }
 

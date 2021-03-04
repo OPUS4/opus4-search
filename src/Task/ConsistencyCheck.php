@@ -35,6 +35,7 @@
 
 namespace Opus\Search\Task;
 
+use Opus\Config;
 use Opus\Job;
 use Opus\Job\Worker\AbstractWorker;
 use Opus\Job\Worker\InvalidJobException;
@@ -52,7 +53,7 @@ class ConsistencyCheck extends AbstractWorker
 
     public function __construct()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         if (isset($config->workspacePath) && trim($config->workspacePath) != '') {
             $this->logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus_consistency-check.log';
         }

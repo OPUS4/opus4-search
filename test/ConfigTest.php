@@ -432,13 +432,13 @@ class ConfigTest extends TestCase
 
         Config::dropCached();
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        $this->adjustConfiguration([
             'searchengine' => ['solr' => [
                 'globalfacetlimit' => 20,
                 'facetlimit' => ['subject' => 30]
             ]],
             'search' => ['facet' => ['year' => ['limit' => 15]]]
-        ]));
+        ]);
 
         $limits = Config::getFacetLimits();
 
@@ -451,7 +451,7 @@ class ConfigTest extends TestCase
 
     public function testGetFacetLimitsDefault()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        $this->adjustConfiguration([
             'searchengine' => ['solr' => [
                 'globalfacetlimit' => 20,
             ]],
@@ -459,7 +459,7 @@ class ConfigTest extends TestCase
                 'default' => ['limit' => 15],
                 'year' => ['limit' => 30]
             ]],
-        ]));
+        ]);
 
         $limits = Config::getFacetLimits();
 
@@ -478,10 +478,10 @@ class ConfigTest extends TestCase
 
         Config::dropCached();
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        $this->adjustConfiguration([
             'searchengine' => ['solr' => ['sortcrit' => ['year' => 'lexi']]],
             'search' => ['facet' => ['subject' => ['sort' => 'lexi']]]
-        ]));
+        ]);
 
         $sorting = Config::getFacetSorting();
 
@@ -494,13 +494,13 @@ class ConfigTest extends TestCase
 
     public function testGetFacetSortingDefault()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        $this->adjustConfiguration([
             'searchengine' => ['solr' => ['sortcrit' => ['year' => 'count']]],
             'search' => ['facet' => [
                 'default' => ['sort' => 'lexi'],
                 'subject' => ['sort' => 'count']
             ]]
-        ]));
+        ]);
 
         $sorting = Config::getFacetSorting();
 
@@ -516,11 +516,11 @@ class ConfigTest extends TestCase
 
     public function testGetFacetFieldsWithMapping()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        $this->adjustConfiguration([
             'search' => ['facet' => [
                 'year' => ['indexField' => 'completed_year']
             ]]
-        ]));
+        ]);
 
         $facets = Config::getFacetFields();
 

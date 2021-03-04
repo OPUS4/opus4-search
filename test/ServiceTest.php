@@ -84,9 +84,9 @@ class ServiceTest extends TestCase
 
         $this->assertEquals('solr', $domain);
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        $this->adjustConfiguration([
             'searchengine' => ['domain' => 'elastic']
-        ]));
+        ]);
 
         $domain = Service::getQualifiedDomain();
 

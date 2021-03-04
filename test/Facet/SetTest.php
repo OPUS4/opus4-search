@@ -156,9 +156,9 @@ class SetTest extends SimpleTestCase
 
     public function testAddFieldSettingSorting()
     {
-        \Zend_Registry::set('Zend_Config', \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        $this->adjustConfiguration([
             'searchengine' => [ 'solr' => [ 'sortcrit' => [ 'institute' => 'lexi' ]]]
-        ])));
+        ]);
 
         $facets = Set::create();
 
@@ -194,9 +194,9 @@ class SetTest extends SimpleTestCase
             'year' => 10000,
         ], $limits);
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        $this->adjustConfiguration([
             'searchengine' => ['solr' => ['facets' => 'doctype,year_inverted']]
-        ]));
+        ]);
 
         $limits = Set::getFacetLimitsFromInput([
             'facetNumber_year' => 'all',

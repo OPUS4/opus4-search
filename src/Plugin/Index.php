@@ -33,6 +33,7 @@
 
 namespace Opus\Search\Plugin;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Job;
 use Opus\Model\AbstractDb;
@@ -55,7 +56,7 @@ class Index extends \Opus\Model\Plugin\AbstractPlugin
 
     public function __construct($config = null)
     {
-        $this->config = is_null($config) ? \Zend_Registry::get('Zend_Config') : $config;
+        $this->config = is_null($config) ? Config::get() : $config;
     }
 
     /**

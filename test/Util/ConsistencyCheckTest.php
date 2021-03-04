@@ -181,7 +181,7 @@ class ConsistencyCheckTest extends TestCase
     {
         $this->dropDeprecatedConfiguration();
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = \Opus\Config::get();
         $this->indexHost = $config->searchengine->solr->default->service->endpoint;
 
         $this->adjustConfiguration([], function ($config) {
