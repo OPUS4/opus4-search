@@ -29,7 +29,8 @@
     "laminas/laminas-coding-standard": "1.0.0",
     "phpmd/phpmd": "@stable",
     "phploc/phploc": "@stable",
-    "sebastian/phpcpd": "*"
+    "sebastian/phpcpd": "*",
+    "phpmetrics/phpmetrics": "*"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -69,6 +70,7 @@
     "cs-fix": "phpcbf",
     "phpmd": "phpmd src xml cleancode,unusedcode,design,naming --reportfile build/phpmd.xml --ignore-violations-on-exit",
     "phploc": "phploc --log-csv build/phploc.csv src",
-    "phpcpd": "phpcpd . --min-lines 3 --min-tokens 30 --log-pmd build/pmd-cpd.xml --progress || true"
+    "phpcpd": "phpcpd . --min-lines 3 --min-tokens 30 --log-pmd build/pmd-cpd.xml --progress || true",
+    "metrics": "phpmetrics --report-html=build/metrics ."
   }
 }
