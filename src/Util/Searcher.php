@@ -50,6 +50,11 @@ class Searcher
      */
     private $facetArray;
 
+    /**
+     * @var \Zend_Acl Access control list
+     */
+    private $acl;
+
     public function __construct()
     {
     }
@@ -177,6 +182,16 @@ class Searcher
     }
 
     /**
+     * Sets access control list object for controlling access to facets.
+     *
+     * @param \Zend_Acl $acl
+     */
+    public function setAcl($acl)
+    {
+        $this->acl = $acl;
+    }
+
+    /**
      * Checks if user is document administrator.
      *
      * This allows access to documents that have not been published yet.
@@ -186,11 +201,10 @@ class Searcher
      */
     public function isAdmin()
     {
-        $acl = \Zend_Registry::isRegistered('Opus_Acl') ? \Zend_Registry::get('Opus_Acl') : null;
-        if (! is_null($acl)) {
+        if (! is_null($this->acl)) {
             // TODO dependency to Application_Security_AclProvider::ACTIVE_ROLE = '_user';
             // TODO knowledge from application ('documents') - delegate implementation to application
-            return $acl->isAllowed('_user', 'documents');
+            return $this->acl->isAllowed('_user', 'documents');
         } else {
             return false;
         }
