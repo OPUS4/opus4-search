@@ -40,8 +40,9 @@ theme = foobar
 ;DB SETTINGS
 ; db.params.host = "127.0.0.1"
 ; db.params.port = "3306"
-db.params.username = @db.user.name@
-db.params.password = @db.user.password@
+; Currently it is necessary to use the admin account here for testing
+db.params.username = @db.admin.name@
+db.params.password = @db.admin.password@
 db.params.dbname = @db.name@
 db.debug = 1
 
