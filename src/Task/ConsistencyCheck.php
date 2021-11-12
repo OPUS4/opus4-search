@@ -96,7 +96,7 @@ class ConsistencyCheck extends AbstractWorker
         }
 
         touch($lockFile);
-        $consistencyChecker = new \Opus\Search\Util\ConsistencyCheck($this->_logger);
+        $consistencyChecker = new \Opus\Search\Util\ConsistencyCheck($this->logger);
         $consistencyChecker->run();
         unlink($lockFile);
     }
