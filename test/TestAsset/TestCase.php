@@ -35,6 +35,7 @@ namespace OpusTest\Search\TestAsset;
 
 use Opus\Search\Config;
 use Opus\Search\Service;
+use Opus\Util\DatabaseHelper;
 
 /**
  * Superclass for all tests.  Providing maintainance tasks.
@@ -44,43 +45,10 @@ use Opus\Search\Service;
 class TestCase extends SimpleTestCase
 {
 
-    /**
-     * Empty all listed tables.
-     *
-     * @return void
-     */
-    private function _clearTables()
+    protected function clearDatabase()
     {
-        // This is needed to workaround the constraints on the parent_id column.
-        $adapter = \Zend_Db_Table::getDefaultAdapter();
-        $this->assertNotNull($adapter);
-
-        $adapter->query('SET FOREIGN_KEY_CHECKS = 0;');
-        $adapter->query('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
-
-        foreach ($adapter->listTables() as $tableName) {
-            self::clearTable($tableName);
-        }
-        $adapter->query('SET FOREIGN_KEY_CHECKS = 1;');
-    }
-
-    /**
-     * Use the standard database adapter to remove all records from
-     * a table.  Check, if the table is really empty.
-     *
-     * @param string $tablename Name of the table to be cleared.
-     * @return void
-     */
-    protected function clearTable($tablename)
-    {
-        $adapter = \Zend_Db_Table::getDefaultAdapter();
-        $this->assertNotNull($adapter);
-
-        $tablename = $adapter->quoteIdentifier($tablename);
-        $adapter->query('TRUNCATE ' . $tablename);
-
-        $count = $adapter->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
-        $this->assertEquals(0, $count, "Table $tablename is not empty!");
+        $databaseHelper = new DatabaseHelper();
+        $databaseHelper->clearTables();
     }
 
     /**
@@ -138,7 +106,7 @@ class TestCase extends SimpleTestCase
         Config::dropCached();
         Service::dropCached();
 
-        $this->_clearTables();
+        $this->clearDatabase();
         $this->clearSolrIndex();
     }
 
