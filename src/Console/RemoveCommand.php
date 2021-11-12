@@ -33,14 +33,14 @@
 
 namespace Opus\Search\Console;
 
-use Opus\Console\BaseDocumentCommand;
+use Opus\Console\AbstractBaseDocumentCommand;
 use Opus\Document;
 use Opus\Search\Console\Helper\DocumentHelper;
 use Opus\Search\Service;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class RemoveCommand extends BaseDocumentCommand
+class RemoveCommand extends AbstractBaseDocumentCommand
 {
 
     protected static $defaultName = 'index:remove';

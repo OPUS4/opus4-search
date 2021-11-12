@@ -33,7 +33,7 @@
 
 namespace Opus\Search\Console;
 
-use Opus\Console\BaseDocumentCommand;
+use Opus\Console\AbstractBaseDocumentCommand;
 use Opus\Search\Console\Helper\IndexHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -46,12 +46,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  * TODO use some kind of helper instead of base class?
  * TODO need to have a way to access/check cache (perhaps another command)
  */
-class ExtractCommand extends BaseDocumentCommand
+class ExtractCommand extends AbstractBaseDocumentCommand
 {
 
     const OPTION_TIMEOUT = 'timeout';
 
-    protected $defaultName = 'index:extract';
+    protected static $defaultName = 'index:extract';
 
     protected $startIdDescription = 'ID of document where extraction should start (or \'-\')';
 
@@ -80,7 +80,7 @@ Examples:
   <fg=yellow>- 50</>    will extract full texts for documents up to 50
 EOT;
 
-        $this->setName($this->defaultName)
+        $this->setName(static::$defaultName)
             ->setDescription('Extracts text from document files for indexing')
             ->setHelp($help)
             ->addOption(

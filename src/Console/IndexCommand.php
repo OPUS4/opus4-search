@@ -33,7 +33,7 @@
 
 namespace Opus\Search\Console;
 
-use Opus\Console\BaseDocumentCommand;
+use Opus\Console\AbstractBaseDocumentCommand;
 use Opus\Search\Console\Helper\IndexHelper;
 use Opus\Search\Exception;
 use Symfony\Component\Console\Exception\InvalidOptionException;
@@ -45,7 +45,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class IndexCommand
  * @package Opus\Search\IndexBuilder
  */
-class IndexCommand extends BaseDocumentCommand
+class IndexCommand extends AbstractBaseDocumentCommand
 {
 
     const OPTION_BLOCKSIZE = 'blocksize';
