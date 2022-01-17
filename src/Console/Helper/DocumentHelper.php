@@ -32,7 +32,7 @@
 
 namespace Opus\Search\Console\Helper;
 
-use Opus\DocumentFinder;
+use Opus\Repository;
 
 /**
  * Class DocumentHelper
@@ -55,16 +55,10 @@ class DocumentHelper
      */
     public function getDocumentIds($start, $end)
     {
-        $finder = new DocumentFinder();
+        $finder = Repository::getInstance()->getDocumentFinder();
 
-        if (isset($start)) {
-            $finder->setIdRangeStart($start);
-        }
+        $finder->setDocumentIdRange($start, $end);
 
-        if (isset($end)) {
-            $finder->setIdRangeEnd($end);
-        }
-
-        return $finder->ids();
+        return $finder->getIds();
     }
 }

@@ -35,9 +35,9 @@
 namespace Opus\Search\Util;
 
 use Opus\Document;
-use Opus\DocumentFinder;
 use Opus\Log;
 use Opus\Model\NotFoundException;
+use Opus\Repository;
 use Opus\Search\Exception;
 use Opus\Search\QueryFactory;
 use Opus\Search\Service;
@@ -97,11 +97,11 @@ class ConsistencyCheck
      */
     private function checkDatabase()
     {
-        $finder = new DocumentFinder();
+        $finder = Repository::getInstance()->getDocumentFinder();
         $finder->setServerState('published');
-        $ids = $finder->ids();
+        $ids = $finder->getIds();
 
-        $this->logger->info('checking ' . $finder->count() . ' published documents for consistency.');
+        $this->logger->info('checking ' . count($ids) . ' published documents for consistency.');
 
         foreach ($ids as $id) {
             try {
