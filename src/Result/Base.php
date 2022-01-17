@@ -35,7 +35,7 @@ namespace Opus\Search\Result;
 
 use Opus\Document;
 use Opus\Document\DocumentException;
-use Opus\DocumentFinder;
+use Opus\Repository;
 use Opus\Search\Log;
 
 /**
@@ -255,13 +255,13 @@ class Base
     public function dropLocallyMissingMatches()
     {
         if (! $this->validated) {
-            $finder = new DocumentFinder();
+            $finder = Repository::getInstance()->getDocumentFinder();
 
             $returnedIds = $this->getReturnedMatchingIds();
             $existingIds = $finder
                 // ->setServerState('published') // TODO unless user does not have access to unpublished documents
-                ->setIdSubset($returnedIds)
-                ->ids();
+                ->setDocumentIds($returnedIds)
+                ->getIds();
 
             if (count($returnedIds) !== count($existingIds)) {
                 Log::get()->err(sprintf(
