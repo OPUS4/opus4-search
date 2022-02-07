@@ -11,4 +11,8 @@ nbproject
 # Composer files and dependencies
 composer.lock
 composer.phar
+bin/composer
 vendor
+
+# Vagrant files
+.vagrant
