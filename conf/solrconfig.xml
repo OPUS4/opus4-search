@@ -64,6 +64,7 @@
         <lst name="defaults">
             <str name="echoParams">explicit</str>
             <str name="df">text</str>
+            <str name="q.op">AND</str>
         </lst>
     </requestHandler>
 
