@@ -35,7 +35,7 @@ namespace OpusTest\Search\TestAsset;
 
 use Opus\Search\Config;
 use Opus\Search\Service;
-use Opus\Util\DatabaseHelper;
+use Opus\Db\Util\DatabaseHelper;
 
 /**
  * Superclass for all tests.  Providing maintainance tasks.
