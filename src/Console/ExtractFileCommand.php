@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,9 +25,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @package     Application_Console
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -42,16 +40,19 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use function file_put_contents;
+use function microtime;
+use function sprintf;
+
+use const PHP_EOL;
+
 /**
- * Class Application_Console_Index_ExtractFileCommand
- *
  * TODO (handle not supported format message) check if mime type is supported?
  * TODO tests
  * TODO make value for -o optional and generate name
  */
 class ExtractFileCommand extends Command
 {
-
     const ARGUMENT_FILE = 'file';
 
     const OPTION_OUTPUT_FILE = 'output';
@@ -94,14 +95,12 @@ EOT;
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
      * @return int|void|null
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $file = $input->getArgument(self::ARGUMENT_FILE);
-        $target = $input->getOption(self::OPTION_OUTPUT_FILE);
+        $file    = $input->getArgument(self::ARGUMENT_FILE);
+        $target  = $input->getOption(self::OPTION_OUTPUT_FILE);
         $timeout = $input->getOption(self::OPTION_TIMEOUT);
 
         // TODO check if target exists and verify overwriting?

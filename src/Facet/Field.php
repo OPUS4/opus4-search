@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,13 +26,24 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Facet;
+
+use InvalidArgumentException;
+use RuntimeException;
+
+use function array_key_exists;
+use function intval;
+use function is_bool;
+use function is_null;
+use function is_string;
+use function preg_match;
+use function strtolower;
+use function substr;
+use function trim;
 
 /**
  * Implements API for accessing and controlling facet information on a single
@@ -44,18 +56,17 @@ namespace Opus\Search\Facet;
  */
 class Field
 {
-
     protected $data = [
-        'name' => null,
-        'sort' => null,
-        'limit' => null,
-        'mincount' => null
+        'name'     => null,
+        'sort'     => null,
+        'limit'    => null,
+        'mincount' => null,
     ];
 
     public function __construct($fieldName)
     {
         if (! is_string($fieldName) || ! ( $fieldName = trim($fieldName) )) {
-            throw new \InvalidArgumentException('invalid facet field name');
+            throw new InvalidArgumentException('invalid facet field name');
         }
 
         $this->data['name'] = $fieldName;
@@ -63,7 +74,7 @@ class Field
 
     public static function create($fieldName)
     {
-        return new static( $fieldName );
+        return new static($fieldName);
     }
 
     /**
@@ -75,7 +86,7 @@ class Field
     public function setLimit($limit)
     {
         if (! preg_match('/^[+-]?\d+$/', trim($limit))) {
-            throw new \InvalidArgumentException('invalid limit value');
+            throw new InvalidArgumentException('invalid limit value');
         }
 
         $this->data['limit'] = intval($limit);
@@ -93,7 +104,7 @@ class Field
     public function setMinCount($minCount)
     {
         if (! preg_match('/^[+-]?\d+$/', trim($minCount))) {
-            throw new \InvalidArgumentException('invalid minCount value');
+            throw new InvalidArgumentException('invalid minCount value');
         }
 
         $this->data['mincount'] = intval($minCount);
@@ -110,14 +121,15 @@ class Field
     public function setSort($useIndex = true)
     {
         if (! is_bool($useIndex)
-            && ! preg_match('/^(count|index)$/', $useIndex = strtolower(trim($useIndex))) ) {
-            throw new \InvalidArgumentException('invalid sort direction value');
+            && ! preg_match('/^(count|index)$/', $useIndex = strtolower(trim($useIndex)))
+        ) {
+            throw new InvalidArgumentException('invalid sort direction value');
         }
 
         if (is_bool($useIndex)) {
             $this->data['sort'] = $useIndex;
         } else {
-            $this->data['sort'] = ( $useIndex === 'index' );
+            $this->data['sort'] = $useIndex === 'index';
         }
 
         return $this;
@@ -129,7 +141,7 @@ class Field
             return is_null($this->data[$name]) ? $default : $this->data[$name];
         }
 
-        throw new \RuntimeException('invalid request for unknown facet property');
+        throw new RuntimeException('invalid request for unknown facet property');
     }
 
     public function __get($name)
@@ -152,7 +164,7 @@ class Field
             case 'mincount':
                 return $this->setMinCount($value);
             default:
-                throw new \RuntimeException('invalid request for setting facet field property');
+                throw new RuntimeException('invalid request for setting facet field property');
         }
     }
 
@@ -164,7 +176,7 @@ class Field
                 return $this->{$propertyName};
 
             default:
-                throw new \RuntimeException('invalid call for method ' . $name);
+                throw new RuntimeException('invalid call for method ' . $name);
         }
     }
 }

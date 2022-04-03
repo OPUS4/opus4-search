@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,15 +26,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search;
+
+use function is_null;
 
 /**
  * Implements common exception to be used in code of search engine adapters.
@@ -43,7 +42,6 @@ namespace Opus\Search;
  */
 class Exception extends \Exception
 {
-
     const SERVER_UNREACHABLE = '1';
 
     const INVALID_QUERY = '2';
@@ -62,7 +60,6 @@ class Exception extends \Exception
     {
         return $this->code == self::INVALID_QUERY;
     }
-
 
     public function __toString()
     {

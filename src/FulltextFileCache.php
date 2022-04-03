@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,16 +26,25 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search;
 
+use Opus\Common\Config as OpusConfig;
 use Opus\File;
+
+use function file_get_contents;
+use function file_put_contents;
+use function filesize;
+use function is_readable;
+use function is_string;
+use function realpath;
+use function rename;
+use function tempnam;
+use function trim;
+use function unlink;
 
 /**
  * Cache for fulltext extractions of files.
@@ -50,7 +60,6 @@ use Opus\File;
  */
 class FulltextFileCache
 {
-
     const MAX_FILE_SIZE = 16777216; // 16 MiByte
 
     public static function getCacheFileName(File $file)
@@ -59,10 +68,10 @@ class FulltextFileCache
 
         try {
             $hash = $file->getRealHash('md5') . '-' . $file->getRealHash('sha256');
-            $name = \Opus\Config::get()->workspacePath . "/cache/solr_cache---$hash.txt";
+            $name = OpusConfig::get()->workspacePath . "/cache/solr_cache---$hash.txt";
         } catch (Exception $e) {
             Log::get()->err(
-                __CLASS__ . '::' . __METHOD__ . ' : could not compute hash values for ' . $file->getPath() . " : $e"
+                self::class . '::' . __METHOD__ . ' : could not compute hash values for ' . $file->getPath() . " : $e"
             );
         }
 
@@ -72,7 +81,6 @@ class FulltextFileCache
     /**
      * Tries reading cached fulltext data linked with given Opus file from cache.
      *
-     * @param File $file
      * @return false|string found fulltext data, false on missing data in cache
      */
     public static function readOnFile(File $file)
@@ -104,8 +112,6 @@ class FulltextFileCache
      *
      * @note Writing file might fail without notice. Succeeding tests for cached
      *       record are going to fail then, too.
-     *
-     * @param File $file
      * @param string $fulltext
      */
     public static function writeOnFile(File $file, $fulltext)
@@ -116,7 +122,7 @@ class FulltextFileCache
             if ($cache_file) {
                 // use intermediate temporary file with random name for writing
                 // to prevent race conditions on writing cache file
-                $tmp_path = realpath(\Opus\Config::get()->workspacePath . '/tmp/');
+                $tmp_path = realpath(OpusConfig::get()->workspacePath . '/tmp/');
                 $tmp_file = tempnam($tmp_path, 'solr_tmp---');
 
                 if (! file_put_contents($tmp_file, trim($fulltext))) {

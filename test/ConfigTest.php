@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,31 +26,33 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
 
+use Opus\Common\Config as OpusConfig;
 use Opus\EnrichmentKey;
 use Opus\Search\Config;
 use OpusTest\Search\TestAsset\TestCase;
+use Zend_Config;
+
+use function array_unique;
+use function array_values;
+use function is_null;
 
 class ConfigTest extends TestCase
 {
-
     public function testProvidesSearchConfiguration()
     {
         $this->dropDeprecatedConfiguration();
 
         $config = Config::getServiceConfiguration('search', null, 'solr');
 
-        $this->assertInstanceOf('\Zend_Config', $config);
-        $this->assertInstanceOf('\Zend_Config', $config->query);
-        $this->assertInstanceOf('\Zend_Config', $config->query->alldocs);
+        $this->assertInstanceOf(Zend_Config::class, $config);
+        $this->assertInstanceOf(Zend_Config::class, $config->query);
+        $this->assertInstanceOf(Zend_Config::class, $config->query->alldocs);
 
         $this->assertEquals('search', $config->marker);
         $this->assertNotNull($config->endpoint->primary->host);
@@ -66,9 +69,9 @@ class ConfigTest extends TestCase
 
         $config = Config::getServiceConfiguration('index', null, 'solr');
 
-        $this->assertInstanceOf('\Zend_Config', $config);
-        $this->assertInstanceOf('\Zend_Config', $config->query);
-        $this->assertInstanceOf('\Zend_Config', $config->query->alldocs);
+        $this->assertInstanceOf(Zend_Config::class, $config);
+        $this->assertInstanceOf(Zend_Config::class, $config->query);
+        $this->assertInstanceOf(Zend_Config::class, $config->query->alldocs);
 
         $this->assertEquals('index', $config->marker);
         $this->assertNotNull($config->endpoint->primary->host);
@@ -82,9 +85,9 @@ class ConfigTest extends TestCase
 
         $config = Config::getServiceConfiguration('extract', null, 'solr');
 
-        $this->assertInstanceOf('\Zend_Config', $config);
-        $this->assertInstanceOf('\Zend_Config', $config->query);
-        $this->assertInstanceOf('\Zend_Config', $config->query->alldocs);
+        $this->assertInstanceOf(Zend_Config::class, $config);
+        $this->assertInstanceOf(Zend_Config::class, $config->query);
+        $this->assertInstanceOf(Zend_Config::class, $config->query->alldocs);
 
         $this->assertEquals('extract', $config->marker);
         $this->assertNotNull($config->endpoint->primary->host);
@@ -98,9 +101,9 @@ class ConfigTest extends TestCase
 
         $config = Config::getServiceConfiguration('default', null, 'solr');
 
-        $this->assertInstanceOf('\Zend_Config', $config);
-        $this->assertInstanceOf('\Zend_Config', $config->query);
-        $this->assertInstanceOf('\Zend_Config', $config->query->alldocs);
+        $this->assertInstanceOf(Zend_Config::class, $config);
+        $this->assertInstanceOf(Zend_Config::class, $config->query);
+        $this->assertInstanceOf(Zend_Config::class, $config->query->alldocs);
 
         $this->assertEquals('default', $config->marker);
         $this->assertNotNull($config->endpoint->primary->host);
@@ -202,22 +205,26 @@ class ConfigTest extends TestCase
         $this->assertNotEquals('/some/fallback', $config->endpoint->primary->path);
 
         // provide some deprecated-style configuration to overlay
-        $this->adjustConfiguration(['searchengine' => ['index' => [
-            'host' => '10.1.2.3',
-            'port' => 12345,
-            'app'  => 'some/fallback'
-        ]]]);
+        $this->adjustConfiguration([
+            'searchengine' => [
+                'index' => [
+                    'host' => '10.1.2.3',
+                    'port' => 12345,
+                    'app'  => 'some/fallback',
+                ],
+            ],
+        ]);
 
-        $this->assertEquals('10.1.2.3', \Opus\Config::get()->searchengine->index->host);
-        $this->assertEquals('12345', \Opus\Config::get()->searchengine->index->port);
-        $this->assertEquals('some/fallback', \Opus\Config::get()->searchengine->index->app);
+        $this->assertEquals('10.1.2.3', OpusConfig::get()->searchengine->index->host);
+        $this->assertEquals('12345', OpusConfig::get()->searchengine->index->port);
+        $this->assertEquals('some/fallback', OpusConfig::get()->searchengine->index->app);
 
         // repeat test above now expecting to get overlaid configuration
         $config = Config::getServiceConfiguration('search', null, 'solr');
 
-        $this->assertInstanceOf('\Zend_Config', $config);
-        $this->assertInstanceOf('\Zend_Config', $config->query);
-        $this->assertInstanceOf('\Zend_Config', $config->query->alldocs);
+        $this->assertInstanceOf(Zend_Config::class, $config);
+        $this->assertInstanceOf(Zend_Config::class, $config->query);
+        $this->assertInstanceOf(Zend_Config::class, $config->query->alldocs);
 
         $this->assertEquals('search', $config->marker);
 
@@ -247,17 +254,21 @@ class ConfigTest extends TestCase
         $this->assertNotEquals('/some/fallback', $config->endpoint->primary->path);
 
         // provide some deprecated-style configuration to overlay
-        $this->adjustConfiguration([ 'searchengine' => [ 'index' => [
-            'host' => '10.1.2.3',
-            'port' => 12345,
-            'app'  => 'some/fallback',
-            'timeout' => 20
-        ] ] ]);
+        $this->adjustConfiguration([
+            'searchengine' => [
+                'index' => [
+                    'host'    => '10.1.2.3',
+                    'port'    => 12345,
+                    'app'     => 'some/fallback',
+                    'timeout' => 20,
+                ],
+            ],
+        ]);
 
-        $this->assertEquals('10.1.2.3', \Opus\Config::get()->searchengine->index->host);
-        $this->assertEquals('12345', \Opus\Config::get()->searchengine->index->port);
-        $this->assertEquals('some/fallback', \Opus\Config::get()->searchengine->index->app);
-        $this->assertEquals('20', \Opus\Config::get()->searchengine->index->timeout);
+        $this->assertEquals('10.1.2.3', OpusConfig::get()->searchengine->index->host);
+        $this->assertEquals('12345', OpusConfig::get()->searchengine->index->port);
+        $this->assertEquals('some/fallback', OpusConfig::get()->searchengine->index->app);
+        $this->assertEquals('20', OpusConfig::get()->searchengine->index->timeout);
 
         // repeat test above now expecting to get overlaid configuration
         $config = Config::getServiceConfiguration('index', null, 'solr');
@@ -294,15 +305,19 @@ class ConfigTest extends TestCase
         $this->assertNotEquals('/some/fallback', $config->endpoint->primary->path);
 
         // provide some deprecated-style configuration to overlay
-        $this->adjustConfiguration([ 'searchengine' => [ 'extract' => [
-            'host' => '10.1.2.3',
-            'port' => 12345,
-            'app'  => 'some/fallback'
-        ] ] ]);
+        $this->adjustConfiguration([
+            'searchengine' => [
+                'extract' => [
+                    'host' => '10.1.2.3',
+                    'port' => 12345,
+                    'app'  => 'some/fallback',
+                ],
+            ],
+        ]);
 
-        $this->assertEquals('10.1.2.3', \Opus\Config::get()->searchengine->extract->host);
-        $this->assertEquals('12345', \Opus\Config::get()->searchengine->extract->port);
-        $this->assertEquals('some/fallback', \Opus\Config::get()->searchengine->extract->app);
+        $this->assertEquals('10.1.2.3', OpusConfig::get()->searchengine->extract->host);
+        $this->assertEquals('12345', OpusConfig::get()->searchengine->extract->port);
+        $this->assertEquals('some/fallback', OpusConfig::get()->searchengine->extract->app);
 
         // repeat test above now expecting to get overlaid configuration
         $config = Config::getServiceConfiguration('extract', null, 'solr');
@@ -433,11 +448,13 @@ class ConfigTest extends TestCase
         Config::dropCached();
 
         $this->adjustConfiguration([
-            'searchengine' => ['solr' => [
-                'globalfacetlimit' => 20,
-                'facetlimit' => ['subject' => 30]
-            ]],
-            'search' => ['facet' => ['year' => ['limit' => 15]]]
+            'searchengine' => [
+                'solr' => [
+                    'globalfacetlimit' => 20,
+                    'facetlimit'       => ['subject' => 30],
+                ],
+            ],
+            'search'       => ['facet' => ['year' => ['limit' => 15]]],
         ]);
 
         $limits = Config::getFacetLimits();
@@ -452,13 +469,17 @@ class ConfigTest extends TestCase
     public function testGetFacetLimitsDefault()
     {
         $this->adjustConfiguration([
-            'searchengine' => ['solr' => [
-                'globalfacetlimit' => 20,
-            ]],
-            'search' => ['facet' => [
-                'default' => ['limit' => 15],
-                'year' => ['limit' => 30]
-            ]],
+            'searchengine' => [
+                'solr' => [
+                    'globalfacetlimit' => 20,
+                ],
+            ],
+            'search'       => [
+                'facet' => [
+                    'default' => ['limit' => 15],
+                    'year'    => ['limit' => 30],
+                ],
+            ],
         ]);
 
         $limits = Config::getFacetLimits();
@@ -480,7 +501,7 @@ class ConfigTest extends TestCase
 
         $this->adjustConfiguration([
             'searchengine' => ['solr' => ['sortcrit' => ['year' => 'lexi']]],
-            'search' => ['facet' => ['subject' => ['sort' => 'lexi']]]
+            'search'       => ['facet' => ['subject' => ['sort' => 'lexi']]],
         ]);
 
         $sorting = Config::getFacetSorting();
@@ -488,7 +509,7 @@ class ConfigTest extends TestCase
         $this->assertCount(2, $sorting);
         $this->assertEquals([
             'published_year' => 'index',
-            'subject' => 'index'
+            'subject'        => 'index',
         ], $sorting);
     }
 
@@ -496,10 +517,12 @@ class ConfigTest extends TestCase
     {
         $this->adjustConfiguration([
             'searchengine' => ['solr' => ['sortcrit' => ['year' => 'count']]],
-            'search' => ['facet' => [
-                'default' => ['sort' => 'lexi'],
-                'subject' => ['sort' => 'count']
-            ]]
+            'search'       => [
+                'facet' => [
+                    'default' => ['sort' => 'lexi'],
+                    'subject' => ['sort' => 'count'],
+                ],
+            ],
         ]);
 
         $sorting = Config::getFacetSorting();
@@ -517,9 +540,11 @@ class ConfigTest extends TestCase
     public function testGetFacetFieldsWithMapping()
     {
         $this->adjustConfiguration([
-            'search' => ['facet' => [
-                'year' => ['indexField' => 'completed_year']
-            ]]
+            'search' => [
+                'facet' => [
+                    'year' => ['indexField' => 'completed_year'],
+                ],
+            ],
         ]);
 
         $facets = Config::getFacetFields();

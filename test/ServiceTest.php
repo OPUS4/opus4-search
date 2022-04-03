@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,42 +26,43 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Test
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Search;
 
+use Opus\Search\Extracting;
+use Opus\Search\Indexing;
+use Opus\Search\Searching;
 use Opus\Search\Service;
+use Opus\Search\Solr\Solarium\Adapter;
 use OpusTest\Search\TestAsset\TestCase;
 
 class ServiceTest extends TestCase
 {
-
     public function testProvidesIndexService()
     {
         $service = Service::selectIndexingService(null, 'solr');
 
-        $this->assertInstanceOf('Opus\Search\Indexing', $service);
-        $this->assertInstanceOf('Opus\Search\Solr\Solarium\Adapter', $service);
+        $this->assertInstanceOf(Indexing::class, $service);
+        $this->assertInstanceOf(Adapter::class, $service);
     }
 
     public function testProvidesExtractService()
     {
         $service = Service::selectExtractingService(null, 'solr');
 
-        $this->assertInstanceOf('Opus\Search\Extracting', $service);
-        $this->assertInstanceOf('Opus\Search\Solr\Solarium\Adapter', $service);
+        $this->assertInstanceOf(Extracting::class, $service);
+        $this->assertInstanceOf(Adapter::class, $service);
     }
 
     public function testProvidesSearchService()
     {
         $service = Service::selectSearchingService(null, 'solr');
 
-        $this->assertInstanceOf('Opus\Search\Searching', $service);
-        $this->assertInstanceOf('Opus\Search\Solr\Solarium\Adapter', $service);
+        $this->assertInstanceOf(Searching::class, $service);
+        $this->assertInstanceOf(Adapter::class, $service);
     }
 
     public function testCachingService()
@@ -85,7 +87,7 @@ class ServiceTest extends TestCase
         $this->assertEquals('solr', $domain);
 
         $this->adjustConfiguration([
-            'searchengine' => ['domain' => 'elastic']
+            'searchengine' => ['domain' => 'elastic'],
         ]);
 
         $domain = Service::getQualifiedDomain();
@@ -97,21 +99,15 @@ class ServiceTest extends TestCase
         $this->assertEquals('mysql', $domain);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage invalid default search domain
-     */
     public function testGetQualifiedDomainInvalidDomainNotAString()
     {
+        $this->setExpectedException(\InvalidArgumentException::class, 'invalid default search domain');
         $domain = Service::getQualifiedDomain(10);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage invalid default search domain
-     */
     public function testGetQualifiedDomainInvalidDomainEmpty()
     {
+        $this->setExpectedException(\InvalidArgumentException::class, 'invalid default search domain');
         $domain = Service::getQualifiedDomain('   ');
     }
 }

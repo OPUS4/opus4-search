@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,38 +26,34 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Search\Solr\Solarium;
 
-use Opus\Search\Exception;
+use Opus\Document\Plugin\XmlCache;
+use Opus\Search\Plugin\Index;
 use Opus\Search\QueryFactory;
 use Opus\Search\Service;
+use Opus\Search\Solr\Solarium\Adapter;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
 class AdapterIndexingTest extends DocumentBasedTestCase
 {
-
     public function testService()
     {
         $service = Service::selectIndexingService(null, 'solr');
-        $this->assertInstanceOf('Opus\Search\Solr\Solarium\Adapter', $service);
+        $this->assertInstanceOf(Adapter::class, $service);
     }
 
-    /**
-     * @expectedException Exception
-     */
     public function testDisfunctServiceFails()
     {
-        // need to drop deprecated configuration options for interfering with
-        // intention of this test regarding revised configuration structure, only
+    // need to drop deprecated configuration options for interfering with
+    // intention of this test regarding revised configuration structure, only
         $this->dropDeprecatedConfiguration();
 
+        $this->setExpectedException(\Exception::class);
         Service::selectIndexingService('disfunct');
     }
 
@@ -241,7 +238,7 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $docC = $this->createDocument('monograph');
         $docD = $this->createDocument('report');
 
-        $service->addDocumentsToIndex([ $docA, $docB, $docC, $docD ]);
+        $service->addDocumentsToIndex([$docA, $docB, $docC, $docD]);
     }
 
     public function testRemovingMultipleIndexedDocuments()
@@ -253,8 +250,8 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $docC = $this->createDocument('monograph');
         $docD = $this->createDocument('report');
 
-        $service->addDocumentsToIndex([ $docA, $docB, $docC, $docD ]);
-        $service->removeDocumentsFromIndex([ $docA, $docB, $docC, $docD ]);
+        $service->addDocumentsToIndex([$docA, $docB, $docC, $docD]);
+        $service->removeDocumentsFromIndex([$docA, $docB, $docC, $docD]);
     }
 
     public function testMultiplyRemovingMultipleIndexedDocumentsFails()
@@ -266,9 +263,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $docC = $this->createDocument('monograph');
         $docD = $this->createDocument('report');
 
-        $service->addDocumentsToIndex([ $docA, $docB, $docC, $docD ]);
-        $service->removeDocumentsFromIndex([ $docA, $docB, $docC, $docD ]);
-        $service->removeDocumentsFromIndex([ $docA, $docB, $docC, $docD ]);
+        $service->addDocumentsToIndex([$docA, $docB, $docC, $docD]);
+        $service->removeDocumentsFromIndex([$docA, $docB, $docC, $docD]);
+        $service->removeDocumentsFromIndex([$docA, $docB, $docC, $docD]);
     }
 
     public function testMultiplyRemovingMultipleIndexedDocumentsFailsAgain()
@@ -280,22 +277,21 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $docC = $this->createDocument('monograph');
         $docD = $this->createDocument('report');
 
-        $service->addDocumentsToIndex([ $docA, $docB, $docC, $docD ]);
-        $service->removeDocumentsFromIndex([ $docA, $docB, $docC, $docD ]);
-        $service->removeDocumentsFromIndex([ $docA ]);
+        $service->addDocumentsToIndex([$docA, $docB, $docC, $docD]);
+        $service->removeDocumentsFromIndex([$docA, $docB, $docC, $docD]);
+        $service->removeDocumentsFromIndex([$docA]);
     }
 
-    /**
-     * @expectedException Exception
-     */
     public function testIndexingArticleOnDisfunctServiceFails()
     {
         // need to drop deprecated configuration options for interfering with
         // intention of this test regarding revised configuration structure, only
         $this->dropDeprecatedConfiguration();
 
+        $this->setExpectedException(\Exception::class);
         $service = Service::selectIndexingService('disfunct', 'solr');
 
+        // TODO test never gets here - clean up
         $doc = $this->createDocument('article');
 
         $service->addDocumentsToIndex($doc);
@@ -323,8 +319,8 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $this->assertEquals(0, $result->getAllMatchesCount());
 
         // prevent automatic indexing - cache currently triggers indexing directly
-        $document->unregisterPlugin('Opus\Search\Plugin\Index');
-        $document->unregisterPlugin('Opus\Document\Plugin\XmlCache');
+        $document->unregisterPlugin(Index::class);
+        $document->unregisterPlugin(XmlCache::class);
 
         $document->setServerState('unpublished');
         $document->store();

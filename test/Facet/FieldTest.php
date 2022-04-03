@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,8 +26,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -35,10 +34,10 @@ namespace OpusTest\Search\Facet;
 
 use Opus\Search\Facet\Field;
 use OpusTest\Search\TestAsset\SimpleTestCase;
+use InvalidArgumentException;
 
 class FieldTest extends SimpleTestCase
 {
-
     public function testConstruct()
     {
         $field = new Field('author_facet');
@@ -53,21 +52,15 @@ class FieldTest extends SimpleTestCase
         $this->assertEquals('author_facet', $field->getName());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage invalid facet field name
-     */
     public function testConstructInvalidFieldname()
     {
+        $this->setExpectedException(InvalidArgumentException::class, 'invalid facet field name');
         $field = new Field(100);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage invalid facet field name
-     */
     public function testConstructInvalidFieldnameEmpty()
     {
+        $this->setExpectedException(InvalidArgumentException::class, 'invalid facet field name');
         $field = new Field(' ');
     }
 
@@ -80,14 +73,11 @@ class FieldTest extends SimpleTestCase
         $this->assertEquals(10000, $field->getLimit());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage invalid limit value
-     */
     public function testSetLimitInvalid()
     {
         $field = Field::create('author_facet');
 
+        $this->setExpectedException(InvalidArgumentException::class, 'invalid limit value');
         $field->setLimit('all');
     }
 
@@ -104,14 +94,11 @@ class FieldTest extends SimpleTestCase
         $this->assertEquals(1, $field->getMinCount());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage invalid minCount value
-     */
     public function testSetMinCountInvalidArgument()
     {
         $field = Field::create('author_facet');
 
+        $this->setExpectedException(InvalidArgumentException::class, 'invalid minCount value');
         $field->setMinCount('all');
     }
 }

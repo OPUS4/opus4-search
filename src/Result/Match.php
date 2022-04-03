@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,8 +26,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -36,6 +35,16 @@ namespace Opus\Search\Result;
 use Opus\Date;
 use Opus\Document;
 use Opus\Model\NotFoundException;
+use RuntimeException;
+
+use function array_key_exists;
+use function call_user_func_array;
+use function ctype_digit;
+use function floatval;
+use function intval;
+use function is_array;
+use function is_null;
+use function trim;
 
 /**
  * Describes local document as a match in context of a related search query.
@@ -43,36 +52,23 @@ use Opus\Model\NotFoundException;
 
 class Match
 {
+    /** @var mixed */
+    protected $id;
 
-    /**
-     * @var mixed
-     */
-    protected $id = null;
+    /** @var Document */
+    protected $doc;
 
-    /**
-     * @var Document
-     */
-    protected $doc = null;
+    /** @var float */
+    protected $score;
 
-    /**
-     * @var float
-     */
-    protected $score = null;
+    /** @var Date */
+    protected $serverDateModified;
 
-    /**
-     * @var Date
-     */
-    protected $serverDateModified = null;
+    /** @var */
+    protected $fulltextIdSuccess;
 
-    /**
-     * @var
-     */
-    protected $fulltextIdSuccess = null;
-
-    /**
-     * @var
-     */
-    protected $fulltextIdFailure = null;
+    /** @var */
+    protected $fulltextIdFailure;
 
     /**
      * Caches current document's mapping of containing serieses into document's
@@ -80,7 +76,7 @@ class Match
      *
      * @var string[]
      */
-    protected $seriesNumbers = null;
+    protected $seriesNumbers;
 
     /**
      * Collects all additional information related to current match.
@@ -96,7 +92,7 @@ class Match
 
     public static function create($matchId)
     {
-        return new static( $matchId );
+        return new static($matchId);
     }
 
     /**
@@ -133,7 +129,7 @@ class Match
     public function setScore($score)
     {
         if (! is_null($this->score)) {
-            throw new \RuntimeException('score has been set before');
+            throw new RuntimeException('score has been set before');
         }
 
         $this->score = floatval($score);
@@ -159,6 +155,7 @@ class Match
      * than relying on search engine returning it.
      *
      * @deprecated
+     *
      * @return string
      */
     public function getSeriesNumber($seriesId)
@@ -187,14 +184,13 @@ class Match
      *
      * @note This information is temporarily overloading related timestamp in
      *       local document.
-     *
      * @param {int} $timestamp Unix timestamp of last modification tracked in search index
      * @return $this fluent interface
      */
     public function setServerDateModified($timestamp)
     {
         if (! is_null($this->serverDateModified)) {
-            throw new \RuntimeException('timestamp of modification has been set before');
+            throw new RuntimeException('timestamp of modification has been set before');
         }
 
         $this->serverDateModified = new Date();
@@ -214,7 +210,6 @@ class Match
      *
      * @note This method is used by Opus to detect outdated records in search
      *       index.
-     *
      * @return Date
      */
     public function getServerDateModified()
@@ -229,7 +224,7 @@ class Match
     public function setFulltextIDsSuccess($value)
     {
         if (! is_null($this->fulltextIdSuccess)) {
-            throw new \RuntimeException('successful fulltext IDs have been set before');
+            throw new RuntimeException('successful fulltext IDs have been set before');
         }
 
         $this->fulltextIdSuccess = $value;
@@ -249,7 +244,7 @@ class Match
     public function setFulltextIDsFailure($value)
     {
         if (! is_null($this->fulltextIdFailure)) {
-            throw new \RuntimeException('failed fulltext IDs have been set before');
+            throw new RuntimeException('failed fulltext IDs have been set before');
         }
 
         $this->fulltextIdFailure = $value;
@@ -270,13 +265,13 @@ class Match
      * Passes all unknown method invocations to related instance of
      * Opus_Document.
      *
-     * @param string $method name of locally missing/protected method
+     * @param string  $method name of locally missing/protected method
      * @param mixed[] $args arguments used on invoking that method
      * @return mixed
      */
     public function __call($method, $args)
     {
-        return call_user_func_array([ $this->getDocument(), $method ], $args);
+        return call_user_func_array([$this->getDocument(), $method], $args);
     }
 
     /**
@@ -297,7 +292,7 @@ class Match
      * Assets are additional information on match provided by search engine.
      *
      * @param string $name
-     * @param mixed $value
+     * @param mixed  $value
      * @return $this fluent interface
      */
     public function setAsset($name, $value)
@@ -316,7 +311,7 @@ class Match
      */
     public function getAsset($name)
     {
-        return isset($this->data[$name]) ? $this->data[$name] : null;
+        return $this->data[$name] ?? null;
     }
 
     /**

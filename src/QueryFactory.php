@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,8 +26,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -43,11 +42,9 @@ use Opus\Document;
  */
 class QueryFactory
 {
-
     /**
      * Creates query on provided adapter initially searching all documents.
      *
-     * @param Searching $adapter
      * @return Query
      */
     public static function selectAllDocuments(Searching $adapter)
@@ -61,8 +58,6 @@ class QueryFactory
     /**
      * Creates query on provided adapter initially searching given document.
      *
-     * @param Searching $adapter
-     * @param Document $document
      * @return Query
      */
     public static function selectDocument(Searching $adapter, Document $document)
@@ -74,7 +69,6 @@ class QueryFactory
      * Creates query on provided adapter initially searching document by given
      * ID.
      *
-     * @param Searching $adapter
      * @param int $documentId
      * @return Query
      */

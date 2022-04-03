@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,25 +26,36 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Result;
 
+use InvalidArgumentException;
+use Opus\Common\Repository;
 use Opus\Document;
 use Opus\Document\DocumentException;
-use Opus\Repository;
 use Opus\Search\Log;
+use RuntimeException;
+
+use function array_key_exists;
+use function array_map;
+use function count;
+use function ctype_digit;
+use function intval;
+use function is_array;
+use function is_null;
+use function sprintf;
+use function strtolower;
+use function strval;
+use function trim;
 
 /**
  * Implements API for describing successful response to search query.
  */
 class Base
 {
-
     protected $data = [
         'matches'   => null,
         'count'     => null,
@@ -89,18 +101,17 @@ class Base
      *
      * @note This may include documents not listed as matches here due to using
      *       paging parameters on query.
-     *
      * @param int $allMatchesCount number of all matching documents
      * @return $this fluent interface
      */
     public function setAllMatchesCount($allMatchesCount)
     {
         if (! is_null($this->data['count'])) {
-            throw new \RuntimeException('must not set count of all matches multiple times');
+            throw new RuntimeException('must not set count of all matches multiple times');
         }
 
         if (! ctype_digit(trim($allMatchesCount))) {
-            throw new \InvalidArgumentException('invalid number of overall matches');
+            throw new InvalidArgumentException('invalid number of overall matches');
         }
 
         $this->data['count'] = intval($allMatchesCount);
@@ -117,7 +128,7 @@ class Base
     public function setQueryTime($time)
     {
         if (! is_null($this->data['querytime'])) {
-            throw new \RuntimeException('must not set query time multiple times');
+            throw new RuntimeException('must not set query time multiple times');
         }
 
         if (! is_null($time)) {
@@ -132,7 +143,7 @@ class Base
      *
      * @param string $facetField name of field result of faceted search is related to
      * @param string $text description on particular faceted result on field (e.g. single value in field)
-     * @param int $count number of occurrences of facet on field in all matches
+     * @param int    $count number of occurrences of facet on field in all matches
      * @return $this fluent interface
      */
     public function addFacet($facetField, $text, $count)
@@ -212,7 +223,6 @@ class Base
      *
      * @note If query was requesting to retrieve non-qualified matches this set
      *       might include IDs of documents that doesn't exist locally anymore.
-     *
      * @return int[]
      */
     public function getReturnedMatchingIds()
@@ -230,15 +240,14 @@ class Base
     /**
      * Retrieves set of matching documents.
      *
+     * @deprecated
+     *
      * @note This is provided for downward compatibility, though it's signature
      *       has changed in that it's returning set of Opus_Document instances
      *       rather than set of Opus_Search_Util_Result instances.
-     *
      * @note The wording is less specific in that all information in response to
      *       search query may considered results of search. Thus this new API
      *       prefers "matches" over "results".
-     *
-     * @deprecated
      * @return Document[]
      */
     public function getResults()
@@ -259,9 +268,9 @@ class Base
 
             $returnedIds = $this->getReturnedMatchingIds();
             $existingIds = $finder
-                // ->setServerState('published') // TODO unless user does not have access to unpublished documents
-                ->setDocumentIds($returnedIds)
-                ->getIds();
+            // ->setServerState('published') // TODO unless user does not have access to unpublished documents
+            ->setDocumentIds($returnedIds)
+            ->getIds();
 
             if (count($returnedIds) !== count($existingIds)) {
                 Log::get()->err(sprintf(
@@ -290,13 +299,12 @@ class Base
      *
      * @note This number includes matches not included in fetched subset of
      *       matches.
-     *
      * @return int
      */
     public function getAllMatchesCount()
     {
         if (is_null($this->data['count'])) {
-            throw new \RuntimeException('count of matches have not been provided yet');
+            throw new RuntimeException('count of matches have not been provided yet');
         }
 
         return $this->data['count'];
@@ -305,9 +313,9 @@ class Base
     /**
      * Retrieves overall number of matches.
      *
-     * @note This is provided for downward compatibility.
-     *
      * @deprecated
+     *
+     * @note This is provided for downward compatibility.
      * @return int
      */
     public function getNumberOfHits()
@@ -325,7 +333,6 @@ class Base
         return $this->data['querytime'];
     }
 
-
     public function __get($name)
     {
         switch (strtolower(trim($name))) {
@@ -339,7 +346,7 @@ class Base
                 return $this->getQueryTime();
 
             default:
-                throw new \RuntimeException('invalid request for property ' . $name);
+                throw new RuntimeException('invalid request for property ' . $name);
         }
     }
 }

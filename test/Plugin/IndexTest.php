@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,10 +25,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_Document_Plugin
- * @author      Edouard Simon edouard.simon@zib.de
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -38,9 +35,11 @@ use Opus\Document;
 use Opus\Job;
 use OpusTest\Search\TestAsset\TestCase;
 
+use function count;
+use function is_null;
+
 class IndexTest extends TestCase
 {
-
     public function setUp()
     {
         parent::setUp();
@@ -51,7 +50,7 @@ class IndexTest extends TestCase
     public function testCreateIndexJob()
     {
         $indexJobsBefore = Job::getByLabels(['opus-index-document']);
-        $jobCountBefore = count($indexJobsBefore);
+        $jobCountBefore  = count($indexJobsBefore);
 
         $document = Document::new();
         $document->setServerState('published');
@@ -77,7 +76,7 @@ class IndexTest extends TestCase
         $this->adjustConfiguration(['runjobs' => ['asynchronous' => 0]]);
 
         $indexJobsBefore = Job::getByLabels(['opus-index-document']);
-        $jobCountBefore = count($indexJobsBefore);
+        $jobCountBefore  = count($indexJobsBefore);
 
         $document = Document::new();
         $document->setServerState('published');
@@ -98,13 +97,13 @@ class IndexTest extends TestCase
     public function testCreateRemoveIndexJob()
     {
         $removeIndexJobsBefore = Job::getByLabels(['opus-index-document']);
-        $jobCountBefore = count($removeIndexJobsBefore);
+        $jobCountBefore        = count($removeIndexJobsBefore);
 
         $document = Document::new();
         $document->setServerState('published');
         $documentId = $document->store();
 
-        $indexJobs = Job::getByLabels(['opus-index-document']);
+        $indexJobs   = Job::getByLabels(['opus-index-document']);
         $newIndexJob = $this->getCreatedJob($documentId, $indexJobs);
         $this->assertNotNull($newIndexJob, 'Expected new opus-index-document job');
 
@@ -151,14 +150,14 @@ class IndexTest extends TestCase
         $this->adjustConfiguration(['runjobs' => ['asynchronous' => 0]]);
 
         $removeIndexJobsBefore = Job::getByLabels(['opus-remove-index-document']);
-        $jobCountBefore = count($removeIndexJobsBefore);
+        $jobCountBefore        = count($removeIndexJobsBefore);
 
         $document = Document::new();
         $document->setServerState('published');
         $documentId = $document->store();
 
         $newIndexJob = null;
-        $indexJobs = Job::getByLabels(['opus-index-document']);
+        $indexJobs   = Job::getByLabels(['opus-index-document']);
         $newIndexJob = $this->getCreatedJob($documentId, $indexJobs);
         $this->assertNull($newIndexJob, 'Expected that no opus-index-document job was created');
 

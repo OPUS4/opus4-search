@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,14 +26,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Solr\Solarium;
 
+use DOMDocument;
+use InvalidArgumentException;
+use Opus\Common\Config;
 use Opus\File;
 use Opus\Search\Exception;
 use Opus\Search\Extracting;
@@ -50,31 +52,49 @@ use Opus\Search\Solr\Solarium\Filter\Complex;
 use Opus\Storage\FileAccessException;
 use Opus\Storage\FileNotFoundException;
 use Opus\Storage\StorageException;
+use Solarium\Core\Client\Client;
+use Solarium\Core\Query\Result\ResultInterface;
+use Solarium\Exception\HttpException;
+use Solarium\QueryType\Select\Result\Result;
+use Zend_Config;
+use Zend_Exception;
 
-/**
- * Class Adapter
- * @package Opus\Search\Solr\Solarium
- *
- * TODO document updateChunkSize
- */
+use function array_chunk;
+use function array_key_exists;
+use function array_keys;
+use function array_map;
+use function array_shift;
+use function file_exists;
+use function filesize;
+use function filter_var;
+use function in_array;
+use function intval;
+use function is_array;
+use function is_null;
+use function is_readable;
+use function is_string;
+use function preg_match;
+use function preg_split;
+use function sprintf;
+use function substr;
+use function trim;
+
+use const FILTER_NULL_ON_FAILURE;
+use const FILTER_VALIDATE_INT;
+use const PREG_SPLIT_NO_EMPTY;
+
 class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extracting
 {
-
-    /**
-     * @var \Zend_Config
-     */
+    /** @var Zend_Config */
     protected $options;
 
-    /**
-     * @var \Solarium\Core\Client\Client
-     */
+    /** @var Client */
     protected $client;
-
 
     public function __construct($serviceName, $options)
     {
         $this->options = $options;
-        $this->client = new \Solarium\Client($options);
+        $this->client  = new \Solarium\Client($options);
 
         // ensure service is basically available
         $ping = $this->client->createPing();
@@ -83,8 +103,8 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
     /**
      * @param \Solarium\Core\Query\Query $query
-     * @param string $actionText
-     * @return \Solarium\Core\Query\Result\ResultInterface
+     * @param string                     $actionText
+     * @return ResultInterface
      * @throws Exception
      * @throws InvalidQueryException
      * @throws InvalidServiceException
@@ -93,7 +113,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
     {
         try {
             $result = $this->client->execute($query);
-        } catch (\Solarium\Exception\HttpException $e) {
+        } catch (HttpException $e) {
             $msg = sprintf('%s: %d %s', $actionText, $e->getCode(), $e->getStatusMessage());
 
             if ($e->getCode() == 404 || $e->getCode() >= 500) {
@@ -128,7 +148,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
     {
         $assetName = null;
 
-        if ($this->options->fieldToAsset instanceof \Zend_Config) {
+        if ($this->options->fieldToAsset instanceof Zend_Config) {
             $assetName = $this->options->fieldToAsset->get($fieldName);
             if (! is_null($assetName)) {
                 return $assetName;
@@ -136,7 +156,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         }
 
         // TODO hack to map published_year_inverted (all year index fields) to year asset (should be cleaned up)
-        $config = \Opus\Config::get();
+        $config = Config::get();
 
         if (isset($config->search->facet)) {
             $facets = $config->search->facet;
@@ -157,10 +177,10 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
     }
 
     /*
-	 *
-	 * -- part of Opus_Search_Adapter --
-	 *
-	 */
+     *
+     * -- part of Opus_Search_Adapter --
+     *
+     */
 
     public function getDomain()
     {
@@ -168,10 +188,10 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
     }
 
     /*
-	 *
-	 * -- part of Opus_Search_Indexing --
-	 *
-	 */
+     *
+     * -- part of Opus_Search_Indexing --
+     *
+     */
 
     protected function normalizeDocuments($documents)
     {
@@ -182,8 +202,8 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         $validDocuments = [];
 
         foreach ($documents as $document) {
-            if (! ($document instanceof \Opus\Document)) {
-                throw new \InvalidArgumentException("invalid document in provided set");
+            if (! $document instanceof \Opus\Document) {
+                throw new InvalidArgumentException("invalid document in provided set");
             }
             if ($document->getServerState() !== 'temporary') {
                 $validDocuments[] = $document;
@@ -201,7 +221,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
         foreach ($documentIds as $id) {
             if (! $id) {
-                throw new \InvalidArgumentException("invalid document ID in provided set");
+                throw new InvalidArgumentException("invalid document ID in provided set");
             }
         }
 
@@ -334,12 +354,11 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         return $this;
     }
 
-
     /*
-	 *
-	 * -- part of Opus_Search_Searching --
-	 *
-	 */
+     *
+     * -- part of Opus_Search_Searching --
+     *
+     */
 
     public function customSearch(Query $query)
     {
@@ -348,7 +367,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         return $this->processQuery($this->applyParametersOnQuery($search, $query, false));
     }
 
-    public function namedSearch($name, Query $customization = null)
+    public function namedSearch($name, ?Query $customization = null)
     {
         if (! preg_match('/^[a-z_]+$/i', $name)) {
             throw new Exception('invalid name of pre-defined query: ' . $name);
@@ -361,7 +380,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
             $definition = null;
         }
 
-        if (! $definition || ! ($definition instanceof \Zend_Config)) {
+        if (! $definition || ! $definition instanceof Zend_Config) {
             throw new InvalidQueryException('selected query is not pre-defined: ' . $name);
         }
 
@@ -393,7 +412,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         // send search query to service
         $request = $this->execute($query, 'failed querying search engine');
 
-        /** @var \Solarium\QueryType\Select\Result\Result $request */
+        /** @var Result $request */
 
         // create result descriptor
         $result = Base::create()
@@ -463,18 +482,14 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
     /**
      * Adjusts provided query depending on explicitly defined parameters.
      *
-     * @param \Solarium\QueryType\Select\Query\Query $query
-     * @param Query $parameters
      * @param bool $preferOriginalQuery true for keeping existing query in $query
      * @return mixed
      */
     protected function applyParametersOnQuery(
         \Solarium\QueryType\Select\Query\Query $query,
-        Query $parameters = null,
+        ?Query $parameters = null,
         $preferOriginalQuery = false
     ) {
-
-
         if ($parameters) {
             $subfilters = $parameters->getSubFilters();
             if ($subfilters !== null) {
@@ -542,25 +557,22 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         return $query;
     }
 
-
     /*
-	 *
-	 * -- part of Opus_Search_Extracting --
-	 *
-	 */
+     *
+     * -- part of Opus_Search_Extracting --
+     *
+     */
 
     /**
-     * @param \Opus\File $file
-     * @param \Opus\Document|null $document
      * @return Extracting|string
      * @throws Exception
      * @throws StorageException
      * @throws FileAccessException
      * @throws FileNotFoundException
      * @throws MimeTypeNotSupportedException
-     * @throws \Zend_Exception
+     * @throws Zend_Exception
      */
-    public function extractDocumentFile(File $file, \Opus\Document $document = null)
+    public function extractDocumentFile(File $file, ?\Opus\Document $document = null)
     {
         Log::get()->debug('extracting fulltext from ' . $file->getPath());
 
@@ -587,14 +599,12 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                 );
             }
 
-
             // use cached result of previous extraction if available
             $fulltext = FulltextFileCache::readOnFile($file);
             if ($fulltext !== false) {
                 Log::get()->info('Found cached fulltext for file ' . $file->getPath());
                 return $fulltext;
             }
-
 
             if (filesize($file->getPath())) {
                 // query Solr service for extracting fulltext data
@@ -621,7 +631,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                     $fulltextData = array_shift($response);
                     if (is_string($fulltextData)) {
                         if (substr($fulltextData, 0, 6) === '<?xml ') {
-                            $dom = new \DOMDocument();
+                            $dom = new DOMDocument();
                             $dom->loadHTML($fulltextData);
                             $body = $dom->getElementsByTagName("body")->item(0);
                             if ($body) {
@@ -646,7 +656,6 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                 $fulltext = '';
             }
 
-
             // always write returned fulltext data to cache to keep client from
             // re-extracting same file as query has been processed properly this
             // time
@@ -654,7 +663,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
             return $fulltext;
         } catch (Exception $e) {
-            if (! ($e instanceof Exception) && ! ($e instanceof StorageException)) {
+            if (! $e instanceof Exception && ! $e instanceof StorageException) {
                 $e = new Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
             }
 
@@ -663,9 +672,6 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
         }
     }
 
-    /**
-     *
-     */
     public function extractFile($path)
     {
         Log::get()->debug('extracting fulltext from ' . $path);
@@ -705,7 +711,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                     $fulltextData = array_shift($response);
                     if (is_string($fulltextData)) {
                         if (substr($fulltextData, 0, 6) === '<?xml ') {
-                            $dom = new \DOMDocument();
+                            $dom = new DOMDocument();
                             $dom->loadHTML($fulltextData);
                             $body = $dom->getElementsByTagName("body")->item(0);
                             if ($body) {
@@ -732,7 +738,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
             return $fulltext;
         } catch (Exception $e) {
-            if (! ($e instanceof Exception) && ! ($e instanceof StorageException)) {
+            if (! $e instanceof Exception && ! $e instanceof StorageException) {
                 $e = new Exception("error while extracting fulltext from file $path", null, $e);
             }
 
@@ -745,7 +751,6 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
      * Detects if provided file has MIME type supported for extracting fulltext
      * data.
      *
-     * @param File $file
      * @return bool
      *
      * TODO make list configurable
@@ -775,12 +780,12 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
     public function setTimeout($timeout)
     {
         if ($timeout === null || filter_var($timeout, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE) === null) {
-            throw new \InvalidArgumentException('Argument timeout must be an integer');
+            throw new InvalidArgumentException('Argument timeout must be an integer');
         }
 
         $options = $this->client->getOptions();
         if (isset($options['endpoint'])) {
-            $keys = array_keys($options['endpoint']);
+            $keys                                     = array_keys($options['endpoint']);
             $options['endpoint'][$keys[0]]['timeout'] = $timeout;
             $this->client->setOptions($options, true);
         }

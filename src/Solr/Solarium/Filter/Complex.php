@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,27 +26,29 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Solr\Solarium\Filter;
 
+use InvalidArgumentException;
 use Opus\Search\Filter\Simple;
 use Opus\Search\Filtering;
 use Opus\Search\Solr\Filter\Helper;
+use Solarium\Client;
+use Solarium\Core\Query\AbstractQuery;
+
+use function array_map;
+use function count;
+use function implode;
 
 class Complex extends \Opus\Search\Filter\Complex
 {
+    /** @var Client */
+    protected $client;
 
-    /**
-     * @var \Solarium\Client
-     */
-    protected $client = null;
-
-    public function __construct(\Solarium\Client $client)
+    public function __construct(Client $client)
     {
         $this->client = $client;
     }
@@ -54,10 +57,9 @@ class Complex extends \Opus\Search\Filter\Complex
      * Delivers glue for concatenating terms according to given filter's
      * combination of particular result sets.
      *
-     * @param \Opus\Search\Filter\Complex $complex
      * @return string
      */
-    protected static function glue(\Opus\Search\Filter\Complex $complex)
+    protected static function glue(parent $complex)
     {
         return $complex->isRequestingUnion() ? ' OR ' : ' AND ';
     }
@@ -65,11 +67,9 @@ class Complex extends \Opus\Search\Filter\Complex
     /**
      * Compiles simple condition to proper Solr query term.
      *
-     * @param \Solarium\Core\Query\AbstractQuery $query
-     * @param \Opus\Search\Filter\Simple $simple
      * @return string
      */
-    protected static function _compileSimple(\Solarium\Core\Query\AbstractQuery $query, Simple $simple)
+    protected static function _compileSimple(AbstractQuery $query, Simple $simple)
     {
         // validate desired type of comparison
         switch ($simple->getComparator()) {
@@ -81,12 +81,12 @@ class Complex extends \Opus\Search\Filter\Complex
                 break;
             default:
                 // TODO implement additional types of comparison
-                throw new \InvalidArgumentException('comparison not supported by Solr adapter');
+                throw new InvalidArgumentException('comparison not supported by Solr adapter');
         }
 
         // handle range checks
         if ($simple->isRangeValue()) {
-            list( $lower, $upper ) = $simple->getRangeValue();
+            [$lower, $upper] = $simple->getRangeValue();
 
             return $query->getHelper()->rangeQuery($simple->getName(), $lower, $upper);
         }
@@ -95,21 +95,21 @@ class Complex extends \Opus\Search\Filter\Complex
         // (resulting term might be complex in case of testing multiple values)
         $values = $simple->getValues();
         if (! count($values)) {
-            throw new \InvalidArgumentException('missing values on field ' . $simple->getName());
+            throw new InvalidArgumentException('missing values on field ' . $simple->getName());
         } else {
             $name = $simple->getName();
             if ($name === '*' && ( count($values) !== 1 || $values[0] !== '*' )) {
                 // special case: simple term requests to match any field
                 $name = '';
             } else {
-                $name = $name . ':';
+                $name .= ':';
             }
 
             if ($negated) {
                 $name = '-' . $name;
             }
 
-            $values = array_map(function ($value) use ($name, $query) {
+            $values = array_map(function ($value) use ($name) {
                 return $name . Helper::escapePhrase($value);
             }, $values);
 
@@ -125,12 +125,11 @@ class Complex extends \Opus\Search\Filter\Complex
      * Compiles provided set of subordinated conditions into complex Solr query
      * term.
      *
-     * @param \Solarium\Core\Query\AbstractQuery $query
      * @param Filtering[] $conditions
-     * @param string $glue
+     * @param string      $glue
      * @return string
      */
-    protected static function _compile(\Solarium\Core\Query\AbstractQuery $query, $conditions, $glue)
+    protected static function _compile(AbstractQuery $query, $conditions, $glue)
     {
         $compiled = [];
 

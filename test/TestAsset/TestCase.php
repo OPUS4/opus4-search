@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,27 +25,30 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 namespace OpusTest\Search\TestAsset;
 
+use Opus\Db\Util\DatabaseHelper;
 use Opus\Search\Config;
 use Opus\Search\Service;
-use Opus\Db\Util\DatabaseHelper;
+
+use function array_diff;
+use function is_dir;
+use function is_null;
+use function rmdir;
+use function scandir;
+use function unlink;
+
+use const DIRECTORY_SEPARATOR;
 
 /**
  * Superclass for all tests.  Providing maintainance tasks.
- *
- * @category Tests
  */
 class TestCase extends SimpleTestCase
 {
-
     protected function clearDatabase()
     {
         $databaseHelper = new DatabaseHelper();
@@ -61,6 +65,7 @@ class TestCase extends SimpleTestCase
 
     /**
      * Deletes folders in workspace/files in case a test didn't do proper cleanup.
+     *
      * @param null $directory
      */
     protected function clearFiles($directory = null)
@@ -70,11 +75,11 @@ class TestCase extends SimpleTestCase
                 return;
             }
             $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'build' . DIRECTORY_SEPARATOR . 'workspace'
-                . DIRECTORY_SEPARATOR . 'files';
-            $files = array_diff(scandir($filesDir), ['.', '..', '.gitignore']);
+            . DIRECTORY_SEPARATOR . 'files';
+            $files    = array_diff(scandir($filesDir), ['.', '..', '.gitignore']);
         } else {
             $filesDir = $directory;
-            $files = array_diff(scandir($filesDir), ['.', '..']);
+            $files    = array_diff(scandir($filesDir), ['.', '..']);
         }
 
         foreach ($files as $file) {
@@ -96,8 +101,6 @@ class TestCase extends SimpleTestCase
 
     /**
      * Standard setUp method for clearing database.
-     *
-     * @return void
      */
     protected function setUp()
     {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Job
- * @subpackage  Worker
- * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2010 Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -37,19 +32,23 @@
 
 namespace Opus\Search\Task;
 
+use InvalidArgumentException;
 use Opus\Document;
 use Opus\Job;
 use Opus\Job\Worker\InvalidJobException;
 use Opus\Job\Worker\WorkerInterface;
 use Opus\Search\Service;
+use RuntimeException;
+use Zend_Log;
+use Zend_Log_Writer_Null;
+
+use function is_object;
 
 /**
  * Worker class for indexing Opus documents.
- *
  */
 class IndexOpusDocument implements WorkerInterface
 {
-
     const LABEL = 'opus-index-document';
 
     /**
@@ -57,17 +56,17 @@ class IndexOpusDocument implements WorkerInterface
      *
      * @var Job
      */
-    private $_job = null;
+    private $_job;
 
     /**
      * Hold current logger instance.
      *
-     * @var \Zend_Log
+     * @var Zend_Log
      */
-    private $_logger = null;
+    private $_logger;
 
     /**
-     * @param mixed $logger (Optional)
+     * @param null|mixed $logger (Optional)
      */
     public function __construct($logger = null)
     {
@@ -87,29 +86,26 @@ class IndexOpusDocument implements WorkerInterface
     /**
      * Set logging facility.
      *
-     * @param \Zend_Log $logger Logger instance.
-     * @return void
-     * @throws \InvalidArgumentException
+     * @param Zend_Log $logger Logger instance.
+     * @throws InvalidArgumentException
      */
     public function setLogger($logger)
     {
         if (null === $logger) {
-            $this->_logger = new \Zend_Log(new \Zend_Log_Writer_Null());
-        } elseif ($logger instanceof \Zend_Log) {
+            $this->_logger = new Zend_Log(new Zend_Log_Writer_Null());
+        } elseif ($logger instanceof Zend_Log) {
             $this->_logger = $logger;
         } else {
-            throw new \InvalidArgumentException('Zend_Log instance expected.');
+            throw new InvalidArgumentException('Zend_Log instance expected.');
         }
     }
 
     /**
      * Set the search index to add documents to.
-     *
-     * @return void
      */
     public function setIndex()
     {
-        throw new \RuntimeException('Indexing service cannot be set programmatically anymore! Use runtime configuration defining solr service named "jobRunner" instead!');
+        throw new RuntimeException('Indexing service cannot be set programmatically anymore! Use runtime configuration defining solr service named "jobRunner" instead!');
     }
 
     /**
@@ -117,7 +113,6 @@ class IndexOpusDocument implements WorkerInterface
      * or remove document from index (depending on job)
      *
      * @param Job $job Job description and attached data.
-     * @return void
      * @throws InvalidJobException
      */
     public function work(Job $job)
@@ -128,7 +123,7 @@ class IndexOpusDocument implements WorkerInterface
         }
 
         $this->_job = $job;
-        $data = $job->getData();
+        $data       = $job->getData();
 
         if (! (is_object($data) && isset($data->documentId) && isset($data->task))) {
             throw new InvalidJobException("Incomplete or missing data.");

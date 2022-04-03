@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,9 +26,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Michael Lang
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -42,14 +40,12 @@ use Opus\Document;
 
 interface Indexing
 {
-
     /**
      * Adds provided set of Opus_Document instances to index.
      *
      * @note Implementing methods MUST ensure to keep index in consistent state
      *       by adding all listed documents as part of a transaction to be
      *       rolled back on any error.
-     *
      * @param Document|Document[] $documents set of documents to add
      * @return Indexing
      * @throws Exception in case of error
@@ -62,7 +58,6 @@ interface Indexing
      * @note Implementing methods MUST ensure to keep index in consistent state
      *       by adding all listed documents as part of a transaction to be
      *       rolled back on any error.
-     *
      * @param Document|Document[] $documents set of document to remove
      * @return Indexing
      * @throws Exception in case of error
@@ -75,7 +70,6 @@ interface Indexing
      * @note Implementing methods MUST ensure to keep index in consistent state
      *       by adding all listed documents as part of a transaction to be
      *       rolled back on any error.
-     *
      * @param int|int[] $documentIds set of IDs of documents to remove
      * @return Indexing
      * @throws Exception in case of error
@@ -88,7 +82,6 @@ interface Indexing
      * @note Implementing methods MUST ensure to keep index in consistent state
      *       by adding all listed documents as part of a transaction to be
      *       rolled back on any error.
-     *
      * @return Indexing
      * @throws Exception in case of error
      */

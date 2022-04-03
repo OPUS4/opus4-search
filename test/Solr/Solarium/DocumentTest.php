@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,9 +26,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -37,20 +35,20 @@ namespace OpusTest\Search\Solr\Solarium;
 use Opus\Search\Config;
 use Opus\Search\Solr\Solarium\Document;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
+use Solarium\Client;
 
 class DocumentTest extends DocumentBasedTestCase
 {
-
     public function testConvertingArticle()
     {
-        $service = new \Solarium\Client();
+        $service = new Client();
         $update  = $service->createUpdate();
 
         $article = $this->createDocument('article');
 
         $converter = new Document(Config::getDomainConfiguration('solr'));
         $solrDoc   = $converter->toSolrDocument($article, $update->createDocument());
-        $this->assertInstanceOf('\Solarium\QueryType\Update\Query\Document\Document', $solrDoc);
+        $this->assertInstanceOf(\Solarium\QueryType\Update\Query\Document\Document::class, $solrDoc);
 
         $fields = $solrDoc->getFields();
 

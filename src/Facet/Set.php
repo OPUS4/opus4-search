@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,32 +26,46 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Facet;
 
+use InvalidArgumentException;
+use Opus\Common\Config as OpusConfig;
 use Opus\Search\Config;
-use Opus\Search\Query;
+use Zend_Config_Exception;
+
+use function array_key_exists;
+use function array_replace;
+use function count;
+use function intval;
+use function is_array;
+use function is_string;
+use function preg_match;
+use function preg_split;
+use function strlen;
+use function substr;
+use function trim;
+
+use const PREG_SPLIT_NO_EMPTY;
 
 /**
  * This class implements API for generically work with search engines supporting
  * faceted search. This class is used for describing elements of a query
  * affecting faceted search.
  *
+ * @see Opus_Search_Searchable::namedSearch()
+ *
  * @note _This class is included for keeping new search engine adapter downward
  *       compatible regarding integration with existing code of Opus4._ All
  *       further options regarding faceted search might be used with improved
  *       support for configuration-based definition of search queries.
- *       @see Opus_Search_Searchable::namedSearch()
  */
 
 class Set
 {
-
     const GLOBABL_KEY = '__global__';
 
     const LIMIT_KEY = 'limit';
@@ -61,6 +76,7 @@ class Set
 
     /**
      * Default configuration for fields including limits and sorting.
+     *
      * @var array
      */
     protected $config = [];
@@ -70,18 +86,18 @@ class Set
     protected $facetOnly = false;
 
     /**
-     * @param string $facetSetName name of current set of facets
-     * @param string $serviceDomain name of search engine domain used for selecting proper configuration
-     * @throws \Zend_Config_Exception
+     * @param string      $facetSetName name of current set of facets
+     * @param null|string $serviceDomain name of search engine domain used for selecting proper configuration
+     * @throws Zend_Config_Exception
      */
     protected function __construct($facetSetName = 'default', $serviceDomain = null)
     {
         if (! is_string($facetSetName) || ! ( $facetSetName = trim($facetSetName) )) {
-            throw new \InvalidArgumentException('invalid facet set name');
+            throw new InvalidArgumentException('invalid facet set name');
         }
 
         $this->config[self::LIMIT_KEY] = Config::getFacetLimits($facetSetName, $serviceDomain);
-        $this->config[self::SORT_KEY] = Config::getFacetSorting($facetSetName, $serviceDomain);
+        $this->config[self::SORT_KEY]  = Config::getFacetSorting($facetSetName, $serviceDomain);
 
         $this->name = $facetSetName;
     }
@@ -91,11 +107,12 @@ class Set
      * for extending it.
      *
      * @see Query::setFacet()
+     *
      * @return Set
      */
     public static function create($facetSetName = 'default', $serviceDomain = null)
     {
-        return new static( $facetSetName, $serviceDomain );
+        return new static($facetSetName, $serviceDomain);
     }
 
     /**
@@ -104,14 +121,13 @@ class Set
      * @note Overridden limits are used in succeeding calls for adding fields to
      *       current set. Any previously added field isn't adjusted implicitly
      *       and thus needs to be modified individually.
-     *
      * @param int[]|int $limits map of field names into limits or single global limit
      * @return $this fluent interface
      */
     public function overrideLimits($limits)
     {
         if (is_array($limits)) {
-            $config = \Opus\Config::get();
+            $config = OpusConfig::get();
 
             $mappedLimits = [];
 
@@ -122,16 +138,16 @@ class Set
                 } else {
                     $mappedLimits[$name] = $value;
                 }
-            };
+            }
 
             // replace field-specific limits but keep previously cached global
             // limit unless provided set is overriding that as well.
             $this->config[self::LIMIT_KEY] = array_replace($this->config[self::LIMIT_KEY], $mappedLimits);
         } elseif (preg_match('/^[+-]?\d+$/', $limits)) {
             // got single integer ... reset limits to use given one globally, only
-            $this->config[self::LIMIT_KEY] = [ self::GLOBABL_KEY => intval($limits) ];
+            $this->config[self::LIMIT_KEY] = [self::GLOBABL_KEY => intval($limits)];
         } else {
-            throw new \InvalidArgumentException('invalid limits for overriding configuration');
+            throw new InvalidArgumentException('invalid limits for overriding configuration');
         }
 
         return $this;
@@ -196,20 +212,20 @@ class Set
     protected function normalizeFields($input)
     {
         if (! is_array($input)) {
-            $input = [ $input ];
+            $input = [$input];
         }
 
         $output = [];
 
         foreach ($input as $field) {
             if (! is_string($field)) {
-                throw new \InvalidArgumentException('invalid type of field selector');
+                throw new InvalidArgumentException('invalid type of field selector');
             }
 
             $fieldNames = preg_split('/[\s,]+/', $field, null, PREG_SPLIT_NO_EMPTY);
             foreach ($fieldNames as $name) {
                 if (! preg_match('/^[a-z_][a-z0-9_\.]*$/i', $name)) {
-                    throw new \InvalidArgumentException('malformed field selector: ' . $name);
+                    throw new InvalidArgumentException('malformed field selector: ' . $name);
                 }
 
                 $output[] = $name;
@@ -217,7 +233,7 @@ class Set
         }
 
         if (! count($input)) {
-            throw new \InvalidArgumentException('missing field selector');
+            throw new InvalidArgumentException('missing field selector');
         }
 
         return $output;
@@ -227,7 +243,7 @@ class Set
      * Declares (another) set of fields to obey in faceted search.
      *
      * @param string[]|string $fieldNames set of (optionally comma-separated lists of) field names
-     * @param bool $adding true for adding given fields to previously declared fields instead of replacing those
+     * @param bool            $adding true for adding given fields to previously declared fields instead of replacing those
      * @return $this fluent interface
      */
     public function setFields($fieldNames, $adding = false)
@@ -236,7 +252,7 @@ class Set
             $this->fields = [];
         }
 
-        $config = \Opus\Config::get();
+        $config = OpusConfig::get();
 
         foreach ($this->normalizeFields($fieldNames) as $name) {
             $indexField = $name;
@@ -259,9 +275,8 @@ class Set
      *       Solrsearch_Model_FacetMenu::buildFacetArray() for containing its
      *       feature in Opus_Search package more closely and for slightly
      *       revising it by supporting provision of limit to apply per switch.
-     *
      * @param array $input
-     * @param int $limit limit to set on every given field in input
+     * @param int   $limit limit to set on every given field in input
      * @return array|null
      */
     public static function getFacetLimitsFromInput($input, $limit = 10000)
@@ -270,12 +285,12 @@ class Set
 
         $limits = [];
 
-        $prefix = 'facetNumber_';
+        $prefix       = 'facetNumber_';
         $prefixLength = strlen($prefix);
 
         foreach ($input as $key => $value) {
             if (substr($key, 0, $prefixLength) === $prefix) {
-                $facet = substr($key, $prefixLength);
+                $facet          = substr($key, $prefixLength);
                 $limits[$facet] = $limit;
             }
         }

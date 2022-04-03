@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,27 +25,26 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Util
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Util;
 
+use Opus\Common\Log;
+use Opus\Common\Repository;
 use Opus\Document;
-use Opus\Log;
 use Opus\Model\NotFoundException;
-use Opus\Repository;
 use Opus\Search\Exception;
 use Opus\Search\QueryFactory;
 use Opus\Search\Service;
 
+use function count;
+use function is_null;
+use function microtime;
+
 class ConsistencyCheck
 {
-
     private $logger;
 
     private $searcher;
@@ -57,12 +57,11 @@ class ConsistencyCheck
 
     private $numOfDeletions = 0;
 
-
     public function __construct($logger = null)
     {
-        $this->logger = is_null($logger) ? Log::get() : $logger;
+        $this->logger   = is_null($logger) ? Log::get() : $logger;
         $this->searcher = Service::selectSearchingService();
-        $this->indexer = Service::selectIndexingService();
+        $this->indexer  = Service::selectIndexingService();
     }
 
     public function run()
@@ -93,7 +92,6 @@ class ConsistencyCheck
      * Check for each database document in serverState publish if it exists in
      * Solr index. Furthermore, compare field value of serverDateModified in
      * database and Solr index.
-     *
      */
     private function checkDatabase()
     {
@@ -114,7 +112,7 @@ class ConsistencyCheck
             $serverDataModified = $doc->getServerDateModified()->getUnixTimestamp();
 
             // retrieve document from index and compare serverDateModified fields
-            $query = QueryFactory::selectDocumentById($this->searcher, $id);
+            $query  = QueryFactory::selectDocumentById($this->searcher, $id);
             $result = $this->searcher->customSearch($query);
 
             switch ($result->getAllMatchesCount()) {
@@ -146,11 +144,10 @@ class ConsistencyCheck
      * Find documents in Solr index, that are not in database or that are in
      * database but not in serverState published Remove such documents from Solr
      * index.
-     *
      */
     private function checkSearchIndex()
     {
-        $query = QueryFactory::selectAllDocuments($this->searcher);
+        $query  = QueryFactory::selectAllDocuments($this->searcher);
         $result = $this->searcher->customSearch($query);
 
         $results = $result->getReturnedMatchingIds();

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,8 +26,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -35,12 +34,12 @@ namespace OpusTest\Search\Console;
 
 use Opus\Search\Console\IndexCommand;
 use OpusTest\Search\TestAsset\TestCase;
+use ReflectionClass;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class IndexCommandTest extends TestCase
 {
-
     /**
      * @return array[] option string, block size
      *
@@ -50,8 +49,8 @@ class IndexCommandTest extends TestCase
     {
         return [
             [null, 10],
-            [ '1', 1],
-            ['=5', 5]
+            ['1', 1],
+            ['=5', 5],
         ];
     }
 
@@ -71,7 +70,7 @@ class IndexCommandTest extends TestCase
         $tester = new CommandTester($command);
         $tester->execute($input);
 
-        $ref = new \ReflectionClass('Opus\Search\Console\IndexCommand');
+        $ref = new ReflectionClass(IndexCommand::class);
 
         $refBlockSize = $ref->getProperty('blockSize');
         $refBlockSize->setAccessible(true);
@@ -84,13 +83,12 @@ class IndexCommandTest extends TestCase
         return [
             ['a'],
             ['0'],
-            ['-1']
+            ['-1'],
         ];
     }
 
     /**
      * @param $value
-     *
      * @dataProvider invalidBlockSizeOptionProvider
      */
     public function testInvalidBlockSizeOption($value)
@@ -102,7 +100,7 @@ class IndexCommandTest extends TestCase
         $this->setExpectedException(InvalidOptionException::class, 'Blocksize must be an integer >= 1');
 
         $tester->execute([
-            '--blocksize' => $value
+            '--blocksize' => $value,
         ]);
     }
 

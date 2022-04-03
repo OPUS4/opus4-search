@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,15 +26,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Solr\Document;
 
+use DOMDocument;
+use Opus\Common\Config;
 use Opus\Document;
 use Opus\File;
 use Opus\Model\Xml;
@@ -44,19 +44,27 @@ use Opus\Search\Log;
 use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Service;
 use Opus\Storage\StorageException;
+use Zend_Config;
+
+use function array_filter;
+use function count;
+use function filter_var;
+use function iconv;
+use function is_null;
+use function trim;
+
+use const FILTER_VALIDATE_BOOLEAN;
 
 abstract class Base
 {
-
-    public function __construct(\Zend_Config $options)
+    public function __construct(Zend_Config $options)
     {
     }
 
     /**
      * Retrieves XML describing model data of provided Opus document.
      *
-     * @param Document $opusDoc
-     * @return \DOMDocument
+     * @return DOMDocument
      */
     protected function getModelXml(Document $opusDoc)
     {
@@ -70,11 +78,12 @@ abstract class Base
 
         $modelXml = $caching_xml_model->getDomDocument();
 
-        $config = \Opus\Config::get();
+        $config = Config::get();
 
         // extract fulltext from file and append it to the generated xml.
         if (! isset($config->search->indexFiles)
-            || filter_var($config->search->indexFiles, FILTER_VALIDATE_BOOLEAN)) {
+            || filter_var($config->search->indexFiles, FILTER_VALIDATE_BOOLEAN)
+        ) {
             $this->attachFulltextToXml($modelXml, $opusDoc->getFile(), $opusDoc->getId());
         }
 
@@ -84,14 +93,12 @@ abstract class Base
     /**
      * Appends fulltext data of every listen file to provided XML document.
      *
-     * @param \DomDocument $modelXml
-     * @param File[] $files
-     * @param string $docId ID of document
-     * @return void
+     * @param DOMDocument $modelXml
+     * @param File[]      $files
+     * @param string      $docId ID of document
      */
     private function attachFulltextToXml($modelXml, $files, $docId)
     {
-
         // get root element of XML document containing document's information
         $docXml = $modelXml->getElementsByTagName('Opus_Document')->item(0);
         if (is_null($docXml)) {
@@ -116,10 +123,10 @@ abstract class Base
 
         $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'true'));
 
-        // fetch reference on probably separate service for extracting fulltext data
+    // fetch reference on probably separate service for extracting fulltext data
         $extractingService = Service::selectExtractingService();
 
-        // extract fulltext data for every file left in set after filtering before
+    // extract fulltext data for every file left in set after filtering before
         foreach ($files as $file) {
             $fulltext = '';
 
@@ -128,8 +135,8 @@ abstract class Base
                 $fulltext = trim(iconv("UTF-8", "UTF-8//IGNORE", $fulltext));
             } catch (MimeTypeNotSupportedException $e) {
                 Log::get()->err(
-                    'An error occurred while getting fulltext data for document with id ' . $docId . ': ' .
-                    $e->getMessage()
+                    'An error occurred while getting fulltext data for document with id ' . $docId . ': '
+                    . $e->getMessage()
                 );
             } catch (StorageException $e) {
                 Log::get()->err(
@@ -138,8 +145,8 @@ abstract class Base
                 );
             } catch (Exception $e) {
                 Log::get()->err(
-                    'An error occurred while getting fulltext data for document with id ' . $docId . ': ' .
-                    $e->getMessage()
+                    'An error occurred while getting fulltext data for document with id ' . $docId . ': '
+                    . $e->getMessage()
                 );
             }
 
@@ -160,8 +167,6 @@ abstract class Base
     }
 
     /**
-     *
-     * @param File $file
      * @return string
      */
     private function getFulltextHash(File $file)
@@ -177,12 +182,11 @@ abstract class Base
         return $file->getId() . ':' . $hash;
     }
 
-
     /*
-	 *
-	 * --- abstract part of API ---
-	 *
-	 */
+     *
+     * --- abstract part of API ---
+     *
+     */
 
     /**
      * Derives Solr-compatible description of document from provided Opus
@@ -191,8 +195,6 @@ abstract class Base
      * @note Parameter $solrDoc must pass reference on object providing proper
      *       API for describing Solr-compatible document. On return the same
      *       reference is returned.
-     *
-     * @param Document $opusDoc
      * @param mixed $solrDoc depends on derived implementation
      * @return mixed reference provided in parameter $solrDoc
      */

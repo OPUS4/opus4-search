@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,9 +26,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Michael Lang
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -44,18 +42,16 @@ use Opus\File;
 
 interface Extracting
 {
-
     /**
      * Extracts provided file of document.
      *
-     * @param File $file
-     * @param Document $document
      * @return Extracting fluent interface
      */
-    public function extractDocumentFile(File $file, Document $document = null);
+    public function extractDocumentFile(File $file, ?Document $document = null);
 
     /**
      * Extracts text from file.
+     *
      * @param $path
      * @return mixed
      */

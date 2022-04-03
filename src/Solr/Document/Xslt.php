@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,44 +26,57 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Solr\Document;
 
+use DOMDocument;
+use Exception;
+use InvalidArgumentException;
+use Opus\Common\Config;
 use Opus\Document;
 use Opus\Search\Log;
+use XSLTProcessor;
+use Zend_Config;
+
+use function array_key_exists;
+use function ctype_digit;
+use function dirname;
+use function filter_var;
+use function is_null;
+use function preg_split;
+use function strlen;
+use function trim;
+
+use const DIRECTORY_SEPARATOR;
+use const FILTER_VALIDATE_BOOLEAN;
+use const PREG_SPLIT_NO_EMPTY;
 
 class Xslt extends Base
 {
-
-    /**
-     * @var \XSLTProcessor
-     */
+    /** @var XSLTProcessor */
     protected $processor;
 
     private $options;
 
-    public function __construct(\Zend_Config $options)
+    public function __construct(Zend_Config $options)
     {
         parent::__construct($options);
 
         $this->options = $options;
 
         try {
-            $xslt = new \DomDocument;
+            $xslt = new DOMDocument();
 
             $xslt->load($this->getXsltFile());
 
-            $this->processor = new \XSLTProcessor;
+            $this->processor = new XSLTProcessor();
             $this->processor->importStyleSheet($xslt);
             $this->processor->registerPHPFunctions('Opus\Search\Solr\Document\Xslt::indexYear');
-        } catch (\Exception $e) {
-            throw new \InvalidArgumentException('invalid XSLT file for deriving Solr documents', 0, $e);
+        } catch (Exception $e) {
+            throw new InvalidArgumentException('invalid XSLT file for deriving Solr documents', 0, $e);
         }
     }
 
@@ -72,18 +86,15 @@ class Xslt extends Base
      *
      * @note Parameter $solrDoc must be prepared with reference on instance of
      *       DOMDocument. It is returned on return.
-     *
      * @example
      *     $solrXmlDoc = $doc->toSolrDocument( $opusDoc, new DOMDocument() );
-     *
-     * @param Document $opusDoc
-     * @param \DOMDocument $solrDoc
-     * @return \DOMDocument
+     * @param DOMDocument $solrDoc
+     * @return DOMDocument
      */
     public function toSolrDocument(Document $opusDoc, $solrDoc)
     {
-        if (! ($solrDoc instanceof \DOMDocument)) {
-            throw new \InvalidArgumentException('provided Solr document must be instance of DOMDocument');
+        if (! $solrDoc instanceof DomDocument) {
+            throw new InvalidArgumentException('provided Solr document must be instance of DOMDocument');
         }
 
         $modelXml = $this->getModelXml($opusDoc);
@@ -91,7 +102,7 @@ class Xslt extends Base
         $solrDoc->preserveWhiteSpace = false;
         $solrDoc->loadXML($this->processor->transformToXML($modelXml));
 
-        if (filter_var(\Opus\Config::get()->log->prepare->xml, FILTER_VALIDATE_BOOLEAN)) {
+        if (filter_var(Config::get()->log->prepare->xml, FILTER_VALIDATE_BOOLEAN)) {
             $modelXml->formatOutput = true;
             Log::get()->debug("input xml\n" . $modelXml->saveXML());
             $solrDoc->formatOutput = true;
@@ -119,7 +130,7 @@ class Xslt extends Base
      */
     public static function indexYear($publishedDateYear, $publishedYear, $completedDateYear, $completedYear)
     {
-        $fields = [];
+        $fields                  = [];
         $fields['PublishedDate'] = $publishedDateYear;
         $fields['PublishedYear'] = $publishedYear;
         $fields['CompletedDate'] = $completedDateYear;
@@ -147,7 +158,7 @@ class Xslt extends Base
     public static function getYearOrder()
     {
         if (is_null(self::$yearOrder)) {
-            $config = \Opus\Config::get();
+            $config = Config::get();
 
             if (isset($config->search->index->field->year->order)) {
                 $orderConfig = $config->search->index->field->year->order;

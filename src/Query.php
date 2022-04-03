@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,16 +26,36 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search;
 
+use InvalidArgumentException;
 use Opus\Search\Facet\Set;
 use Opus\Search\Filter\Base;
+use RuntimeException;
+use Zend_Config;
+
+use function array_key_exists;
+use function array_merge;
+use function array_shift;
+use function array_unique;
+use function count;
+use function ctype_digit;
+use function intval;
+use function is_array;
+use function is_null;
+use function is_scalar;
+use function is_string;
+use function preg_match;
+use function preg_split;
+use function strcasecmp;
+use function strtolower;
+use function trim;
+
+use const PREG_SPLIT_NO_EMPTY;
 
 /**
  * Implements API for describing search queries.
@@ -50,7 +71,6 @@ use Opus\Search\Filter\Base;
  *       "request"              -->    "query"
  *       "query"                -->    "filter"
  *       "filter query"         -->    "subfilter"
- *
  * @method int getStart( int $default = null )
  * @method int getRows( int $default = null )
  * @method string[] getFields( array $default = null )
@@ -70,7 +90,6 @@ use Opus\Search\Filter\Base;
  */
 class Query
 {
-
     protected $_data;
 
     public function reset()
@@ -96,14 +115,14 @@ class Query
      * Tests if provided name is actually name of known parameter normalizing it
      * on return.
      *
-     * @throws \InvalidArgumentException unless providing name of existing parameter
+     * @throws InvalidArgumentException unless providing name of existing parameter
      * @param string $name name of parameter to access
      * @return string normalized name of existing parameter
      */
     protected function isValidParameter($name)
     {
         if (! array_key_exists(strtolower(trim($name)), $this->_data)) {
-            throw new \InvalidArgumentException('invalid query parameter: ' . $name);
+            throw new InvalidArgumentException('invalid query parameter: ' . $name);
         }
 
         return strtolower(trim($name));
@@ -119,20 +138,20 @@ class Query
     protected function normalizeFields($input)
     {
         if (! is_array($input)) {
-            $input = [ $input ];
+            $input = [$input];
         }
 
         $output = [];
 
         foreach ($input as $field) {
             if (! is_string($field)) {
-                throw new \InvalidArgumentException('invalid type of field selector');
+                throw new InvalidArgumentException('invalid type of field selector');
             }
 
             $fieldNames = preg_split('/[\s,]+/', $field, null, PREG_SPLIT_NO_EMPTY);
             foreach ($fieldNames as $name) {
                 if (! preg_match('/^(?:\*|[a-z_][a-z0-9_.]*)$/i', $name)) {
-                    throw new \InvalidArgumentException('malformed field selector: ' . $name);
+                    throw new InvalidArgumentException('malformed field selector: ' . $name);
                 }
 
                 $output[] = $name;
@@ -140,7 +159,7 @@ class Query
         }
 
         if (! count($input)) {
-            throw new \InvalidArgumentException('missing field selector');
+            throw new InvalidArgumentException('missing field selector');
         }
 
         return $output;
@@ -159,7 +178,7 @@ class Query
         } elseif (! strcasecmp($ascending, 'desc')) {
             $ascending = false;
         } elseif ($ascending !== false && $ascending !== true) {
-            throw new \InvalidArgumentException('invalid sorting direction selector');
+            throw new InvalidArgumentException('invalid sorting direction selector');
         }
 
         return $ascending;
@@ -168,8 +187,8 @@ class Query
     /**
      * Retrieves value of selected query parameter.
      *
-     * @param string $name name of parameter to read
-     * @param mixed $defaultValue value to retrieve if parameter hasn't been set internally
+     * @param string     $name name of parameter to read
+     * @param null|mixed $defaultValue value to retrieve if parameter hasn't been set internally
      * @return mixed value of selected parameter, default if missing internally
      */
     public function get($name, $defaultValue = null)
@@ -182,10 +201,10 @@ class Query
     /**
      * Sets value of selected query parameter.
      *
-     * @throws \InvalidArgumentException in case of invalid arguments (e.g. on trying to add value to single-value parameter)
-     * @param string $name name of query parameter to adjust
+     * @throws InvalidArgumentException in case of invalid arguments (e.g. on trying to add value to single-value parameter)
+     * @param string                    $name name of query parameter to adjust
      * @param string[]|array|string|int $value value of query parameter to write
-     * @param bool $adding true for adding given parameter to any existing one
+     * @param bool                      $adding true for adding given parameter to any existing one
      * @return $this
      */
     public function set($name, $value, $adding = false)
@@ -196,11 +215,11 @@ class Query
             case 'start':
             case 'rows':
                 if ($adding) {
-                    throw new \InvalidArgumentException('invalid parameter access on ' . $name);
+                    throw new InvalidArgumentException('invalid parameter access on ' . $name);
                 }
 
                 if (! is_scalar($value) || ! ctype_digit(trim($value))) {
-                    throw new \InvalidArgumentException('invalid parameter value on ' . $name);
+                    throw new InvalidArgumentException('invalid parameter value on ' . $name);
                 }
 
                 $this->_data[$name] = intval($value);
@@ -217,7 +236,7 @@ class Query
                     $this->_data['fields'] = array_merge($this->_data['fields'], $fields);
                 } else {
                     if (! count($fields)) {
-                        throw new \InvalidArgumentException('setting empty set of fields rejected');
+                        throw new InvalidArgumentException('setting empty set of fields rejected');
                     }
 
                     $this->_data['fields'] = $fields;
@@ -228,7 +247,7 @@ class Query
 
             case 'sort':
                 if (! is_array($value)) {
-                    $value = [ $value, true ];
+                    $value = [$value, true];
                 }
 
                 switch (count($value)) {
@@ -241,7 +260,7 @@ class Query
                         $ascending = true;
                         break;
                     default:
-                        throw new \InvalidArgumentException('invalid sorting selector');
+                        throw new InvalidArgumentException('invalid sorting selector');
                 }
 
                 $this->addSorting($fields, $ascending, ! $adding);
@@ -249,7 +268,7 @@ class Query
 
             case 'union':
                 if ($adding) {
-                    throw new \InvalidArgumentException('invalid parameter access on ' . $name);
+                    throw new InvalidArgumentException('invalid parameter access on ' . $name);
                 }
 
                 $this->_data[$name] = ! ! $value;
@@ -257,11 +276,11 @@ class Query
 
             case 'filter':
                 if ($adding) {
-                    throw new \InvalidArgumentException('invalid parameter access on ' . $name);
+                    throw new InvalidArgumentException('invalid parameter access on ' . $name);
                 }
 
-                if (! ( $value instanceof Base )) {
-                    throw new \InvalidArgumentException('invalid filter');
+                if (! $value instanceof Base) {
+                    throw new InvalidArgumentException('invalid filter');
                 }
 
                 $this->_data[$name] = $value;
@@ -269,18 +288,18 @@ class Query
 
             case 'facet':
                 if ($adding) {
-                    throw new \InvalidArgumentException('invalid parameter access on ' . $name);
+                    throw new InvalidArgumentException('invalid parameter access on ' . $name);
                 }
 
-                if (! ( $value instanceof Set )) {
-                    throw new \InvalidArgumentException('invalid facet options');
+                if (! $value instanceof Set) {
+                    throw new InvalidArgumentException('invalid facet options');
                 }
 
                 $this->_data[$name] = $value;
                 break;
 
             case 'subfilters':
-                throw new \RuntimeException('invalid access on sub filters');
+                throw new RuntimeException('invalid access on sub filters');
         }
 
         return $this;
@@ -319,15 +338,15 @@ class Query
             }
         }
 
-        throw new \RuntimeException('invalid method: ' . $method);
+        throw new RuntimeException('invalid method: ' . $method);
     }
 
     /**
      * Adds request for sorting by some field in desired order.
      *
      * @param string|string[] $field one or more field names to add sorting (as array and/or comma-separated string)
-     * @param bool $ascending true or "asc" for ascending by all given fields
-     * @param bool $reset true for dropping previously declared sorting
+     * @param bool            $ascending true or "asc" for ascending by all given fields
+     * @param bool            $reset true for dropping previously declared sorting
      * @return $this fluent interface
      */
     public function addSorting($field, $ascending = true, $reset = false)
@@ -336,7 +355,7 @@ class Query
         $ascending = $this->normalizeDirection($ascending);
 
         if (! count($fields)) {
-            throw new \InvalidArgumentException('missing field for sorting result');
+            throw new InvalidArgumentException('missing field for sorting result');
         }
 
         if ($reset || ! is_array($this->_data['sort'])) {
@@ -345,7 +364,7 @@ class Query
 
         foreach ($fields as $field) {
             if ($field === '*') {
-                throw new \InvalidArgumentException('invalid request for sorting by all fields (*)');
+                throw new InvalidArgumentException('invalid request for sorting by all fields (*)');
             }
 
             $this->_data['sort'][$field] = $ascending ? 'asc' : 'desc';
@@ -357,6 +376,8 @@ class Query
     /**
      * Declares some subfilter.
      *
+     * @see http://wiki.apache.org/solr/CommonQueryParameters#fq
+     *
      * @note In Solr a search includes a "query" and optionally one or more
      *       "filter query". This API intends different terminology for the
      *       whole search request is considered a "query" with a "filter" used
@@ -365,21 +386,18 @@ class Query
      *       is "filter query" in Solr world: some named query to be included on
      *       selecting documents in database with some benefits regarding
      *       performance, server-side result caching and non-affecting score.
-     *
-     *       @see http://wiki.apache.org/solr/CommonQueryParameters#fq
-     *
      * @param string $name name of query (used for server-side caching)
-     * @param Base $subFilter filter to be satisfied by all matching documents in addition
+     * @param Base   $subFilter filter to be satisfied by all matching documents in addition
      * @return $this fluent interface
      */
     public function setSubFilter($name, Base $subFilter)
     {
         if (! is_string($name) || ! $name) {
-            throw new \InvalidArgumentException('invalid sub filter name');
+            throw new InvalidArgumentException('invalid sub filter name');
         }
 
         if (! is_array($this->_data['subfilters'])) {
-            $this->_data['subfilters'] = [ $name => $subFilter ];
+            $this->_data['subfilters'] = [$name => $subFilter];
         } else {
             $this->_data['subfilters'][$name] = $subFilter;
         }
@@ -390,18 +408,17 @@ class Query
     /**
      * Removes some previously defined subfilter from current query again.
      *
-     * @note This isn't affecting server-side caching of selected filter but
-     *       reverting some parts of query compiled on client-side.
-     *
      * @see Opus_Search_Query::setSubFilter()
      *
+     * @note This isn't affecting server-side caching of selected filter but
+     *       reverting some parts of query compiled on client-side.
      * @param string $name name of filter to remove from query again
      * @return $this fluent interface
      */
     public function removeSubFilter($name)
     {
         if (! is_string($name) || ! $name) {
-            throw new \InvalidArgumentException('invalid sub filter name');
+            throw new InvalidArgumentException('invalid sub filter name');
         }
 
         if (is_array($this->_data['subfilters'])) {
@@ -432,7 +449,7 @@ class Query
         $config   = Config::getDomainConfiguration();
         $defaults = $config->parameterDefaults;
 
-        if ($defaults instanceof \Zend_Config) {
+        if ($defaults instanceof Zend_Config) {
             return $defaults->get($name, $fallbackIfMissing);
         }
 
@@ -474,7 +491,7 @@ class Query
 
         $parts = preg_split('/[\s,]+/', trim($sorting), null, PREG_SPLIT_NO_EMPTY);
 
-        $sorting = [ array_shift($parts) ];
+        $sorting = [array_shift($parts)];
 
         if (! count($parts)) {
             $sorting[] = 'desc';

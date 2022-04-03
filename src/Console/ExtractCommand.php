@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,31 +25,25 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @package     Application_Console
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Console;
 
-use Opus\Console\AbstractBaseDocumentCommand;
+use Opus\Common\Console\AbstractBaseDocumentCommand;
 use Opus\Search\Console\Helper\IndexHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class Application_Console_Index_ExtractCommand
- *
  * TODO extract single file
  * TODO use some kind of helper instead of base class?
  * TODO need to have a way to access/check cache (perhaps another command)
  */
 class ExtractCommand extends AbstractBaseDocumentCommand
 {
-
     const OPTION_TIMEOUT = 'timeout';
 
     protected static $defaultName = 'index:extract';
@@ -92,8 +87,6 @@ EOT;
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
      * @return int|void|null
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -108,7 +101,6 @@ EOT;
         if ($timeout !== null) {
             $helper->setTimeout($timeout);
         }
-
 
         if ($this->isSingleDocument()) {
             $helper->extract($this->startId);

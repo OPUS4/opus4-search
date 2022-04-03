@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,9 +25,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Search_Util
- * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -41,18 +39,19 @@ use Opus\Search\Log;
 use Opus\Search\Result\Base;
 use Opus\Search\Service;
 use Opus\Search\Solr\Filter\Raw;
+use Zend_Acl;
+use Zend_Exception;
+
+use function is_null;
 
 class Searcher
 {
-
     /*
      * Holds numbers of facets
      */
     private $facetArray;
 
-    /**
-     * @var \Zend_Acl Access control list
-     */
+    /** @var Zend_Acl Access control list */
     private $acl;
 
     public function __construct()
@@ -60,9 +59,8 @@ class Searcher
     }
 
     /**
-     *
      * @param Query $query
-     * @param bool $validateDocIds check document IDs coming from Solr index against database
+     * @param bool  $validateDocIds check document IDs coming from Solr index against database
      * @return Base
      * @throws Exception If Solr server responds with an error or the response is empty.
      */
@@ -92,7 +90,7 @@ class Searcher
                             ->setFields('id');
                     } else {
                         $request
-                            ->setFields([ '*', 'score' ]);
+                            ->setFields(['*', 'score']);
                     }
                     break;
 
@@ -115,7 +113,7 @@ class Searcher
                             ->setFields('id');
                     } else {
                         $request
-                            ->setFields([ '*', 'score' ]);
+                            ->setFields(['*', 'score']);
 
                         $facet = Set::create();
 
@@ -164,7 +162,6 @@ class Searcher
 
     /**
      * @param mixed $type
-     * @param \Exception $previousException
      * @throws Exception
      * @return no-return
      */
@@ -184,7 +181,7 @@ class Searcher
     /**
      * Sets access control list object for controlling access to facets.
      *
-     * @param \Zend_Acl $acl
+     * @param Zend_Acl $acl
      */
     public function setAcl($acl)
     {
@@ -197,7 +194,7 @@ class Searcher
      * This allows access to documents that have not been published yet.
      *
      * @return bool
-     * @throws \Zend_Exception
+     * @throws Zend_Exception
      */
     public function isAdmin()
     {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,8 +26,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -34,11 +33,11 @@
 namespace OpusTest\Search\Result;
 
 use Opus\Search\Result\Base;
+use Opus\Search\Result\Facet;
 use OpusTest\Search\TestAsset\SimpleTestCase;
 
 class BaseTest extends SimpleTestCase
 {
-
     public function testAddFacetYearInverted()
     {
         $model = new Base();
@@ -52,7 +51,7 @@ class BaseTest extends SimpleTestCase
         $value = $facet[0];
 
         $this->assertNotNull($value);
-        $this->assertInstanceOf('Opus\Search\Result\Facet', $value);
+        $this->assertInstanceOf(Facet::class, $value);
         $this->assertEquals('65212:2013', $value->getText());
         $this->assertEquals(3, $value->getCount());
     }
@@ -70,7 +69,7 @@ class BaseTest extends SimpleTestCase
         $value = $facet[0];
 
         $this->assertNotNull($value);
-        $this->assertInstanceOf('Opus\Search\Result\Facet', $value);
+        $this->assertInstanceOf(Facet::class, $value);
         $this->assertEquals('2013', $value->getText());
         $this->assertEquals(7, $value->getCount());
     }
@@ -88,13 +87,13 @@ class BaseTest extends SimpleTestCase
 
         $john = $values[0];
         $this->assertNotNull($john);
-        $this->assertInstanceOf('Opus\Search\Result\Facet', $john);
+        $this->assertInstanceOf(Facet::class, $john);
         $this->assertEquals('John', $john->getText());
         $this->assertEquals(3, $john->getCount());
 
         $jane = $values[1];
         $this->assertNotNull($jane);
-        $this->assertInstanceOf('Opus\Search\Result\Facet', $jane);
+        $this->assertInstanceOf(Facet::class, $jane);
         $this->assertEquals('Jane', $jane->getText());
         $this->assertEquals(5, $jane->getCount());
     }

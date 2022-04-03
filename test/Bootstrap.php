@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,15 +26,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
 
+use Opus\Db\DatabaseBootstrap;
 use Opus\Model\Xml\Cache;
+use Opus\Search\Plugin\Index;
 
 /**
  * Class Bootstrap makes loading of Bootstrap with ZF1 easier.
@@ -42,14 +43,11 @@ use Opus\Model\Xml\Cache;
  * Bootstrap here, so the path does not have to point into the vendor directories.
  *
  * TODO should not be needed anymore once database connection has been uncoupled from bootstrapping
- *
- * @package OpusTest
  */
-class Bootstrap extends \Opus\Db\DatabaseBootstrap
+class Bootstrap extends DatabaseBootstrap
 {
-
     protected function _initIndexPlugin()
     {
-        Cache::setIndexPluginClass('Opus\Search\Plugin\Index');
+        Cache::setIndexPluginClass(Index::class);
     }
 }

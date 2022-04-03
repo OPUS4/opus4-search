@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,28 +25,41 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Console\Helper;
 
-use Opus\Config;
-use Opus\Console\Helper\ProgressBar;
-use Opus\Console\Helper\ProgressMatrix;
-use Opus\Console\Helper\ProgressOutput;
-use Opus\Console\Helper\ProgressReport;
+use Opus\Common\Config;
+use Opus\Common\Console\Helper\ProgressBar;
+use Opus\Common\Console\Helper\ProgressMatrix;
+use Opus\Common\Console\Helper\ProgressOutput;
+use Opus\Common\Console\Helper\ProgressReport;
+use Opus\Common\Model\ModelException;
 use Opus\Document;
-use Opus\Model\ModelException;
 use Opus\Model\Xml\Cache;
 use Opus\Search\Exception;
 use Opus\Search\Indexing;
 use Opus\Search\MimeTypeNotSupportedException;
+use Opus\Search\Plugin\Index;
 use Opus\Search\Service;
 use Opus\Storage\StorageException;
 use Symfony\Component\Console\Output\OutputInterface;
+use Zend_Config_Exception;
+
+use function count;
+use function date;
+use function filter_var;
+use function is_null;
+use function max;
+use function memory_get_peak_usage;
+use function microtime;
+use function min;
+use function sprintf;
+
+use const FILTER_VALIDATE_BOOLEAN;
+use const PHP_EOL;
 
 /**
  * Indexes all or a range of documents.
@@ -56,16 +70,14 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class IndexHelper
 {
-
     /**
      * Temporary variable for storing sync mode.
+     *
      * @var bool
      */
     private $syncMode = true;
 
-    /**
-     * @var OutputInterface
-     */
+    /** @var OutputInterface */
     private $output;
 
     private $blockSize = 10;
@@ -76,7 +88,7 @@ class IndexHelper
 
     private $removeBeforeIndexing = false;
 
-    private $timeout = null;
+    private $timeout;
 
     /**
      * @param $startId
@@ -84,13 +96,13 @@ class IndexHelper
      * @return float|string
      * @throws Exception
      * @throws ModelException
-     * @throws \Zend_Config_Exception
+     * @throws Zend_Config_Exception
      *
      * TODO Is the timestamp in the console output useful?
      */
     public function index($startId, $endId = -1)
     {
-        $output = $this->getOutput();
+        $output    = $this->getOutput();
         $blockSize = $this->getBlockSize();
 
         $this->forceSyncMode();
@@ -226,7 +238,7 @@ class IndexHelper
      * @param $endId
      * @return float|string
      * @throws ModelException
-     * @throws \Zend_Config_Exception
+     * @throws Zend_Config_Exception
      *
      * TODO perhaps support different output formats (like XML for automated processing)
      * TODO show documents without files
@@ -243,7 +255,7 @@ class IndexHelper
         // TODO this is a hack to detect if $endId has not been specified - better way?
         if ($endId === -1) {
             $singleDocument = true;
-            $docIds = [$startId];
+            $docIds         = [$startId];
         } else {
             $singleDocument = false;
             if ($startId === null && $endId === null) {
@@ -270,7 +282,7 @@ class IndexHelper
         $output->writeln('');
 
         $numOfDocs = 0;
-        $runtime = microtime(true);
+        $runtime   = microtime(true);
 
         $report = new ProgressReport();
 
@@ -330,7 +342,7 @@ class IndexHelper
 
         $progress->finish();
 
-        $runtime = microtime(true) - $runtime;
+        $runtime    = microtime(true) - $runtime;
         $peakMemory = memory_get_peak_usage() / 1024 / 1024;
 
         // TODO handle longer runtimes (minutes, hours)
@@ -374,7 +386,7 @@ class IndexHelper
     {
         $config = Config::get();
         if (isset($config->runjobs->asynchronous) && filter_var($config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
-            $this->syncMode = false;
+            $this->syncMode                = false;
             $config->runjobs->asynchronous = ''; // false
         }
     }
@@ -382,7 +394,7 @@ class IndexHelper
     private function resetMode()
     {
         if (! $this->syncMode) {
-            $config = Config::get();
+            $config                        = Config::get();
             $config->runjobs->asynchronous = '1'; // true
         }
     }
@@ -411,7 +423,7 @@ class IndexHelper
         $doc = Document::get($docId);
 
         // TODO dirty hack: disable implicit reindexing of documents in case of cache misses
-        $doc->unregisterPlugin('Opus\Search\Plugin\Index');
+        $doc->unregisterPlugin(Index::class);
 
         return $doc;
     }
