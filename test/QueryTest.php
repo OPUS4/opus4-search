@@ -145,7 +145,7 @@ class QueryTest extends TestCase
      */
     public function testSupportingImplicitScalarSetterInvalid($value, $property, $method)
     {
-        $query              = new Query();
+        $query = new Query();
         $this->setExpectedException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
@@ -155,7 +155,7 @@ class QueryTest extends TestCase
      */
     public function testSupportingExplicitScalarSetterInvalid($value, $property, $method)
     {
-        $query              = new Query();
+        $query = new Query();
         $this->setExpectedException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
@@ -287,7 +287,7 @@ class QueryTest extends TestCase
      */
     public function testSupportingImplicitFieldsSetterInvalid($value, $property, $method)
     {
-        $query              = new Query();
+        $query = new Query();
         $this->setExpectedException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
@@ -297,7 +297,7 @@ class QueryTest extends TestCase
      */
     public function testSupportingExplicitFieldsSetterInvalid($value, $property, $method)
     {
-        $query              = new Query();
+        $query = new Query();
         $this->setExpectedException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
@@ -419,7 +419,7 @@ class QueryTest extends TestCase
      */
     public function testSupportingImplicitSortSetterInvalid($value, $property, $method)
     {
-        $query              = new Query();
+        $query = new Query();
         $this->setExpectedException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
@@ -429,7 +429,7 @@ class QueryTest extends TestCase
      */
     public function testSupportingExplicitSortSetterInvalid($value, $property, $method)
     {
-        $query              = new Query();
+        $query = new Query();
         $this->setExpectedException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }

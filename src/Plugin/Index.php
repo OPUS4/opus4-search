@@ -44,7 +44,6 @@ use Opus\Search\Service;
 use Opus\Search\Task\IndexOpusDocument;
 
 use function filter_var;
-use function is_null;
 
 use const FILTER_VALIDATE_BOOLEAN;
 
@@ -59,7 +58,7 @@ class Index extends AbstractPlugin
 
     public function __construct($config = null)
     {
-        $this->config = is_null($config) ? Config::get() : $config;
+        $this->config = $config === null ? Config::get() : $config;
     }
 
     /**

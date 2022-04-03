@@ -42,7 +42,6 @@ use function defined;
 use function dirname;
 use function file_exists;
 use function is_callable;
-use function is_null;
 use function mkdir;
 use function realpath;
 
@@ -152,14 +151,14 @@ class SimpleTestCase extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $config = OpusConfig::get('Zend_Config');
-        if (! is_null($config)) {
+        if ($config !== null) {
             $this->config_backup = clone $config;
         }
     }
 
     protected function tearDown()
     {
-        if (! is_null($this->config_backup)) {
+        if ($this->config_backup !== null) {
             OpusConfig::set($this->config_backup);
         }
 

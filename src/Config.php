@@ -45,7 +45,6 @@ use function array_merge;
 use function count;
 use function filter_var;
 use function in_array;
-use function is_null;
 use function is_scalar;
 use function is_string;
 use function ltrim;
@@ -341,7 +340,7 @@ class Config
      */
     public static function getFacetNames($facetSetName = null, $serviceDomain = null)
     {
-        $facetSetName = is_null($facetSetName) ? 'default' : trim($facetSetName);
+        $facetSetName = $facetSetName === null ? 'default' : trim($facetSetName);
         if (! $facetSetName) {
             throw new InvalidArgumentException('invalid facet set name');
         }
@@ -429,7 +428,7 @@ class Config
      */
     public static function getFacetLimits($facetSetName = null, $serviceDomain = null)
     {
-        $facetSetName = is_null($facetSetName) ? 'default' : trim($facetSetName);
+        $facetSetName = $facetSetName === null ? 'default' : trim($facetSetName);
         if (! $facetSetName) {
             throw new InvalidArgumentException('invalid facet set name');
         }
@@ -468,7 +467,7 @@ class Config
             if ($facetConfig) {
                 foreach ($facetConfig as $name => $options) {
                     $limit = $options->get('limit');
-                    if (! is_null($limit)) {
+                    if ($limit !== null) {
                         $set[$name] = $limit;
                     }
                 }
@@ -496,7 +495,7 @@ class Config
      */
     public static function getFacetSorting($facetSetName = null, $serviceDomain = null)
     {
-        $facetSetName = is_null($facetSetName) ? 'default' : trim($facetSetName);
+        $facetSetName = $facetSetName === null ? 'default' : trim($facetSetName);
         if (! $facetSetName) {
             throw new InvalidArgumentException('invalid facet set name');
         }
@@ -505,7 +504,8 @@ class Config
         $config       = static::getDomainConfiguration($serviceDomain)->get('sortcrit', null);
         $searchConfig = OpusConfig::get()->search; // TODO new configuration (consolidate with old above)
 
-        if ($searchConfig && isset($searchConfig->facet->default->sort)
+        if (
+            $searchConfig && isset($searchConfig->facet->default->sort)
                 && $searchConfig->facet->default->sort == 'lexi'
         ) {
             $defaultSort = 'lexi';

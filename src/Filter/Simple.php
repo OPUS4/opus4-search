@@ -39,7 +39,6 @@ use RuntimeException;
 use function array_map;
 use function count;
 use function is_array;
-use function is_null;
 use function is_string;
 use function strval;
 
@@ -239,7 +238,7 @@ class Simple implements Filtering
             return $this->fieldValues[0];
         }
 
-        if (! is_null($default)) {
+        if ($default !== null) {
             return $default;
         }
 

@@ -50,7 +50,6 @@ use function array_filter;
 use function count;
 use function filter_var;
 use function iconv;
-use function is_null;
 use function trim;
 
 use const FILTER_VALIDATE_BOOLEAN;
@@ -81,7 +80,8 @@ abstract class Base
         $config = Config::get();
 
         // extract fulltext from file and append it to the generated xml.
-        if (! isset($config->search->indexFiles)
+        if (
+            ! isset($config->search->indexFiles)
             || filter_var($config->search->indexFiles, FILTER_VALIDATE_BOOLEAN)
         ) {
             $this->attachFulltextToXml($modelXml, $opusDoc->getFile(), $opusDoc->getId());
@@ -101,7 +101,7 @@ abstract class Base
     {
         // get root element of XML document containing document's information
         $docXml = $modelXml->getElementsByTagName('Opus_Document')->item(0);
-        if (is_null($docXml)) {
+        if ($docXml === null) {
             Log::get()->warn(
                 'An error occurred while attaching fulltext information to the xml for document with id '
                 . $docId

@@ -42,8 +42,6 @@ use Opus\Search\Solr\Filter\Raw;
 use Zend_Acl;
 use Zend_Exception;
 
-use function is_null;
-
 class Searcher
 {
     /*
@@ -198,7 +196,7 @@ class Searcher
      */
     public function isAdmin()
     {
-        if (! is_null($this->acl)) {
+        if ($this->acl !== null) {
             // TODO dependency to Application_Security_AclProvider::ACTIVE_ROLE = '_user';
             // TODO knowledge from application ('documents') - delegate implementation to application
             return $this->acl->isAllowed('_user', 'documents');

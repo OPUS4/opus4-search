@@ -45,7 +45,6 @@ use function count;
 use function ctype_digit;
 use function intval;
 use function is_array;
-use function is_null;
 use function sprintf;
 use function strtolower;
 use function strval;
@@ -106,7 +105,7 @@ class Base
      */
     public function setAllMatchesCount($allMatchesCount)
     {
-        if (! is_null($this->data['count'])) {
+        if ($this->data['count'] !== null) {
             throw new RuntimeException('must not set count of all matches multiple times');
         }
 
@@ -127,11 +126,11 @@ class Base
      */
     public function setQueryTime($time)
     {
-        if (! is_null($this->data['querytime'])) {
+        if ($this->data['querytime'] !== null) {
             throw new RuntimeException('must not set query time multiple times');
         }
 
-        if (! is_null($time)) {
+        if ($time !== null) {
             $this->data['querytime'] = trim($time);
         }
 
@@ -170,7 +169,7 @@ class Base
      */
     public function getFacets()
     {
-        return is_null($this->data['facets']) ? [] : $this->data['facets'];
+        return $this->data['facets'] === null ? [] : $this->data['facets'];
     }
 
     /**
@@ -196,7 +195,7 @@ class Base
      */
     public function getReturnedMatches()
     {
-        if (is_null($this->data['matches'])) {
+        if ($this->data['matches'] === null) {
             return [];
         }
 
@@ -227,7 +226,7 @@ class Base
      */
     public function getReturnedMatchingIds()
     {
-        if (is_null($this->data['matches'])) {
+        if ($this->data['matches'] === null) {
             return [];
         }
 
@@ -303,7 +302,7 @@ class Base
      */
     public function getAllMatchesCount()
     {
-        if (is_null($this->data['count'])) {
+        if ($this->data['count'] === null) {
             throw new RuntimeException('count of matches have not been provided yet');
         }
 

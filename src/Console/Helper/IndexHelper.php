@@ -51,7 +51,6 @@ use Zend_Config_Exception;
 use function count;
 use function date;
 use function filter_var;
-use function is_null;
 use function max;
 use function memory_get_peak_usage;
 use function microtime;
@@ -164,9 +163,9 @@ class IndexHelper
 
         if ($singleDocument) {
             $output->writeln("Indexing document <fg=yellow>$startId</> ...");
-        } elseif (! is_null($endId)) {
+        } elseif ($endId !== null) {
             $output->writeln("Indexing document from <fg=yellow>$startId</> to <fg=yellow>$endId</> ...");
-        } elseif (! is_null($startId)) {
+        } elseif ($startId !== null) {
             $output->writeln("Indexing documents starting at <fg=yellow>$startId</> ...");
         } else {
             $output->writeln('Indexing <fg=yellow>all</> documents ...');

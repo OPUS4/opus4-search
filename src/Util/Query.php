@@ -36,7 +36,6 @@ use Opus\Search\Exception;
 use function array_key_exists;
 use function array_push;
 use function explode;
-use function is_null;
 use function preg_match_all;
 use function preg_replace;
 use function preg_split;
@@ -293,7 +292,7 @@ class Query
 
     public function getQ()
     {
-        if (is_null($this->q)) {
+        if ($this->q === null) {
             // earlier cached query was marked as invalid: perform new setup of query cache
             $this->q = $this->setupQCache();
         }
@@ -360,7 +359,7 @@ class Query
             if ($firstTerm) {
                 $firstTerm = false;
             } else {
-                $result .= is_null($conjunction) ? " " : " $conjunction ";
+                $result .= $conjunction === null ? " " : " $conjunction ";
             }
             $result .= $queryTerm;
         }

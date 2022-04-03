@@ -44,7 +44,6 @@ use OpusTest\Search\TestAsset\TestCase;
 
 use function array_push;
 use function count;
-use function is_null;
 use function rmdir;
 use function sleep;
 use function unlink;
@@ -297,7 +296,7 @@ class SearcherTest extends TestCase
     {
         $query = new Query(Query::SIMPLE);
         $query->setCatchAll('*:*');
-        if (! is_null($collId)) {
+        if ($collId !== null) {
             $query->addFilterQuery('collection_ids', $collId);
         }
         $searcher = new Searcher();
@@ -429,7 +428,7 @@ class SearcherTest extends TestCase
         $file->setVisibleInFrontdoor('1');
         $doc->store();
 
-        if (! is_null($fulltext2)) {
+        if ($fulltext2 !== null) {
             $doc  = Document::get($doc->getId());
             $file = $doc->addFile();
             $file->setTempFile($fulltextDir . $fulltext2);
@@ -447,7 +446,7 @@ class SearcherTest extends TestCase
         $config = Config::get();
         $path   = $config->workspacePath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $docId;
         unlink($path . DIRECTORY_SEPARATOR . $fulltext1);
-        if (! is_null($fulltext2)) {
+        if ($fulltext2 !== null) {
             unlink($path . DIRECTORY_SEPARATOR . $fulltext2);
         }
         rmdir($path);

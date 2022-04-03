@@ -48,7 +48,6 @@ use function file_get_contents;
 use function glob;
 use function is_array;
 use function is_dir;
-use function is_null;
 use function is_readable;
 use function is_string;
 use function unlink;
@@ -183,7 +182,7 @@ class DocumentBasedTestCase extends TestCase
      */
     protected function createDocument($documentProperties = null)
     {
-        if (is_null($documentProperties)) {
+        if ($documentProperties === null) {
             $documentProperties = self::$documentPropertySets['article'];
         } if (is_string($documentProperties)) {
             $documentProperties = self::$documentPropertySets[$documentProperties];

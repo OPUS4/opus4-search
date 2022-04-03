@@ -32,6 +32,7 @@
 
 namespace OpusTest\Search\Solr\Solarium;
 
+use Exception;
 use Opus\Person;
 use Opus\Search\Query;
 use Opus\Search\QueryFactory;
@@ -56,7 +57,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         // intention of this test regarding revised configuration structure, only
         $this->dropDeprecatedConfiguration();
 
-        $this->setExpectedException(\Exception::class);
+        $this->setExpectedException(Exception::class);
         Service::selectSearchingService('disfunct', 'solr');
     }
 

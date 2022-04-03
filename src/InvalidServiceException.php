@@ -32,8 +32,6 @@
 
 namespace Opus\Search;
 
-use function is_null;
-
 /**
  * Indicates invalid service e.g. due to being unavailable/offline.
  *
@@ -49,7 +47,7 @@ class InvalidServiceException extends Exception
     public function __toString()
     {
         $previousMessage = '';
-        if (! is_null($this->getPrevious())) {
+        if ($this->getPrevious() !== null) {
             $previousMessage = $this->getPrevious()->getMessage();
         }
 

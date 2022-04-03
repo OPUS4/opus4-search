@@ -38,7 +38,6 @@ use Zend_Config;
 use Zend_Config_Exception;
 
 use function array_key_exists;
-use function is_null;
 use function is_string;
 use function trim;
 
@@ -84,7 +83,7 @@ class Service
      */
     public static function getQualifiedDomain($searchDomain = null)
     {
-        if (is_null($searchDomain)) {
+        if ($searchDomain === null) {
             $config       = Config::getConfiguration();
             $searchDomain = $config->get('domain', 'solr');
         }

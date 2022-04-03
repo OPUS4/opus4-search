@@ -36,6 +36,7 @@ use DOMDocument;
 use InvalidArgumentException;
 use Opus\Common\Config;
 use Opus\File;
+use Opus\Search\AbstractAdapter;
 use Opus\Search\Exception;
 use Opus\Search\Extracting;
 use Opus\Search\FulltextFileCache;
@@ -70,7 +71,6 @@ use function filter_var;
 use function in_array;
 use function intval;
 use function is_array;
-use function is_null;
 use function is_readable;
 use function is_string;
 use function preg_match;
@@ -83,7 +83,7 @@ use const FILTER_NULL_ON_FAILURE;
 use const FILTER_VALIDATE_INT;
 use const PREG_SPLIT_NO_EMPTY;
 
-class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extracting
+class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
 {
     /** @var Zend_Config */
     protected $options;
@@ -150,7 +150,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
 
         if ($this->options->fieldToAsset instanceof Zend_Config) {
             $assetName = $this->options->fieldToAsset->get($fieldName);
-            if (! is_null($assetName)) {
+            if ($assetName !== null) {
                 return $assetName;
             }
         }
@@ -169,7 +169,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
             }
         }
 
-        if (is_null($assetName)) {
+        if ($assetName === null) {
             return $fieldName;
         } else {
             return $assetName;
@@ -645,7 +645,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                     }
                 }
 
-                if (is_null($fulltext)) {
+                if ($fulltext === null) {
                     Log::get()->err('failed extracting fulltext data from solr response');
                     $fulltext = '';
                 } else {
@@ -725,7 +725,7 @@ class Adapter extends \Opus\Search\Adapter implements Indexing, Searching, Extra
                     }
                 }
 
-                if (is_null($fulltext)) {
+                if ($fulltext === null) {
                     Log::get()->err('failed extracting fulltext data from solr response');
                     $fulltext = '';
                 } else {

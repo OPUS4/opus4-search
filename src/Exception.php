@@ -32,8 +32,6 @@
 
 namespace Opus\Search;
 
-use function is_null;
-
 /**
  * Implements common exception to be used in code of search engine adapters.
  *
@@ -64,7 +62,7 @@ class Exception extends \Exception
     public function __toString()
     {
         $previousMessage = '';
-        if (! is_null($this->getPrevious())) {
+        if ($this->getPrevious() !== null) {
             $previousMessage = $this->getPrevious()->getMessage();
         }
 

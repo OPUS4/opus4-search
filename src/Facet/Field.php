@@ -38,7 +38,6 @@ use RuntimeException;
 use function array_key_exists;
 use function intval;
 use function is_bool;
-use function is_null;
 use function is_string;
 use function preg_match;
 use function strtolower;
@@ -120,7 +119,8 @@ class Field
      */
     public function setSort($useIndex = true)
     {
-        if (! is_bool($useIndex)
+        if (
+            ! is_bool($useIndex)
             && ! preg_match('/^(count|index)$/', $useIndex = strtolower(trim($useIndex)))
         ) {
             throw new InvalidArgumentException('invalid sort direction value');
@@ -138,7 +138,7 @@ class Field
     public function get($name, $default = null)
     {
         if (array_key_exists($name, $this->data)) {
-            return is_null($this->data[$name]) ? $default : $this->data[$name];
+            return $this->data[$name] === null ? $default : $this->data[$name];
         }
 
         throw new RuntimeException('invalid request for unknown facet property');
@@ -151,7 +151,7 @@ class Field
 
     public function __isset($name)
     {
-        return ! is_null($this->data[$name]);
+        return $this->data[$name] !== null;
     }
 
     public function __set($name, $value)

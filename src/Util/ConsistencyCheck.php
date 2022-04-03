@@ -40,7 +40,6 @@ use Opus\Search\QueryFactory;
 use Opus\Search\Service;
 
 use function count;
-use function is_null;
 use function microtime;
 
 class ConsistencyCheck
@@ -59,7 +58,7 @@ class ConsistencyCheck
 
     public function __construct($logger = null)
     {
-        $this->logger   = is_null($logger) ? Log::get() : $logger;
+        $this->logger   = $logger === null ? Log::get() : $logger;
         $this->searcher = Service::selectSearchingService();
         $this->indexer  = Service::selectIndexingService();
     }

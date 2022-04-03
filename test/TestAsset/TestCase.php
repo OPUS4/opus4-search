@@ -37,7 +37,6 @@ use Opus\Search\Service;
 
 use function array_diff;
 use function is_dir;
-use function is_null;
 use function rmdir;
 use function scandir;
 use function unlink;
@@ -70,7 +69,7 @@ class TestCase extends SimpleTestCase
      */
     protected function clearFiles($directory = null)
     {
-        if (is_null($directory)) {
+        if ($directory === null) {
             if (empty(APPLICATION_PATH)) {
                 return;
             }
@@ -92,7 +91,7 @@ class TestCase extends SimpleTestCase
             }
         }
 
-        if (! is_null($directory)) {
+        if ($directory !== null) {
             rmdir($directory);
         }
 

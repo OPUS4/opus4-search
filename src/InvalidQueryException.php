@@ -32,8 +32,6 @@
 
 namespace Opus\Search;
 
-use function is_null;
-
 /**
  * Indicates invalid query either detected client-side or due to related
  * response from service.
@@ -51,7 +49,7 @@ class InvalidQueryException extends Exception
     public function __toString()
     {
         $previousMessage = '';
-        if (! is_null($this->getPrevious())) {
+        if ($this->getPrevious() !== null) {
             $previousMessage = $this->getPrevious()->getMessage();
         }
 

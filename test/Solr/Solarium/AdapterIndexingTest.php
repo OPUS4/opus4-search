@@ -32,6 +32,7 @@
 
 namespace OpusTest\Search\Solr\Solarium;
 
+use Exception;
 use Opus\Document\Plugin\XmlCache;
 use Opus\Search\Plugin\Index;
 use Opus\Search\QueryFactory;
@@ -53,7 +54,7 @@ class AdapterIndexingTest extends DocumentBasedTestCase
     // intention of this test regarding revised configuration structure, only
         $this->dropDeprecatedConfiguration();
 
-        $this->setExpectedException(\Exception::class);
+        $this->setExpectedException(Exception::class);
         Service::selectIndexingService('disfunct');
     }
 
@@ -288,7 +289,7 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         // intention of this test regarding revised configuration structure, only
         $this->dropDeprecatedConfiguration();
 
-        $this->setExpectedException(\Exception::class);
+        $this->setExpectedException(Exception::class);
         $service = Service::selectIndexingService('disfunct', 'solr');
 
         // TODO test never gets here - clean up

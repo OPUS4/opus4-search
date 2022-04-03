@@ -41,7 +41,6 @@ use Zend_Log_Writer_Stream;
 
 use function file_exists;
 use function fopen;
-use function is_null;
 use function touch;
 use function trim;
 use function unlink;
@@ -109,7 +108,7 @@ class ConsistencyCheck extends AbstractWorker
 
     public function setLogger($logger = null)
     {
-        if (! is_null($this->logfilePath)) {
+        if ($this->logfilePath !== null) {
             $logfile = @fopen($this->logfilePath, 'w', false);
             $writer  = new Zend_Log_Writer_Stream($logfile);
 

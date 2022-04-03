@@ -46,7 +46,6 @@ use function count;
 use function ctype_digit;
 use function intval;
 use function is_array;
-use function is_null;
 use function is_scalar;
 use function is_string;
 use function preg_match;
@@ -195,7 +194,7 @@ class Query
     {
         $name = $this->isValidParameter($name);
 
-        return is_null($this->_data[$name]) ? $defaultValue : $this->_data[$name];
+        return $this->_data[$name] === null ? $defaultValue : $this->_data[$name];
     }
 
     /**
@@ -228,7 +227,7 @@ class Query
             case 'fields':
                 $fields = $this->normalizeFields($value);
 
-                if ($adding && is_null($this->_data['fields'])) {
+                if ($adding && $this->_data['fields'] === null) {
                     $adding = false;
                 }
 
@@ -312,7 +311,7 @@ class Query
 
     public function __isset($name)
     {
-        return ! is_null($this->get($name));
+        return $this->get($name) !== null;
     }
 
     public function __set($name, $value)

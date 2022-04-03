@@ -32,6 +32,7 @@
 
 namespace OpusTest\Search;
 
+use InvalidArgumentException;
 use Opus\Search\Extracting;
 use Opus\Search\Indexing;
 use Opus\Search\Searching;
@@ -101,13 +102,13 @@ class ServiceTest extends TestCase
 
     public function testGetQualifiedDomainInvalidDomainNotAString()
     {
-        $this->setExpectedException(\InvalidArgumentException::class, 'invalid default search domain');
+        $this->setExpectedException(InvalidArgumentException::class, 'invalid default search domain');
         $domain = Service::getQualifiedDomain(10);
     }
 
     public function testGetQualifiedDomainInvalidDomainEmpty()
     {
-        $this->setExpectedException(\InvalidArgumentException::class, 'invalid default search domain');
+        $this->setExpectedException(InvalidArgumentException::class, 'invalid default search domain');
         $domain = Service::getQualifiedDomain('   ');
     }
 }

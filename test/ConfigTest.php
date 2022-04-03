@@ -40,7 +40,6 @@ use Zend_Config;
 
 use function array_unique;
 use function array_values;
-use function is_null;
 
 class ConfigTest extends TestCase
 {
@@ -420,7 +419,7 @@ class ConfigTest extends TestCase
         $this->markTestIncomplete('not fully implemented yet');
         $enrichment = EnrichmentKey::fetchByName('test');
 
-        if (is_null($enrichment)) {
+        if ($enrichment === null) {
             $enrichment = new EnrichmentKey();
             $enrichment->setName('test');
             $enrichment->store();

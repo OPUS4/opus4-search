@@ -45,7 +45,6 @@ use function array_key_exists;
 use function ctype_digit;
 use function dirname;
 use function filter_var;
-use function is_null;
 use function preg_split;
 use function strlen;
 use function trim;
@@ -157,7 +156,7 @@ class Xslt extends Base
 
     public static function getYearOrder()
     {
-        if (is_null(self::$yearOrder)) {
+        if (self::$yearOrder === null) {
             $config = Config::get();
 
             if (isset($config->search->index->field->year->order)) {

@@ -32,9 +32,9 @@
 
 namespace OpusTest\Search\Facet;
 
+use InvalidArgumentException;
 use Opus\Search\Facet\Field;
 use OpusTest\Search\TestAsset\SimpleTestCase;
-use InvalidArgumentException;
 
 class FieldTest extends SimpleTestCase
 {

@@ -43,7 +43,6 @@ use function ctype_digit;
 use function floatval;
 use function intval;
 use function is_array;
-use function is_null;
 use function trim;
 
 /**
@@ -113,7 +112,7 @@ class Match
      */
     public function getDocument()
     {
-        if (is_null($this->doc)) {
+        if ($this->doc === null) {
             $this->doc = Document::get($this->id);
         }
 
@@ -128,7 +127,7 @@ class Match
      */
     public function setScore($score)
     {
-        if (! is_null($this->score)) {
+        if ($this->score !== null) {
             throw new RuntimeException('score has been set before');
         }
 
@@ -189,7 +188,7 @@ class Match
      */
     public function setServerDateModified($timestamp)
     {
-        if (! is_null($this->serverDateModified)) {
+        if ($this->serverDateModified !== null) {
             throw new RuntimeException('timestamp of modification has been set before');
         }
 
@@ -214,7 +213,7 @@ class Match
      */
     public function getServerDateModified()
     {
-        if (! is_null($this->serverDateModified)) {
+        if ($this->serverDateModified !== null) {
             return $this->serverDateModified;
         }
 
@@ -223,7 +222,7 @@ class Match
 
     public function setFulltextIDsSuccess($value)
     {
-        if (! is_null($this->fulltextIdSuccess)) {
+        if ($this->fulltextIdSuccess !==  null) {
             throw new RuntimeException('successful fulltext IDs have been set before');
         }
 
@@ -234,7 +233,7 @@ class Match
 
     public function getFulltextIDsSuccess()
     {
-        if (! is_null($this->fulltextIdSuccess)) {
+        if ($this->fulltextIdSuccess !== null) {
             return $this->fulltextIdSuccess;
         }
 
@@ -243,7 +242,7 @@ class Match
 
     public function setFulltextIDsFailure($value)
     {
-        if (! is_null($this->fulltextIdFailure)) {
+        if ($this->fulltextIdFailure !== null) {
             throw new RuntimeException('failed fulltext IDs have been set before');
         }
 
@@ -254,7 +253,7 @@ class Match
 
     public function getFulltextIDsFailure()
     {
-        if (! is_null($this->fulltextIdFailure)) {
+        if ($this->fulltextIdFailure !== null) {
             return $this->fulltextIdFailure;
         }
 

@@ -32,6 +32,7 @@
 
 namespace OpusTest\Search\Facet;
 
+use InvalidArgumentException;
 use Opus\Search\Facet\Set;
 use OpusTest\Search\TestAsset\SimpleTestCase;
 
@@ -145,7 +146,7 @@ class SetTest extends SimpleTestCase
     {
         $facets = Set::create();
 
-        $this->setExpectedException(\InvalidArgumentException::class, 'invalid limits for overriding configuration');
+        $this->setExpectedException(InvalidArgumentException::class, 'invalid limits for overriding configuration');
         $facets->overrideLimits('all');
     }
 

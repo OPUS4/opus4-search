@@ -36,7 +36,6 @@ use Opus\Job;
 use OpusTest\Search\TestAsset\TestCase;
 
 use function count;
-use function is_null;
 
 class IndexTest extends TestCase
 {
@@ -66,7 +65,7 @@ class IndexTest extends TestCase
         $this->assertEquals('index', $newJob->getData()->task);
 
         $document->delete();
-        if (! is_null($newJob)) {
+        if ($newJob !== null) {
             $newJob->delete();
         }
     }
@@ -107,7 +106,7 @@ class IndexTest extends TestCase
         $newIndexJob = $this->getCreatedJob($documentId, $indexJobs);
         $this->assertNotNull($newIndexJob, 'Expected new opus-index-document job');
 
-        if (! is_null($newIndexJob)) {
+        if ($newIndexJob !== null) {
             $newIndexJob->delete();
         }
 
@@ -161,7 +160,7 @@ class IndexTest extends TestCase
         $newIndexJob = $this->getCreatedJob($documentId, $indexJobs);
         $this->assertNull($newIndexJob, 'Expected that no opus-index-document job was created');
 
-        if (! is_null($newIndexJob)) {
+        if ($newIndexJob !== null) {
             $newIndexJob->delete();
         }
 
