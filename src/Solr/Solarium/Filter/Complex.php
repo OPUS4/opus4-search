@@ -26,14 +26,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Solr\Solarium\Filter;
 
 use InvalidArgumentException;
-use Opus\Search\Filter\Complex as FilterComplex;
+use Opus\Search\Filter\AbstractComplex;
 use Opus\Search\Filter\Simple;
 use Opus\Search\Filtering;
 use Opus\Search\Solr\Filter\Helper;
@@ -44,7 +44,7 @@ use function array_map;
 use function count;
 use function implode;
 
-class Complex extends FilterComplex
+class Complex extends AbstractComplex
 {
     /** @var Client */
     protected $client;
@@ -135,7 +135,7 @@ class Complex extends FilterComplex
         $compiled = [];
 
         foreach ($conditions as $condition) {
-            if ($condition instanceof FilterComplex) {
+            if ($condition instanceof AbstractComplex) {
                 $term = static::compileQuery($query, $condition->getConditions(), static::glue($condition));
                 $term = "($term)";
                 if ($condition->isGloballyNegated()) {
