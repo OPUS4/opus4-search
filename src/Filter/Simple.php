@@ -33,7 +33,7 @@
 namespace Opus\Search\Filter;
 
 use InvalidArgumentException;
-use Opus\Search\Filtering;
+use Opus\Search\FilteringInterface;
 use RuntimeException;
 
 use function array_map;
@@ -49,7 +49,7 @@ use function strval;
  * actually used search engine.
  */
 
-class Simple implements Filtering
+class Simple implements FilteringInterface
 {
     const COMPARE_EQUALITY         = '=';
     const COMPARE_INEQUALITY       = '<>';

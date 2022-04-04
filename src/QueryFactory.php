@@ -47,7 +47,7 @@ class QueryFactory
      *
      * @return Query
      */
-    public static function selectAllDocuments(Searching $adapter)
+    public static function selectAllDocuments(SearchingInterface $adapter)
     {
         $filter = $adapter->createFilter();
         $filter->createSimpleEqualityFilter('*')->addValue('*');
@@ -60,9 +60,9 @@ class QueryFactory
      *
      * @return Query
      */
-    public static function selectDocument(Searching $adapter, Document $document)
+    public static function selectDocument(SearchingInterface $adapter, Document $document)
     {
-        return self::selectDocumentById($document->getId());
+        return self::selectDocumentById($adapter, $document->getId());
     }
 
     /**
@@ -72,7 +72,7 @@ class QueryFactory
      * @param int $documentId
      * @return Query
      */
-    public static function selectDocumentById(Searching $adapter, $documentId)
+    public static function selectDocumentById(SearchingInterface $adapter, $documentId)
     {
         $filter = $adapter->createFilter();
         $filter->createSimpleEqualityFilter('id')->addValue($documentId);

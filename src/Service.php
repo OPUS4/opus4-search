@@ -100,7 +100,7 @@ class Service
      * @param string      $serviceInterface required interface of service adapter, e.g. 'Opus_Search_Indexing'
      * @param string|null $serviceName name of configured service to work with
      * @param null|string $serviceDomain name of domain selected service belongs to
-     * @return Indexing|Searching|Extracting
+     * @return IndexingInterface|SearchingInterface|ExtractingInterface
      * @throws Zend_Config_Exception
      */
     protected static function selectService(
@@ -150,33 +150,33 @@ class Service
     /**
      * @param string|null $serviceName name of configured service to work with
      * @param null|string $serviceDomain name of domain selected service belongs to
-     * @return Indexing
+     * @return IndexingInterface
      * @throws Zend_Config_Exception
      */
     public static function selectIndexingService($serviceName = null, $serviceDomain = null)
     {
-        return static::selectService('index', Indexing::class, $serviceName, $serviceDomain);
+        return static::selectService('index', IndexingInterface::class, $serviceName, $serviceDomain);
     }
 
     /**
      * @param string|null $serviceName name of configured service to work with
      * @param null|string $serviceDomain name of domain selected service belongs to
-     * @return Searching
+     * @return SearchingInterface
      * @throws Zend_Config_Exception
      */
     public static function selectSearchingService($serviceName = null, $serviceDomain = null)
     {
-        return static::selectService('search', Searching::class, $serviceName, $serviceDomain);
+        return static::selectService('search', SearchingInterface::class, $serviceName, $serviceDomain);
     }
 
     /**
      * @param string|null $serviceName name of configured service to work with
      * @param null|string $serviceDomain name of domain selected service belongs to
-     * @return Extracting
+     * @return ExtractingInterface
      * @throws Zend_Config_Exception
      */
     public static function selectExtractingService($serviceName = null, $serviceDomain = null)
     {
-        return static::selectService('extract', Extracting::class, $serviceName, $serviceDomain);
+        return static::selectService('extract', ExtractingInterface::class, $serviceName, $serviceDomain);
     }
 }

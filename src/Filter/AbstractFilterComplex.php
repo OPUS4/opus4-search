@@ -32,7 +32,7 @@
 
 namespace Opus\Search\Filter;
 
-use Opus\Search\Filtering;
+use Opus\Search\FilteringInterface;
 
 /**
  * Describes complex term describing union or intersection of several contained
@@ -51,7 +51,7 @@ abstract class AbstractFilterComplex extends AbstractFilterBase
     /**
      * Lists conditions of current filter.
      *
-     * @var Filtering[]
+     * @var FilteringInterface[]
      */
     protected $conditions = [];
 
@@ -60,7 +60,7 @@ abstract class AbstractFilterComplex extends AbstractFilterBase
      *
      * @return $this
      */
-    public function addFilter(Filtering $filter)
+    public function addFilter(FilteringInterface $filter)
     {
         $this->conditions[] = $filter;
 
@@ -248,7 +248,7 @@ abstract class AbstractFilterComplex extends AbstractFilterBase
     }
 
     /**
-     * @return Filtering[]
+     * @return FilteringInterface[]
      */
     public function getConditions()
     {

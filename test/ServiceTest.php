@@ -33,9 +33,9 @@
 namespace OpusTest\Search;
 
 use InvalidArgumentException;
-use Opus\Search\Extracting;
-use Opus\Search\Indexing;
-use Opus\Search\Searching;
+use Opus\Search\ExtractingInterface;
+use Opus\Search\IndexingInterface;
+use Opus\Search\SearchingInterface;
 use Opus\Search\Service;
 use Opus\Search\Solr\Solarium\Adapter;
 use OpusTest\Search\TestAsset\TestCase;
@@ -46,7 +46,7 @@ class ServiceTest extends TestCase
     {
         $service = Service::selectIndexingService(null, 'solr');
 
-        $this->assertInstanceOf(Indexing::class, $service);
+        $this->assertInstanceOf(IndexingInterface::class, $service);
         $this->assertInstanceOf(Adapter::class, $service);
     }
 
@@ -54,7 +54,7 @@ class ServiceTest extends TestCase
     {
         $service = Service::selectExtractingService(null, 'solr');
 
-        $this->assertInstanceOf(Extracting::class, $service);
+        $this->assertInstanceOf(ExtractingInterface::class, $service);
         $this->assertInstanceOf(Adapter::class, $service);
     }
 
@@ -62,7 +62,7 @@ class ServiceTest extends TestCase
     {
         $service = Service::selectSearchingService(null, 'solr');
 
-        $this->assertInstanceOf(Searching::class, $service);
+        $this->assertInstanceOf(SearchingInterface::class, $service);
         $this->assertInstanceOf(Adapter::class, $service);
     }
 

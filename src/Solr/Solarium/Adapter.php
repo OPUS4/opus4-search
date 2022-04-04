@@ -40,16 +40,16 @@ use Opus\Document as OpusDocument;
 use Opus\File;
 use Opus\Search\AbstractAdapter;
 use Opus\Search\Exception;
-use Opus\Search\Extracting;
+use Opus\Search\ExtractingInterface;
 use Opus\Search\FulltextFileCache;
-use Opus\Search\Indexing;
+use Opus\Search\IndexingInterface;
 use Opus\Search\InvalidQueryException;
 use Opus\Search\InvalidServiceException;
 use Opus\Search\Log;
 use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Query;
 use Opus\Search\Result\Base;
-use Opus\Search\Searching;
+use Opus\Search\SearchingInterface;
 use Opus\Search\Solr\Filter\Raw;
 use Opus\Search\Solr\Solarium\Filter\Complex;
 use Opus\Storage\FileAccessException;
@@ -89,7 +89,7 @@ use const FILTER_NULL_ON_FAILURE;
 use const FILTER_VALIDATE_INT;
 use const PREG_SPLIT_NO_EMPTY;
 
-class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
+class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInterface, ExtractingInterface
 {
     /** @var Zend_Config */
     protected $options;

@@ -40,7 +40,7 @@ use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Model\Xml\Cache;
 use Opus\Search\Exception;
-use Opus\Search\Indexing;
+use Opus\Search\IndexingInterface;
 use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Plugin\Index;
 use Opus\Search\Service;
@@ -368,8 +368,8 @@ class IndexHelper
     }
 
     /**
-     * @param Indexing $indexer
-     * @param array    $docs
+     * @param IndexingInterface $indexer
+     * @param array             $docs
      * @throws Exception
      */
     private function addDocumentsToIndex($indexer, $docs)

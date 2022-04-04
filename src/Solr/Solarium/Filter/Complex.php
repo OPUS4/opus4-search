@@ -35,7 +35,7 @@ namespace Opus\Search\Solr\Solarium\Filter;
 use InvalidArgumentException;
 use Opus\Search\Filter\AbstractFilterComplex;
 use Opus\Search\Filter\Simple;
-use Opus\Search\Filtering;
+use Opus\Search\FilteringInterface;
 use Opus\Search\Solr\Filter\Helper;
 use Solarium\Client;
 use Solarium\Core\Query\AbstractQuery;
@@ -126,8 +126,8 @@ class Complex extends AbstractFilterComplex
      * Compiles provided set of subordinated conditions into complex Solr query
      * term.
      *
-     * @param Filtering[] $conditions
-     * @param string      $glue
+     * @param FilteringInterface[] $conditions
+     * @param string               $glue
      * @return string
      */
     protected static function compileQuery(AbstractQuery $query, $conditions, $glue)

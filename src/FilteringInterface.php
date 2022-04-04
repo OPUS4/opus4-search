@@ -32,28 +32,6 @@
 
 namespace Opus\Search;
 
-use Opus\Document;
-use Opus\File;
-
-/**
- * Defines API provided for extracting fulltext data from files attached to
- * Opus documents.
- */
-
-interface Extracting
+interface FilteringInterface
 {
-    /**
-     * Extracts provided file of document.
-     *
-     * @return $this Fluent interface
-     */
-    public function extractDocumentFile(File $file, ?Document $document = null);
-
-    /**
-     * Extracts text from file.
-     *
-     * @param string $path
-     * @return mixed
-     */
-    public function extractFile($path);
 }

@@ -32,47 +32,28 @@
 
 namespace Opus\Search;
 
-use Opus\Search\Filter\AbstractFilterComplex;
-use Opus\Search\Result\Base;
+use Opus\Document;
+use Opus\File;
 
 /**
- * Defines methods provided for querying search database.
+ * Defines API provided for extracting fulltext data from files attached to
+ * Opus documents.
  */
 
-interface Searching
+interface ExtractingInterface
 {
     /**
-     * Queries search database for set of entries matching some prepared set of
-     * query parameters.
+     * Extracts provided file of document.
      *
-     * @return Base set of documents matching query
-     * @throws Exception In case of error.
+     * @return $this Fluent interface
      */
-    public function customSearch(Query $query);
+    public function extractDocumentFile(File $file, ?Document $document = null);
 
     /**
-     * Queries search database for set of matching entries using some named
-     * query defined in configuration.
+     * Extracts text from file.
      *
-     * @param string     $name name of query defined in configuration
-     * @param null|Query $customization set of customizations to selected query
-     * @returns Base set of documents matching query
-     * @throws Exception In case of error.
+     * @param string $path
+     * @return mixed
      */
-    public function namedSearch($name, ?Query $customization = null);
-
-    /**
-     * Creates query to use on searching documents with current adapter.
-     *
-     * @return Query
-     */
-    public function createQuery();
-
-    /**
-     * Creates new complex filter instance for describing set of documents to
-     * search for.
-     *
-     * @return AbstractFilterComplex
-     */
-    public function createFilter();
+    public function extractFile($path);
 }

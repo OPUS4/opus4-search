@@ -32,7 +32,7 @@
 
 namespace Opus\Search\Filter;
 
-use Opus\Search\Filtering;
+use Opus\Search\FilteringInterface;
 
 /**
  * Describes base for all terms describing conditions to be met by matching
@@ -44,7 +44,7 @@ use Opus\Search\Filtering;
  * search query string complying with query syntax of particular search engine.
  */
 
-abstract class AbstractFilterBase implements Filtering
+abstract class AbstractFilterBase implements FilteringInterface
 {
     /**
      * Compiles filter description to term for use with search engine adapter.

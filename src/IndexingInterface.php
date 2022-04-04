@@ -38,7 +38,7 @@ use Opus\Document;
  * Defines methods provided for indexing data in (Solr-based) search database.
  */
 
-interface Indexing
+interface IndexingInterface
 {
     /**
      * Adds provided set of Opus_Document instances to index.

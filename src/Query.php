@@ -402,8 +402,8 @@ class Query
      *       is "filter query" in Solr world: some named query to be included on
      *       selecting documents in database with some benefits regarding
      *       performance, server-side result caching and non-affecting score.
-     * @param string $name name of query (used for server-side caching)
-     * @param AbstractFilterBase   $subFilter filter to be satisfied by all matching documents in addition
+     * @param string             $name name of query (used for server-side caching)
+     * @param AbstractFilterBase $subFilter filter to be satisfied by all matching documents in addition
      * @return $this fluent interface
      */
     public function setSubFilter($name, AbstractFilterBase $subFilter)

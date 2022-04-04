@@ -32,6 +32,47 @@
 
 namespace Opus\Search;
 
-interface Filtering
+use Opus\Search\Filter\AbstractFilterComplex;
+use Opus\Search\Result\Base;
+
+/**
+ * Defines methods provided for querying search database.
+ */
+
+interface SearchingInterface
 {
+    /**
+     * Queries search database for set of entries matching some prepared set of
+     * query parameters.
+     *
+     * @return Base set of documents matching query
+     * @throws Exception In case of error.
+     */
+    public function customSearch(Query $query);
+
+    /**
+     * Queries search database for set of matching entries using some named
+     * query defined in configuration.
+     *
+     * @param string     $name name of query defined in configuration
+     * @param null|Query $customization set of customizations to selected query
+     * @returns Base set of documents matching query
+     * @throws Exception In case of error.
+     */
+    public function namedSearch($name, ?Query $customization = null);
+
+    /**
+     * Creates query to use on searching documents with current adapter.
+     *
+     * @return Query
+     */
+    public function createQuery();
+
+    /**
+     * Creates new complex filter instance for describing set of documents to
+     * search for.
+     *
+     * @return AbstractFilterComplex
+     */
+    public function createFilter();
 }
