@@ -30,7 +30,7 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace OpusTest;
+namespace OpusTest\Search;
 
 use Opus\Common\Config as OpusConfig;
 use Opus\EnrichmentKey;

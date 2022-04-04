@@ -29,7 +29,7 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace OpusTest\Util;
+namespace OpusTest\Search\Util;
 
 use Opus\Search\Util\Query;
 use OpusTest\Search\TestAsset\TestCase;
