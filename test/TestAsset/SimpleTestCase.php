@@ -33,7 +33,7 @@ namespace OpusTest\Search\TestAsset;
 
 use Opus\Common\Config as OpusConfig;
 use Opus\Search\Config;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Zend_Config;
 
 use function call_user_func;
@@ -50,7 +50,7 @@ use const DIRECTORY_SEPARATOR;
 /**
  * Superclass for all tests.  Providing maintainance tasks.
  */
-class SimpleTestCase extends PHPUnit_Framework_TestCase
+class SimpleTestCase extends TestCase
 {
     private $configBackup;
 

@@ -91,7 +91,8 @@ EOT;
 
         $tester = new CommandTester($command);
 
-        $this->setExpectedException(SearchException::class, 'failed extracting fulltext data');
+        $this->expectException(SearchException::class);
+        $this->expectExceptionMessage('failed extracting fulltext data');
 
         $tester->execute([
             'file' => APPLICATION_PATH . '/test/TestAsset/fulltexts/test-invalid.pdf',

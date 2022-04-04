@@ -146,7 +146,8 @@ class SetTest extends SimpleTestCase
     {
         $facets = Set::create();
 
-        $this->setExpectedException(InvalidArgumentException::class, 'invalid limits for overriding configuration');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid limits for overriding configuration');
         $facets->overrideLimits('all');
     }
 

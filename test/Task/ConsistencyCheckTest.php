@@ -58,7 +58,7 @@ class ConsistencyCheckTest extends TestCase
     public function testInvalidJobExecution()
     {
         $this->job->setLabel('invalid-label');
-        $this->setExpectedException(Job\Worker\InvalidJobException::class);
+        $this->expectException(Job\Worker\InvalidJobException::class);
         $this->worker->work($this->job);
     }
 

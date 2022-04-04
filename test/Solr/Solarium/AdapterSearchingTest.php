@@ -58,7 +58,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         // intention of this test regarding revised configuration structure, only
         $this->dropDeprecatedConfiguration();
 
-        $this->setExpectedException(Exception::class);
+        $this->expectException(Exception::class);
         Service::selectSearchingService('disfunct', 'solr');
     }
 

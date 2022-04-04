@@ -140,7 +140,7 @@ class QueryTest extends TestCase
     public function testSupportingExplicitScalarSetterValidRejectToAdd($value, $property, $method, $expecting)
     {
         $query = new Query();
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $query->set($property, $value, true);
     }
 
@@ -156,7 +156,7 @@ class QueryTest extends TestCase
         $method = preg_replace('/^set/', 'add', $method);
 
         $query = new Query();
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $query->{$method}($value);
     }
 
@@ -169,7 +169,7 @@ class QueryTest extends TestCase
     public function testSupportingImplicitScalarSetterInvalid($value, $property, $method)
     {
         $query = new Query();
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
 
@@ -182,7 +182,7 @@ class QueryTest extends TestCase
     public function testSupportingExplicitScalarSetterInvalid($value, $property, $method)
     {
         $query = new Query();
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
 
@@ -195,7 +195,7 @@ class QueryTest extends TestCase
     public function testSupportingScalarSetterMethodInvalid($value, $property, $method)
     {
         $query = new Query();
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $query->{$method}($value);
     }
 
@@ -346,7 +346,7 @@ class QueryTest extends TestCase
     public function testSupportingImplicitFieldsSetterInvalid($value, $property, $method)
     {
         $query = new Query();
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
 
@@ -359,7 +359,7 @@ class QueryTest extends TestCase
     public function testSupportingExplicitFieldsSetterInvalid($value, $property, $method)
     {
         $query = new Query();
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
 
@@ -372,7 +372,7 @@ class QueryTest extends TestCase
     public function testSupportingFieldsSetterMethodInvalid($value, $property, $method)
     {
         $query = new Query();
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $query->{$method}($value);
     }
 
@@ -513,7 +513,7 @@ class QueryTest extends TestCase
     public function testSupportingImplicitSortSetterInvalid($value, $property, $method)
     {
         $query = new Query();
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
 
@@ -526,7 +526,7 @@ class QueryTest extends TestCase
     public function testSupportingExplicitSortSetterInvalid($value, $property, $method)
     {
         $query = new Query();
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
 
@@ -539,7 +539,7 @@ class QueryTest extends TestCase
     public function testSupportingSortSetterMethodInvalid($value, $property, $method)
     {
         $query = new Query();
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $query->{$method}($value);
     }
 
@@ -624,7 +624,7 @@ class QueryTest extends TestCase
     {
         $params = new Query();
         $params->addSorting('auto');
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $params->addSorting($fields, $dir, $reset);
     }
 

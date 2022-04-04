@@ -43,6 +43,8 @@ class IndexOpusDocumentTest extends TestCase
 {
     /**
      * Tests working on job.
+     *
+     * @doesNotPerformAssertions
      */
     public function testWork()
     {

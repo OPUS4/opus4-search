@@ -48,22 +48,31 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $this->assertInstanceOf(Adapter::class, $service);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDisfunctServiceFails()
     {
     // need to drop deprecated configuration options for interfering with
     // intention of this test regarding revised configuration structure, only
         $this->dropDeprecatedConfiguration();
 
-        $this->setExpectedException(Exception::class);
+        $this->expectException(Exception::class);
         Service::selectIndexingService('disfunct');
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testRemoveAllDocuments()
     {
         $service = Service::selectIndexingService(null, 'solr');
         $service->removeAllDocumentsFromIndex();
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testIndexingArticleWithoutFiles()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -73,6 +82,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->addDocumentsToIndex($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testIndexingBookWithoutFiles()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -82,6 +94,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->addDocumentsToIndex($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testIndexingArticleWithPublicFile()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -93,6 +108,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->addDocumentsToIndex($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testIndexingArticleWithPublicFiles()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -105,6 +123,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->addDocumentsToIndex($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testIndexingArticleWithHiddenFile()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -116,6 +137,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->addDocumentsToIndex($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testIndexingArticleWithHiddenFiles()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -128,6 +152,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->addDocumentsToIndex($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testIndexingArticleWithMixedFiles()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -142,6 +169,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->addDocumentsToIndex($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testRemovingIndexedArticle()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -153,6 +183,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->removeDocumentsFromIndex($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testRemovingIndexedArticleById()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -164,6 +197,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->removeDocumentsFromIndexById($doc->getId());
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testRemovingIndexedArticleTwiceFails()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -176,6 +212,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->removeDocumentsFromIndex($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testRemovingIndexedArticleByIdTwiceFails()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -188,6 +227,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->removeDocumentsFromIndexById($doc->getId());
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testMixedRemovingIndexedArticleTwiceFails()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -200,6 +242,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->removeDocumentsFromIndexById($doc->getId());
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testMixedRemovingIndexedArticleTwiceFailsAgain()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -212,6 +257,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->removeDocumentsFromIndex($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testRemovingNonIndexedArticleFails()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -221,6 +269,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->removeDocumentsFromIndex($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testRemovingNonIndexedArticleByIdFails()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -230,6 +281,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->removeDocumentsFromIndexById($doc->getId());
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testIndexingMultipleDocument()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -242,6 +296,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->addDocumentsToIndex([$docA, $docB, $docC, $docD]);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testRemovingMultipleIndexedDocuments()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -255,6 +312,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->removeDocumentsFromIndex([$docA, $docB, $docC, $docD]);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testMultiplyRemovingMultipleIndexedDocumentsFails()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -269,6 +329,9 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->removeDocumentsFromIndex([$docA, $docB, $docC, $docD]);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testMultiplyRemovingMultipleIndexedDocumentsFailsAgain()
     {
         $service = Service::selectIndexingService(null, 'solr');
@@ -283,13 +346,16 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->removeDocumentsFromIndex([$docA]);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testIndexingArticleOnDisfunctServiceFails()
     {
         // need to drop deprecated configuration options for interfering with
         // intention of this test regarding revised configuration structure, only
         $this->dropDeprecatedConfiguration();
 
-        $this->setExpectedException(Exception::class);
+        $this->expectException(Exception::class);
         $service = Service::selectIndexingService('disfunct', 'solr');
 
         // TODO test never gets here - clean up

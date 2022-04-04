@@ -102,7 +102,8 @@ class IndexCommandTest extends TestCase
 
         $tester = new CommandTester($command);
 
-        $this->setExpectedException(InvalidOptionException::class, 'Blocksize must be an integer >= 1');
+        $this->expectException(InvalidOptionException::class);
+        $this->expectExceptionMessage('Blocksize must be an integer >= 1');
 
         $tester->execute([
             '--blocksize' => $value,

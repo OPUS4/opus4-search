@@ -102,13 +102,15 @@ class ServiceTest extends TestCase
 
     public function testGetQualifiedDomainInvalidDomainNotAString()
     {
-        $this->setExpectedException(InvalidArgumentException::class, 'invalid default search domain');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid default search domain');
         $domain = Service::getQualifiedDomain(10);
     }
 
     public function testGetQualifiedDomainInvalidDomainEmpty()
     {
-        $this->setExpectedException(InvalidArgumentException::class, 'invalid default search domain');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid default search domain');
         $domain = Service::getQualifiedDomain('   ');
     }
 }

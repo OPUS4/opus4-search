@@ -54,13 +54,15 @@ class FieldTest extends SimpleTestCase
 
     public function testConstructInvalidFieldname()
     {
-        $this->setExpectedException(InvalidArgumentException::class, 'invalid facet field name');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid facet field name');
         $field = new Field(100);
     }
 
     public function testConstructInvalidFieldnameEmpty()
     {
-        $this->setExpectedException(InvalidArgumentException::class, 'invalid facet field name');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid facet field name');
         $field = new Field(' ');
     }
 
@@ -77,7 +79,8 @@ class FieldTest extends SimpleTestCase
     {
         $field = Field::create('author_facet');
 
-        $this->setExpectedException(InvalidArgumentException::class, 'invalid limit value');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid limit value');
         $field->setLimit('all');
     }
 
@@ -98,7 +101,8 @@ class FieldTest extends SimpleTestCase
     {
         $field = Field::create('author_facet');
 
-        $this->setExpectedException(InvalidArgumentException::class, 'invalid minCount value');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid minCount value');
         $field->setMinCount('all');
     }
 }

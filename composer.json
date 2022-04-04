@@ -22,11 +22,7 @@
     "symfony/console": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "4.8.24",
-    "phpunit/php-timer": "1.0.9",
-    "phpunit/dbunit": "~1.3",
-    "phpunit/php-invoker": "~1.1",
-    "phpunit/phpunit-selenium": "1.4.2",
+    "phpunit/phpunit": "6.*",
     "laminas/laminas-coding-standard": "<2.3",
     "phpmd/phpmd": "@stable",
     "phploc/phploc": "@stable",
