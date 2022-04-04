@@ -29,13 +29,13 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace OpusTest\Util;
+namespace OpusTest\Search\Util;
 
 use Opus\Common\Config as OpusConfig;
 use Opus\Document;
 use Opus\Search\Config;
-use Opus\Search\Exception;
 use Opus\Search\QueryFactory;
+use Opus\Search\SearchException;
 use Opus\Search\Service;
 use Opus\Search\Util\ConsistencyCheck;
 use OpusTest\Search\TestAsset\TestCase;
@@ -108,7 +108,7 @@ class ConsistencyCheckTest extends TestCase
         try {
             $this->doc->setServerState('unpublished');
             $this->doc->store();
-        } catch (Exception $e) {
+        } catch (SearchException $e) {
         }
 
         $this->restoreSolrConfig();
@@ -218,7 +218,7 @@ class ConsistencyCheckTest extends TestCase
 
     /**
      * @return bool
-     * @throws Exception
+     * @throws SearchException
      * @throws Zend_Config_Exception
      */
     private function isDocumentInSearchIndex()

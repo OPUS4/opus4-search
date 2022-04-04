@@ -34,7 +34,7 @@ namespace Opus\Search\Console;
 
 use Opus\Common\Console\AbstractBaseDocumentCommand;
 use Opus\Search\Console\Helper\IndexHelper;
-use Opus\Search\Exception;
+use Opus\Search\SearchException;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -161,7 +161,7 @@ EOT;
             }
             $message = sprintf('Operation completed successfully in <fg=yellow>%.2f</> seconds.', $runtime);
             $output->writeln($message);
-        } catch (Exception $e) {
+        } catch (SearchException $e) {
             $output->writeln('An error occurred while indexing.');
             $output->writeln('Error Message: ' . $e->getMessage());
             if ($e->getPrevious() !== null) {

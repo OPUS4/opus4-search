@@ -40,7 +40,7 @@ use Exception as PhpException;
  * TODO code duplication in extending classes
  * TODO rename to SearchException
  */
-class Exception extends PhpException
+class SearchException extends PhpException
 {
     const SERVER_UNREACHABLE = '1';
 

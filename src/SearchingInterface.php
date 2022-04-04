@@ -46,7 +46,7 @@ interface SearchingInterface
      * query parameters.
      *
      * @return Base set of documents matching query
-     * @throws Exception In case of error.
+     * @throws SearchException In case of error.
      */
     public function customSearch(Query $query);
 
@@ -57,7 +57,7 @@ interface SearchingInterface
      * @param string     $name name of query defined in configuration
      * @param null|Query $customization set of customizations to selected query
      * @returns Base set of documents matching query
-     * @throws Exception In case of error.
+     * @throws SearchException In case of error.
      */
     public function namedSearch($name, ?Query $customization = null);
 

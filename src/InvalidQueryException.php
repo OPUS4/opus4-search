@@ -41,7 +41,7 @@ use Exception as PhpException;
  * TODO überlappungen zu anderen Exceptions
  */
 
-class InvalidQueryException extends Exception
+class InvalidQueryException extends SearchException
 {
     /**
      * @param string $message

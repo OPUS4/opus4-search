@@ -33,7 +33,7 @@
 namespace OpusTest\Search\Console;
 
 use Opus\Search\Console\ExtractFileCommand;
-use Opus\Search\Exception;
+use Opus\Search\SearchException;
 use OpusTest\Search\TestAsset\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -91,7 +91,7 @@ EOT;
 
         $tester = new CommandTester($command);
 
-        $this->setExpectedException(Exception::class, 'failed extracting fulltext data');
+        $this->setExpectedException(SearchException::class, 'failed extracting fulltext data');
 
         $tester->execute([
             'file' => APPLICATION_PATH . '/test/TestAsset/fulltexts/test-invalid.pdf',

@@ -39,7 +39,6 @@ use Opus\Common\Config;
 use Opus\Document as OpusDocument;
 use Opus\File;
 use Opus\Search\AbstractAdapter;
-use Opus\Search\Exception;
 use Opus\Search\ExtractingInterface;
 use Opus\Search\FulltextFileCache;
 use Opus\Search\IndexingInterface;
@@ -49,6 +48,7 @@ use Opus\Search\Log;
 use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Query;
 use Opus\Search\Result\Base;
+use Opus\Search\SearchException;
 use Opus\Search\SearchingInterface;
 use Opus\Search\Solr\Filter\Raw;
 use Opus\Search\Solr\Solarium\Filter\Complex;
@@ -100,7 +100,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
     /**
      * @param string $serviceName
      * @param array  $options
-     * @throws Exception
+     * @throws SearchException
      * @throws InvalidQueryException
      * @throws InvalidServiceException
      */
@@ -118,7 +118,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
      * @param SolariumCoreQuery $query
      * @param string            $actionText
      * @return ResultInterface
-     * @throws Exception
+     * @throws SearchException
      * @throws InvalidQueryException
      * @throws InvalidServiceException
      */
@@ -137,11 +137,11 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
                 throw new InvalidQueryException($msg, $e->getCode(), $e);
             }
 
-            throw new Exception($msg, $e->getCode(), $e);
+            throw new SearchException($msg, $e->getCode(), $e);
         }
 
         if ($result->getStatus()) {
-            throw new Exception($actionText, $result->getStatus());
+            throw new SearchException($actionText, $result->getStatus());
         }
 
         return $result;
@@ -255,7 +255,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
     /**
      * @param OpusDocument|OpusDocument[] $documents
      * @return $this
-     * @throws Exception
+     * @throws SearchException
      * @throws InvalidQueryException
      * @throws InvalidServiceException
      */
@@ -291,7 +291,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
             $this->execute($update, 'failed committing update of documents');
 
             return $this;
-        } catch (Exception $e) {
+        } catch (SearchException $e) {
             Log::get()->err($e->getMessage());
 
             if ($this->options->get('rollback', 1)) {
@@ -301,7 +301,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
 
                 try {
                     $this->execute($update, 'failed rolling back update of documents');
-                } catch (Exception $inner) {
+                } catch (SearchException $inner) {
                     // SEVERE case: rolling back failed, too
                     Log::get()->alert($inner->getMessage());
                 }
@@ -314,7 +314,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
     /**
      * @param OpusDocument|OpusDocument[] $documents
      * @return $this
-     * @throws Exception
+     * @throws SearchException
      * @throws InvalidQueryException
      * @throws InvalidServiceException
      */
@@ -333,7 +333,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
     /**
      * @param int|int[] $documentIds
      * @return $this
-     * @throws Exception
+     * @throws SearchException
      * @throws InvalidQueryException
      * @throws InvalidServiceException
      */
@@ -360,7 +360,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
             $this->execute($update, 'failed committing deletion of documents');
 
             return $this;
-        } catch (Exception $e) {
+        } catch (SearchException $e) {
             Log::get()->err($e->getMessage());
 
             if ($this->options->get('rollback', 1)) {
@@ -370,7 +370,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
 
                 try {
                     $this->execute($update, 'failed rolling back update of documents');
-                } catch (Exception $inner) {
+                } catch (SearchException $inner) {
                     // SEVERE case: rolling back failed, too
                     Log::get()->alert($inner->getMessage());
                 }
@@ -382,7 +382,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
 
     /**
      * @return $this
-     * @throws Exception
+     * @throws SearchException
      * @throws InvalidQueryException
      * @throws InvalidServiceException
      */
@@ -406,7 +406,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
 
     /**
      * @return Base
-     * @throws Exception
+     * @throws SearchException
      */
     public function customSearch(Query $query)
     {
@@ -418,13 +418,13 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
     /**
      * @param string $name
      * @return Base
-     * @throws Exception
+     * @throws SearchException
      * @throws InvalidQueryException
      */
     public function namedSearch($name, ?Query $customization = null)
     {
         if (! preg_match('/^[a-z_]+$/i', $name)) {
-            throw new Exception('invalid name of pre-defined query: ' . $name);
+            throw new SearchException('invalid name of pre-defined query: ' . $name);
         }
 
         // lookup named query in configuration of current service
@@ -465,7 +465,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
      *
      * @param SolariumQuery $query
      * @return Base
-     * @throws Exception
+     * @throws SearchException
      */
     protected function processQuery($query)
     {
@@ -624,7 +624,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
 
     /**
      * @return string
-     * @throws Exception
+     * @throws SearchException
      * @throws StorageException
      * @throws FileAccessException
      * @throws FileNotFoundException
@@ -721,9 +721,9 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
             FulltextFileCache::writeOnFile($file, $fulltext);
 
             return $fulltext;
-        } catch (Exception $e) {
-            if (! $e instanceof Exception && ! $e instanceof StorageException) {
-                $e = new Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
+        } catch (SearchException $e) {
+            if (! $e instanceof SearchException && ! $e instanceof StorageException) {
+                $e = new SearchException('error while extracting fulltext from file ' . $file->getPath(), null, $e);
             }
 
             Log::get()->err($e->getMessage());
@@ -734,7 +734,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
     /**
      * @param string $path
      * @return string
-     * @throws Exception
+     * @throws SearchException
      * @throws StorageException
      */
     public function extractFile($path)
@@ -802,9 +802,9 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
             }
 
             return $fulltext;
-        } catch (Exception $e) {
-            if (! $e instanceof Exception && ! $e instanceof StorageException) {
-                $e = new Exception("error while extracting fulltext from file $path", null, $e);
+        } catch (SearchException $e) {
+            if (! $e instanceof SearchException && ! $e instanceof StorageException) {
+                $e = new SearchException("error while extracting fulltext from file $path", null, $e);
             }
 
             Log::get()->err($e->getMessage());

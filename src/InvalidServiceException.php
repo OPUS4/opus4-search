@@ -39,7 +39,7 @@ use Exception as PhpException;
  *
  * TODO code duplication
  */
-class InvalidServiceException extends Exception
+class InvalidServiceException extends SearchException
 {
     /**
      * @param string $message

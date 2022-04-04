@@ -35,8 +35,8 @@ use Opus\Common\Log;
 use Opus\Common\Repository;
 use Opus\Document;
 use Opus\Model\NotFoundException;
-use Opus\Search\Exception;
 use Opus\Search\QueryFactory;
+use Opus\Search\SearchException;
 use Opus\Search\Service;
 use Zend_Config_Exception;
 use Zend_Exception;
@@ -189,7 +189,7 @@ class ConsistencyCheck
         try {
             $doc->unregisterPlugin('Opus_Document_Plugin_Index'); // prevent document from being indexed twice
             $this->indexer->addDocumentsToIndex($doc);
-        } catch (Exception $e) {
+        } catch (SearchException $e) {
             $this->logger->err('Could not force reindexing of document ' . $doc->getId() . ' : ' . $e->getMessage());
             return false;
         }
@@ -206,7 +206,7 @@ class ConsistencyCheck
     {
         try {
             $this->indexer->removeDocumentsFromIndexById($id);
-        } catch (Exception $e) {
+        } catch (SearchException $e) {
             $this->logger->err('Could not delete document ' . $id . ' from index : ' . $e->getMessage());
             return false;
         }

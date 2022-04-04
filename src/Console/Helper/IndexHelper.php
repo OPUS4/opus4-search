@@ -39,10 +39,10 @@ use Opus\Common\Console\Helper\ProgressReport;
 use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Model\Xml\Cache;
-use Opus\Search\Exception;
 use Opus\Search\IndexingInterface;
 use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Plugin\Index;
+use Opus\Search\SearchException;
 use Opus\Search\Service;
 use Opus\Storage\StorageException;
 use Symfony\Component\Console\Output\NullOutput;
@@ -99,7 +99,7 @@ class IndexHelper
      * @param int $startId
      * @param int $endId
      * @return float|string
-     * @throws Exception
+     * @throws SearchException
      * @throws ModelException
      * @throws Zend_Config_Exception
      *
@@ -321,7 +321,7 @@ class IndexHelper
                     } catch (StorageException $e) {
                         $report->addException($e);
                         $status = '<fg=red>E</>';
-                    } catch (Exception $e) {
+                    } catch (SearchException $e) {
                         $report->addException($e);
                         $status = '<fg=red>E</>';
                     }
@@ -370,7 +370,7 @@ class IndexHelper
     /**
      * @param IndexingInterface $indexer
      * @param array             $docs
-     * @throws Exception
+     * @throws SearchException
      */
     private function addDocumentsToIndex($indexer, $docs)
     {
@@ -378,7 +378,7 @@ class IndexHelper
 
         try {
             $indexer->addDocumentsToIndex($docs);
-        } catch (Exception $e) {
+        } catch (SearchException $e) {
             // echo date('Y-m-d H:i:s') . " ERROR: Failed indexing document $docId.\n";
             $output->writeln(date('Y-m-d H:i:s') . "        {$e->getMessage()}");
         } catch (StorageException $e) {

@@ -33,12 +33,12 @@ namespace Opus\Search\Util;
 
 use Exception as PhpException;
 use Opus\Search\Config;
-use Opus\Search\Exception;
 use Opus\Search\Facet\Set;
 use Opus\Search\InvalidQueryException;
 use Opus\Search\InvalidServiceException;
 use Opus\Search\Log;
 use Opus\Search\Result\Base;
+use Opus\Search\SearchException;
 use Opus\Search\Service;
 use Opus\Search\Solr\Filter\Raw;
 use Zend_Acl;
@@ -62,7 +62,7 @@ class Searcher
      * @param Query $query
      * @param bool  $validateDocIds check document IDs coming from Solr index against database
      * @return Base
-     * @throws Exception If Solr server responds with an error or the response is empty.
+     * @throws SearchException If Solr server responds with an error or the response is empty.
      */
     public function search($query, $validateDocIds = true)
     {
@@ -152,24 +152,24 @@ class Searcher
 
             return $response;
         } catch (InvalidServiceException $e) {
-            $this->mapException(Exception::SERVER_UNREACHABLE, $e);
+            $this->mapException(SearchException::SERVER_UNREACHABLE, $e);
         } catch (InvalidQueryException $e) {
-            $this->mapException(Exception::INVALID_QUERY, $e);
-        } catch (Exception $e) {
+            $this->mapException(SearchException::INVALID_QUERY, $e);
+        } catch (SearchException $e) {
             $this->mapException(null, $e);
         }
     }
 
     /**
      * @param mixed $type
-     * @throws Exception
+     * @throws SearchException
      */
     private function mapException($type, PhpException $previousException)
     {
         $msg = 'Solr server responds with an error ' . $previousException->getMessage();
         Log::get()->err($msg);
 
-        throw new Exception($msg, $type, $previousException);
+        throw new SearchException($msg, $type, $previousException);
     }
 
     /**

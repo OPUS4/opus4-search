@@ -31,8 +31,8 @@
 
 namespace Opus\Search\Util;
 
-use Opus\Search\Exception;
 use Opus\Search\Query as SearchQuery;
+use Opus\Search\SearchException;
 
 use function array_key_exists;
 use function array_push;
@@ -92,7 +92,7 @@ class Query
 
     /**
      * @param string $searchType
-     * @throws Exception If $searchType is not supported.
+     * @throws SearchException If $searchType is not supported.
      */
     public function __construct($searchType = self::SIMPLE)
     {
@@ -121,7 +121,7 @@ class Query
             return;
         }
 
-        throw new Exception("searchtype $searchType is not supported");
+        throw new SearchException("searchtype $searchType is not supported");
     }
 
     /**

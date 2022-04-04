@@ -38,8 +38,8 @@ use Opus\Common\Model\Plugin\AbstractPlugin;
 use Opus\Document;
 use Opus\Job;
 use Opus\Model\AbstractDb;
-use Opus\Search\Exception;
 use Opus\Search\Log;
+use Opus\Search\SearchException;
 use Opus\Search\Service;
 use Opus\Search\Task\IndexOpusDocument;
 
@@ -141,7 +141,7 @@ class Index extends AbstractPlugin
             try {
                 Service::selectIndexingService('onDocumentChange')
                     ->removeDocumentsFromIndexById($documentId);
-            } catch (Exception $e) {
+            } catch (SearchException $e) {
                 $log->debug(__METHOD__ . ': Removing document-id ' . $documentId . ' from index failed: ' . $e->getMessage());
             }
         }
@@ -179,7 +179,7 @@ class Index extends AbstractPlugin
             try {
                 $service = Service::selectIndexingService('onDocumentChange');
                 $service->addDocumentsToIndex($document);
-            } catch (Exception $e) {
+            } catch (SearchException $e) {
                 $log->debug(__METHOD__ . ': Indexing document ' . $documentId . ' failed: ' . $e->getMessage());
             } catch (InvalidArgumentException $e) {
                 $log->warn(__METHOD__ . ': ' . $e->getMessage());

@@ -33,7 +33,7 @@ namespace Opus\Search\Console;
 
 use Exception as PhpException;
 use Opus\Search\Console\Helper\IndexHelper;
-use Opus\Search\Exception;
+use Opus\Search\SearchException;
 use Opus\Search\Service;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -119,7 +119,7 @@ EOT;
         } catch (PhpException $e) {
             // TODO write all the information
             $output->write($e->getTraceAsString());
-            throw new Exception($e->getMessage());
+            throw new SearchException($e->getMessage());
         }
 
         $runtime = microtime(true) - $runtime;

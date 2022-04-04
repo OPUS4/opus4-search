@@ -40,9 +40,9 @@ use Opus\File;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
-use Opus\Search\Exception;
 use Opus\Search\Log;
 use Opus\Search\MimeTypeNotSupportedException;
+use Opus\Search\SearchException;
 use Opus\Search\Service;
 use Opus\Storage\StorageException;
 use Zend_Config;
@@ -144,7 +144,7 @@ abstract class AbstractSolrDocumentBase
                     'Failed accessing file for extracting fulltext for document with id ' . $docId . ': '
                     . $e->getMessage()
                 );
-            } catch (Exception $e) {
+            } catch (SearchException $e) {
                 Log::get()->err(
                     'An error occurred while getting fulltext data for document with id ' . $docId . ': '
                     . $e->getMessage()
