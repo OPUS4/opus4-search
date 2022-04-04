@@ -32,7 +32,7 @@
 
 namespace Opus\Search;
 
-use Opus\Search\Filter\AbstractComplex;
+use Opus\Search\Filter\AbstractFilterComplex;
 use Opus\Search\Result\Base;
 
 /**
@@ -72,7 +72,7 @@ interface Searching
      * Creates new complex filter instance for describing set of documents to
      * search for.
      *
-     * @return AbstractComplex
+     * @return AbstractFilterComplex
      */
     public function createFilter();
 }

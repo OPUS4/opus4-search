@@ -53,7 +53,7 @@ use const DIRECTORY_SEPARATOR;
 use const FILTER_VALIDATE_BOOLEAN;
 use const PREG_SPLIT_NO_EMPTY;
 
-class Xslt extends Base
+class Xslt extends AbstractSolrDocumentBase
 {
     /** @var XSLTProcessor */
     protected $processor;

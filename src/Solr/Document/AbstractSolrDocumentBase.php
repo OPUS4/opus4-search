@@ -55,7 +55,7 @@ use function trim;
 
 use const FILTER_VALIDATE_BOOLEAN;
 
-abstract class Base
+abstract class AbstractSolrDocumentBase
 {
     public function __construct(Zend_Config $options)
     {

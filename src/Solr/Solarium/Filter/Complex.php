@@ -33,7 +33,7 @@
 namespace Opus\Search\Solr\Solarium\Filter;
 
 use InvalidArgumentException;
-use Opus\Search\Filter\AbstractComplex;
+use Opus\Search\Filter\AbstractFilterComplex;
 use Opus\Search\Filter\Simple;
 use Opus\Search\Filtering;
 use Opus\Search\Solr\Filter\Helper;
@@ -44,7 +44,7 @@ use function array_map;
 use function count;
 use function implode;
 
-class Complex extends AbstractComplex
+class Complex extends AbstractFilterComplex
 {
     /** @var Client */
     protected $client;
@@ -135,7 +135,7 @@ class Complex extends AbstractComplex
         $compiled = [];
 
         foreach ($conditions as $condition) {
-            if ($condition instanceof AbstractComplex) {
+            if ($condition instanceof AbstractFilterComplex) {
                 $term = static::compileQuery($query, $condition->getConditions(), static::glue($condition));
                 $term = "($term)";
                 if ($condition->isGloballyNegated()) {
