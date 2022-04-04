@@ -52,18 +52,11 @@ class IndexOpusDocument implements WorkerInterface
     const LABEL = 'opus-index-document';
 
     /**
-     * Holds the job currently worked on.
-     *
-     * @var Job
-     */
-    private $_job;
-
-    /**
      * Hold current logger instance.
      *
      * @var Zend_Log
      */
-    private $_logger;
+    private $logger;
 
     /**
      * @param null|mixed $logger (Optional)
@@ -92,9 +85,9 @@ class IndexOpusDocument implements WorkerInterface
     public function setLogger($logger)
     {
         if (null === $logger) {
-            $this->_logger = new Zend_Log(new Zend_Log_Writer_Null());
+            $this->logger = new Zend_Log(new Zend_Log_Writer_Null());
         } elseif ($logger instanceof Zend_Log) {
-            $this->_logger = $logger;
+            $this->logger = $logger;
         } else {
             throw new InvalidArgumentException('Zend_Log instance expected.');
         }
@@ -118,19 +111,18 @@ class IndexOpusDocument implements WorkerInterface
     public function work(Job $job)
     {
         // make sure we have the right job
-        if ($job->getLabel() != $this->getActivationLabel()) {
+        if ($job->getLabel() !== $this->getActivationLabel()) {
             throw new InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
         }
 
-        $this->_job = $job;
-        $data       = $job->getData();
+        $data = $job->getData();
 
         if (! (is_object($data) && isset($data->documentId) && isset($data->task))) {
             throw new InvalidJobException("Incomplete or missing data.");
         }
 
-        if (null !== $this->_logger) {
-            $this->_logger->info('Indexing document with ID: ' . $data->documentId . '.');
+        if (null !== $this->logger) {
+            $this->logger->info('Indexing document with ID: ' . $data->documentId . '.');
         }
 
         // create index document or remove index, depending on task

@@ -38,6 +38,8 @@ use Opus\Model\NotFoundException;
 use Opus\Search\Exception;
 use Opus\Search\QueryFactory;
 use Opus\Search\Service;
+use Zend_Config_Exception;
+use Zend_Exception;
 
 use function count;
 use function microtime;
@@ -56,9 +58,14 @@ class ConsistencyCheck
 
     private $numOfDeletions = 0;
 
+    /**
+     * @param Log|null $logger
+     * @throws Zend_Config_Exception
+     * @throws Zend_Exception
+     */
     public function __construct($logger = null)
     {
-        $this->logger   = $logger === null ? Log::get() : $logger;
+        $this->logger   = $logger ?? Log::get();
         $this->searcher = Service::selectSearchingService();
         $this->indexer  = Service::selectIndexingService();
     }
@@ -124,7 +131,7 @@ class ConsistencyCheck
                     break;
 
                 case 1:
-                    if ($result->getReturnedMatches()[0]->getServerDateModified()->getUnixTimestamp() != $serverDataModified) {
+                    if ($result->getReturnedMatches()[0]->getServerDateModified()->getUnixTimestamp() !== $serverDataModified) {
                         $this->numOfInconsistencies++;
                         $this->logger->info("inconsistency found for document $id: mismatch between values of server_date_modified in database and Solr index.");
                         if ($this->forceReindexing($doc)) {
@@ -161,7 +168,7 @@ class ConsistencyCheck
                 }
                 continue;
             }
-            if ($doc->getServerState() != 'published') {
+            if ($doc->getServerState() !== 'published') {
                 $this->logger->info("inconsistency found for document $id: document is in Solr index, but is not in ServerState published.");
                 $this->numOfInconsistencies++;
                 if ($this->removeDocumentFromSearchIndex($id)) {

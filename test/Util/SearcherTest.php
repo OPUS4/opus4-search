@@ -29,15 +29,18 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace OpusTest\Util;
+namespace OpusTest\Search\Util;
 
 use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Config;
+use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
+use Opus\Search\Exception;
+use Opus\Search\Result\Match;
 use Opus\Search\Util\Query;
 use Opus\Search\Util\Searcher;
 use OpusTest\Search\TestAsset\TestCase;
@@ -180,7 +183,7 @@ class SearcherTest extends TestCase
         $this->assertCount(1, $doc->getCollection(), "Document $docId is not assigned to collection $collId");
 
         $serverDateModified2 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified1->compare($serverDateModified2) == 0);
+        $this->assertTrue($serverDateModified1->compare($serverDateModified2) === 0);
 
         sleep(1);
 
@@ -194,7 +197,7 @@ class SearcherTest extends TestCase
         $this->assertCount(0, $doc->getCollection(), "Document $docId is still assigned to collection $collId");
 
         $serverDateModified3 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified2->compare($serverDateModified3) == 0);
+        $this->assertTrue($serverDateModified2->compare($serverDateModified3) === 0);
 
         sleep(1);
 
@@ -218,7 +221,7 @@ class SearcherTest extends TestCase
         $this->assertEquals(1, count($result));
 
         $serverDateModified4 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified3->compare($serverDateModified4) == -1);
+        $this->assertTrue($serverDateModified3->compare($serverDateModified4) === -1);
     }
 
     public function testServerDateModifiedIsUpdatedForDependentModelChanges()
@@ -289,9 +292,14 @@ class SearcherTest extends TestCase
 
         $doc                 = Document::get($docId);
         $serverDateModified5 = $doc->getServerDateModified()->getUnixTimestamp();
-        $this->assertTrue($serverDateModified4 == $serverDateModified5, 'Document and its dependet models were not changed: server_date_modified should not change');
+        $this->assertTrue($serverDateModified4 === $serverDateModified5, 'Document and its dependet models were not changed: server_date_modified should not change');
     }
 
+    /**
+     * @param int|null $collId
+     * @return Document[]|Match[]
+     * @throws Exception
+     */
     private function searchDocumentsAssignedToCollection($collId = null)
     {
         $query = new Query(Query::SIMPLE);
@@ -402,18 +410,27 @@ class SearcherTest extends TestCase
         $rows   = Query::getDefaultRows();
         $config = Config::get();
         if (isset($config->searchengine->solr->numberOfDefaultSearchResults)) {
-            $this->assertTrue($rows == $config->searchengine->solr->numberOfDefaultSearchResults);
+            $this->assertTrue($rows === $config->searchengine->solr->numberOfDefaultSearchResults);
         } else {
-            $this->assertTrue($rows == Query::DEFAULT_ROWS);
+            $this->assertTrue($rows === Query::DEFAULT_ROWS);
         }
     }
 
+    /**
+     * @return string
+     */
     private function getFulltextDir()
     {
         return APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'TestAsset'
         . DIRECTORY_SEPARATOR . 'fulltexts' . DIRECTORY_SEPARATOR;
     }
 
+    /**
+     * @param string      $fulltext1
+     * @param string|null $fulltext2
+     * @return mixed
+     * @throws ModelException
+     */
     private function createDocWithFulltext($fulltext1, $fulltext2 = null)
     {
         $doc = Document::new();
@@ -441,6 +458,11 @@ class SearcherTest extends TestCase
         return $doc->getId();
     }
 
+    /**
+     * @param int         $docId
+     * @param string      $fulltext1
+     * @param string|null $fulltext2
+     */
     private function removeFiles($docId, $fulltext1, $fulltext2 = null)
     {
         $config = Config::get();
@@ -452,6 +474,10 @@ class SearcherTest extends TestCase
         rmdir($path);
     }
 
+    /**
+     * @return Document|Match
+     * @throws Exception
+     */
     private function getSearchResultForFulltextTests()
     {
         $query = new Query(Query::SIMPLE);

@@ -135,9 +135,6 @@ EOT;
         }
     }
 
-    /**
-     * @return int|null
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);

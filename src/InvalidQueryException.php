@@ -32,6 +32,8 @@
 
 namespace Opus\Search;
 
+use Exception as PhpException;
+
 /**
  * Indicates invalid query either detected client-side or due to related
  * response from service.
@@ -41,11 +43,18 @@ namespace Opus\Search;
 
 class InvalidQueryException extends Exception
 {
-    public function __construct($message = "", $code = 0, ?\Exception $previous = null)
+    /**
+     * @param string $message
+     * @param int    $code
+     */
+    public function __construct($message = "", $code = 0, ?PhpException $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         $previousMessage = '';

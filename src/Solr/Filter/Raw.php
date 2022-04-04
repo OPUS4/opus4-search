@@ -45,11 +45,18 @@ class Raw extends Base
 {
     protected $rawTerm;
 
+    /**
+     * @param string $rawTerm
+     */
     public function __construct($rawTerm)
     {
         $this->rawTerm = $rawTerm;
     }
 
+    /**
+     * @param mixed $context
+     * @return string|null
+     */
     public function compile($context)
     {
         return $this->rawTerm;

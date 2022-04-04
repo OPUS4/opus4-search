@@ -56,9 +56,12 @@ class Index extends AbstractPlugin
 {
     private $config;
 
+    /**
+     * @param Config|null $config
+     */
     public function __construct($config = null)
     {
-        $this->config = $config === null ? Config::get() : $config;
+        $this->config = $config ?? Config::get();
     }
 
     /**
@@ -111,14 +114,14 @@ class Index extends AbstractPlugin
     /**
      * Helper method to remove document from index.
      *
-     * @param $documentId
+     * @param int $documentId
      */
     private function removeDocumentFromIndexById($documentId)
     {
         $log = Log::get();
 
         if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
-            $log->debug(__METHOD__ . ': ' . 'Adding remove-index job for document ' . $documentId . '.');
+            $log->debug(__METHOD__ . ': Adding remove-index job for document ' . $documentId . '.');
 
             $job = new Job();
             $job->setLabel(IndexOpusDocument::LABEL);
@@ -131,15 +134,15 @@ class Index extends AbstractPlugin
             if (true === $job->isUniqueInQueue()) {
                 $job->store();
             } else {
-                $log->debug(__METHOD__ . ': ' . 'remove-index job for document ' . $documentId . ' already exists!');
+                $log->debug(__METHOD__ . ': remove-index job for document ' . $documentId . ' already exists!');
             }
         } else {
-            $log->debug(__METHOD__ . ': ' . 'Removing document ' . $documentId . ' from index.');
+            $log->debug(__METHOD__ . ': Removing document ' . $documentId . ' from index.');
             try {
                 Service::selectIndexingService('onDocumentChange')
                     ->removeDocumentsFromIndexById($documentId);
             } catch (Exception $e) {
-                $log->debug(__METHOD__ . ': ' . 'Removing document-id ' . $documentId . ' from index failed: ' . $e->getMessage());
+                $log->debug(__METHOD__ . ': Removing document-id ' . $documentId . ' from index failed: ' . $e->getMessage());
             }
         }
     }
@@ -155,7 +158,7 @@ class Index extends AbstractPlugin
 
         // create job if asynchronous is set
         if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
-            $log->debug(__METHOD__ . ': ' . 'Adding index job for document ' . $documentId . '.');
+            $log->debug(__METHOD__ . ': Adding index job for document ' . $documentId . '.');
 
             $job = new Job();
             $job->setLabel(IndexOpusDocument::LABEL);
@@ -168,15 +171,16 @@ class Index extends AbstractPlugin
             if (true === $job->isUniqueInQueue()) {
                 $job->store();
             } else {
-                $log->debug(__METHOD__ . ': ' . 'Indexing job for document ' . $documentId . ' already exists!');
+                $log->debug(__METHOD__ . ': Indexing job for document ' . $documentId . ' already exists!');
             }
         } else {
-            $log->debug(__METHOD__ . ': ' . 'Index document ' . $documentId . '.');
+            $log->debug(__METHOD__ . ': Index document ' . $documentId . '.');
 
             try {
-                Service::selectIndexingService('onDocumentChange')->addDocumentsToIndex($document);
+                $service = Service::selectIndexingService('onDocumentChange');
+                $service->addDocumentsToIndex($document);
             } catch (Exception $e) {
-                $log->debug(__METHOD__ . ': ' . 'Indexing document ' . $documentId . ' failed: ' . $e->getMessage());
+                $log->debug(__METHOD__ . ': Indexing document ' . $documentId . ' failed: ' . $e->getMessage());
             } catch (InvalidArgumentException $e) {
                 $log->warn(__METHOD__ . ': ' . $e->getMessage());
             }

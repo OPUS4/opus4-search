@@ -32,12 +32,17 @@
 
 namespace Opus\Search;
 
+use Opus\Common\Log as OpusLog;
 use Opus\Common\Log\LogService;
 
 class Log
 {
+    /** @var OpusLog */
     private static $logger;
 
+    /**
+     * @return OpusLog
+     */
     public static function get()
     {
         if (self::$logger === null) {
@@ -47,6 +52,9 @@ class Log
         return self::$logger;
     }
 
+    /**
+     * @param OpusLog $logger
+     */
     public static function set($logger)
     {
         self::$logger = $logger;

@@ -89,11 +89,11 @@ use const PREG_SPLIT_NO_EMPTY;
  */
 class Query
 {
-    protected $_data;
+    protected $data;
 
     public function reset()
     {
-        $this->_data = [
+        $this->data = [
             'start'      => null,
             'rows'       => null,
             'fields'     => null,
@@ -114,13 +114,13 @@ class Query
      * Tests if provided name is actually name of known parameter normalizing it
      * on return.
      *
-     * @throws InvalidArgumentException unless providing name of existing parameter
      * @param string $name name of parameter to access
      * @return string normalized name of existing parameter
+     * @throws InvalidArgumentException Unless providing name of existing parameter.
      */
     protected function isValidParameter($name)
     {
-        if (! array_key_exists(strtolower(trim($name)), $this->_data)) {
+        if (! array_key_exists(strtolower(trim($name)), $this->data)) {
             throw new InvalidArgumentException('invalid query parameter: ' . $name);
         }
 
@@ -194,17 +194,17 @@ class Query
     {
         $name = $this->isValidParameter($name);
 
-        return $this->_data[$name] === null ? $defaultValue : $this->_data[$name];
+        return $this->data[$name] ?? $defaultValue;
     }
 
     /**
      * Sets value of selected query parameter.
      *
-     * @throws InvalidArgumentException in case of invalid arguments (e.g. on trying to add value to single-value parameter)
      * @param string                    $name name of query parameter to adjust
      * @param string[]|array|string|int $value value of query parameter to write
      * @param bool                      $adding true for adding given parameter to any existing one
      * @return $this
+     * @throws InvalidArgumentException In case of invalid arguments (e.g. on trying to add value to single-value parameter).
      */
     public function set($name, $value, $adding = false)
     {
@@ -221,27 +221,27 @@ class Query
                     throw new InvalidArgumentException('invalid parameter value on ' . $name);
                 }
 
-                $this->_data[$name] = intval($value);
+                $this->data[$name] = intval($value);
                 break;
 
             case 'fields':
                 $fields = $this->normalizeFields($value);
 
-                if ($adding && $this->_data['fields'] === null) {
+                if ($adding && $this->data['fields'] === null) {
                     $adding = false;
                 }
 
                 if ($adding) {
-                    $this->_data['fields'] = array_merge($this->_data['fields'], $fields);
+                    $this->data['fields'] = array_merge($this->data['fields'], $fields);
                 } else {
                     if (! count($fields)) {
                         throw new InvalidArgumentException('setting empty set of fields rejected');
                     }
 
-                    $this->_data['fields'] = $fields;
+                    $this->data['fields'] = $fields;
                 }
 
-                $this->_data['fields'] = array_unique($this->_data['fields']);
+                $this->data['fields'] = array_unique($this->data['fields']);
                 break;
 
             case 'sort':
@@ -270,7 +270,7 @@ class Query
                     throw new InvalidArgumentException('invalid parameter access on ' . $name);
                 }
 
-                $this->_data[$name] = ! ! $value;
+                $this->data[$name] = ! ! $value;
                 break;
 
             case 'filter':
@@ -282,7 +282,7 @@ class Query
                     throw new InvalidArgumentException('invalid filter');
                 }
 
-                $this->_data[$name] = $value;
+                $this->data[$name] = $value;
                 break;
 
             case 'facet':
@@ -294,7 +294,7 @@ class Query
                     throw new InvalidArgumentException('invalid facet options');
                 }
 
-                $this->_data[$name] = $value;
+                $this->data[$name] = $value;
                 break;
 
             case 'subfilters':
@@ -304,21 +304,38 @@ class Query
         return $this;
     }
 
+    /**
+     * @param string $name
+     * @return mixed
+     */
     public function __get($name)
     {
         return $this->get($name);
     }
 
+    /**
+     * @param string $name
+     * @return bool
+     */
     public function __isset($name)
     {
         return $this->get($name) !== null;
     }
 
+    /**
+     * @param string $name
+     * @param mixed  $value
+     */
     public function __set($name, $value)
     {
         $this->set($name, $value, false);
     }
 
+    /**
+     * @param string $method
+     * @param array  $arguments
+     * @return mixed
+     */
     public function __call($method, $arguments)
     {
         if (preg_match('/^(get|set|add)([a-z]+)$/i', $method, $matches)) {
@@ -357,8 +374,8 @@ class Query
             throw new InvalidArgumentException('missing field for sorting result');
         }
 
-        if ($reset || ! is_array($this->_data['sort'])) {
-            $this->_data['sort'] = [];
+        if ($reset || ! is_array($this->data['sort'])) {
+            $this->data['sort'] = [];
         }
 
         foreach ($fields as $field) {
@@ -366,7 +383,7 @@ class Query
                 throw new InvalidArgumentException('invalid request for sorting by all fields (*)');
             }
 
-            $this->_data['sort'][$field] = $ascending ? 'asc' : 'desc';
+            $this->data['sort'][$field] = $ascending ? 'asc' : 'desc';
         }
 
         return $this;
@@ -395,10 +412,10 @@ class Query
             throw new InvalidArgumentException('invalid sub filter name');
         }
 
-        if (! is_array($this->_data['subfilters'])) {
-            $this->_data['subfilters'] = [$name => $subFilter];
+        if (! is_array($this->data['subfilters'])) {
+            $this->data['subfilters'] = [$name => $subFilter];
         } else {
-            $this->_data['subfilters'][$name] = $subFilter;
+            $this->data['subfilters'][$name] = $subFilter;
         }
 
         return $this;
@@ -420,13 +437,13 @@ class Query
             throw new InvalidArgumentException('invalid sub filter name');
         }
 
-        if (is_array($this->_data['subfilters'])) {
-            if (array_key_exists($name, $this->_data['subfilters'])) {
-                unset($this->_data['subfilters'][$name]);
+        if (is_array($this->data['subfilters'])) {
+            if (array_key_exists($name, $this->data['subfilters'])) {
+                unset($this->data['subfilters'][$name]);
             }
 
-            if (! count($this->_data['subfilters'])) {
-                $this->_data['subfilters'] = null;
+            if (! count($this->data['subfilters'])) {
+                $this->data['subfilters'] = null;
             }
         }
 
@@ -440,9 +457,15 @@ class Query
      */
     public function getSubFilters()
     {
-        return $this->_data['subfilters'];
+        return $this->data['subfilters'];
     }
 
+    /**
+     * @param string      $name
+     * @param bool        $fallbackIfMissing
+     * @param string|null $oldName
+     * @return mixed
+     */
     public static function getParameterDefault($name, $fallbackIfMissing, $oldName = null)
     {
         $config   = Config::getDomainConfiguration();

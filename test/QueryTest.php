@@ -86,6 +86,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidScalarSettings
      */
     public function testSupportingImplicitScalarSetterValid($value, $property, $method, $expecting)
@@ -96,6 +100,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidScalarSettings
      */
     public function testSupportingExplicitScalarSetterValid($value, $property, $method, $expecting)
@@ -109,6 +117,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidScalarSettings
      */
     public function testSupportingScalarSetterMethodValid($value, $property, $method, $expecting)
@@ -119,6 +131,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidScalarSettings
      */
     public function testSupportingExplicitScalarSetterValidRejectToAdd($value, $property, $method, $expecting)
@@ -129,6 +145,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidScalarSettings
      */
     public function testSupportingScalarSetterMethodValidRejectToAdd($value, $property, $method, $expecting)
@@ -141,6 +161,9 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidScalarSettings
      */
     public function testSupportingImplicitScalarSetterInvalid($value, $property, $method)
@@ -151,6 +174,9 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidScalarSettings
      */
     public function testSupportingExplicitScalarSetterInvalid($value, $property, $method)
@@ -161,6 +187,9 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidScalarSettings
      */
     public function testSupportingScalarSetterMethodInvalid($value, $property, $method)
@@ -170,6 +199,9 @@ class QueryTest extends TestCase
         $query->{$method}($value);
     }
 
+    /**
+     * @return array[]
+     */
     public function provideValidScalarSettings()
     {
         return [
@@ -205,6 +237,9 @@ class QueryTest extends TestCase
         ];
     }
 
+    /**
+     * @return array
+     */
     public function provideInvalidScalarSettings()
     {
         return [
@@ -226,6 +261,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidFieldsSettings
      */
     public function testSupportingImplicitFieldsSetterValid($value, $property, $method, $expecting)
@@ -236,6 +275,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidFieldsSettings
      */
     public function testSupportingExplicitFieldsSetterValid($value, $property, $method, $expecting)
@@ -249,6 +292,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidFieldsSettings
      */
     public function testSupportingFieldsSetterMethodValid($value, $property, $method, $expecting)
@@ -259,6 +306,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidFieldsSettings
      */
     public function testSupportingExplicitFieldsSetterValidAdding($value, $property, $method, $expecting)
@@ -270,6 +321,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidFieldsSettings
      */
     public function testSupportingFieldsSetterMethodValidAdding($value, $property, $method, $expecting)
@@ -283,6 +338,9 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidFieldsSettings
      */
     public function testSupportingImplicitFieldsSetterInvalid($value, $property, $method)
@@ -293,6 +351,9 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidFieldsSettings
      */
     public function testSupportingExplicitFieldsSetterInvalid($value, $property, $method)
@@ -303,6 +364,9 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidFieldsSettings
      */
     public function testSupportingFieldsSetterMethodInvalid($value, $property, $method)
@@ -312,6 +376,9 @@ class QueryTest extends TestCase
         $query->{$method}($value);
     }
 
+    /**
+     * @return array[]
+     */
     public function provideValidFieldsSettings()
     {
         return [
@@ -336,6 +403,9 @@ class QueryTest extends TestCase
         ];
     }
 
+    /**
+     * @return array
+     */
     public function provideInvalidFieldsSettings()
     {
         return [
@@ -358,6 +428,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidSortSettings
      */
     public function testSupportingImplicitSortSetterValid($value, $property, $method, $expecting)
@@ -368,6 +442,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidSortSettings
      */
     public function testSupportingExplicitSortSetterValid($value, $property, $method, $expecting)
@@ -381,6 +459,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidSortSettings
      */
     public function testSupportingSortSetterMethodValid($value, $property, $method, $expecting)
@@ -391,6 +473,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidSortSettings
      */
     public function testSupportingExplicitSortSetterValidAdding($value, $property, $method, $expecting)
@@ -402,6 +488,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidSortSettings
      */
     public function testSupportingSortSetterMethodValidAdding($value, $property, $method, $expecting)
@@ -415,6 +505,9 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidSortSettings
      */
     public function testSupportingImplicitSortSetterInvalid($value, $property, $method)
@@ -425,6 +518,9 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidSortSettings
      */
     public function testSupportingExplicitSortSetterInvalid($value, $property, $method)
@@ -435,6 +531,9 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidSortSettings
      */
     public function testSupportingSortSetterMethodInvalid($value, $property, $method)
@@ -444,6 +543,9 @@ class QueryTest extends TestCase
         $query->{$method}($value);
     }
 
+    /**
+     * @return array[]
+     */
     public function provideValidSortSettings()
     {
         return [
@@ -468,6 +570,9 @@ class QueryTest extends TestCase
         ];
     }
 
+    /**
+     * @return array
+     */
     public function provideInvalidSortSettings()
     {
         return [
@@ -494,6 +599,10 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param array  $fields
+     * @param string $dir
+     * @param bool   $reset
+     * @param string $expected
      * @dataProvider provideValidAddSortSettings
      */
     public function testSupportingAddingSortValid($fields, $dir, $reset, $expected)
@@ -506,6 +615,9 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param array  $fields
+     * @param string $dir
+     * @param bool   $reset
      * @dataProvider provideInvalidAddSortSettings
      */
     public function testSupportingAddingSortInvalid($fields, $dir, $reset)
@@ -516,6 +628,9 @@ class QueryTest extends TestCase
         $params->addSorting($fields, $dir, $reset);
     }
 
+    /**
+     * @return array[]
+     */
     public function provideValidAddSortSettings()
     {
         return [
@@ -534,6 +649,9 @@ class QueryTest extends TestCase
         ];
     }
 
+    /**
+     * @return array
+     */
     public function provideInvalidAddSortSettings()
     {
         return [

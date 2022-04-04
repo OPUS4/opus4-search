@@ -96,7 +96,7 @@ class Simple implements Filtering
      *
      * @param string $field name of field filter is testing
      * @param string $comparator comparison operator to use on testing field
-     * @return Simple
+     * @return static
      */
     public static function createOnField($field, $comparator)
     {
@@ -108,7 +108,7 @@ class Simple implements Filtering
      *
      * @note This filter is special and might not be supported by all adapters.
      * @param string $value value to look up in any field of search engine
-     * @return Simple
+     * @return static
      */
     public static function createCatchAll($value)
     {

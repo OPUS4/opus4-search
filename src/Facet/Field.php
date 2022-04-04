@@ -55,6 +55,7 @@ use function trim;
  */
 class Field
 {
+    /** @var array */
     protected $data = [
         'name'     => null,
         'sort'     => null,
@@ -62,6 +63,9 @@ class Field
         'mincount' => null,
     ];
 
+    /**
+     * @param string $fieldName
+     */
     public function __construct($fieldName)
     {
         if (! is_string($fieldName) || ! ( $fieldName = trim($fieldName) )) {
@@ -71,6 +75,10 @@ class Field
         $this->data['name'] = $fieldName;
     }
 
+    /**
+     * @param string $fieldName
+     * @return static
+     */
     public static function create($fieldName)
     {
         return new static($fieldName);
@@ -135,25 +143,43 @@ class Field
         return $this;
     }
 
+    /**
+     * @param string      $name
+     * @param string|null $default
+     * @return string|null
+     */
     public function get($name, $default = null)
     {
         if (array_key_exists($name, $this->data)) {
-            return $this->data[$name] === null ? $default : $this->data[$name];
+            return $this->data[$name] ?? $default;
         }
 
         throw new RuntimeException('invalid request for unknown facet property');
     }
 
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
     public function __get($name)
     {
         return $this->get($name);
     }
 
+    /**
+     * @param string $name
+     * @return bool
+     */
     public function __isset($name)
     {
         return $this->data[$name] !== null;
     }
 
+    /**
+     * @param string $name
+     * @param mixed  $value
+     * @return $this
+     */
     public function __set($name, $value)
     {
         switch ($name) {
@@ -168,6 +194,11 @@ class Field
         }
     }
 
+    /**
+     * @param string $name
+     * @param array  $args
+     * @return mixed|null
+     */
     public function __call($name, $args)
     {
         switch (substr($name, 0, 3)) {

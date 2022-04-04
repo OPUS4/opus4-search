@@ -69,7 +69,7 @@ class Base
     }
 
     /**
-     * @return Base
+     * @return static
      */
     public static function create()
     {
@@ -169,7 +169,7 @@ class Base
      */
     public function getFacets()
     {
-        return $this->data['facets'] === null ? [] : $this->data['facets'];
+        return $this->data['facets'] ?? [];
     }
 
     /**
@@ -203,9 +203,9 @@ class Base
         // documents existing locally, only
         $matches = [];
 
+        /** @var Match $match */
         foreach ($this->data['matches'] as $match) {
             try {
-                /** @var Match $match */
                 $match->getDocument();
                 $matches[] = $match;
             } catch (DocumentException $e) {
@@ -332,6 +332,10 @@ class Base
         return $this->data['querytime'];
     }
 
+    /**
+     * @param string $name
+     * @return mixed
+     */
     public function __get($name)
     {
         switch (strtolower(trim($name))) {

@@ -32,6 +32,7 @@
 namespace Opus\Search\Util;
 
 use Opus\Search\Exception;
+use Opus\Search\Query as SearchQuery;
 
 use function array_key_exists;
 use function array_push;
@@ -123,51 +124,81 @@ class Query
         throw new Exception("searchtype $searchType is not supported");
     }
 
+    /**
+     * @return string
+     */
     public function getSearchType()
     {
         return $this->searchType;
     }
 
+    /**
+     * @return mixed
+     */
     public function getFacetField()
     {
         return $this->facetField;
     }
 
+    /**
+     * @param string $facetField
+     */
     public function setFacetField($facetField)
     {
         $this->facetField = $facetField;
     }
 
+    /**
+     * @return int
+     */
     public function getStart()
     {
         return $this->start;
     }
 
+    /**
+     * @param int $start
+     */
     public function setStart($start)
     {
         $this->start = $start;
     }
 
+    /**
+     * @return bool|int
+     */
     public static function getDefaultRows()
     {
-        return \Opus\Search\Query::getDefaultRows();
+        return SearchQuery::getDefaultRows();
     }
 
+    /**
+     * @return int
+     */
     public function getRows()
     {
         return $this->rows;
     }
 
+    /**
+     * @param int $rows
+     */
     public function setRows($rows)
     {
         $this->rows = $rows;
     }
 
+    /**
+     * @return string
+     */
     public function getSortField()
     {
         return $this->sortField;
     }
 
+    /**
+     * @param string $sortField
+     */
     public function setSortField($sortField)
     {
         if ($sortField === self::DEFAULT_SORTFIELD) {
@@ -190,16 +221,25 @@ class Query
         }
     }
 
+    /**
+     * @return string
+     */
     public function getSortOrder()
     {
         return $this->sortOrder;
     }
 
+    /**
+     * @param string $sortOrder
+     */
     public function setSortOrder($sortOrder)
     {
         $this->sortOrder = $sortOrder;
     }
 
+    /**
+     * @return int
+     */
     public function getSeriesId()
     {
         return $this->seriesId;
@@ -219,7 +259,7 @@ class Query
      */
     public function addFilterQuery($filterField, $filterValue)
     {
-        if ($filterField == 'has_fulltext') {
+        if ($filterField === 'has_fulltext') {
             $filterQuery = $filterField . ':' . $filterValue;
         } else {
             $filterQuery = '{!raw f=' . $filterField . '}' . $filterValue;
@@ -241,11 +281,17 @@ class Query
         $this->filterQueries = $filterQueries;
     }
 
+    /**
+     * @return string
+     */
     public function getCatchAll()
     {
         return $this->catchAll;
     }
 
+    /**
+     * @param string $catchAll
+     */
     public function setCatchAll($catchAll)
     {
         $this->catchAll = $catchAll;
@@ -268,7 +314,7 @@ class Query
 
     /**
      * @param string $name
-     * @return null if no values was specified for the given field name.
+     * @return string|null if no values was specified for the given field name.
      */
     public function getField($name)
     {
@@ -280,7 +326,7 @@ class Query
 
     /**
      * @param string $fieldname
-     * @return null if no modifier was specified for the given field name.
+     * @return string|null if no modifier was specified for the given field name.
      */
     public function getModifier($fieldname)
     {
@@ -290,6 +336,9 @@ class Query
         return null;
     }
 
+    /**
+     * @return string
+     */
     public function getQ()
     {
         if ($this->q === null) {
@@ -301,6 +350,9 @@ class Query
         return $this->q;
     }
 
+    /**
+     * @return string
+     */
     private function setupQCache()
     {
         if ($this->searchType === self::SIMPLE) {
@@ -323,6 +375,9 @@ class Query
         $this->q = null;
     }
 
+    /**
+     * @return string
+     */
     private function buildAdvancedQString()
     {
         $q     = "{!lucene q.op=AND}";
@@ -350,6 +405,12 @@ class Query
         return $q;
     }
 
+    /**
+     * @param string      $fieldname
+     * @param string      $fieldvalue
+     * @param string|null $conjunction
+     * @return string
+     */
     private function combineSearchTerms($fieldname, $fieldvalue, $conjunction = null)
     {
         $result     = $fieldname . ':(';
@@ -381,6 +442,7 @@ class Query
      * the end of $query in case it contains an odd number of double-quotes.
      *
      * @param string $query The query which needs to be escaped.
+     * @return string
      */
     public function escape($query)
     {
@@ -391,7 +453,7 @@ class Query
 
         // add one " to the end of $query if it contains an odd number of "
         $count = preg_match_all('/^"|[^\\\]"/', $query);
-        if ($count % 2 == 1) {
+        if ($count % 2 === 1) {
             $query .= '"';
         }
 
@@ -409,13 +471,17 @@ class Query
 
         // add one " to the end of $query if it contains an odd number of "
         $activeQuotes = preg_replace('/(?<=[^\\\])(\\\")/', '', $result); // remove escaped quotes for check
-        if (substr_count($activeQuotes, '"') % 2 == 1) {
+        if (substr_count($activeQuotes, '"') % 2 === 1) {
             $result .= '"';
         }
 
         return $result;
     }
 
+    /**
+     * @param string $query
+     * @return string
+     */
     public function lowercaseWildcardQuery($query)
     {
         // check if $query is a wildcard query
@@ -426,6 +492,9 @@ class Query
         return strtolower($query);
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         if ($this->searchType === self::SIMPLE) {

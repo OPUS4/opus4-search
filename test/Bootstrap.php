@@ -46,6 +46,9 @@ use Opus\Search\Plugin\Index;
  */
 class Bootstrap extends DatabaseBootstrap
 {
+    /**
+     * @codingStandardsIgnoreStart
+     */
     protected function _initIndexPlugin()
     {
         Cache::setIndexPluginClass(Index::class);

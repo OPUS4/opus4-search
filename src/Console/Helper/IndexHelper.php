@@ -45,6 +45,7 @@ use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Plugin\Index;
 use Opus\Search\Service;
 use Opus\Storage\StorageException;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Zend_Config_Exception;
 
@@ -79,19 +80,24 @@ class IndexHelper
     /** @var OutputInterface */
     private $output;
 
+    /** @var int */
     private $blockSize = 10;
 
+    /** @var Cache */
     private $cache;
 
+    /** @var bool */
     private $clearCache = false;
 
+    /** @var bool */
     private $removeBeforeIndexing = false;
 
+    /** @var int */
     private $timeout;
 
     /**
-     * @param $startId
-     * @param $endId
+     * @param int $startId
+     * @param int $endId
      * @return float|string
      * @throws Exception
      * @throws ModelException
@@ -205,7 +211,7 @@ class IndexHelper
 
             $numOfDocs++;
 
-            if ($numOfDocs % $blockSize == 0) {
+            if ($numOfDocs % $blockSize === 0) {
                 $this->addDocumentsToIndex($indexer, $docs);
                 $docs = [];
                 $progress->setProgress($numOfDocs);
@@ -233,8 +239,8 @@ class IndexHelper
     }
 
     /**
-     * @param $startId
-     * @param $endId
+     * @param int $startId
+     * @param int $endId
      * @return float|string
      * @throws ModelException
      * @throws Zend_Config_Exception
@@ -320,9 +326,8 @@ class IndexHelper
                         $status = '<fg=red>E</>';
                     }
                 }
-            } else {
-                // TODO output doc without files message (only at highest verbosity level)
             }
+            // TODO output doc without files message (only at highest verbosity level)
 
             $timeDelta = microtime(true) - $timeStart;
             if ($timeDelta > 30) {
@@ -362,13 +367,18 @@ class IndexHelper
         return $runtime;
     }
 
-    private function addDocumentsToIndex(Indexing $indexer, $docs)
+    /**
+     * @param Indexing $indexer
+     * @param array    $docs
+     * @throws Exception
+     */
+    private function addDocumentsToIndex($indexer, $docs)
     {
         $output = $this->getOutput();
 
         try {
             $indexer->addDocumentsToIndex($docs);
-        } catch (Opus\Search\Exception $e) {
+        } catch (Exception $e) {
             // echo date('Y-m-d H:i:s') . " ERROR: Failed indexing document $docId.\n";
             $output->writeln(date('Y-m-d H:i:s') . "        {$e->getMessage()}");
         } catch (StorageException $e) {
@@ -403,6 +413,9 @@ class IndexHelper
         $this->output = $output;
     }
 
+    /**
+     * @return OutputInterface
+     */
     public function getOutput()
     {
         if ($this->output === null) {
@@ -412,6 +425,10 @@ class IndexHelper
         return $this->output;
     }
 
+    /**
+     * @param int $docId
+     * @return Document
+     */
     protected function getDocument($docId)
     {
         if ($this->getClearCache()) {
@@ -427,36 +444,57 @@ class IndexHelper
         return $doc;
     }
 
+    /**
+     * @param int $blockSize
+     */
     public function setBlockSize($blockSize)
     {
         $this->blockSize = $blockSize;
     }
 
+    /**
+     * @return int
+     */
     public function getBlockSize()
     {
         return $this->blockSize;
     }
 
+    /**
+     * @param bool $clearCache
+     */
     public function setClearCache($clearCache)
     {
         $this->clearCache = $clearCache;
     }
 
+    /**
+     * @return bool
+     */
     public function getClearCache()
     {
         return $this->clearCache;
     }
 
+    /**
+     * @param bool $remove
+     */
     public function setRemoveBeforeIndexing($remove)
     {
         $this->removeBeforeIndexing = $remove;
     }
 
+    /**
+     * @return bool
+     */
     public function getRemoveBeforeIndexing()
     {
         return $this->removeBeforeIndexing;
     }
 
+    /**
+     * @return Cache
+     */
     public function getCache()
     {
         if ($this->cache === null) {
@@ -466,16 +504,25 @@ class IndexHelper
         return $this->cache;
     }
 
+    /**
+     * @param Cache $cache
+     */
     public function setCache($cache)
     {
         $this->cache = $cache;
     }
 
+    /**
+     * @param int $timeout
+     */
     public function setTimeout($timeout)
     {
         $this->timeout = $timeout;
     }
 
+    /**
+     * @return mixed
+     */
     public function getTimeout()
     {
         return $this->timeout;

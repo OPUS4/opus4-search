@@ -63,10 +63,10 @@ class Match
     /** @var Date */
     protected $serverDateModified;
 
-    /** @var */
+    /** @var array */
     protected $fulltextIdSuccess;
 
-    /** @var */
+    /** @var array */
     protected $fulltextIdFailure;
 
     /**
@@ -84,11 +84,18 @@ class Match
      */
     protected $data = [];
 
+    /**
+     * @param int $matchId
+     */
     public function __construct($matchId)
     {
         $this->id = $matchId;
     }
 
+    /**
+     * @param int $matchId
+     * @return static
+     */
     public static function create($matchId)
     {
         return new static($matchId);
@@ -97,7 +104,7 @@ class Match
     /**
      * Retrieves ID of document matching related search query.
      *
-     * @return mixed
+     * @return int
      */
     public function getId()
     {
@@ -122,7 +129,7 @@ class Match
     /**
      * Assigns score of match in context of related search.
      *
-     * @param $score
+     * @param string $score
      * @return $this
      */
     public function setScore($score)
@@ -155,7 +162,8 @@ class Match
      *
      * @deprecated
      *
-     * @return string
+     * @param int $seriesId
+     * @return string|null
      */
     public function getSeriesNumber($seriesId)
     {
@@ -183,7 +191,7 @@ class Match
      *
      * @note This information is temporarily overloading related timestamp in
      *       local document.
-     * @param {int} $timestamp Unix timestamp of last modification tracked in search index
+     * @param string|int $timestamp Unix timestamp of last modification tracked in search index
      * @return $this fluent interface
      */
     public function setServerDateModified($timestamp)
@@ -220,9 +228,13 @@ class Match
         return $this->getDocument()->getServerDateModified();
     }
 
+    /**
+     * @param array $value
+     * @return $this
+     */
     public function setFulltextIDsSuccess($value)
     {
-        if ($this->fulltextIdSuccess !==  null) {
+        if ($this->fulltextIdSuccess !== null) {
             throw new RuntimeException('successful fulltext IDs have been set before');
         }
 
@@ -231,6 +243,9 @@ class Match
         return $this;
     }
 
+    /**
+     * @return array|null
+     */
     public function getFulltextIDsSuccess()
     {
         if ($this->fulltextIdSuccess !== null) {
@@ -240,6 +255,10 @@ class Match
         return null;
     }
 
+    /**
+     * @param array $value
+     * @return $this
+     */
     public function setFulltextIDsFailure($value)
     {
         if ($this->fulltextIdFailure !== null) {
@@ -251,6 +270,9 @@ class Match
         return $this;
     }
 
+    /**
+     * @return array|null
+     */
     public function getFulltextIDsFailure()
     {
         if ($this->fulltextIdFailure !== null) {

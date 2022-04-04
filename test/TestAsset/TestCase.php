@@ -65,7 +65,7 @@ class TestCase extends SimpleTestCase
     /**
      * Deletes folders in workspace/files in case a test didn't do proper cleanup.
      *
-     * @param null $directory
+     * @param string|null $directory
      */
     protected function clearFiles($directory = null)
     {

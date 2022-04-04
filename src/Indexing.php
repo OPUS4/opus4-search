@@ -47,8 +47,8 @@ interface Indexing
      *       by adding all listed documents as part of a transaction to be
      *       rolled back on any error.
      * @param Document|Document[] $documents set of documents to add
-     * @return Indexing
-     * @throws Exception in case of error
+     * @return $this
+     * @throws Exception In case of error.
      */
     public function addDocumentsToIndex($documents);
 
@@ -59,8 +59,8 @@ interface Indexing
      *       by adding all listed documents as part of a transaction to be
      *       rolled back on any error.
      * @param Document|Document[] $documents set of document to remove
-     * @return Indexing
-     * @throws Exception in case of error
+     * @return $this
+     * @throws Exception In case of error.
      */
     public function removeDocumentsFromIndex($documents);
 
@@ -71,8 +71,8 @@ interface Indexing
      *       by adding all listed documents as part of a transaction to be
      *       rolled back on any error.
      * @param int|int[] $documentIds set of IDs of documents to remove
-     * @return Indexing
-     * @throws Exception in case of error
+     * @return $this
+     * @throws Exception In case of error.
      */
     public function removeDocumentsFromIndexById($documentIds);
 
@@ -82,8 +82,8 @@ interface Indexing
      * @note Implementing methods MUST ensure to keep index in consistent state
      *       by adding all listed documents as part of a transaction to be
      *       rolled back on any error.
-     * @return Indexing
-     * @throws Exception in case of error
+     * @return $this
+     * @throws Exception In case of error.
      */
     public function removeAllDocumentsFromIndex();
 }

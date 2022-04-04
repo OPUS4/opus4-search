@@ -33,6 +33,7 @@
 namespace Opus\Search\Solr\Document;
 
 use DOMDocument;
+use Exception as PhpException;
 use Opus\Common\Config;
 use Opus\Document;
 use Opus\File;
@@ -68,14 +69,14 @@ abstract class Base
     protected function getModelXml(Document $opusDoc)
     {
         // Set up caching xml-model and get XML representation of document.
-        $caching_xml_model = new Xml();
-        $caching_xml_model->setModel($opusDoc);
-        $caching_xml_model->excludeEmptyFields();
-        $caching_xml_model->setStrategy(new Version1());
+        $cachingXmlModel = new Xml();
+        $cachingXmlModel->setModel($opusDoc);
+        $cachingXmlModel->excludeEmptyFields();
+        $cachingXmlModel->setStrategy(new Version1());
         $cache = new Cache(false);
-        $caching_xml_model->setXmlCache($cache);
+        $cachingXmlModel->setXmlCache($cache);
 
-        $modelXml = $caching_xml_model->getDomDocument();
+        $modelXml = $cachingXmlModel->getDomDocument();
 
         $config = Config::get();
 
@@ -110,8 +111,8 @@ abstract class Base
         }
 
         // only consider files which are visible in frontdoor
+        /** @var File $file */
         $files = array_filter($files, function ($file) {
-            /** @var File $file */
             return $file->getVisibleInFrontdoor() === '1';
         });
 
@@ -150,7 +151,7 @@ abstract class Base
                 );
             }
 
-            if ($fulltext != '') {
+            if ($fulltext !== '') {
                 $element = $modelXml->createElement('Fulltext_Index');
                 $element->appendChild($modelXml->createCDATASection($fulltext));
                 $docXml->appendChild($element);
@@ -175,7 +176,7 @@ abstract class Base
 
         try {
             $hash = $file->getRealHash('md5');
-        } catch (\Exception $e) {
+        } catch (PhpException $e) {
             Log::get()->err('could not compute MD5 hash for ' . $file->getPath() . ' : ' . $e);
         }
 

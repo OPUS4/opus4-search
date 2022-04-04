@@ -40,32 +40,51 @@ class Facet
     private $text;
     private $count;
 
+    /**
+     * @param string $text
+     * @param int    $count
+     */
     public function __construct($text, $count)
     {
         $this->text  = $text;
         $this->count = $count;
     }
 
+    /**
+     * @return string
+     */
     public function getText()
     {
         return $this->text;
     }
 
+    /**
+     * @param string $text
+     */
     public function setText($text)
     {
         $this->text = $text;
     }
 
+    /**
+     * @return int
+     */
     public function getCount()
     {
         return $this->count;
     }
 
+    /**
+     * @param int $count
+     */
     public function setCount($count)
     {
         $this->count = $count;
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->getText() . ' => ' . $this->getCount();

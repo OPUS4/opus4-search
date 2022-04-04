@@ -32,10 +32,13 @@
 namespace Opus\Search\Task;
 
 use Opus\Common\Config;
+use Opus\Common\Log;
 use Opus\Job;
 use Opus\Job\Worker\AbstractWorker;
 use Opus\Job\Worker\InvalidJobException;
+use Opus\Search\Util\ConsistencyCheck as SearchConsistencyCheck;
 use Zend_Log;
+use Zend_Log_Exception;
 use Zend_Log_Formatter_Simple;
 use Zend_Log_Writer_Stream;
 
@@ -60,7 +63,7 @@ class ConsistencyCheck extends AbstractWorker
     public function __construct()
     {
         $config = Config::get();
-        if (isset($config->workspacePath) && trim($config->workspacePath) != '') {
+        if (isset($config->workspacePath) && trim($config->workspacePath) !== '') {
             $this->logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus_consistency-check.log';
         }
         $this->setLogger();
@@ -91,7 +94,7 @@ class ConsistencyCheck extends AbstractWorker
     public function work(Job $job)
     {
         // make sure we have the right job
-        if ($job->getLabel() != $this->getActivationLabel()) {
+        if ($job->getLabel() !== $this->getActivationLabel()) {
             throw new InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
         }
 
@@ -101,11 +104,15 @@ class ConsistencyCheck extends AbstractWorker
         }
 
         touch($lockFile);
-        $consistencyChecker = new \Opus\Search\Util\ConsistencyCheck($this->logger);
+        $consistencyChecker = new SearchConsistencyCheck($this->logger);
         $consistencyChecker->run();
         unlink($lockFile);
     }
 
+    /**
+     * @param Log|null $logger
+     * @throws Zend_Log_Exception
+     */
     public function setLogger($logger = null)
     {
         if ($this->logfilePath !== null) {

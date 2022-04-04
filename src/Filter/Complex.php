@@ -67,6 +67,9 @@ abstract class Complex extends Base
         return $this;
     }
 
+    /**
+     * @return static
+     */
     public function createComplexFilter()
     {
         return new static();

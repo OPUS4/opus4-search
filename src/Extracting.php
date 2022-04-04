@@ -45,14 +45,14 @@ interface Extracting
     /**
      * Extracts provided file of document.
      *
-     * @return Extracting fluent interface
+     * @return $this Fluent interface
      */
     public function extractDocumentFile(File $file, ?Document $document = null);
 
     /**
      * Extracts text from file.
      *
-     * @param $path
+     * @param string $path
      * @return mixed
      */
     public function extractFile($path);

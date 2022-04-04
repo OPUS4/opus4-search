@@ -31,9 +31,11 @@
 
 namespace Opus\Search\Util;
 
+use Exception as PhpException;
 use Opus\Search\Config;
 use Opus\Search\Exception;
 use Opus\Search\Facet\Set;
+use Opus\Search\InvalidQueryException;
 use Opus\Search\InvalidServiceException;
 use Opus\Search\Log;
 use Opus\Search\Result\Base;
@@ -150,20 +152,19 @@ class Searcher
 
             return $response;
         } catch (InvalidServiceException $e) {
-            return $this->mapException(Exception::SERVER_UNREACHABLE, $e);
+            $this->mapException(Exception::SERVER_UNREACHABLE, $e);
         } catch (InvalidQueryException $e) {
-            return $this->mapException(Exception::INVALID_QUERY, $e);
+            $this->mapException(Exception::INVALID_QUERY, $e);
         } catch (Exception $e) {
-            return $this->mapException(null, $e);
+            $this->mapException(null, $e);
         }
     }
 
     /**
      * @param mixed $type
      * @throws Exception
-     * @return no-return
      */
-    private function mapException($type, \Exception $previousException)
+    private function mapException($type, PhpException $previousException)
     {
         $msg = 'Solr server responds with an error ' . $previousException->getMessage();
         Log::get()->err($msg);
@@ -171,6 +172,9 @@ class Searcher
         throw new Exception($msg, $type, $previousException);
     }
 
+    /**
+     * @param array $array
+     */
     public function setFacetArray($array)
     {
         $this->facetArray = $array;

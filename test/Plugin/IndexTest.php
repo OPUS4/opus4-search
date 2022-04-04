@@ -178,12 +178,17 @@ class IndexTest extends TestCase
         $this->assertNull($newJob, 'Expected that no new opus-remove-index-document job was created');
     }
 
+    /**
+     * @param int   $documentId
+     * @param array $jobs
+     * @return Job|null
+     */
     private function getCreatedJob($documentId, $jobs)
     {
         $newJob = null;
         foreach ($jobs as $job) {
             $jobData = $job->getData(true);
-            if (isset($jobData['documentId']) && $jobData['documentId'] == $documentId) {
+            if (isset($jobData['documentId']) && $jobData['documentId'] === $documentId) {
                 $newJob = $job;
                 break;
             }

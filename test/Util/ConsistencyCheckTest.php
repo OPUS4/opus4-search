@@ -129,7 +129,7 @@ class ConsistencyCheckTest extends TestCase
         $resultList = $result->getReturnedMatches();
 
         $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
-        $this->assertTrue($resultList[0]->getServerDateModified()->getUnixTimestamp() == $this->doc->getServerDateModified()->getUnixTimestamp());
+        $this->assertTrue($resultList[0]->getServerDateModified()->getUnixTimestamp() === $this->doc->getServerDateModified()->getUnixTimestamp());
 
         $this->manipulateSolrConfig();
 
@@ -158,7 +158,7 @@ class ConsistencyCheckTest extends TestCase
         $resultList = $result->getReturnedMatches();
 
         $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
-        $this->assertTrue($resultList[0]->getServerDateModified()->getUnixTimestamp() == $this->doc->getServerDateModified()->getUnixTimestamp());
+        $this->assertTrue($resultList[0]->getServerDateModified()->getUnixTimestamp() === $this->doc->getServerDateModified()->getUnixTimestamp());
     }
 
     public function testWithInconsistentStateAfterIndexDeletion()
@@ -216,11 +216,16 @@ class ConsistencyCheckTest extends TestCase
         Service::dropCached();
     }
 
+    /**
+     * @return bool
+     * @throws Exception
+     * @throws Zend_Config_Exception
+     */
     private function isDocumentInSearchIndex()
     {
         $searcher = Service::selectSearchingService();
         $query    = QueryFactory::selectDocumentById($searcher, $this->docId);
         $result   = $searcher->customSearch($query);
-        return $result->getAllMatchesCount() == 1;
+        return $result->getAllMatchesCount() === 1;
     }
 }

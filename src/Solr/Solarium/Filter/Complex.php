@@ -33,6 +33,7 @@
 namespace Opus\Search\Solr\Solarium\Filter;
 
 use InvalidArgumentException;
+use Opus\Search\Filter\Complex as FilterComplex;
 use Opus\Search\Filter\Simple;
 use Opus\Search\Filtering;
 use Opus\Search\Solr\Filter\Helper;
@@ -43,7 +44,7 @@ use function array_map;
 use function count;
 use function implode;
 
-class Complex extends \Opus\Search\Filter\Complex
+class Complex extends FilterComplex
 {
     /** @var Client */
     protected $client;
@@ -69,7 +70,7 @@ class Complex extends \Opus\Search\Filter\Complex
      *
      * @return string
      */
-    protected static function _compileSimple(AbstractQuery $query, Simple $simple)
+    protected static function compileSimple(AbstractQuery $query, Simple $simple)
     {
         // validate desired type of comparison
         switch ($simple->getComparator()) {
@@ -129,13 +130,13 @@ class Complex extends \Opus\Search\Filter\Complex
      * @param string      $glue
      * @return string
      */
-    protected static function _compile(AbstractQuery $query, $conditions, $glue)
+    protected static function compileQuery(AbstractQuery $query, $conditions, $glue)
     {
         $compiled = [];
 
         foreach ($conditions as $condition) {
-            if ($condition instanceof \Opus\Search\Filter\Complex) {
-                $term = static::_compile($query, $condition->getConditions(), static::glue($condition));
+            if ($condition instanceof FilterComplex) {
+                $term = static::compileQuery($query, $condition->getConditions(), static::glue($condition));
                 $term = "($term)";
                 if ($condition->isGloballyNegated()) {
                     $term = '-' . $term;
@@ -143,15 +144,19 @@ class Complex extends \Opus\Search\Filter\Complex
 
                 $compiled[] = $term;
             } elseif ($condition instanceof Simple) {
-                $compiled[] = static::_compileSimple($query, $condition);
+                $compiled[] = static::compileSimple($query, $condition);
             }
         }
 
         return implode($glue, $compiled);
     }
 
+    /**
+     * @param mixed $query
+     * @return string|null
+     */
     public function compile($query)
     {
-        return static::_compile($query, $this->getConditions(), static::glue($this));
+        return static::compileQuery($query, $this->getConditions(), static::glue($this));
     }
 }

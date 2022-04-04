@@ -38,6 +38,7 @@ use Opus\Search\Query;
 use Opus\Search\QueryFactory;
 use Opus\Search\Service;
 use Opus\Search\Solr\Solarium\Adapter;
+use Opus\Search\Util\Query as QueryUtil;
 use Opus\Search\Util\Searcher;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
@@ -218,13 +219,13 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
         $search = new Searcher();
 
-        $query = new \Opus\Search\Util\Query(\Opus\Search\Util\Query::SIMPLE);
+        $query = new QueryUtil(QueryUtil::SIMPLE);
         $query->setCatchAll('muller');
         $result = $search->search($query);
 
         $this->assertEquals(2, $result->getAllMatchesCount());
 
-        $query = new \Opus\Search\Util\Query(\Opus\Search\Util\Query::SIMPLE);
+        $query = new QueryUtil(QueryUtil::SIMPLE);
         $query->setCatchAll('müller');
         $result = $search->search($query);
 
@@ -243,7 +244,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
         $search = new Searcher();
 
-        $query = new \Opus\Search\Util\Query(\Opus\Search\Util\Query::SIMPLE);
+        $query = new QueryUtil(QueryUtil::SIMPLE);
         $query->setCatchAll('*:*'); // TODO why do I have to set this?
         $query->addFilterQuery('published_year', '2012');
 

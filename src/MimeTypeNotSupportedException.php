@@ -32,9 +32,15 @@
 
 namespace Opus\Search;
 
-class MimeTypeNotSupportedException extends \Exception
+use Exception as PhpException;
+
+class MimeTypeNotSupportedException extends PhpException
 {
-    public function __construct($message = "", $code = 0, ?Exception $previous = null)
+    /**
+     * @param string $message
+     * @param int    $code
+     */
+    public function __construct($message = "", $code = 0, ?parent $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

@@ -32,6 +32,8 @@
 
 namespace Opus\Search;
 
+use Exception as PhpException;
+
 /**
  * Indicates invalid service e.g. due to being unavailable/offline.
  *
@@ -39,11 +41,18 @@ namespace Opus\Search;
  */
 class InvalidServiceException extends Exception
 {
-    public function __construct($message = "", $code = 0, ?\Exception $previous = null)
+    /**
+     * @param string $message
+     * @param int    $code
+     */
+    public function __construct($message = "", $code = 0, ?PhpException $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         $previousMessage = '';

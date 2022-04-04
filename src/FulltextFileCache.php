@@ -32,6 +32,7 @@
 
 namespace Opus\Search;
 
+use Exception as PhpException;
 use Opus\Common\Config as OpusConfig;
 use Opus\File;
 
@@ -62,6 +63,10 @@ class FulltextFileCache
 {
     const MAX_FILE_SIZE = 16777216; // 16 MiByte
 
+    /**
+     * @return string|null
+     * @throws PhpException
+     */
     public static function getCacheFileName(File $file)
     {
         $name = null;
@@ -69,7 +74,7 @@ class FulltextFileCache
         try {
             $hash = $file->getRealHash('md5') . '-' . $file->getRealHash('sha256');
             $name = OpusConfig::get()->workspacePath . "/cache/solr_cache---$hash.txt";
-        } catch (Exception $e) {
+        } catch (PhpException $e) {
             Log::get()->err(
                 self::class . '::' . __METHOD__ . ' : could not compute hash values for ' . $file->getPath() . " : $e"
             );
@@ -118,24 +123,24 @@ class FulltextFileCache
     {
         if (is_string($fulltext)) {
             // try deriving cache file's name first
-            $cache_file = static::getCacheFileName($file);
-            if ($cache_file) {
+            $cacheFile = static::getCacheFileName($file);
+            if ($cacheFile) {
                 // use intermediate temporary file with random name for writing
                 // to prevent race conditions on writing cache file
-                $tmp_path = realpath(OpusConfig::get()->workspacePath . '/tmp/');
-                $tmp_file = tempnam($tmp_path, 'solr_tmp---');
+                $tmpPath = realpath(OpusConfig::get()->workspacePath . '/tmp/');
+                $tmpFile = tempnam($tmpPath, 'solr_tmp---');
 
-                if (! file_put_contents($tmp_file, trim($fulltext))) {
-                    Log::get()->info('Failed writing fulltext temp file ' . $tmp_file);
+                if (! file_put_contents($tmpFile, trim($fulltext))) {
+                    Log::get()->info('Failed writing fulltext temp file ' . $tmpFile);
                 } else {
                     // writing temporary file succeeded
                     // -> rename to final cache file (single-step-operation)
-                    if (! rename($tmp_file, $cache_file)) {
+                    if (! rename($tmpFile, $cacheFile)) {
                         // failed renaming
-                        Log::get()->info('Failed renaming temp file to fulltext cache file ' . $cache_file);
+                        Log::get()->info('Failed renaming temp file to fulltext cache file ' . $cacheFile);
 
                         // don't keep temporary file
-                        unlink($tmp_file);
+                        unlink($tmpFile);
                     }
                 }
             }

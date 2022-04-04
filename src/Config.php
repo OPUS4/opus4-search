@@ -37,6 +37,7 @@ use Opus\Common\Config as OpusConfig;
 use Opus\EnrichmentKey;
 use Zend_Config;
 use Zend_Config_Exception;
+use Zend_Db_Select_Exception;
 
 use function array_filter;
 use function array_key_exists;
@@ -178,7 +179,7 @@ class Config
 
         // specific to current service, but still common:
         // -> searchengine.solr.<service-name>.*
-        if ($serviceName && $serviceName != 'default') {
+        if ($serviceName && $serviceName !== 'default') {
             if (isset($config->{$serviceName})) {
                 $result->merge($config->{$serviceName});
             }
@@ -198,7 +199,7 @@ class Config
 
         // merge with most specific options of any service explicitly requested
         // by name
-        if ($serviceName && $serviceName != 'default') {
+        if ($serviceName && $serviceName !== 'default') {
             // common to every type of service in scope of service requested by name
             // -> searchengine.solr.<service-name>.service.default.*
             if (isset($config->{$serviceName}->service->default)) {
@@ -274,6 +275,7 @@ class Config
      * Transparently adopts configuration used in previous releases of Opus4
      * working with Apache's SolrPhpClient.
      *
+     * @param string $serviceType
      * @return Zend_Config
      */
     protected static function mergeWithDeprecatedServiceConfiguration(Zend_Config $unqualified, $serviceType)
@@ -385,6 +387,12 @@ class Config
         return $set;
     }
 
+    /**
+     * @param string|null $facetSetName
+     * @param string|null $serviceDomain
+     * @return array|string[]
+     * @throws Zend_Config_Exception
+     */
     public static function getFacetFields($facetSetName = null, $serviceDomain = null)
     {
         $names = self::getFacetNames($facetSetName, $serviceDomain);
@@ -401,6 +409,10 @@ class Config
         }, $names);
     }
 
+    /**
+     * @param array $facets
+     * @return array
+     */
     protected static function mapFacetFields($facets)
     {
         $config = OpusConfig::get();
@@ -422,8 +434,8 @@ class Config
      * Delivers map of configured facet fields into related limit of matches to
      * obey on faceted search.
      *
-     * @param string [ $facetSetName] name of particular facet set
-     * @param string [ $serviceDomain] name of searchengine domain, omit for default ("solr")
+     * @param string|null $facetSetName name of particular facet set
+     * @param string|null $serviceDomain name of searchengine domain, omit for default ("solr")
      * @return array array mapping field names into count limits (integers)
      */
     public static function getFacetLimits($facetSetName = null, $serviceDomain = null)
@@ -506,7 +518,7 @@ class Config
 
         if (
             $searchConfig && isset($searchConfig->facet->default->sort)
-                && $searchConfig->facet->default->sort == 'lexi'
+                && $searchConfig->facet->default->sort === 'lexi'
         ) {
             $defaultSort = 'lexi';
         } else {
@@ -535,9 +547,9 @@ class Config
 
         if (count($fields) && $config) {
             foreach ($fields as $field) {
-                if ($config->get($field) == 'lexi') {
+                if ($config->get($field) === 'lexi') {
                     $set[$field] = 'index';
-                } elseif ($config->get($field) !== 'count' && $defaultSort == 'lexi') {
+                } elseif ($config->get($field) !== 'count' && $defaultSort === 'lexi') {
                     $set[$field] = 'index';
                 }
             }
@@ -549,9 +561,9 @@ class Config
             if ($facetConfig) {
                 foreach ($facetConfig as $name => $options) {
                     $sortCrit = $options->get('sort');
-                    if ($sortCrit == 'lexi') {
+                    if ($sortCrit === 'lexi') {
                         $set[$name] = 'index';
-                    } elseif ($sortCrit == 'count') {
+                    } elseif ($sortCrit === 'count') {
                         unset($set[$name]);
                     }
                 }
@@ -563,6 +575,10 @@ class Config
         return $set;
     }
 
+    /**
+     * @return array|string[]
+     * @throws Zend_Db_Select_Exception
+     */
     public static function getEnrichmentFacets()
     {
         $names = EnrichmentKey::getKeys();
@@ -593,6 +609,9 @@ class Config
         return $facets;
     }
 
+    /**
+     * @param string $name
+     */
     public static function getEnrichmentConfig($name)
     {
     }

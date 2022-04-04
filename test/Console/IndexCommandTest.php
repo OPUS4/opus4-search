@@ -55,6 +55,8 @@ class IndexCommandTest extends TestCase
     }
 
     /**
+     * @param mixed $option
+     * @param int   $blockSize
      * @dataProvider blockSizeOptionProvider
      */
     public function testBlockSizeOption($option, $blockSize)
@@ -78,6 +80,9 @@ class IndexCommandTest extends TestCase
         $this->assertEquals($blockSize, $refBlockSize->getValue($command));
     }
 
+    /**
+     * @return string[][]
+     */
     public function invalidBlockSizeOptionProvider()
     {
         return [
@@ -88,7 +93,7 @@ class IndexCommandTest extends TestCase
     }
 
     /**
-     * @param $value
+     * @param mixed $value
      * @dataProvider invalidBlockSizeOptionProvider
      */
     public function testInvalidBlockSizeOption($value)

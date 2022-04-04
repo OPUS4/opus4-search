@@ -52,7 +52,7 @@ use const DIRECTORY_SEPARATOR;
  */
 class SimpleTestCase extends PHPUnit_Framework_TestCase
 {
-    private $config_backup;
+    private $configBackup;
 
     const CONFIG_VALUE_FALSE = ''; // Zend_Config übersetzt false in den Wert ''
 
@@ -136,6 +136,9 @@ class SimpleTestCase extends PHPUnit_Framework_TestCase
         */
     }
 
+    /**
+     * @param string $path
+     */
     public static function createFolder($path)
     {
         if (! file_exists($path)) {
@@ -152,14 +155,14 @@ class SimpleTestCase extends PHPUnit_Framework_TestCase
 
         $config = OpusConfig::get('Zend_Config');
         if ($config !== null) {
-            $this->config_backup = clone $config;
+            $this->configBackup = clone $config;
         }
     }
 
     protected function tearDown()
     {
-        if ($this->config_backup !== null) {
-            OpusConfig::set($this->config_backup);
+        if ($this->configBackup !== null) {
+            OpusConfig::set($this->configBackup);
         }
 
         parent::tearDown();

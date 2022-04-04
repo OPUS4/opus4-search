@@ -33,8 +33,10 @@
 namespace Opus\Search\Solr\Solarium;
 
 use DOMDocument;
+use Exception as PhpException;
 use InvalidArgumentException;
 use Opus\Common\Config;
+use Opus\Document as OpusDocument;
 use Opus\File;
 use Opus\Search\AbstractAdapter;
 use Opus\Search\Exception;
@@ -53,9 +55,13 @@ use Opus\Search\Solr\Solarium\Filter\Complex;
 use Opus\Storage\FileAccessException;
 use Opus\Storage\FileNotFoundException;
 use Opus\Storage\StorageException;
-use Solarium\Core\Client\Client;
+use Solarium\Client as SolariumClient;
+use Solarium\Core\Query\Query as SolariumCoreQuery;
 use Solarium\Core\Query\Result\ResultInterface;
 use Solarium\Exception\HttpException;
+use Solarium\QueryType\Extract\Result as ExtractResult;
+use Solarium\QueryType\Select\Query\Query as SolariumQuery;
+use Solarium\QueryType\Select\Result\Document as SolariumDocument;
 use Solarium\QueryType\Select\Result\Result;
 use Zend_Config;
 use Zend_Exception;
@@ -88,13 +94,20 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
     /** @var Zend_Config */
     protected $options;
 
-    /** @var Client */
+    /** @var SolariumClient */
     protected $client;
 
+    /**
+     * @param string $serviceName
+     * @param array  $options
+     * @throws Exception
+     * @throws InvalidQueryException
+     * @throws InvalidServiceException
+     */
     public function __construct($serviceName, $options)
     {
         $this->options = $options;
-        $this->client  = new \Solarium\Client($options);
+        $this->client  = new SolariumClient($options);
 
         // ensure service is basically available
         $ping = $this->client->createPing();
@@ -102,8 +115,8 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
     }
 
     /**
-     * @param \Solarium\Core\Query\Query $query
-     * @param string                     $actionText
+     * @param SolariumCoreQuery $query
+     * @param string            $actionText
      * @return ResultInterface
      * @throws Exception
      * @throws InvalidQueryException
@@ -116,11 +129,11 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
         } catch (HttpException $e) {
             $msg = sprintf('%s: %d %s', $actionText, $e->getCode(), $e->getStatusMessage());
 
-            if ($e->getCode() == 404 || $e->getCode() >= 500) {
+            if ($e->getCode() === 404 || $e->getCode() >= 500) {
                 throw new InvalidServiceException($msg, $e->getCode(), $e);
             }
 
-            if ($e->getCode() == 400) {
+            if ($e->getCode() === 400) {
                 throw new InvalidQueryException($msg, $e->getCode(), $e);
             }
 
@@ -182,6 +195,9 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
      *
      */
 
+    /**
+     * @return string
+     */
     public function getDomain()
     {
         return 'solr';
@@ -193,6 +209,10 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
      *
      */
 
+    /**
+     * @param array $documents
+     * @return array
+     */
     protected function normalizeDocuments($documents)
     {
         if (! is_array($documents)) {
@@ -202,7 +222,7 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
         $validDocuments = [];
 
         foreach ($documents as $document) {
-            if (! $document instanceof \Opus\Document) {
+            if (! $document instanceof OpusDocument) {
                 throw new InvalidArgumentException("invalid document in provided set");
             }
             if ($document->getServerState() !== 'temporary') {
@@ -213,6 +233,10 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
         return $validDocuments;
     }
 
+    /**
+     * @param array|int $documentIds
+     * @return array
+     */
     protected function normalizeDocumentIds($documentIds)
     {
         if (! is_array($documentIds)) {
@@ -229,8 +253,8 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
     }
 
     /**
-     * @param \Opus\Document|\Opus\Document[] $documents
-     * @return $this|Indexing
+     * @param OpusDocument|OpusDocument[] $documents
+     * @return $this
      * @throws Exception
      * @throws InvalidQueryException
      * @throws InvalidServiceException
@@ -287,18 +311,32 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
         }
     }
 
+    /**
+     * @param OpusDocument|OpusDocument[] $documents
+     * @return $this
+     * @throws Exception
+     * @throws InvalidQueryException
+     * @throws InvalidServiceException
+     */
     public function removeDocumentsFromIndex($documents)
     {
         $documents = $this->normalizeDocuments($documents);
 
         $documentIds = array_map(function ($doc) {
-            /** @var \Opus\Document $doc */
+            /** @var OpusDocument $doc */
             return $doc->getId();
         }, $documents);
 
         return $this->removeDocumentsFromIndexById($documentIds);
     }
 
+    /**
+     * @param int|int[] $documentIds
+     * @return $this
+     * @throws Exception
+     * @throws InvalidQueryException
+     * @throws InvalidServiceException
+     */
     public function removeDocumentsFromIndexById($documentIds)
     {
         $documentIds = $this->normalizeDocumentIds($documentIds);
@@ -342,6 +380,12 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
         }
     }
 
+    /**
+     * @return $this
+     * @throws Exception
+     * @throws InvalidQueryException
+     * @throws InvalidServiceException
+     */
     public function removeAllDocumentsFromIndex()
     {
         $update = $this->client->createUpdate();
@@ -360,6 +404,10 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
      *
      */
 
+    /**
+     * @return Base
+     * @throws Exception
+     */
     public function customSearch(Query $query)
     {
         $search = $this->client->createSelect();
@@ -367,6 +415,12 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
         return $this->processQuery($this->applyParametersOnQuery($search, $query, false));
     }
 
+    /**
+     * @param string $name
+     * @return Base
+     * @throws Exception
+     * @throws InvalidQueryException
+     */
     public function namedSearch($name, ?Query $customization = null)
     {
         if (! preg_match('/^[a-z_]+$/i', $name)) {
@@ -389,11 +443,17 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
         return $this->processQuery($this->applyParametersOnQuery($search, $customization, true));
     }
 
+    /**
+     * @return Query
+     */
     public function createQuery()
     {
         return new Query();
     }
 
+    /**
+     * @return Complex
+     */
     public function createFilter()
     {
         return new Complex($this->client);
@@ -403,16 +463,15 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
      * Executs prepared query fetching all listed instances of Opus_Document on
      * success.
      *
-     * @param \Solarium\QueryType\Select\Query\Query $query
+     * @param SolariumQuery $query
      * @return Base
      * @throws Exception
      */
     protected function processQuery($query)
     {
         // send search query to service
-        $request = $this->execute($query, 'failed querying search engine');
-
         /** @var Result $request */
+        $request = $this->execute($query, 'failed querying search engine');
 
         // create result descriptor
         $result = Base::create()
@@ -422,7 +481,7 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
         // add description on every returned match
         $excluded = 0;
         foreach ($request->getDocuments() as $document) {
-            /** @var \Solarium\QueryType\Select\Result\Document $document */
+            /** @var SolariumDocument $document */
             $fields = $document->getFields();
 
             if (array_key_exists('id', $fields)) {
@@ -486,7 +545,7 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
      * @return mixed
      */
     protected function applyParametersOnQuery(
-        \Solarium\QueryType\Select\Query\Query $query,
+        SolariumQuery $query,
         ?Query $parameters = null,
         $preferOriginalQuery = false
     ) {
@@ -564,7 +623,7 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
      */
 
     /**
-     * @return Extracting|string
+     * @return string
      * @throws Exception
      * @throws StorageException
      * @throws FileAccessException
@@ -572,7 +631,7 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
      * @throws MimeTypeNotSupportedException
      * @throws Zend_Exception
      */
-    public function extractDocumentFile(File $file, ?\Opus\Document $document = null)
+    public function extractDocumentFile(File $file, ?OpusDocument $document = null)
     {
         Log::get()->debug('extracting fulltext from ' . $file->getPath());
 
@@ -614,9 +673,9 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
                     ->setCommit(true);
 
                 $result = $this->execute($extract, 'failed extracting fulltext data');
-                /** @var \Solarium\QueryType\Extract\Result $response */
 
                 // got response -> extract
+                /** @var ExtractResult $response */
                 $response = $result->getData();
                 $fulltext = null;
 
@@ -672,6 +731,12 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
         }
     }
 
+    /**
+     * @param string $path
+     * @return string
+     * @throws Exception
+     * @throws StorageException
+     */
     public function extractFile($path)
     {
         Log::get()->debug('extracting fulltext from ' . $path);
@@ -679,11 +744,11 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
         try {
             // ensure file is basically available and extracting is supported
             if (! file_exists($path)) {
-                throw new \Exception("$path not found");
+                throw new PhpException("$path not found");
             }
 
             if (! is_readable($path)) {
-                throw new \Exception("$path is not readable.");
+                throw new PhpException("$path is not readable.");
             }
 
             if (filesize($path)) {
@@ -694,7 +759,7 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
                     ->setCommit(true);
 
                 $result = $this->execute($extract, 'failed extracting fulltext data');
-                // @var \Solarium\QueryType\Extract\Result $response
+                // @var ExtractResult $response
 
                 // got response -> extract
                 $response = $result->getData();
@@ -777,6 +842,9 @@ class Adapter extends AbstractAdapter implements Indexing, Searching, Extracting
         return false;
     }
 
+    /**
+     * @param int $timeout
+     */
     public function setTimeout($timeout)
     {
         if ($timeout === null || filter_var($timeout, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE) === null) {

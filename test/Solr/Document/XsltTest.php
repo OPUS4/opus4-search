@@ -72,7 +72,7 @@ class XsltTest extends DocumentBasedTestCase
 
         $allFields   = $xpath->query('/add/doc/field');
         $namedFields = $xpath->query('/add/doc/field[@name]');
-        $this->assertTrue($allFields->length == $namedFields->length);
+        $this->assertTrue($allFields->length === $namedFields->length);
 
         $field = $xpath->query('/add/doc/field[@name="id"]');
         $this->assertEquals(1, $field->length);
@@ -209,7 +209,7 @@ class XsltTest extends DocumentBasedTestCase
 
         $allFields   = $xpath->query('/add/doc/field');
         $namedFields = $xpath->query('/add/doc/field[@name]');
-        $this->assertTrue($allFields->length == $namedFields->length);
+        $this->assertTrue($allFields->length === $namedFields->length);
 
         $field = $xpath->query('/add/doc/field[@name="id"]');
         $this->assertEquals(1, $field->length);

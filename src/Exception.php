@@ -32,33 +32,49 @@
 
 namespace Opus\Search;
 
+use Exception as PhpException;
+
 /**
  * Implements common exception to be used in code of search engine adapters.
  *
  * TODO code duplication in extending classes
  * TODO rename to SearchException
  */
-class Exception extends \Exception
+class Exception extends PhpException
 {
     const SERVER_UNREACHABLE = '1';
 
     const INVALID_QUERY = '2';
 
+    /**
+     * @param string      $message
+     * @param int|null    $code
+     * @param parent|null $previous
+     */
     public function __construct($message, $code = null, $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
 
+    /**
+     * @return bool
+     */
     public function isServerUnreachable()
     {
-        return $this->code == self::SERVER_UNREACHABLE;
+        return $this->code === self::SERVER_UNREACHABLE;
     }
 
+    /**
+     * @return bool
+     */
     public function isInvalidQuery()
     {
-        return $this->code == self::INVALID_QUERY;
+        return $this->code === self::INVALID_QUERY;
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         $previousMessage = '';

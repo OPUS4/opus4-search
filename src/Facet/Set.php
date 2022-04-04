@@ -108,7 +108,9 @@ class Set
      *
      * @see Query::setFacet()
      *
-     * @return Set
+     * @param string      $facetSetName
+     * @param null|string $serviceDomain
+     * @return static
      */
     public static function create($facetSetName = 'default', $serviceDomain = null)
     {

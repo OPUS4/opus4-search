@@ -41,12 +41,16 @@ use function trim;
 
 class Helper
 {
+    /**
+     * @param string $term
+     * @return string
+     */
     public static function escapePhrase($term)
     {
         $term = trim($term);
 
         // add one " to the end of $query if it contains an odd number of "
-        if (substr_count($term, '"') % 2 == 1) {
+        if (substr_count($term, '"') % 2 === 1) {
             $term .= '"';
         }
 
@@ -72,6 +76,10 @@ class Helper
         return $result;
     }
 
+    /**
+     * @param string $query
+     * @return string
+     */
     protected static function lowercaseLiterals($query)
     {
         // check if $query is a wildcard query

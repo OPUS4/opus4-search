@@ -31,6 +31,7 @@
 
 namespace Opus\Search\Console;
 
+use Exception as PhpException;
 use Opus\Search\Console\Helper\IndexHelper;
 use Opus\Search\Exception;
 use Opus\Search\Service;
@@ -94,9 +95,6 @@ EOT;
             );
     }
 
-    /**
-     * @return int|void|null
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $file    = $input->getArgument(self::ARGUMENT_FILE);
@@ -118,7 +116,7 @@ EOT;
             }
 
             $text = $extractor->extractFile($file);
-        } catch (\Exception $e) {
+        } catch (PhpException $e) {
             // TODO write all the information
             $output->write($e->getTraceAsString());
             throw new Exception($e->getMessage());

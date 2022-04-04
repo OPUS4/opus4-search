@@ -36,6 +36,7 @@ use Opus\Search\Config;
 use Opus\Search\Solr\Solarium\Document;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 use Solarium\Client;
+use Solarium\QueryType\Update\Query\Document\Document as SolariumDocument;
 
 class DocumentTest extends DocumentBasedTestCase
 {
@@ -48,7 +49,7 @@ class DocumentTest extends DocumentBasedTestCase
 
         $converter = new Document(Config::getDomainConfiguration('solr'));
         $solrDoc   = $converter->toSolrDocument($article, $update->createDocument());
-        $this->assertInstanceOf(\Solarium\QueryType\Update\Query\Document\Document::class, $solrDoc);
+        $this->assertInstanceOf(SolariumDocument::class, $solrDoc);
 
         $fields = $solrDoc->getFields();
 

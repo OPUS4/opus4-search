@@ -111,6 +111,9 @@ class Xslt extends Base
         return $solrDoc;
     }
 
+    /**
+     * @return string
+     */
     public function getXsltFile()
     {
         $path = $this->options->xsltfile;
@@ -126,6 +129,12 @@ class Xslt extends Base
      * TODO move somewhere else
      * TODO do not use static functions (see ApplicationXslt)
      * TODO handle configuration more efficiently
+     *
+     * @param string $publishedDateYear
+     * @param string $publishedYear
+     * @param string $completedDateYear
+     * @param string $completedYear
+     * @return string
      */
     public static function indexYear($publishedDateYear, $publishedYear, $completedDateYear, $completedYear)
     {
@@ -154,6 +163,9 @@ class Xslt extends Base
 
     private static $yearOrder;
 
+    /**
+     * @return array|false|string[]
+     */
     public static function getYearOrder()
     {
         if (self::$yearOrder === null) {
@@ -174,7 +186,7 @@ class Xslt extends Base
     }
 
     /**
-     * @param $order
+     * @param string $order
      * TODO hack necessary for testing - refactor all of this
      */
     public static function setYearOrder($order)
