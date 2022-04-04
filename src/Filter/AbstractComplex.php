@@ -42,7 +42,7 @@ use Opus\Search\Filtering;
  * actually used search engine.
  */
 
-abstract class AbstractComplex extends Base
+abstract class AbstractComplex extends AbstractBase
 {
     protected $negated = false;
 

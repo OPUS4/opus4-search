@@ -32,7 +32,7 @@
 
 namespace Opus\Search\Solr\Filter;
 
-use Opus\Search\Filter\Base;
+use Opus\Search\Filter\AbstractBase;
 
 /**
  * Implements support for passing raw Solr query terms.
@@ -41,7 +41,7 @@ use Opus\Search\Filter\Base;
  *
  * @note This class is provided for supporting backward compatibility, only.
  */
-class Raw extends Base
+class Raw extends AbstractBase
 {
     protected $rawTerm;
 

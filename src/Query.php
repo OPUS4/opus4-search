@@ -34,7 +34,7 @@ namespace Opus\Search;
 
 use InvalidArgumentException;
 use Opus\Search\Facet\Set;
-use Opus\Search\Filter\Base;
+use Opus\Search\Filter\AbstractBase;
 use RuntimeException;
 use Zend_Config;
 
@@ -75,14 +75,14 @@ use const PREG_SPLIT_NO_EMPTY;
  * @method string[] getFields( array $default = null )
  * @method array getSort( array $default = null )
  * @method bool getUnion( bool $default = null )
- * @method Base getFilter( Base $default = null ) retrieves condition to be met by resulting documents
+ * @method AbstractBase getFilter(AbstractBase $default = null ) retrieves condition to be met by resulting documents
  * @method Set getFacet( Set $default = null )
  * @method $this setStart( int $offset )
  * @method $this setRows( int $count )
  * @method $this setFields( $fields )
  * @method $this setSort( $sorting )
  * @method $this setUnion( bool $isUnion )
- * @method $this setFilter( Base $filter ) assigns condition to be met by resulting documents
+ * @method $this setFilter(AbstractBase $filter ) assigns condition to be met by resulting documents
  * @method $this setFacet( Set $facet )
  * @method $this addFields( string $fields )
  * @method $this addSort( $sorting )
@@ -278,7 +278,7 @@ class Query
                     throw new InvalidArgumentException('invalid parameter access on ' . $name);
                 }
 
-                if (! $value instanceof Base) {
+                if (! $value instanceof AbstractBase) {
                     throw new InvalidArgumentException('invalid filter');
                 }
 
@@ -403,10 +403,10 @@ class Query
      *       selecting documents in database with some benefits regarding
      *       performance, server-side result caching and non-affecting score.
      * @param string $name name of query (used for server-side caching)
-     * @param Base   $subFilter filter to be satisfied by all matching documents in addition
+     * @param AbstractBase   $subFilter filter to be satisfied by all matching documents in addition
      * @return $this fluent interface
      */
-    public function setSubFilter($name, Base $subFilter)
+    public function setSubFilter($name, AbstractBase $subFilter)
     {
         if (! is_string($name) || ! $name) {
             throw new InvalidArgumentException('invalid sub filter name');
@@ -453,7 +453,7 @@ class Query
     /**
      * Retrieves named map of subfilters to include on querying search engine.
      *
-     * @return Base[]
+     * @return AbstractBase[]
      */
     public function getSubFilters()
     {

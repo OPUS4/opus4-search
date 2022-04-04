@@ -44,7 +44,7 @@ use Opus\Search\Filtering;
  * search query string complying with query syntax of particular search engine.
  */
 
-abstract class Base implements Filtering
+abstract class AbstractBase implements Filtering
 {
     /**
      * Compiles filter description to term for use with search engine adapter.
