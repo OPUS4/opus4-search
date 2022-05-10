@@ -127,7 +127,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
         try {
             $result = $this->client->execute($query);
         } catch (HttpException $e) {
-            $code = ( int )$e->getCode();
+            $code = (int) $e->getCode();
 
             $msg = sprintf('%s: %d %s', $actionText, $code, $e->getStatusMessage());
 
