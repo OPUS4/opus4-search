@@ -37,7 +37,6 @@ use OpusTest\Search\TestAsset\TestCase;
 
 class SearchExceptionTest extends TestCase
 {
-
     public function testIsServerUnreachable()
     {
         $ex = new SearchException('test', SearchException::SERVER_UNREACHABLE);
