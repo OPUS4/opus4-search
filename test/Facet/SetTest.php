@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,20 +26,18 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Search\Facet;
 
+use InvalidArgumentException;
 use Opus\Search\Facet\Set;
 use OpusTest\Search\TestAsset\SimpleTestCase;
 
 class SetTest extends SimpleTestCase
 {
-
     public function testOverrideLimitsFluent()
     {
         $facets = Set::create();
@@ -62,7 +61,7 @@ class SetTest extends SimpleTestCase
         $this->assertEquals(10, $authorField->getLimit());
 
         $facets->overrideLimits([
-            'author_facet' => 10000
+            'author_facet' => 10000,
         ]);
 
         // this causes the field to be updated after the limit change
@@ -100,11 +99,11 @@ class SetTest extends SimpleTestCase
         $this->assertEquals(10, $authorField->getLimit());
 
         $facets->overrideLimits([
-            'author_facet' => 20
+            'author_facet' => 20,
         ]);
 
         $facets->overrideLimits([
-            'year' => 30
+            'year' => 30,
         ]);
 
         // this causes the field to be updated after the limit change
@@ -143,21 +142,19 @@ class SetTest extends SimpleTestCase
         $this->assertEquals(20, $authorField->getLimit());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage invalid limits for overriding configuration
-     */
     public function testOverrideLimitsInvalidArgument()
     {
         $facets = Set::create();
 
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid limits for overriding configuration');
         $facets->overrideLimits('all');
     }
 
     public function testAddFieldSettingSorting()
     {
         $this->adjustConfiguration([
-            'searchengine' => [ 'solr' => [ 'sortcrit' => [ 'institute' => 'lexi' ]]]
+            'searchengine' => ['solr' => ['sortcrit' => ['institute' => 'lexi']]],
         ]);
 
         $facets = Set::create();
@@ -176,12 +173,12 @@ class SetTest extends SimpleTestCase
         $this->assertNull($limits);
 
         $limits = Set::getFacetLimitsFromInput([
-            'facetNumber_year' => 'all',
-            'facetNumber_doctype' => 'all'
+            'facetNumber_year'    => 'all',
+            'facetNumber_doctype' => 'all',
         ]);
         $this->assertEquals([
-            'year' => 10000,
-            'doctype' => 10000
+            'year'    => 10000,
+            'doctype' => 10000,
         ], $limits);
     }
 
@@ -195,7 +192,7 @@ class SetTest extends SimpleTestCase
         ], $limits);
 
         $this->adjustConfiguration([
-            'searchengine' => ['solr' => ['facets' => 'doctype,year_inverted']]
+            'searchengine' => ['solr' => ['facets' => 'doctype,year_inverted']],
         ]);
 
         $limits = Set::getFacetLimitsFromInput([
@@ -209,7 +206,7 @@ class SetTest extends SimpleTestCase
     public function testGetFacetLimitFromInputForEnrichment()
     {
         $limits = Set::getFacetLimitsFromInput([
-            'facetNumber_enrichment_Country' => 'all'
+            'facetNumber_enrichment_Country' => 'all',
         ]);
         $this->assertNotNull($limits);
         $this->assertEquals(['enrichment_Country' => 10000], $limits);

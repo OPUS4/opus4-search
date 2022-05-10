@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,59 +26,21 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    library
- * @package     Opus\Search
- * @author      Michael Lang
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Search;
+namespace OpusTest\Search;
 
-use Opus\Search\Filter\Complex;
-use Opus\Search\Result\Base;
+use Opus\Search\SearchException;
+use OpusTest\Search\TestAsset\TestCase;
 
-/**
- * Defines methods provided for querying search database.
- */
-
-interface Searching
+class SearchExceptionTest extends TestCase
 {
+    public function testIsServerUnreachable()
+    {
+        $ex = new SearchException('test', SearchException::SERVER_UNREACHABLE);
 
-    /**
-     * Queries search database for set of entries matching some prepared set of
-     * query parameters.
-     *
-     * @param Query $query
-     * @return Base set of documents matching query
-     * @throws Exception in case of error
-     */
-    public function customSearch(Query $query);
-
-    /**
-     * Queries search database for set of matching entries using some named
-     * query defined in configuration.
-     *
-     * @param string $name name of query defined in configuration
-     * @param Query $customization set of customizations to selected query
-     * @returns Base set of documents matching query
-     * @throws Exception in case of error
-     */
-    public function namedSearch($name, Query $customization = null);
-
-    /**
-     * Creates query to use on searching documents with current adapter.
-     *
-     * @return Query
-     */
-    public function createQuery();
-
-    /**
-     * Creates new complex filter instance for describing set of documents to
-     * search for.
-     *
-     * @return Complex
-     */
-    public function createFilter();
+        $this->assertTrue($ex->isServerUnreachable());
+    }
 }

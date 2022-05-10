@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,35 +25,33 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Search_Util
- * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Util;
 
+use Exception as PhpException;
 use Opus\Search\Config;
-use Opus\Search\Exception;
 use Opus\Search\Facet\Set;
+use Opus\Search\InvalidQueryException;
 use Opus\Search\InvalidServiceException;
 use Opus\Search\Log;
 use Opus\Search\Result\Base;
+use Opus\Search\SearchException;
 use Opus\Search\Service;
 use Opus\Search\Solr\Filter\Raw;
+use Zend_Acl;
+use Zend_Exception;
 
 class Searcher
 {
-
     /*
      * Holds numbers of facets
      */
     private $facetArray;
 
-    /**
-     * @var \Zend_Acl Access control list
-     */
+    /** @var Zend_Acl Access control list */
     private $acl;
 
     public function __construct()
@@ -60,11 +59,10 @@ class Searcher
     }
 
     /**
-     *
      * @param Query $query
-     * @param bool $validateDocIds check document IDs coming from Solr index against database
+     * @param bool  $validateDocIds check document IDs coming from Solr index against database
      * @return Base
-     * @throws Exception If Solr server responds with an error or the response is empty.
+     * @throws SearchException If Solr server responds with an error or the response is empty.
      */
     public function search($query, $validateDocIds = true)
     {
@@ -92,7 +90,7 @@ class Searcher
                             ->setFields('id');
                     } else {
                         $request
-                            ->setFields([ '*', 'score' ]);
+                            ->setFields(['*', 'score']);
                     }
                     break;
 
@@ -115,7 +113,7 @@ class Searcher
                             ->setFields('id');
                     } else {
                         $request
-                            ->setFields([ '*', 'score' ]);
+                            ->setFields(['*', 'score']);
 
                         $facet = Set::create();
 
@@ -154,28 +152,29 @@ class Searcher
 
             return $response;
         } catch (InvalidServiceException $e) {
-            return $this->mapException(Exception::SERVER_UNREACHABLE, $e);
+            $this->mapException(SearchException::SERVER_UNREACHABLE, $e);
         } catch (InvalidQueryException $e) {
-            return $this->mapException(Exception::INVALID_QUERY, $e);
-        } catch (Exception $e) {
-            return $this->mapException(null, $e);
+            $this->mapException(SearchException::INVALID_QUERY, $e);
+        } catch (SearchException $e) {
+            $this->mapException(null, $e);
         }
     }
 
     /**
      * @param mixed $type
-     * @param \Exception $previousException
-     * @throws Exception
-     * @return no-return
+     * @throws SearchException
      */
-    private function mapException($type, \Exception $previousException)
+    private function mapException($type, PhpException $previousException)
     {
         $msg = 'Solr server responds with an error ' . $previousException->getMessage();
         Log::get()->err($msg);
 
-        throw new Exception($msg, $type, $previousException);
+        throw new SearchException($msg, $type, $previousException);
     }
 
+    /**
+     * @param array $array
+     */
     public function setFacetArray($array)
     {
         $this->facetArray = $array;
@@ -184,7 +183,7 @@ class Searcher
     /**
      * Sets access control list object for controlling access to facets.
      *
-     * @param \Zend_Acl $acl
+     * @param Zend_Acl $acl
      */
     public function setAcl($acl)
     {
@@ -197,11 +196,11 @@ class Searcher
      * This allows access to documents that have not been published yet.
      *
      * @return bool
-     * @throws \Zend_Exception
+     * @throws Zend_Exception
      */
     public function isAdmin()
     {
-        if (! is_null($this->acl)) {
+        if ($this->acl !== null) {
             // TODO dependency to Application_Security_AclProvider::ACTIVE_ROLE = '_user';
             // TODO knowledge from application ('documents') - delegate implementation to application
             return $this->acl->isAllowed('_user', 'documents');

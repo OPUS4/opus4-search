@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,60 +26,34 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search;
 
+use Opus\Document;
+use Opus\File;
+
 /**
- * Implements common exception to be used in code of search engine adapters.
- *
- * TODO code duplication in extending classes
- * TODO rename to SearchException
+ * Defines API provided for extracting fulltext data from files attached to
+ * Opus documents.
  */
-class Exception extends \Exception
+
+interface ExtractingInterface
 {
+    /**
+     * Extracts provided file of document.
+     *
+     * @return $this Fluent interface
+     */
+    public function extractDocumentFile(File $file, ?Document $document = null);
 
-    const SERVER_UNREACHABLE = '1';
-
-    const INVALID_QUERY = '2';
-
-    public function __construct($message, $code = null, $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
-    }
-
-    public function isServerUnreachable()
-    {
-        return $this->code == self::SERVER_UNREACHABLE;
-    }
-
-    public function isInvalidQuery()
-    {
-        return $this->code == self::INVALID_QUERY;
-    }
-
-
-    public function __toString()
-    {
-        $previousMessage = '';
-        if (! is_null($this->getPrevious())) {
-            $previousMessage = $this->getPrevious()->getMessage();
-        }
-
-        if ($this->isServerUnreachable()) {
-            return "solr server is unreachable: $previousMessage";
-        }
-
-        if ($this->isInvalidQuery()) {
-            return "given search query is invalid: $previousMessage";
-        }
-
-        return 'unknown error while trying to search: ' . $previousMessage;
-    }
+    /**
+     * Extracts text from file.
+     *
+     * @param string $path
+     * @return mixed
+     */
+    public function extractFile($path);
 }

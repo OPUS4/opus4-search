@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,13 +26,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search;
+
+use Zend_Config_Exception;
 
 /**
  * Indicates invalid service e.g. due to being unavailable/offline.
@@ -39,10 +40,13 @@ namespace Opus\Search;
  * TODO in Ordnung?
  */
 
-class InvalidConfigurationException extends \Zend_Config_Exception
+class InvalidConfigurationException extends Zend_Config_Exception
 {
-
-    public function __construct($message = "", $code = 0, Exception $previous = null)
+    /**
+     * @param string $message
+     * @param int    $code
+     */
+    public function __construct($message = "", $code = 0, ?SearchException $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

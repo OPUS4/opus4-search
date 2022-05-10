@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,34 +26,70 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Search\Filter;
+namespace Opus\Search;
 
-use Opus\Search\Filtering;
+use Exception as PhpException;
 
 /**
- * Describes base for all terms describing conditions to be met by matching
- * documents.
+ * Implements common exception to be used in code of search engine adapters.
  *
- * This class is part of API used to describe query terms independently of any
- * actually used search engine. Declared abstract method compile() has to be
- * provided by search engine adapters for converting described filter terms into
- * search query string complying with query syntax of particular search engine.
+ * TODO code duplication in extending classes
+ * TODO rename to SearchException
  */
-
-abstract class Base implements Filtering
+class SearchException extends PhpException
 {
+    const SERVER_UNREACHABLE = 1;
+
+    const INVALID_QUERY = 2;
 
     /**
-     * Compiles filter description to term for use with search engine adapter.
-     *
-     * @param mixed $context adapter-specific reference on context the compiled term will be queried in
-     * @return string|null compiled term for use in given context, null if context has been prepared internally already
+     * @param string      $message
+     * @param int|null    $code
+     * @param parent|null $previous
      */
-    abstract public function compile($context);
+    public function __construct($message, $code = null, $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isServerUnreachable()
+    {
+        return $this->code === self::SERVER_UNREACHABLE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInvalidQuery()
+    {
+        return $this->code === self::INVALID_QUERY;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        $previousMessage = '';
+        if ($this->getPrevious() !== null) {
+            $previousMessage = $this->getPrevious()->getMessage();
+        }
+
+        if ($this->isServerUnreachable()) {
+            return "solr server is unreachable: $previousMessage";
+        }
+
+        if ($this->isInvalidQuery()) {
+            return "given search query is invalid: $previousMessage";
+        }
+
+        return 'unknown error while trying to search: ' . $previousMessage;
+    }
 }

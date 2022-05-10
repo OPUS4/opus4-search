@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -40,9 +41,10 @@ use OpusTest\Search\TestAsset\TestCase;
 
 class IndexOpusDocumentTest extends TestCase
 {
-
     /**
      * Tests working on job.
+     *
+     * @doesNotPerformAssertions
      */
     public function testWork()
     {
@@ -50,12 +52,11 @@ class IndexOpusDocumentTest extends TestCase
         $document->setServerState('published');
         $documentId = $document->store();
 
-
         $job = new Job();
         $job->setLabel('opus-index-document');
         $job->setData([
             'documentId' => $documentId,
-            'task' => 'index'
+            'task'       => 'index',
         ]);
 
         $indexWorker = new IndexOpusDocument();

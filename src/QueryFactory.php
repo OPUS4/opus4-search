@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,8 +26,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -43,14 +42,12 @@ use Opus\Document;
  */
 class QueryFactory
 {
-
     /**
      * Creates query on provided adapter initially searching all documents.
      *
-     * @param Searching $adapter
      * @return Query
      */
-    public static function selectAllDocuments(Searching $adapter)
+    public static function selectAllDocuments(SearchingInterface $adapter)
     {
         $filter = $adapter->createFilter();
         $filter->createSimpleEqualityFilter('*')->addValue('*');
@@ -61,24 +58,21 @@ class QueryFactory
     /**
      * Creates query on provided adapter initially searching given document.
      *
-     * @param Searching $adapter
-     * @param Document $document
      * @return Query
      */
-    public static function selectDocument(Searching $adapter, Document $document)
+    public static function selectDocument(SearchingInterface $adapter, Document $document)
     {
-        return self::selectDocumentById($document->getId());
+        return self::selectDocumentById($adapter, $document->getId());
     }
 
     /**
      * Creates query on provided adapter initially searching document by given
      * ID.
      *
-     * @param Searching $adapter
      * @param int $documentId
      * @return Query
      */
-    public static function selectDocumentById(Searching $adapter, $documentId)
+    public static function selectDocumentById(SearchingInterface $adapter, $documentId)
     {
         $filter = $adapter->createFilter();
         $filter->createSimpleEqualityFilter('id')->addValue($documentId);

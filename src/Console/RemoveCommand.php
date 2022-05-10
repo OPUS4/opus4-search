@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,32 +26,29 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Console;
 
-use Opus\Console\AbstractBaseDocumentCommand;
+use Opus\Common\Console\AbstractBaseDocumentCommand;
 use Opus\Document;
 use Opus\Search\Console\Helper\DocumentHelper;
 use Opus\Search\Service;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use function count;
+
 class RemoveCommand extends AbstractBaseDocumentCommand
 {
-
     protected static $defaultName = 'index:remove';
 
     protected $startIdDescription = 'ID of document where removing should start (or \'-\')';
 
     protected $endIdDescription = 'ID of document where removing should stop (or \'-\')';
 
-    /**
-     */
     protected function configure()
     {
         parent::configure();
@@ -83,7 +81,7 @@ EOT;
         parent::execute($input, $output);
 
         $startId = $this->startId;
-        $endId = $this->endId;
+        $endId   = $this->endId;
 
         $indexer = Service::selectIndexingService('indexBuilder');
 
@@ -98,9 +96,9 @@ EOT;
                 $indexer->removeDocumentsFromIndexById([$startId]);
                 $output->writeln('done');
             } else {
-                $helper = new DocumentHelper();
+                $helper    = new DocumentHelper();
                 $documents = $helper->getDocumentIds($startId, $endId);
-                $docCount = count($documents);
+                $docCount  = count($documents);
                 $output->write("Removing $docCount documents from index ... ");
                 $indexer->removeDocumentsFromIndexById($documents);
                 $output->writeln('done');

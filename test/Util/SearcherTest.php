@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,31 +25,36 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_SolrSearch
- * @author      Sascha Szott <szott@zib.de>
- * @author      Michael Lang <lang@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace OpusTest\Util;
+namespace OpusTest\Search\Util;
 
 use Opus\Collection;
 use Opus\CollectionRole;
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
+use Opus\Search\Result\Match;
+use Opus\Search\SearchException;
 use Opus\Search\Util\Query;
 use Opus\Search\Util\Searcher;
 use OpusTest\Search\TestAsset\TestCase;
 
+use function array_push;
+use function count;
+use function rmdir;
+use function sleep;
+use function unlink;
+
+use const DIRECTORY_SEPARATOR;
+
 class SearcherTest extends TestCase
 {
-
     public function tearDown()
     {
         $this->clearFiles();
@@ -59,7 +65,7 @@ class SearcherTest extends TestCase
     public function testLatestDocumentsQuery()
     {
         $rows = 5;
-        $ids = [];
+        $ids  = [];
         for ($i = 0; $i < $rows; $i++) {
             $document = Document::new();
             $document->setServerState('published');
@@ -71,7 +77,7 @@ class SearcherTest extends TestCase
         $query = new Query(Query::LATEST_DOCS);
         $query->setRows($rows);
         $searcher = new Searcher();
-        $results = $searcher->search($query);
+        $results  = $searcher->search($query);
 
         $i = $rows - 1;
         foreach ($results->getResults() as $result) {
@@ -87,14 +93,14 @@ class SearcherTest extends TestCase
         $doc->setServerState('published');
         $doc->store();
 
-        $id = $doc->getId();
-        $doc = Document::get($id);
+        $id                 = $doc->getId();
+        $doc                = Document::get($id);
         $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
 
         $query = new Query(Query::LATEST_DOCS);
         $query->setRows(1);
         $searcher = new Searcher();
-        $results = $searcher->search($query);
+        $results  = $searcher->search($query);
 
         $this->assertEquals(1, count($results));
         $result = $results->getResults();
@@ -112,7 +118,7 @@ class SearcherTest extends TestCase
         $query = new Query(Query::LATEST_DOCS);
         $query->setRows(1);
         $searcher = new Searcher();
-        $results = $searcher->search($query);
+        $results  = $searcher->search($query);
         $this->assertEquals(1, count($results));
         $result = $results->getResults();
 
@@ -122,7 +128,7 @@ class SearcherTest extends TestCase
         $doc->setLanguage('eng');
         $doc->store();
 
-        $doc = Document::get($id);
+        $doc                = Document::get($id);
         $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
 
         $this->assertTrue($serverDateModified > $result[0]->getServerDateModified()->getUnixTimestamp());
@@ -177,37 +183,37 @@ class SearcherTest extends TestCase
         $this->assertCount(1, $doc->getCollection(), "Document $docId is not assigned to collection $collId");
 
         $serverDateModified2 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified1->compare($serverDateModified2) == 0);
+        $this->assertTrue($serverDateModified1->compare($serverDateModified2) === 0);
 
         sleep(1);
 
         $root->delete();
         $doc = Document::get($docId);
 
-        // document in search index was not updated: connection between document $doc
-        // and collection $root is still present in search index
+    // document in search index was not updated: connection between document $doc
+    // and collection $root is still present in search index
         $result = $this->searchDocumentsAssignedToCollection($collId);
         $this->assertCount(1, $result, "Deletion of Collection $collId was propagated to Solr index");
         $this->assertCount(0, $doc->getCollection(), "Document $docId is still assigned to collection $collId");
 
         $serverDateModified3 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified2->compare($serverDateModified3) == 0);
+        $this->assertTrue($serverDateModified2->compare($serverDateModified3) === 0);
 
         sleep(1);
 
-        // force rebuild of cache entry for current Opus_Document: cache removal
-        // was issued by deletion of collection $root
-        // side effect of cache rebuild: document will be updated in search index
+    // force rebuild of cache entry for current Opus_Document: cache removal
+    // was issued by deletion of collection $root
+    // side effect of cache rebuild: document will be updated in search index
         $xmlModel = new Xml();
-        $doc = Document::get($docId);
+        $doc      = Document::get($docId);
         $xmlModel->setModel($doc);
         $xmlModel->excludeEmptyFields();
         $xmlModel->setStrategy(new Version1());
         $xmlModel->setXmlCache(new Cache());
         $xmlModel->getDomDocument();
 
-        // connection between document $doc and collection $root does not longer
-        // exist in search index
+    // connection between document $doc and collection $root does not longer
+    // exist in search index
         $result = $this->searchDocumentsAssignedToCollection($collId);
         $this->assertEquals(0, count($result));
 
@@ -215,7 +221,7 @@ class SearcherTest extends TestCase
         $this->assertEquals(1, count($result));
 
         $serverDateModified4 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified3->compare($serverDateModified4) == -1);
+        $this->assertTrue($serverDateModified3->compare($serverDateModified4) === -1);
     }
 
     public function testServerDateModifiedIsUpdatedForDependentModelChanges()
@@ -277,41 +283,46 @@ class SearcherTest extends TestCase
         // force rebuild of cache entry for current Opus_Document: cache removal
         // was issued by deletion of collection $root
         $xmlModel = new Xml();
-        $doc = Document::get($docId);
+        $doc      = Document::get($docId);
         $xmlModel->setModel($doc);
         $xmlModel->excludeEmptyFields();
         $xmlModel->setStrategy(new Version1());
         $xmlModel->setXmlCache(new Cache());
         $xmlModel->getDomDocument();
 
-        $doc = Document::get($docId);
+        $doc                 = Document::get($docId);
         $serverDateModified5 = $doc->getServerDateModified()->getUnixTimestamp();
-        $this->assertTrue($serverDateModified4 == $serverDateModified5, 'Document and its dependet models were not changed: server_date_modified should not change');
+        $this->assertTrue($serverDateModified4 === $serverDateModified5, 'Document and its dependet models were not changed: server_date_modified should not change');
     }
 
+    /**
+     * @param int|null $collId
+     * @return Document[]|Match[]
+     * @throws SearchException
+     */
     private function searchDocumentsAssignedToCollection($collId = null)
     {
         $query = new Query(Query::SIMPLE);
         $query->setCatchAll('*:*');
-        if (! is_null($collId)) {
+        if ($collId !== null) {
             $query->addFilterQuery('collection_ids', $collId);
         }
         $searcher = new Searcher();
-        $results = $searcher->search($query);
+        $results  = $searcher->search($query);
         return $results->getResults();
     }
 
     public function testFulltextFieldsForValidPDFFulltext()
     {
         $fileName = 'test.pdf';
-        $id = $this->createDocWithFulltext($fileName);
+        $id       = $this->createDocWithFulltext($fileName);
 
         $result = $this->getSearchResultForFulltextTests();
 
         $success = $result->getFulltextIDsSuccess();
 
-        $doc = Document::get($id);
-        $file = $doc->getFile();
+        $doc   = Document::get($id);
+        $file  = $doc->getFile();
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->removeFiles($id, $fileName);
 
@@ -325,14 +336,14 @@ class SearcherTest extends TestCase
     public function testFulltextFieldsForInvalidPDFFulltext()
     {
         $fileName = 'test-invalid.pdf';
-        $id = $this->createDocWithFulltext($fileName);
+        $id       = $this->createDocWithFulltext($fileName);
 
         $result = $this->getSearchResultForFulltextTests();
 
         $failure = $result->getFulltextIDsFailure();
 
-        $doc = Document::get($id);
-        $file = $doc->getFile();
+        $doc   = Document::get($id);
+        $file  = $doc->getFile();
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->removeFiles($id, $fileName);
 
@@ -350,7 +361,7 @@ class SearcherTest extends TestCase
     {
         $fileName1 = 'test.pdf';
         $fileName2 = 'test-invalid.pdf';
-        $id = $this->createDocWithFulltext($fileName1, $fileName2);
+        $id        = $this->createDocWithFulltext($fileName1, $fileName2);
 
         $result = $this->getSearchResultForFulltextTests();
 
@@ -360,8 +371,8 @@ class SearcherTest extends TestCase
         $failure = $result->getFulltextIDsFailure();
         $this->assertEquals(1, count($failure));
 
-        $doc = Document::get($id);
-        $file = $doc->getFile();
+        $doc   = Document::get($id);
+        $file  = $doc->getFile();
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->assertEquals($value, $success[0]);
 
@@ -375,15 +386,15 @@ class SearcherTest extends TestCase
     {
         $fileName1 = 'test.pdf';
         $fileName2 = 'test.txt';
-        $id = $this->createDocWithFulltext($fileName1, $fileName2);
+        $id        = $this->createDocWithFulltext($fileName1, $fileName2);
 
         $result = $this->getSearchResultForFulltextTests();
 
         $success = $result->getFulltextIDsSuccess();
         $failure = $result->getFulltextIDsFailure();
 
-        $doc = Document::get($id);
-        $file = $doc->getFile();
+        $doc        = Document::get($id);
+        $file       = $doc->getFile();
         $valueFile1 = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $valueFile2 = $file[1]->getId() . ':' . $file[1]->getRealHash('md5');
         $this->removeFiles($id, $fileName1, $fileName2);
@@ -396,21 +407,30 @@ class SearcherTest extends TestCase
 
     public function testGetDefaultRows()
     {
-        $rows = Query::getDefaultRows();
+        $rows   = Query::getDefaultRows();
         $config = Config::get();
         if (isset($config->searchengine->solr->numberOfDefaultSearchResults)) {
-            $this->assertTrue($rows == $config->searchengine->solr->numberOfDefaultSearchResults);
+            $this->assertTrue($rows === $config->searchengine->solr->numberOfDefaultSearchResults);
         } else {
-            $this->assertTrue($rows == Query::DEFAULT_ROWS);
+            $this->assertTrue($rows === Query::DEFAULT_ROWS);
         }
     }
 
+    /**
+     * @return string
+     */
     private function getFulltextDir()
     {
         return APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'TestAsset'
-            . DIRECTORY_SEPARATOR . 'fulltexts' . DIRECTORY_SEPARATOR;
+        . DIRECTORY_SEPARATOR . 'fulltexts' . DIRECTORY_SEPARATOR;
     }
 
+    /**
+     * @param string      $fulltext1
+     * @param string|null $fulltext2
+     * @return mixed
+     * @throws ModelException
+     */
     private function createDocWithFulltext($fulltext1, $fulltext2 = null)
     {
         $doc = Document::new();
@@ -425,8 +445,8 @@ class SearcherTest extends TestCase
         $file->setVisibleInFrontdoor('1');
         $doc->store();
 
-        if (! is_null($fulltext2)) {
-            $doc = Document::get($doc->getId());
+        if ($fulltext2 !== null) {
+            $doc  = Document::get($doc->getId());
             $file = $doc->addFile();
             $file->setTempFile($fulltextDir . $fulltext2);
             $file->setPathName($fulltext2);
@@ -438,23 +458,32 @@ class SearcherTest extends TestCase
         return $doc->getId();
     }
 
+    /**
+     * @param int         $docId
+     * @param string      $fulltext1
+     * @param string|null $fulltext2
+     */
     private function removeFiles($docId, $fulltext1, $fulltext2 = null)
     {
         $config = Config::get();
-        $path = $config->workspacePath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $docId;
+        $path   = $config->workspacePath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $docId;
         unlink($path . DIRECTORY_SEPARATOR . $fulltext1);
-        if (! is_null($fulltext2)) {
+        if ($fulltext2 !== null) {
             unlink($path . DIRECTORY_SEPARATOR . $fulltext2);
         }
         rmdir($path);
     }
 
+    /**
+     * @return Document|Match
+     * @throws SearchException
+     */
     private function getSearchResultForFulltextTests()
     {
         $query = new Query(Query::SIMPLE);
         $query->setCatchAll('*:*');
         $searcher = new Searcher();
-        $results = $searcher->search($query)->getResults();
+        $results  = $searcher->search($query)->getResults();
         $this->assertEquals(1, count($results));
         return $results[0];
     }

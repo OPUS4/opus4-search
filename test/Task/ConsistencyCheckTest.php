@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,28 +25,28 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework Unit Test
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Search\Task;
 
-use Opus\Config;
+use Opus\Common\Config;
 use Opus\Document;
 use Opus\Job;
 use Opus\Search\Task\ConsistencyCheck;
 use OpusTest\Search\TestAsset\TestCase;
 
+use function file_get_contents;
+
+use const DIRECTORY_SEPARATOR;
+
 class ConsistencyCheckTest extends TestCase
 {
-
     public function setUp()
     {
         parent::setUp();
-        $this->job = new Job();
+        $this->job    = new Job();
         $this->worker = new ConsistencyCheck();
     }
 
@@ -57,7 +58,7 @@ class ConsistencyCheckTest extends TestCase
     public function testInvalidJobExecution()
     {
         $this->job->setLabel('invalid-label');
-        $this->setExpectedException('Opus\Job\Worker\InvalidJobException');
+        $this->expectException(Job\Worker\InvalidJobException::class);
         $this->worker->work($this->job);
     }
 
@@ -72,9 +73,9 @@ class ConsistencyCheckTest extends TestCase
         $this->worker->work($this->job);
 
         // check if consistency check log file was created and is not empty
-        $config = Config::get();
+        $config      = Config::get();
         $logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR
-            . 'opus_consistency-check.log';
+        . 'opus_consistency-check.log';
         $this->assertFileExists($logfilePath);
 
         $content = file_get_contents($logfilePath);

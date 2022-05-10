@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,29 +25,34 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Search\TestAsset;
 
+use Opus\Common\Config as OpusConfig;
 use Opus\Search\Config;
+use PHPUnit\Framework\TestCase;
+use Zend_Config;
+
+use function call_user_func;
+use function define;
+use function defined;
+use function dirname;
+use function file_exists;
+use function is_callable;
+use function mkdir;
+use function realpath;
+
+use const DIRECTORY_SEPARATOR;
 
 /**
  * Superclass for all tests.  Providing maintainance tasks.
- *
- * @category Tests
- *
- * TODO add necessary test resources
- * TODO how to prepare database for testing?
  */
-class SimpleTestCase extends \PHPUnit_Framework_TestCase
+class SimpleTestCase extends TestCase
 {
-
-    private $config_backup;
+    private $configBackup;
 
     const CONFIG_VALUE_FALSE = ''; // Zend_Config übersetzt false in den Wert ''
 
@@ -57,19 +63,18 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
      *
      * @note A test doesn't need to backup and recover replaced configuration as
      *       this is done in setup and tear-down phases.
-     *
-     * @param array $overlay properties to overwrite existing values in configuration
-     * @param callable $callback callback to invoke with adjusted configuration before enabling e.g. to delete some options
-     * @return \Zend_Config reference on previously set configuration
+     * @param array         $overlay properties to overwrite existing values in configuration
+     * @param null|callable $callback callback to invoke with adjusted configuration before enabling e.g. to delete some options
+     * @return Zend_Config reference on previously set configuration
      */
     protected function adjustConfiguration($overlay, $callback = null)
     {
-        $previous = \Opus\Config::get();
-        $updated  = new \Zend_Config([], true);
+        $previous = OpusConfig::get();
+        $updated  = new Zend_Config([], true);
 
         $updated
             ->merge($previous)
-            ->merge(new \Zend_Config($overlay));
+            ->merge(new Zend_Config($overlay));
 
         if (is_callable($callback)) {
             $updated = call_user_func($callback, $updated);
@@ -77,7 +82,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
 
         $updated->setReadOnly();
 
-        \Opus\Config::set($updated);
+        OpusConfig::set($updated);
 
         Config::dropCached();
 
@@ -88,11 +93,10 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
      * Drops configuration options available in deprecated format supported as
      * part of downward compatibility but breaking some tests regarding new
      * setup due to using that deprecated configuration in preference.
-     *
      */
     protected function dropDeprecatedConfiguration()
     {
-        $config = \Opus\Config::get()->searchengine;
+        $config = OpusConfig::get()->searchengine;
 
         unset(
             $config->index->host,
@@ -113,7 +117,7 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
     {
         defined('APPLICATION_PATH') || define('APPLICATION_PATH', realpath(dirname(dirname(dirname(__FILE__)))));
 
-        $workspacePath = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'build' .DIRECTORY_SEPARATOR . 'workspace';
+        $workspacePath = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'build' . DIRECTORY_SEPARATOR . 'workspace';
 
         self::createFolder($workspacePath . DIRECTORY_SEPARATOR . 'cache');
         self::createFolder($workspacePath . DIRECTORY_SEPARATOR . 'log');
@@ -132,6 +136,9 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
         */
     }
 
+    /**
+     * @param string $path
+     */
     public static function createFolder($path)
     {
         if (! file_exists($path)) {
@@ -141,23 +148,21 @@ class SimpleTestCase extends \PHPUnit_Framework_TestCase
 
     /**
      * Standard setUp method for clearing database.
-     *
-     * @return void
      */
     protected function setUp()
     {
         parent::setUp();
 
-        $config = \Opus\Config::get('Zend_Config');
-        if (! is_null($config)) {
-            $this->config_backup = clone $config;
+        $config = OpusConfig::get('Zend_Config');
+        if ($config !== null) {
+            $this->configBackup = clone $config;
         }
     }
 
     protected function tearDown()
     {
-        if (! is_null($this->config_backup)) {
-            \Opus\Config::set($this->config_backup);
+        if ($this->configBackup !== null) {
+            OpusConfig::set($this->configBackup);
         }
 
         parent::tearDown();

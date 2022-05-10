@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,41 +26,39 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Search\Solr\Solarium;
 
+use Exception;
 use Opus\Person;
-use Opus\Search\Exception;
 use Opus\Search\Query;
 use Opus\Search\QueryFactory;
 use Opus\Search\Service;
+use Opus\Search\Solr\Solarium\Adapter;
+use Opus\Search\Util\Query as QueryUtil;
 use Opus\Search\Util\Searcher;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
+use function count;
+
 class AdapterSearchingTest extends DocumentBasedTestCase
 {
-
     public function testService()
     {
         $search = Service::selectSearchingService(null, 'solr');
-        $this->assertInstanceOf('Opus\Search\Solr\Solarium\Adapter', $search);
+        $this->assertInstanceOf(Adapter::class, $search);
     }
 
-    /**
-     * @expectedException Exception
-     */
     public function testDisfunctServiceFails()
     {
         // need to drop deprecated configuration options for interfering with
         // intention of this test regarding revised configuration structure, only
         $this->dropDeprecatedConfiguration();
 
+        $this->expectException(Exception::class);
         Service::selectSearchingService('disfunct', 'solr');
     }
 
@@ -144,7 +143,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $docB = $this->createDocument('book');
 
         $index = Service::selectIndexingService(null, 'solr');
-        $index->addDocumentsToIndex([ $docA, $docB ]);
+        $index->addDocumentsToIndex([$docA, $docB]);
 
         $search = Service::selectSearchingService(null, 'solr');
         $result = $search->customSearch(QueryFactory::selectAllDocuments($search));
@@ -158,7 +157,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $docB = $this->createDocument('book');
 
         $index = Service::selectIndexingService(null, 'solr');
-        $index->addDocumentsToIndex([ $docA, $docB ]);
+        $index->addDocumentsToIndex([$docA, $docB]);
 
         $search = Service::selectSearchingService(null, 'solr');
         $result = $search->namedSearch('alldocs');
@@ -172,7 +171,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $docB = $this->createDocument('book');
 
         $index = Service::selectIndexingService(null, 'solr');
-        $index->addDocumentsToIndex([ $docA, $docB ]);
+        $index->addDocumentsToIndex([$docA, $docB]);
 
         $search = Service::selectSearchingService(null, 'solr');
         $result = $search->namedSearch('onedoc');
@@ -187,7 +186,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $docB = $this->createDocument('book');
 
         $index = Service::selectIndexingService(null, 'solr');
-        $index->addDocumentsToIndex([ $docA, $docB ]);
+        $index->addDocumentsToIndex([$docA, $docB]);
 
         $opts = new Query();
         $opts->setRows(1);
@@ -216,17 +215,17 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $docB->store();
 
         $index = Service::selectIndexingService(null, 'solr');
-        $index->addDocumentsToIndex([ $docA, $docB ]);
+        $index->addDocumentsToIndex([$docA, $docB]);
 
         $search = new Searcher();
 
-        $query = new \Opus\Search\Util\Query(\Opus\Search\Util\Query::SIMPLE);
+        $query = new QueryUtil(QueryUtil::SIMPLE);
         $query->setCatchAll('muller');
         $result = $search->search($query);
 
         $this->assertEquals(2, $result->getAllMatchesCount());
 
-        $query = new \Opus\Search\Util\Query(\Opus\Search\Util\Query::SIMPLE);
+        $query = new QueryUtil(QueryUtil::SIMPLE);
         $query->setCatchAll('müller');
         $result = $search->search($query);
 
@@ -245,7 +244,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
         $search = new Searcher();
 
-        $query = new \Opus\Search\Util\Query(\Opus\Search\Util\Query::SIMPLE);
+        $query = new QueryUtil(QueryUtil::SIMPLE);
         $query->setCatchAll('*:*'); // TODO why do I have to set this?
         $query->addFilterQuery('published_year', '2012');
 

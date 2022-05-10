@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,29 +26,26 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2020-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Console;
 
-use Opus\Console\AbstractBaseDocumentCommand;
+use Opus\Common\Console\AbstractBaseDocumentCommand;
 use Opus\Search\Console\Helper\IndexHelper;
-use Opus\Search\Exception;
+use Opus\Search\SearchException;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IndexCommand
- * @package Opus\Search\IndexBuilder
- */
+use function ctype_digit;
+use function ltrim;
+use function sprintf;
+
 class IndexCommand extends AbstractBaseDocumentCommand
 {
-
     const OPTION_BLOCKSIZE = 'blocksize';
 
     const OPTION_CLEAR_CACHE = 'clear-cache';
@@ -60,13 +58,11 @@ class IndexCommand extends AbstractBaseDocumentCommand
 
     protected $blockSize = 10;
 
-    /**
-     */
     protected function configure()
     {
         parent::configure();
 
-        $help = <<< EOT
+        $help = <<<EOT
 The <fg=green>index:index</> (short <fg=green>i:i</>) command can be used to index a single document or a 
 range of documents.
 
@@ -92,7 +88,6 @@ the <fg=green>blocksize</> to <fg=yellow>1</> in order to index every document s
 Using <fg=green>--verbose</> (<fg=green>-v</>) will show the lowest and highest document ID found in the 
 specified range.
 EOT;
-
 
         $this->setName('index:index')
             ->setDescription('Indexes documents')
@@ -140,21 +135,16 @@ EOT;
         }
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int|null
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
 
         $clearCache = $input->getOption(self::OPTION_CLEAR_CACHE);
-        $remove = $input->getOption(self::OPTION_REMOVE);
-        $timeout = $input->getOption(self::OPTION_TIMEOUT);
+        $remove     = $input->getOption(self::OPTION_REMOVE);
+        $timeout    = $input->getOption(self::OPTION_TIMEOUT);
 
         $startId = $this->startId;
-        $endId = $this->endId;
+        $endId   = $this->endId;
 
         $builder = new IndexHelper();
         $builder->setOutput($output);
@@ -171,7 +161,7 @@ EOT;
             }
             $message = sprintf('Operation completed successfully in <fg=yellow>%.2f</> seconds.', $runtime);
             $output->writeln($message);
-        } catch (Exception $e) {
+        } catch (SearchException $e) {
             $output->writeln('An error occurred while indexing.');
             $output->writeln('Error Message: ' . $e->getMessage());
             if ($e->getPrevious() !== null) {

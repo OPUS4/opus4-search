@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,31 +25,21 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2020-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Console\Helper;
 
-use Opus\Repository;
+use Opus\Common\Repository;
 
-/**
- * Class DocumentHelper
- * @package Opus\Search\Console\Helper
- *
- * TODO should this be a ConsoleHelper? It is used by various commands. Maybe functions fits somehere else?
- * TODO move to common - currently not possible because of dependency on framework
- */
 class DocumentHelper
 {
-
     /**
      * Returns IDs for published documents in range.
      *
-     * @param $start int Start of ID range
-     * @param $end int End of ID range
+     * @param int $start Start of ID range
+     * @param int $end End of ID range
      * @return array Array of document IDs
      *
      * TODO move somewhere else, not Index specific functionality

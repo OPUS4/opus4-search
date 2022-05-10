@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,21 +26,23 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search;
 
-use Opus\Log\LogService;
+use Opus\Common\Log as OpusLog;
+use Opus\Common\Log\LogService;
 
 class Log
 {
+    /** @var OpusLog */
+    private static $logger;
 
-    private static $logger = null;
-
+    /**
+     * @return OpusLog
+     */
     public static function get()
     {
         if (self::$logger === null) {
@@ -49,6 +52,9 @@ class Log
         return self::$logger;
     }
 
+    /**
+     * @param OpusLog $logger
+     */
     public static function set($logger)
     {
         self::$logger = $logger;

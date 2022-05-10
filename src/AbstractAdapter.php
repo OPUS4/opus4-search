@@ -32,34 +32,22 @@
 
 namespace Opus\Search;
 
-use Exception as PhpException;
-
 /**
- * Indicates invalid service e.g. due to being unavailable/offline.
+ * This class provides some base class for implementing search engine adapters
+ * on behalf on Opus4.
  *
- * TODO code duplication
+ * An adapter is a class providing unified access on several kinds of search
+ * engine backends with each backend providing one or more adapters implementing
+ * required interfaces Opus_Search_Searching, Opus_Search_Indexing and
+ * Opus_Search_Extracting each.
  */
-class InvalidServiceException extends SearchException
+
+abstract class AbstractAdapter
 {
     /**
-     * @param string $message
-     * @param int    $code
-     */
-    public function __construct($message = "", $code = 0, ?PhpException $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
-    }
-
-    /**
+     * Retrieves name of current adapter's search engine domain.
+     *
      * @return string
      */
-    public function __toString()
-    {
-        $previousMessage = '';
-        if ($this->getPrevious() !== null) {
-            $previousMessage = $this->getPrevious()->getMessage();
-        }
-
-        return 'search engine is unreachable: ' . $previousMessage;
-    }
+    abstract public function getDomain();
 }

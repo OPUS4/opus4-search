@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,15 +26,36 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search;
 
+use InvalidArgumentException;
+use Opus\Common\Config as OpusConfig;
 use Opus\EnrichmentKey;
+use Zend_Config;
+use Zend_Config_Exception;
+use Zend_Db_Select_Exception;
+
+use function array_filter;
+use function array_key_exists;
+use function array_map;
+use function array_merge;
+use function count;
+use function filter_var;
+use function in_array;
+use function is_scalar;
+use function is_string;
+use function ltrim;
+use function preg_split;
+use function sha1;
+use function str_replace;
+use function trim;
+
+use const FILTER_VALIDATE_BOOLEAN;
+use const PREG_SPLIT_NO_EMPTY;
 
 /**
  * Provides access on sections of configuration regarding selected domains of
@@ -50,17 +72,13 @@ use Opus\EnrichmentKey;
  *      searchengines for redundancy etc.
  *
  * @see https://github.com/soletan/opus4-framework/wiki/Runtime-Configuration
- *
- * @author Thomas Urban <thomas.urban@cepharum.de>
  */
 class Config
 {
-
     protected static $configurationsPool = [];
 
     /**
      * Drops any cached configuration.
-     *
      */
     public static function dropCached()
     {
@@ -71,11 +89,11 @@ class Config
      * Retrieves extract from configuration regarding integration with some
      * search engine.
      *
-     * @return \Zend_Config
+     * @return Zend_Config
      */
     public static function getConfiguration()
     {
-        return \Opus\Config::get()->searchengine;
+        return OpusConfig::get()->searchengine;
     }
 
     /**
@@ -92,16 +110,16 @@ class Config
      * indexing, as well, for XSLT file is configured in scope of such a domain.
      * Again this might be handy on migrating from one search engine to another.
      *
-     * @param string $serviceDomain name of a search engine's domain
-     * @return \Zend_Config
+     * @param null|string $serviceDomain name of a search engine's domain
+     * @return Zend_Config
      */
     public static function getDomainConfiguration($serviceDomain = null)
     {
         $serviceDomain = Service::getQualifiedDomain($serviceDomain);
 
         $config = static::getConfiguration()->get($serviceDomain);
-        if (! ( $config instanceof \Zend_Config )) {
-            throw new \InvalidArgumentException('invalid search engine domain: ' . $serviceDomain);
+        if (! $config instanceof Zend_Config) {
+            throw new InvalidArgumentException('invalid search engine domain: ' . $serviceDomain);
         }
 
         // adopt all basically deprecated non-service-related configuration
@@ -121,11 +139,10 @@ class Config
      * @note Default service is retrieved if explicitly selected name of service
      *       is missing. This enables code to request any special service by
      *       name without caring for meeting proper configuration.
-     *
-     * @param string $serviceType one of Opus_Search_Service::SERVICE_TYPE_* constants
-     * @param string $serviceName name of service, omit for 'default'
-     * @param string $serviceDomain name of domain selected service belongs to
-     * @return \Zend_Config
+     * @param string      $serviceType one of Opus_Search_Service::SERVICE_TYPE_* constants
+     * @param null|string $serviceName name of service, omit for 'default'
+     * @param null|string $serviceDomain name of domain selected service belongs to
+     * @return Zend_Config
      */
     public static function getServiceConfiguration($serviceType, $serviceName = null, $serviceDomain = null)
     {
@@ -138,7 +155,6 @@ class Config
         if (array_key_exists($hash, self::$configurationsPool)) {
             return self::$configurationsPool[$hash];
         }
-
 
         // get domain configuration (e.g. all options with prefix searchengine.solr.*)
         $config = static::getDomainConfiguration($serviceDomain);
@@ -153,7 +169,7 @@ class Config
         // configuration to get a flattened set of configuration parameters
         // transparently supporting fallback options (starting with generic
         // parameters to be overwritten by more specific ones)
-        $result = new \Zend_Config($base, true);
+        $result = new Zend_Config($base, true);
 
         // most generic:
         // -> searchengine.solr.default.*
@@ -163,7 +179,7 @@ class Config
 
         // specific to current service, but still common:
         // -> searchengine.solr.<service-name>.*
-        if ($serviceName && $serviceName != 'default') {
+        if ($serviceName && $serviceName !== 'default') {
             if (isset($config->{$serviceName})) {
                 $result->merge($config->{$serviceName});
             }
@@ -183,7 +199,7 @@ class Config
 
         // merge with most specific options of any service explicitly requested
         // by name
-        if ($serviceName && $serviceName != 'default') {
+        if ($serviceName && $serviceName !== 'default') {
             // common to every type of service in scope of service requested by name
             // -> searchengine.solr.<service-name>.service.default.*
             if (isset($config->{$serviceName}->service->default)) {
@@ -197,11 +213,9 @@ class Config
             }
         }
 
-
         // finally adopt all basically deprecated service-related configuration
         // (old-style options are thus always preferred over any new-style ones)
         $result = static::mergeWithDeprecatedServiceConfiguration($result, $serviceType);
-
 
         $result->setReadOnly();
 
@@ -214,22 +228,20 @@ class Config
      * Transparently adopts configuration used in previous releases of Opus4
      * working with Apache's SolrPhpClient.
      *
-     * @param \Zend_Config $unqualified
-     * @return \Zend_Config
+     * @return Zend_Config
      */
-    protected static function mergeWithDeprecatedDomainConfiguration(\Zend_Config $unqualified)
+    protected static function mergeWithDeprecatedDomainConfiguration(Zend_Config $unqualified)
     {
-        $config = \Opus\Config::get();
+        $config = OpusConfig::get();
 
         if ($unqualified->readOnly()) {
             // create writable copy of provided unqualified configuration
-            $qualified = new \Zend_Config([], true);
+            $qualified = new Zend_Config([], true);
             $qualified->merge($unqualified);
         } else {
             // adjust provided instance directly
             $qualified = $unqualified;
         }
-
 
         // merge it with non-service-related setup, only
 
@@ -242,7 +254,7 @@ class Config
         // configuration to support different XSLT transformations per
         // service
         if (isset($config->searchengine->solr->xsltfile)) {
-            $qualified->merge(new \Zend_Config(
+            $qualified->merge(new Zend_Config(
                 ['default' => ['service' => ['default' => ['xsltfile' => $config->searchengine->solr->xsltfile]]]]
             ));
         }
@@ -251,24 +263,22 @@ class Config
         // searchengine.solr.parameterDefault.rows to introduce more
         // intuitive support for configuring defaults of query parameters
         if (isset($config->searchengine->solr->numberOfDefaultSearchResults)) {
-            $qualified->merge(new \Zend_Config(
+            $qualified->merge(new Zend_Config(
                 ['parameterDefaults' => ['rows' => $config->searchengine->solr->numberOfDefaultSearchResults]]
             ));
         }
 
-
         return $qualified;
     }
-
 
     /**
      * Transparently adopts configuration used in previous releases of Opus4
      * working with Apache's SolrPhpClient.
      *
-     * @param \Zend_Config $unqualified
-     * @return \Zend_Config
+     * @param string $serviceType
+     * @return Zend_Config
      */
-    protected static function mergeWithDeprecatedServiceConfiguration(\Zend_Config $unqualified, $serviceType)
+    protected static function mergeWithDeprecatedServiceConfiguration(Zend_Config $unqualified, $serviceType)
     {
         $deprecatedType = null;
 
@@ -285,37 +295,36 @@ class Config
                 return $unqualified;
         }
 
-
-        $config = \Opus\Config::get();
+        $config = OpusConfig::get();
 
         if ($unqualified->readOnly()) {
             // create writable copy of provided unqualified configuration
-            $qualified = new \Zend_Config([], true);
+            $qualified = new Zend_Config([], true);
             $qualified->merge($unqualified);
         } else {
             // adjust provided instance directly
             $qualified = $unqualified;
         }
 
-
         // searchengine.{index,extract}.host
         // searchengine.{index,extract}.port
         // searchengine.{index,extract}.app
         if (isset($config->searchengine->{$deprecatedType}->host)) {
             // ensure to drop multiple new-style endpoint configurations
-            $options = [ 'primary' => [
-                'host' => $config->searchengine->{$deprecatedType}->host,
-                'port' => $config->searchengine->{$deprecatedType}->port,
-                'path' => '/' . ltrim($config->searchengine->{$deprecatedType}->app, '/')
-            ] ];
+            $options = [
+                'primary' => [
+                    'host' => $config->searchengine->{$deprecatedType}->host,
+                    'port' => $config->searchengine->{$deprecatedType}->port,
+                    'path' => '/' . ltrim($config->searchengine->{$deprecatedType}->app, '/'),
+                ],
+            ];
 
             if (isset($config->searchengine->{$deprecatedType}->timeout)) {
                 $options['primary']['timeout'] = $config->searchengine->{$deprecatedType}->timeout;
             }
 
-            $qualified->endpoint = new \Zend_Config($options);
+            $qualified->endpoint = new Zend_Config($options);
         }
-
 
         return $qualified;
     }
@@ -326,30 +335,29 @@ class Config
      * @note Provided name enables use of different sets. Processing
      *       configuration is backward compatible with previous sort of unnamed
      *       configurations.
-     *
-     * @param string $facetSetName name of configured facets set
-     * @param string $serviceDomain name of domain to read configuration of
+     * @param null|string $facetSetName name of configured facets set
+     * @param null|string $serviceDomain name of domain to read configuration of
      * @return string[] probably empty set of found field names to use in faceted search
-     * @throws \Zend_Config_Exception
+     * @throws Zend_Config_Exception
      */
     public static function getFacetNames($facetSetName = null, $serviceDomain = null)
     {
-        $facetSetName = is_null($facetSetName) ? 'default' : trim($facetSetName);
+        $facetSetName = $facetSetName === null ? 'default' : trim($facetSetName);
         if (! $facetSetName) {
-            throw new \InvalidArgumentException('invalid facet set name');
+            throw new InvalidArgumentException('invalid facet set name');
         }
 
         $config = static::getDomainConfiguration($serviceDomain)->get('facets');
 
-        if ($config instanceof \Zend_Config) {
+        if ($config instanceof Zend_Config) {
             // BEST: use configuration in searchengine.solr.facets.$facetSetName
             $sub = $facetSetName ? $config->get($facetSetName) : null;
-            if (! ( $sub instanceof \Zend_Config )) {
+            if (! $sub instanceof Zend_Config) {
                 // BETTER: use fallback configuration in searchengine.solr.facets.default
                 $sub = $config->get('default');
             }
 
-            if ($sub instanceof \Zend_Config) {
+            if ($sub instanceof Zend_Config) {
                 $config = $sub;
             }
             // ELSE: GOOD: use downward-compatible searchengine.solr.facets
@@ -379,27 +387,35 @@ class Config
         return $set;
     }
 
+    /**
+     * @param string|null $facetSetName
+     * @param string|null $serviceDomain
+     * @return array|string[]
+     * @throws Zend_Config_Exception
+     */
     public static function getFacetFields($facetSetName = null, $serviceDomain = null)
     {
         $names = self::getFacetNames($facetSetName, $serviceDomain);
 
-        $config = \Opus\Config::get();
+        $config = OpusConfig::get();
 
         // Map facet names to configured index fields
-        $fields = array_map(function ($name) use ($config) {
+        return array_map(function ($name) use ($config) {
             if (isset($config->search->facet->$name->indexField)) {
                 return $config->search->facet->$name->indexField;
             } else {
                 return $name;
             }
         }, $names);
-
-        return $fields;
     }
 
+    /**
+     * @param array $facets
+     * @return array
+     */
     protected static function mapFacetFields($facets)
     {
-        $config = \Opus\Config::get();
+        $config = OpusConfig::get();
 
         $fields = [];
 
@@ -418,24 +434,24 @@ class Config
      * Delivers map of configured facet fields into related limit of matches to
      * obey on faceted search.
      *
-     * @param string [$facetSetName] name of particular facet set
-     * @param string [$serviceDomain] name of searchengine domain, omit for default ("solr")
+     * @param string|null $facetSetName name of particular facet set
+     * @param string|null $serviceDomain name of searchengine domain, omit for default ("solr")
      * @return array array mapping field names into count limits (integers)
      */
     public static function getFacetLimits($facetSetName = null, $serviceDomain = null)
     {
-        $facetSetName = is_null($facetSetName) ? 'default' : trim($facetSetName);
+        $facetSetName = $facetSetName === null ? 'default' : trim($facetSetName);
         if (! $facetSetName) {
-            throw new \InvalidArgumentException('invalid facet set name');
+            throw new InvalidArgumentException('invalid facet set name');
         }
 
         // TODO consolidate configuraton
-        $config = static::getDomainConfiguration($serviceDomain);
-        $searchConfig = \Opus\Config::get()->search; // new search configuration
+        $config       = static::getDomainConfiguration($serviceDomain);
+        $searchConfig = OpusConfig::get()->search; // new search configuration
         if ($searchConfig && isset($searchConfig->facet->default)) {
             $defaultOptions = $searchConfig->facet->default;
         } else {
-            $defaultOptions = new \Zend_Config([]);
+            $defaultOptions = new Zend_Config([]);
         }
 
         // get configured limits from configuration
@@ -444,7 +460,7 @@ class Config
         $globalLimit = (int) $defaultOptions->get('limit', $globalLimit);
 
         $set = [
-            '__global__' => $globalLimit
+            '__global__' => $globalLimit,
         ];
 
         $fields = static::getFacetNames($facetSetName, $serviceDomain);
@@ -463,7 +479,7 @@ class Config
             if ($facetConfig) {
                 foreach ($facetConfig as $name => $options) {
                     $limit = $options->get('limit');
-                    if (! is_null($limit)) {
+                    if ($limit !== null) {
                         $set[$name] = $limit;
                     }
                 }
@@ -483,56 +499,57 @@ class Config
      * only, but requires either field to be given in searchengine.solr.sortcrit
      * additionally assigning special value there.
      *
-     * @param string $facetSetName requests to fetch one of more probably configured facet field sets
+     * @param null|string $facetSetName requests to fetch one of more probably configured facet field sets
      *        (e.g. to have different sets per request purpose)
-     * @param string $serviceDomain name of service domain, omit for default ("solr")
+     * @param null|string $serviceDomain name of service domain, omit for default ("solr")
      * @return array map of field names into string "index"
-     * @throws \Zend_Config_Exception
+     * @throws Zend_Config_Exception
      */
     public static function getFacetSorting($facetSetName = null, $serviceDomain = null)
     {
-        $facetSetName = is_null($facetSetName) ? 'default' : trim($facetSetName);
+        $facetSetName = $facetSetName === null ? 'default' : trim($facetSetName);
         if (! $facetSetName) {
-            throw new \InvalidArgumentException('invalid facet set name');
+            throw new InvalidArgumentException('invalid facet set name');
         }
 
-        $fields = static::getFacetNames($facetSetName, $serviceDomain);
-        $config = static::getDomainConfiguration($serviceDomain)->get('sortcrit', null);
-        $searchConfig = \Opus\Config::get()->search; // TODO new configuration (consolidate with old above)
+        $fields       = static::getFacetNames($facetSetName, $serviceDomain);
+        $config       = static::getDomainConfiguration($serviceDomain)->get('sortcrit', null);
+        $searchConfig = OpusConfig::get()->search; // TODO new configuration (consolidate with old above)
 
-        if ($searchConfig && isset($searchConfig->facet->default->sort)
-                && $searchConfig->facet->default->sort == 'lexi') {
+        if (
+            $searchConfig && isset($searchConfig->facet->default->sort)
+                && $searchConfig->facet->default->sort === 'lexi'
+        ) {
             $defaultSort = 'lexi';
         } else {
             $defaultSort = null;
         }
 
-
-        if ($config instanceof \Zend_Config) {
+        if ($config instanceof Zend_Config) {
             // BEST: try configuration in searchengine.solr.sortcrit.$facetSetName
             $sub = $config->get($facetSetName);
-            if (! ( $sub instanceof \Zend_Config )) {
+            if (! $sub instanceof Zend_Config) {
                 // BETTER: use fallback configuration in searchengine.solr.sortcrit.default
                 $sub = $config->get('default');
             }
 
-            if ($sub instanceof \Zend_Config) {
+            if ($sub instanceof Zend_Config) {
                 $config = $sub;
             }
             // ELSE: GOOD: use downward-compatible configuration in searchengine.solr.sortcrit
         }
 
-        if ($config && ! ( $config instanceof \Zend_Config )) {
-            throw new \Zend_Config_Exception('invalid facet sorting configuration');
+        if ($config && ! $config instanceof Zend_Config) {
+            throw new Zend_Config_Exception('invalid facet sorting configuration');
         }
 
         $set = [];
 
         if (count($fields) && $config) {
             foreach ($fields as $field) {
-                if ($config->get($field) == 'lexi') {
+                if ($config->get($field) === 'lexi') {
                     $set[$field] = 'index';
-                } elseif ($config->get($field) !== 'count' && $defaultSort == 'lexi') {
+                } elseif ($config->get($field) !== 'count' && $defaultSort === 'lexi') {
                     $set[$field] = 'index';
                 }
             }
@@ -544,9 +561,9 @@ class Config
             if ($facetConfig) {
                 foreach ($facetConfig as $name => $options) {
                     $sortCrit = $options->get('sort');
-                    if ($sortCrit == 'lexi') {
+                    if ($sortCrit === 'lexi') {
                         $set[$name] = 'index';
-                    } elseif ($sortCrit == 'count') {
+                    } elseif ($sortCrit === 'count') {
                         unset($set[$name]);
                     }
                 }
@@ -558,11 +575,15 @@ class Config
         return $set;
     }
 
+    /**
+     * @return array|string[]
+     * @throws Zend_Db_Select_Exception
+     */
     public static function getEnrichmentFacets()
     {
         $names = EnrichmentKey::getKeys();
 
-        $config = \Opus\Config::get();
+        $config = OpusConfig::get();
 
         if (isset($config->search->facet)) {
             $facetConfiguration = $config->search->facet;
@@ -588,6 +609,9 @@ class Config
         return $facets;
     }
 
+    /**
+     * @param string $name
+     */
     public static function getEnrichmentConfig($name)
     {
     }

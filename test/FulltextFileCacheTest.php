@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,8 +26,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -38,9 +37,12 @@ use Opus\File;
 use Opus\Search\FulltextFileCache;
 use OpusTest\Search\TestAsset\TestCase;
 
+use function file_exists;
+
+use const DIRECTORY_SEPARATOR;
+
 class FulltextFileCacheTest extends TestCase
 {
-
     public function tearDown()
     {
         $this->clearFiles();
@@ -53,8 +55,8 @@ class FulltextFileCacheTest extends TestCase
         $doc = Document::new();
         $doc->setServerState('published');
 
-        $fulltextDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'TestAsset' .
-            DIRECTORY_SEPARATOR . 'fulltexts' . DIRECTORY_SEPARATOR;
+        $fulltextDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'TestAsset'
+        . DIRECTORY_SEPARATOR . 'fulltexts' . DIRECTORY_SEPARATOR;
 
         $fileName = 'test.pdf';
 
@@ -68,8 +70,8 @@ class FulltextFileCacheTest extends TestCase
         $name = FulltextFileCache::getCacheFileName($file);
 
         $this->assertContains(
-            'solr_cache---1ba50dc8abc619cea3ba39f77c75c0fe' .
-            '-f87dffb1d8f33844154e214711674407e2493e6188b1411481e6a38fe071064e.txt',
+            'solr_cache---1ba50dc8abc619cea3ba39f77c75c0fe'
+            . '-f87dffb1d8f33844154e214711674407e2493e6188b1411481e6a38fe071064e.txt',
             $name
         );
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,56 +26,65 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Solr\Document;
 
+use DOMDocument;
+use Exception as PhpException;
+use Opus\Common\Config;
 use Opus\Document;
 use Opus\File;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
-use Opus\Search\Exception;
 use Opus\Search\Log;
 use Opus\Search\MimeTypeNotSupportedException;
+use Opus\Search\SearchException;
 use Opus\Search\Service;
 use Opus\Storage\StorageException;
+use Zend_Config;
 
-abstract class Base
+use function array_filter;
+use function count;
+use function filter_var;
+use function iconv;
+use function trim;
+
+use const FILTER_VALIDATE_BOOLEAN;
+
+abstract class AbstractSolrDocumentBase
 {
-
-    public function __construct(\Zend_Config $options)
+    public function __construct(Zend_Config $options)
     {
     }
 
     /**
      * Retrieves XML describing model data of provided Opus document.
      *
-     * @param Document $opusDoc
-     * @return \DOMDocument
+     * @return DOMDocument
      */
     protected function getModelXml(Document $opusDoc)
     {
         // Set up caching xml-model and get XML representation of document.
-        $caching_xml_model = new Xml();
-        $caching_xml_model->setModel($opusDoc);
-        $caching_xml_model->excludeEmptyFields();
-        $caching_xml_model->setStrategy(new Version1());
+        $cachingXmlModel = new Xml();
+        $cachingXmlModel->setModel($opusDoc);
+        $cachingXmlModel->excludeEmptyFields();
+        $cachingXmlModel->setStrategy(new Version1());
         $cache = new Cache(false);
-        $caching_xml_model->setXmlCache($cache);
+        $cachingXmlModel->setXmlCache($cache);
 
-        $modelXml = $caching_xml_model->getDomDocument();
+        $modelXml = $cachingXmlModel->getDomDocument();
 
-        $config = \Opus\Config::get();
+        $config = Config::get();
 
         // extract fulltext from file and append it to the generated xml.
-        if (! isset($config->search->indexFiles)
-            || filter_var($config->search->indexFiles, FILTER_VALIDATE_BOOLEAN)) {
+        if (
+            ! isset($config->search->indexFiles)
+            || filter_var($config->search->indexFiles, FILTER_VALIDATE_BOOLEAN)
+        ) {
             $this->attachFulltextToXml($modelXml, $opusDoc->getFile(), $opusDoc->getId());
         }
 
@@ -84,17 +94,15 @@ abstract class Base
     /**
      * Appends fulltext data of every listen file to provided XML document.
      *
-     * @param \DomDocument $modelXml
-     * @param File[] $files
-     * @param string $docId ID of document
-     * @return void
+     * @param DOMDocument $modelXml
+     * @param File[]      $files
+     * @param string      $docId ID of document
      */
     private function attachFulltextToXml($modelXml, $files, $docId)
     {
-
         // get root element of XML document containing document's information
         $docXml = $modelXml->getElementsByTagName('Opus_Document')->item(0);
-        if (is_null($docXml)) {
+        if ($docXml === null) {
             Log::get()->warn(
                 'An error occurred while attaching fulltext information to the xml for document with id '
                 . $docId
@@ -103,8 +111,8 @@ abstract class Base
         }
 
         // only consider files which are visible in frontdoor
+        /** @var File $file */
         $files = array_filter($files, function ($file) {
-            /** @var File $file */
             return $file->getVisibleInFrontdoor() === '1';
         });
 
@@ -116,10 +124,10 @@ abstract class Base
 
         $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'true'));
 
-        // fetch reference on probably separate service for extracting fulltext data
+    // fetch reference on probably separate service for extracting fulltext data
         $extractingService = Service::selectExtractingService();
 
-        // extract fulltext data for every file left in set after filtering before
+    // extract fulltext data for every file left in set after filtering before
         foreach ($files as $file) {
             $fulltext = '';
 
@@ -128,22 +136,22 @@ abstract class Base
                 $fulltext = trim(iconv("UTF-8", "UTF-8//IGNORE", $fulltext));
             } catch (MimeTypeNotSupportedException $e) {
                 Log::get()->err(
-                    'An error occurred while getting fulltext data for document with id ' . $docId . ': ' .
-                    $e->getMessage()
+                    'An error occurred while getting fulltext data for document with id ' . $docId . ': '
+                    . $e->getMessage()
                 );
             } catch (StorageException $e) {
                 Log::get()->err(
                     'Failed accessing file for extracting fulltext for document with id ' . $docId . ': '
                     . $e->getMessage()
                 );
-            } catch (Exception $e) {
+            } catch (SearchException $e) {
                 Log::get()->err(
-                    'An error occurred while getting fulltext data for document with id ' . $docId . ': ' .
-                    $e->getMessage()
+                    'An error occurred while getting fulltext data for document with id ' . $docId . ': '
+                    . $e->getMessage()
                 );
             }
 
-            if ($fulltext != '') {
+            if ($fulltext !== '') {
                 $element = $modelXml->createElement('Fulltext_Index');
                 $element->appendChild($modelXml->createCDATASection($fulltext));
                 $docXml->appendChild($element);
@@ -160,8 +168,6 @@ abstract class Base
     }
 
     /**
-     *
-     * @param File $file
      * @return string
      */
     private function getFulltextHash(File $file)
@@ -170,19 +176,18 @@ abstract class Base
 
         try {
             $hash = $file->getRealHash('md5');
-        } catch (\Exception $e) {
+        } catch (PhpException $e) {
             Log::get()->err('could not compute MD5 hash for ' . $file->getPath() . ' : ' . $e);
         }
 
         return $file->getId() . ':' . $hash;
     }
 
-
     /*
-	 *
-	 * --- abstract part of API ---
-	 *
-	 */
+     *
+     * --- abstract part of API ---
+     *
+     */
 
     /**
      * Derives Solr-compatible description of document from provided Opus
@@ -191,8 +196,6 @@ abstract class Base
      * @note Parameter $solrDoc must pass reference on object providing proper
      *       API for describing Solr-compatible document. On return the same
      *       reference is returned.
-     *
-     * @param Document $opusDoc
      * @param mixed $solrDoc depends on derived implementation
      * @return mixed reference provided in parameter $solrDoc
      */

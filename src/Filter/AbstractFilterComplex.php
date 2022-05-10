@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,15 +26,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Filter;
 
-use Opus\Search\Filtering;
+use Opus\Search\FilteringInterface;
 
 /**
  * Describes complex term describing union or intersection of several contained
@@ -43,9 +42,8 @@ use Opus\Search\Filtering;
  * actually used search engine.
  */
 
-abstract class Complex extends Base
+abstract class AbstractFilterComplex extends AbstractFilterBase
 {
-
     protected $negated = false;
 
     protected $union = false;
@@ -53,25 +51,25 @@ abstract class Complex extends Base
     /**
      * Lists conditions of current filter.
      *
-     * @var Filtering[]
+     * @var FilteringInterface[]
      */
     protected $conditions = [];
-
-
 
     /**
      * Adds provided condition to current filter.
      *
-     * @param Filtering $filter
      * @return $this
      */
-    public function addFilter(Filtering $filter)
+    public function addFilter(FilteringInterface $filter)
     {
         $this->conditions[] = $filter;
 
         return $this;
     }
 
+    /**
+     * @return static
+     */
     public function createComplexFilter()
     {
         return new static();
@@ -81,8 +79,8 @@ abstract class Complex extends Base
      * Creates (and adds) another simple filter term.
      *
      * @param string $fieldName name of field simple filter applies on
-     * @param mixed $operator one out of Opus_Search_Filter_Simple::COMPARE_* constants
-     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @param mixed  $operator one out of Opus_Search_Filter_Simple::COMPARE_* constants
+     * @param bool   $addImplicitly true for adding simple term to current complex term implicitly
      * @return Simple
      */
     public function createSimpleFilter($fieldName, $operator, $addImplicitly = true)
@@ -101,7 +99,7 @@ abstract class Complex extends Base
      * given field.
      *
      * @param string $fieldName name of field simple filter applies on
-     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @param bool   $addImplicitly true for adding simple term to current complex term implicitly
      * @return Simple
      */
     public function createSimpleEqualityFilter($fieldName, $addImplicitly = true)
@@ -114,7 +112,7 @@ abstract class Complex extends Base
      * given field.
      *
      * @param string $fieldName name of field simple filter applies on
-     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @param bool   $addImplicitly true for adding simple term to current complex term implicitly
      * @return Simple
      */
     public function createSimpleInequalityFilter($fieldName, $addImplicitly = true)
@@ -127,7 +125,7 @@ abstract class Complex extends Base
      * given field.
      *
      * @param string $fieldName name of field simple filter applies on
-     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @param bool   $addImplicitly true for adding simple term to current complex term implicitly
      * @return Simple
      */
     public function createSimpleSimilarityFilter($fieldName, $addImplicitly = true)
@@ -140,7 +138,7 @@ abstract class Complex extends Base
      * limit on given field.
      *
      * @param string $fieldName name of field simple filter applies on
-     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @param bool   $addImplicitly true for adding simple term to current complex term implicitly
      * @return Simple
      */
     public function createSimpleLessFilter($fieldName, $addImplicitly = true)
@@ -153,7 +151,7 @@ abstract class Complex extends Base
      * limit on given field.
      *
      * @param string $fieldName name of field simple filter applies on
-     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @param bool   $addImplicitly true for adding simple term to current complex term implicitly
      * @return Simple
      */
     public function createSimpleLessOrEqualFilter($fieldName, $addImplicitly = true)
@@ -166,7 +164,7 @@ abstract class Complex extends Base
      * limit on given field.
      *
      * @param string $fieldName name of field simple filter applies on
-     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @param bool   $addImplicitly true for adding simple term to current complex term implicitly
      * @return Simple
      */
     public function createSimpleGreaterFilter($fieldName, $addImplicitly = true)
@@ -179,7 +177,7 @@ abstract class Complex extends Base
      * limit on given field.
      *
      * @param string $fieldName name of field simple filter applies on
-     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @param bool   $addImplicitly true for adding simple term to current complex term implicitly
      * @return Simple
      */
     public function createSimpleGreaterOrEqualFilter($fieldName, $addImplicitly = true)
@@ -231,7 +229,6 @@ abstract class Complex extends Base
      * Indicates if filter is describing union of sets matching conditions.
      *
      * @note This is false if filter is describing intersection of those sets.
-     *
      * @return bool
      */
     public function isRequestingUnion()
@@ -251,7 +248,7 @@ abstract class Complex extends Base
     }
 
     /**
-     * @return Filtering[]
+     * @return FilteringInterface[]
      */
     public function getConditions()
     {

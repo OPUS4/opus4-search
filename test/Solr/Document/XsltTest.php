@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,23 +26,25 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Search\Solr\Document;
 
+use DOMDocument;
+use DOMXPath;
 use Opus\Date;
+use Opus\Document;
 use Opus\Search\Config;
 use Opus\Search\Solr\Document\Xslt;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
+use function preg_match;
+use function simplexml_import_dom;
+
 class XsltTest extends DocumentBasedTestCase
 {
-
     public function createConverter()
     {
         $converter = new Xslt(Config::getDomainConfiguration('solr'));
@@ -50,14 +53,14 @@ class XsltTest extends DocumentBasedTestCase
     public function testArticleConversion()
     {
         $document = $this->createDocument('article');
-        $this->assertInstanceOf('Opus\Document', $document);
+        $this->assertInstanceOf(Document::class, $document);
 
         $converter = new Xslt(Config::getDomainConfiguration('solr'));
-        $solr = $converter->toSolrDocument($document, new \DOMDocument());
+        $solr      = $converter->toSolrDocument($document, new DOMDocument());
 
         $this->assertInstanceOf('DOMDocument', $solr);
 
-        $xpath = new \DOMXPath($solr);
+        $xpath  = new DOMXPath($solr);
         $simple = simplexml_import_dom($solr);
 
         $this->assertEquals('add', $simple->getName());
@@ -67,9 +70,9 @@ class XsltTest extends DocumentBasedTestCase
         $container = $xpath->query('/add/doc');
         $this->assertEquals(1, $container->length);
 
-        $allFields = $xpath->query('/add/doc/field');
+        $allFields   = $xpath->query('/add/doc/field');
         $namedFields = $xpath->query('/add/doc/field[@name]');
-        $this->assertTrue($allFields->length == $namedFields->length);
+        $this->assertTrue($allFields->length === $namedFields->length);
 
         $field = $xpath->query('/add/doc/field[@name="id"]');
         $this->assertEquals(1, $field->length);
@@ -187,14 +190,14 @@ class XsltTest extends DocumentBasedTestCase
     public function testBookConversion()
     {
         $document = $this->createDocument('book');
-        $this->assertInstanceOf('Opus\Document', $document);
+        $this->assertInstanceOf(Document::class, $document);
 
         $converter = new Xslt(Config::getDomainConfiguration('solr'));
-        $solr = $converter->toSolrDocument($document, new \DOMDocument());
+        $solr      = $converter->toSolrDocument($document, new DOMDocument());
 
         $this->assertInstanceOf('DOMDocument', $solr);
 
-        $xpath = new \DOMXPath($solr);
+        $xpath  = new DOMXPath($solr);
         $simple = simplexml_import_dom($solr);
 
         $this->assertEquals('add', $simple->getName());
@@ -204,9 +207,9 @@ class XsltTest extends DocumentBasedTestCase
         $container = $xpath->query('/add/doc');
         $this->assertEquals(1, $container->length);
 
-        $allFields = $xpath->query('/add/doc/field');
+        $allFields   = $xpath->query('/add/doc/field');
         $namedFields = $xpath->query('/add/doc/field[@name]');
-        $this->assertTrue($allFields->length == $namedFields->length);
+        $this->assertTrue($allFields->length === $namedFields->length);
 
         $field = $xpath->query('/add/doc/field[@name="id"]');
         $this->assertEquals(1, $field->length);
@@ -327,11 +330,11 @@ class XsltTest extends DocumentBasedTestCase
         $document->store();
 
         $converter = new Xslt(Config::getDomainConfiguration('solr'));
-        $solr = $converter->toSolrDocument($document, new \DOMDocument());
+        $solr      = $converter->toSolrDocument($document, new DOMDocument());
 
         $this->assertInstanceOf('DOMDocument', $solr);
 
-        $xpath = new \DOMXPath($solr);
+        $xpath = new DOMXPath($solr);
 
         $emptyFields = $xpath->query('//field[not(text())]');
 
@@ -341,18 +344,18 @@ class XsltTest extends DocumentBasedTestCase
     public function testConfiguredIndexingOfYearField()
     {
         $document = $this->createDocument('book');
-        $date = new Date();
+        $date     = new Date();
         $date->setNow();
         $document->setPublishedDate($date);
         $document->setPublishedYear(2010);
         $document->store();
 
         $converter = new Xslt(Config::getDomainConfiguration('solr'));
-        $solr = $converter->toSolrDocument($document, new \DOMDocument());
+        $solr      = $converter->toSolrDocument($document, new DOMDocument());
 
         $this->assertInstanceOf('DOMDocument', $solr);
 
-        $xpath = new \DOMXPath($solr);
+        $xpath = new DOMXPath($solr);
     }
 
     public function testIndexYearDefaultConfig()
@@ -383,9 +386,15 @@ class XsltTest extends DocumentBasedTestCase
         Xslt::setYearOrder(null);
 
         $this->adjustConfiguration([
-            'search' => ['index' => ['field' => ['year' => [
-                'order' => 'PublishedDate,PublishedYear,CompletedDate,CompletedYear'
-            ]]]]
+            'search' => [
+                'index' => [
+                    'field' => [
+                        'year' => [
+                            'order' => 'PublishedDate,PublishedYear,CompletedDate,CompletedYear',
+                        ],
+                    ],
+                ],
+            ],
         ]);
 
         $this->assertEquals(

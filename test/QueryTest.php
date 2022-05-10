@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,21 +26,21 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 namespace OpusTest\Search;
 
+use InvalidArgumentException;
 use Opus\Search\Query;
 use OpusTest\Search\TestAsset\TestCase;
 
+use function array_merge;
+use function preg_replace;
+
 class QueryTest extends TestCase
 {
-
     public function testInitiallyEmpty()
     {
         $query = new Query();
@@ -85,16 +86,24 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidScalarSettings
      */
     public function testSupportingImplicitScalarSetterValid($value, $property, $method, $expecting)
     {
-        $query = new Query();
+        $query              = new Query();
         $query->{$property} = $value;
         $this->assertEquals($expecting, $query->{$property});
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidScalarSettings
      */
     public function testSupportingExplicitScalarSetterValid($value, $property, $method, $expecting)
@@ -108,27 +117,38 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidScalarSettings
      */
     public function testSupportingScalarSetterMethodValid($value, $property, $method, $expecting)
     {
         $query = new Query();
-        $query->{$method}( $value );
+        $query->{$method}($value);
         $this->assertEquals($expecting, $query->get($property));
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidScalarSettings
      */
     public function testSupportingExplicitScalarSetterValidRejectToAdd($value, $property, $method, $expecting)
     {
         $query = new Query();
+        $this->expectException(InvalidArgumentException::class);
         $query->set($property, $value, true);
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidScalarSettings
      */
     public function testSupportingScalarSetterMethodValidRejectToAdd($value, $property, $method, $expecting)
@@ -136,108 +156,129 @@ class QueryTest extends TestCase
         $method = preg_replace('/^set/', 'add', $method);
 
         $query = new Query();
-        $query->{$method}( $value );
+        $this->expectException(InvalidArgumentException::class);
+        $query->{$method}($value);
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidScalarSettings
      */
     public function testSupportingImplicitScalarSetterInvalid($value, $property, $method)
     {
         $query = new Query();
+        $this->expectException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidScalarSettings
      */
     public function testSupportingExplicitScalarSetterInvalid($value, $property, $method)
     {
         $query = new Query();
+        $this->expectException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidScalarSettings
      */
     public function testSupportingScalarSetterMethodInvalid($value, $property, $method)
     {
         $query = new Query();
-        $query->{$method}( $value );
+        $this->expectException(InvalidArgumentException::class);
+        $query->{$method}($value);
     }
 
+    /**
+     * @return array[]
+     */
     public function provideValidScalarSettings()
     {
         return [
-            [ 0, 'start', 'setStart', 0 ],
-            [ 10, 'start', 'setStart', 10 ],
-            [ 100, 'start', 'setStart', 100 ],
-            [ 1000, 'start', 'setStart', 1000 ],
-            [ 10000, 'start', 'setStart', 10000 ],
-            [ 100000, 'start', 'setStart', 100000 ],
-            [ 1000000, 'start', 'setStart', 1000000 ],
-            [ 10000000, 'start', 'setStart', 10000000 ],
-            [ 100000000, 'start', 'setStart', 100000000 ],
-            [ 1000000000, 'start', 'setStart', 1000000000 ],
-
-            [ 0, 'rows', 'setRows', 0 ],
-            [ 10, 'rows', 'setRows', 10 ],
-            [ 100, 'rows', 'setRows', 100 ],
-            [ 1000, 'rows', 'setRows', 1000 ],
-            [ 10000, 'rows', 'setRows', 10000 ],
-            [ 100000, 'rows', 'setRows', 100000 ],
-            [ 1000000, 'rows', 'setRows', 1000000 ],
-            [ 10000000, 'rows', 'setRows', 10000000 ],
-            [ 100000000, 'rows', 'setRows', 100000000 ],
-            [ 1000000000, 'rows', 'setRows', 1000000000 ],
-
-            [ true, 'union', 'setUnion', true ],
-            [ 1, 'union', 'setUnion', true ],
-            [ "yes", 'union', 'setUnion', true ],
-            [ "no", 'union', 'setUnion', true ],
-            [ [ 1 ], 'union', 'setUnion', true ],
-            [ false, 'union', 'setUnion', false ],
-            [ null, 'union', 'setUnion', false ],
-            [ 0, 'union', 'setUnion', false ],
-            [ "", 'union', 'setUnion', false ],
-        ];
-    }
-
-    public function provideInvalidScalarSettings()
-    {
-        return [
-            [ -10, 'start', 'setStart' ],
-            [ 5.5, 'start', 'setStart' ],
-            [ [ 10 ], 'start', 'setStart' ],
-            [ [], 'start', 'setStart' ],
-            [ "test", 'start', 'setStart' ],
-            [ [ 'test' => 10 ], 'start', 'setStart' ],
-            [ (object) [ 'test' => 10 ], 'start', 'setStart' ],
-
-            [ -10, 'rows', 'setRows' ],
-            [ 5.5, 'rows', 'setRows' ],
-            [ [ 10 ], 'rows', 'setRows' ],
-            [ [], 'rows', 'setRows' ],
-            [ "test", 'rows', 'setRows' ],
-            [ [ 'test' => 10 ], 'rows', 'setRows' ],
-            [ (object) [ 'test' => 10 ], 'rows', 'setRows' ],
+            [0, 'start', 'setStart', 0],
+            [10, 'start', 'setStart', 10],
+            [100, 'start', 'setStart', 100],
+            [1000, 'start', 'setStart', 1000],
+            [10000, 'start', 'setStart', 10000],
+            [100000, 'start', 'setStart', 100000],
+            [1000000, 'start', 'setStart', 1000000],
+            [10000000, 'start', 'setStart', 10000000],
+            [100000000, 'start', 'setStart', 100000000],
+            [1000000000, 'start', 'setStart', 1000000000],
+            [0, 'rows', 'setRows', 0],
+            [10, 'rows', 'setRows', 10],
+            [100, 'rows', 'setRows', 100],
+            [1000, 'rows', 'setRows', 1000],
+            [10000, 'rows', 'setRows', 10000],
+            [100000, 'rows', 'setRows', 100000],
+            [1000000, 'rows', 'setRows', 1000000],
+            [10000000, 'rows', 'setRows', 10000000],
+            [100000000, 'rows', 'setRows', 100000000],
+            [1000000000, 'rows', 'setRows', 1000000000],
+            [true, 'union', 'setUnion', true],
+            [1, 'union', 'setUnion', true],
+            ["yes", 'union', 'setUnion', true],
+            ["no", 'union', 'setUnion', true],
+            [[1], 'union', 'setUnion', true],
+            [false, 'union', 'setUnion', false],
+            [null, 'union', 'setUnion', false],
+            [0, 'union', 'setUnion', false],
+            ["", 'union', 'setUnion', false],
         ];
     }
 
     /**
+     * @return array
+     */
+    public function provideInvalidScalarSettings()
+    {
+        return [
+            [-10, 'start', 'setStart'],
+            [5.5, 'start', 'setStart'],
+            [[10], 'start', 'setStart'],
+            [[], 'start', 'setStart'],
+            ["test", 'start', 'setStart'],
+            [['test' => 10], 'start', 'setStart'],
+            [(object) ['test' => 10], 'start', 'setStart'],
+            [-10, 'rows', 'setRows'],
+            [5.5, 'rows', 'setRows'],
+            [[10], 'rows', 'setRows'],
+            [[], 'rows', 'setRows'],
+            ["test", 'rows', 'setRows'],
+            [['test' => 10], 'rows', 'setRows'],
+            [(object) ['test' => 10], 'rows', 'setRows'],
+        ];
+    }
+
+    /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidFieldsSettings
      */
     public function testSupportingImplicitFieldsSetterValid($value, $property, $method, $expecting)
     {
-        $query = new Query();
+        $query              = new Query();
         $query->{$property} = $value;
         $this->assertEquals($expecting, $query->{$property});
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidFieldsSettings
      */
     public function testSupportingExplicitFieldsSetterValid($value, $property, $method, $expecting)
@@ -251,16 +292,24 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidFieldsSettings
      */
     public function testSupportingFieldsSetterMethodValid($value, $property, $method, $expecting)
     {
         $query = new Query();
-        $query->{$method}( $value );
+        $query->{$method}($value);
         $this->assertEquals($expecting, $query->get($property));
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidFieldsSettings
      */
     public function testSupportingExplicitFieldsSetterValidAdding($value, $property, $method, $expecting)
@@ -268,10 +317,14 @@ class QueryTest extends TestCase
         $query = new Query();
         $query->set($property, 'auto', false);
         $query->set($property, $value, true);
-        $this->assertEquals(array_merge([ 'auto' ], $expecting), $query->get($property));
+        $this->assertEquals(array_merge(['auto'], $expecting), $query->get($property));
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidFieldsSettings
      */
     public function testSupportingFieldsSetterMethodValidAdding($value, $property, $method, $expecting)
@@ -279,97 +332,120 @@ class QueryTest extends TestCase
         $adder = preg_replace('/^set/', 'add', $method);
 
         $query = new Query();
-        $query->{$method}( 'auto' );
-        $query->{$adder}( $value );
-        $this->assertEquals(array_merge([ 'auto' ], $expecting), $query->get($property));
+        $query->{$method}('auto');
+        $query->{$adder}($value);
+        $this->assertEquals(array_merge(['auto'], $expecting), $query->get($property));
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidFieldsSettings
      */
     public function testSupportingImplicitFieldsSetterInvalid($value, $property, $method)
     {
         $query = new Query();
+        $this->expectException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidFieldsSettings
      */
     public function testSupportingExplicitFieldsSetterInvalid($value, $property, $method)
     {
         $query = new Query();
+        $this->expectException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidFieldsSettings
      */
     public function testSupportingFieldsSetterMethodInvalid($value, $property, $method)
     {
         $query = new Query();
-        $query->{$method}( $value );
+        $this->expectException(InvalidArgumentException::class);
+        $query->{$method}($value);
     }
 
+    /**
+     * @return array[]
+     */
     public function provideValidFieldsSettings()
     {
         return [
-            [ '*', 'fields', 'setFields', [ '*' ] ],
-            [ '*,*', 'fields', 'setFields', [ '*' ] ],
-            [ 'a', 'fields', 'setFields', [ 'a' ] ],
-            [ 'a,,', 'fields', 'setFields', [ 'a' ] ],
-            [ ',,a', 'fields', 'setFields', [ 'a' ] ],
-            [ 'a,b', 'fields', 'setFields', [ 'a', 'b' ] ],
-            [ 'a,,b', 'fields', 'setFields', [ 'a', 'b' ] ],
-            [ 'a,a', 'fields', 'setFields', [ 'a' ] ],
-            [ 'ab', 'fields', 'setFields', [ 'ab' ] ],
-            [ 'ab,cd', 'fields', 'setFields', [ 'ab', 'cd' ] ],
-            [ 'abcdefghijklmnopqrstuvwxyzaaabacadaeafagahaiajakalamanaoapaqarasatauavawaxayaz', 'fields', 'setFields', [ 'abcdefghijklmnopqrstuvwxyzaaabacadaeafagahaiajakalamanaoapaqarasatauavawaxayaz' ] ],
-            [ [ '*' ], 'fields', 'setFields', [ '*' ] ],
-            [ [ '*,*' ], 'fields', 'setFields', [ '*' ] ],
-            [ [ 'a' ], 'fields', 'setFields', [ 'a' ] ],
-            [ [ 'a', 'b' ], 'fields', 'setFields', [ 'a', 'b' ] ],
-            [ [ 'a', 'a' ], 'fields', 'setFields', [ 'a' ] ],
-            [ [ 'ab,cd', 'ef' ], 'fields', 'setFields', [ 'ab', 'cd', 'ef' ] ],
-            [ [ ',,ab,,cd,,', 'ef' ], 'fields', 'setFields', [ 'ab', 'cd', 'ef' ] ],
-        ];
-    }
-
-    public function provideInvalidFieldsSettings()
-    {
-        return [
-            [ '', 'fields', 'setFields' ],
-            [ ',', 'fields', 'setFields' ],
-            [ true, 'fields', 'setFields' ],
-            [ false, 'fields', 'setFields' ],
-            [ [], 'fields', 'setFields' ],
-            [ [ '' ], 'fields', 'setFields' ],
-            [ [ [] ], 'fields', 'setFields' ],
-            [ [ [ 'a' ] ], 'fields', 'setFields' ],
-            [ [ 'a', [] ], 'fields', 'setFields' ],
-            [ [ 'a', [ 'b' ] ], 'fields', 'setFields' ],
-            [ null, 'fields', 'setFields' ],
-            [ [ null ], 'fields', 'setFields' ],
-            [ [ [ null ] ], 'fields', 'setFields' ],
-            [ [ null, [ null ] ], 'fields', 'setFields' ],
-            [ [ 'a', null ], 'fields', 'setFields' ],
+            ['*', 'fields', 'setFields', ['*']],
+            ['*,*', 'fields', 'setFields', ['*']],
+            ['a', 'fields', 'setFields', ['a']],
+            ['a,,', 'fields', 'setFields', ['a']],
+            [',,a', 'fields', 'setFields', ['a']],
+            ['a,b', 'fields', 'setFields', ['a', 'b']],
+            ['a,,b', 'fields', 'setFields', ['a', 'b']],
+            ['a,a', 'fields', 'setFields', ['a']],
+            ['ab', 'fields', 'setFields', ['ab']],
+            ['ab,cd', 'fields', 'setFields', ['ab', 'cd']],
+            ['abcdefghijklmnopqrstuvwxyzaaabacadaeafagahaiajakalamanaoapaqarasatauavawaxayaz', 'fields', 'setFields', ['abcdefghijklmnopqrstuvwxyzaaabacadaeafagahaiajakalamanaoapaqarasatauavawaxayaz']],
+            [['*'], 'fields', 'setFields', ['*']],
+            [['*,*'], 'fields', 'setFields', ['*']],
+            [['a'], 'fields', 'setFields', ['a']],
+            [['a', 'b'], 'fields', 'setFields', ['a', 'b']],
+            [['a', 'a'], 'fields', 'setFields', ['a']],
+            [['ab,cd', 'ef'], 'fields', 'setFields', ['ab', 'cd', 'ef']],
+            [[',,ab,,cd,,', 'ef'], 'fields', 'setFields', ['ab', 'cd', 'ef']],
         ];
     }
 
     /**
+     * @return array
+     */
+    public function provideInvalidFieldsSettings()
+    {
+        return [
+            ['', 'fields', 'setFields'],
+            [',', 'fields', 'setFields'],
+            [true, 'fields', 'setFields'],
+            [false, 'fields', 'setFields'],
+            [[], 'fields', 'setFields'],
+            [[''], 'fields', 'setFields'],
+            [[[]], 'fields', 'setFields'],
+            [[['a']], 'fields', 'setFields'],
+            [['a', []], 'fields', 'setFields'],
+            [['a', ['b']], 'fields', 'setFields'],
+            [null, 'fields', 'setFields'],
+            [[null], 'fields', 'setFields'],
+            [[[null]], 'fields', 'setFields'],
+            [[null, [null]], 'fields', 'setFields'],
+            [['a', null], 'fields', 'setFields'],
+        ];
+    }
+
+    /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidSortSettings
      */
     public function testSupportingImplicitSortSetterValid($value, $property, $method, $expecting)
     {
-        $query = new Query();
+        $query              = new Query();
         $query->{$property} = $value;
         $this->assertEquals($expecting, $query->{$property});
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidSortSettings
      */
     public function testSupportingExplicitSortSetterValid($value, $property, $method, $expecting)
@@ -383,16 +459,24 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidSortSettings
      */
     public function testSupportingSortSetterMethodValid($value, $property, $method, $expecting)
     {
         $query = new Query();
-        $query->{$method}( $value );
+        $query->{$method}($value);
         $this->assertEquals($expecting, $query->get($property));
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidSortSettings
      */
     public function testSupportingExplicitSortSetterValidAdding($value, $property, $method, $expecting)
@@ -400,10 +484,14 @@ class QueryTest extends TestCase
         $query = new Query();
         $query->set($property, 'auto', false);
         $query->set($property, $value, true);
-        $this->assertEquals(array_merge([ 'auto' => 'asc' ], $expecting), $query->get($property));
+        $this->assertEquals(array_merge(['auto' => 'asc'], $expecting), $query->get($property));
     }
 
     /**
+     * @param string $value
+     * @param string $property
+     * @param string $method
+     * @param string $expecting
      * @dataProvider provideValidSortSettings
      */
     public function testSupportingSortSetterMethodValidAdding($value, $property, $method, $expecting)
@@ -411,91 +499,110 @@ class QueryTest extends TestCase
         $adder = preg_replace('/^set/', 'add', $method);
 
         $query = new Query();
-        $query->{$method}( 'auto' );
-        $query->{$adder}( $value );
-        $this->assertEquals(array_merge([ 'auto' => 'asc' ], $expecting), $query->get($property));
+        $query->{$method}('auto');
+        $query->{$adder}($value);
+        $this->assertEquals(array_merge(['auto' => 'asc'], $expecting), $query->get($property));
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidSortSettings
      */
     public function testSupportingImplicitSortSetterInvalid($value, $property, $method)
     {
         $query = new Query();
+        $this->expectException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidSortSettings
      */
     public function testSupportingExplicitSortSetterInvalid($value, $property, $method)
     {
         $query = new Query();
+        $this->expectException(InvalidArgumentException::class);
         $query->{$property} = $value;
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @param string $value
+     * @param string $property
+     * @param string $method
      * @dataProvider provideInvalidSortSettings
      */
     public function testSupportingSortSetterMethodInvalid($value, $property, $method)
     {
         $query = new Query();
-        $query->{$method}( $value );
+        $this->expectException(InvalidArgumentException::class);
+        $query->{$method}($value);
     }
 
+    /**
+     * @return array[]
+     */
     public function provideValidSortSettings()
     {
         return [
-            [ 'a', 'sort', 'setSort', [ 'a' => 'asc' ] ],
-            [ 'a,b', 'sort', 'setSort', [ 'a' => 'asc', 'b' => 'asc' ] ],
-            [ 'a,a', 'sort', 'setSort', [ 'a' => 'asc' ] ],
-            [ 'a,b,a', 'sort', 'setSort', [ 'a' => 'asc', 'b' => 'asc' ] ],
-            [ 'a,b,c', 'sort', 'setSort', [ 'a' => 'asc', 'b' => 'asc', 'c' => 'asc' ] ],
-            [ [ 'a' ], 'sort', 'setSort', [ 'a' => 'asc' ] ],
-            [ [ 'a', 'asc' ], 'sort', 'setSort', [ 'a' => 'asc' ] ],
-            [ [ 'a', 'desc' ], 'sort', 'setSort', [ 'a' => 'desc' ] ],
-            [ [ 'a', 'DeSc' ], 'sort', 'setSort', [ 'a' => 'desc' ] ],
-            [ [ 'a', true ], 'sort', 'setSort', [ 'a' => 'asc' ] ],
-            [ [ 'a', false ], 'sort', 'setSort', [ 'a' => 'desc' ] ],
-            [ [ 'a,b' ], 'sort', 'setSort', [ 'a' => 'asc', 'b' => 'asc' ] ],
-            [ [ 'a,b', true ], 'sort', 'setSort', [ 'a' => 'asc', 'b' => 'asc' ] ],
-            [ [ 'a,b', false ], 'sort', 'setSort', [ 'a' => 'desc', 'b' => 'desc' ] ],
-            [ [ [ 'a' ], false ], 'sort', 'setSort', [ 'a' => 'desc' ] ],
-            [ [ [ 'a', 'b' ], false ], 'sort', 'setSort', [ 'a' => 'desc', 'b' => 'desc' ] ],
-            [ [ [ 'a,b' ], false ], 'sort', 'setSort', [ 'a' => 'desc', 'b' => 'desc' ] ],
-            [ [ [ 'a,b', 'c' ], false ], 'sort', 'setSort', [ 'a' => 'desc', 'b' => 'desc', 'c' => 'desc' ] ],
-        ];
-    }
-
-    public function provideInvalidSortSettings()
-    {
-        return [
-            [ '', 'sort', 'setSort' ],
-            [ ',', 'sort', 'setSort' ],
-            [ ' , ,, ', 'sort', 'setSort' ],
-            [ '*', 'sort', 'setSort' ],
-            [ '*,a', 'sort', 'setSort' ],
-            [ 'a,*,b', 'sort', 'setSort' ],
-            [ 'a,*', 'sort', 'setSort' ],
-            [ null, 'sort', 'setSort' ],
-            [ true, 'sort', 'setSort' ],
-            [ false, 'sort', 'setSort' ],
-            [ 1, 'sort', 'setSort' ],
-            [ -5.5, 'sort', 'setSort' ],
-            [ [], 'sort', 'setSort' ],
-            [ [ null ], 'sort', 'setSort' ],
-            [ [ '*' ], 'sort', 'setSort' ],
-            [ [ 'a', 'b' ], 'sort', 'setSort' ],
-            [ [ [] ], 'sort', 'setSort' ],
-            [ [ [ '*' ] ], 'sort', 'setSort' ],
-            [ [ [ [ 'a,b' ] ] ], 'sort', 'setSort' ],
+            ['a', 'sort', 'setSort', ['a' => 'asc']],
+            ['a,b', 'sort', 'setSort', ['a' => 'asc', 'b' => 'asc']],
+            ['a,a', 'sort', 'setSort', ['a' => 'asc']],
+            ['a,b,a', 'sort', 'setSort', ['a' => 'asc', 'b' => 'asc']],
+            ['a,b,c', 'sort', 'setSort', ['a' => 'asc', 'b' => 'asc', 'c' => 'asc']],
+            [['a'], 'sort', 'setSort', ['a' => 'asc']],
+            [['a', 'asc'], 'sort', 'setSort', ['a' => 'asc']],
+            [['a', 'desc'], 'sort', 'setSort', ['a' => 'desc']],
+            [['a', 'DeSc'], 'sort', 'setSort', ['a' => 'desc']],
+            [['a', true], 'sort', 'setSort', ['a' => 'asc']],
+            [['a', false], 'sort', 'setSort', ['a' => 'desc']],
+            [['a,b'], 'sort', 'setSort', ['a' => 'asc', 'b' => 'asc']],
+            [['a,b', true], 'sort', 'setSort', ['a' => 'asc', 'b' => 'asc']],
+            [['a,b', false], 'sort', 'setSort', ['a' => 'desc', 'b' => 'desc']],
+            [[['a'], false], 'sort', 'setSort', ['a' => 'desc']],
+            [[['a', 'b'], false], 'sort', 'setSort', ['a' => 'desc', 'b' => 'desc']],
+            [[['a,b'], false], 'sort', 'setSort', ['a' => 'desc', 'b' => 'desc']],
+            [[['a,b', 'c'], false], 'sort', 'setSort', ['a' => 'desc', 'b' => 'desc', 'c' => 'desc']],
         ];
     }
 
     /**
+     * @return array
+     */
+    public function provideInvalidSortSettings()
+    {
+        return [
+            ['', 'sort', 'setSort'],
+            [',', 'sort', 'setSort'],
+            [' , ,, ', 'sort', 'setSort'],
+            ['*', 'sort', 'setSort'],
+            ['*,a', 'sort', 'setSort'],
+            ['a,*,b', 'sort', 'setSort'],
+            ['a,*', 'sort', 'setSort'],
+            [null, 'sort', 'setSort'],
+            [true, 'sort', 'setSort'],
+            [false, 'sort', 'setSort'],
+            [1, 'sort', 'setSort'],
+            [-5.5, 'sort', 'setSort'],
+            [[], 'sort', 'setSort'],
+            [[null], 'sort', 'setSort'],
+            [['*'], 'sort', 'setSort'],
+            [['a', 'b'], 'sort', 'setSort'],
+            [[[]], 'sort', 'setSort'],
+            [[['*']], 'sort', 'setSort'],
+            [[[['a,b']]], 'sort', 'setSort'],
+        ];
+    }
+
+    /**
+     * @param array  $fields
+     * @param string $dir
+     * @param bool   $reset
+     * @param string $expected
      * @dataProvider provideValidAddSortSettings
      */
     public function testSupportingAddingSortValid($fields, $dir, $reset, $expected)
@@ -508,73 +615,76 @@ class QueryTest extends TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @param array  $fields
+     * @param string $dir
+     * @param bool   $reset
      * @dataProvider provideInvalidAddSortSettings
      */
     public function testSupportingAddingSortInvalid($fields, $dir, $reset)
     {
         $params = new Query();
         $params->addSorting('auto');
+        $this->expectException(InvalidArgumentException::class);
         $params->addSorting($fields, $dir, $reset);
     }
 
+    /**
+     * @return array[]
+     */
     public function provideValidAddSortSettings()
     {
         return [
-            [ 'a', true, true, [ 'a' => 'asc' ] ],
-            [ 'a', true, true, [ 'a' => 'asc' ] ],
-            [ 'a', false, true, [ 'a' => 'desc' ] ],
-            [ 'a,a', false, true, [ 'a' => 'desc' ] ],
-            [ 'a', 'ASC', true, [ 'a' => 'asc' ] ],
-            [ 'a', 'DesC', true, [ 'a' => 'desc' ] ],
-            [ 'a', 'DesC', false, [ 'auto' => 'asc', 'a' => 'desc' ] ],
-            [ 'a,a', 'DesC', false, [ 'auto' => 'asc', 'a' => 'desc' ] ],
-            [ 'a,b', true, false, [ 'auto' => 'asc', 'a' => 'asc', 'b' => 'asc' ] ],
-            [ 'a,b,a,b,b', true, false, [ 'auto' => 'asc', 'a' => 'asc', 'b' => 'asc' ] ],
-            [ [ 'a,b', 'c' ], true, false, [ 'auto' => 'asc', 'a' => 'asc', 'b' => 'asc', 'c' => 'asc' ] ],
-            [ [ 'a,b', 'a' ], true, false, [ 'auto' => 'asc', 'a' => 'asc', 'b' => 'asc' ] ],
+            ['a', true, true, ['a' => 'asc']],
+            ['a', true, true, ['a' => 'asc']],
+            ['a', false, true, ['a' => 'desc']],
+            ['a,a', false, true, ['a' => 'desc']],
+            ['a', 'ASC', true, ['a' => 'asc']],
+            ['a', 'DesC', true, ['a' => 'desc']],
+            ['a', 'DesC', false, ['auto' => 'asc', 'a' => 'desc']],
+            ['a,a', 'DesC', false, ['auto' => 'asc', 'a' => 'desc']],
+            ['a,b', true, false, ['auto' => 'asc', 'a' => 'asc', 'b' => 'asc']],
+            ['a,b,a,b,b', true, false, ['auto' => 'asc', 'a' => 'asc', 'b' => 'asc']],
+            [['a,b', 'c'], true, false, ['auto' => 'asc', 'a' => 'asc', 'b' => 'asc', 'c' => 'asc']],
+            [['a,b', 'a'], true, false, ['auto' => 'asc', 'a' => 'asc', 'b' => 'asc']],
         ];
     }
 
+    /**
+     * @return array
+     */
     public function provideInvalidAddSortSettings()
     {
         return [
-            [ null, true, true ],
-            [ null, true, false ],
-            [ null, false, true ],
-            [ null, false, false ],
-
-            [ '', true, true ],
-            [ '', true, false ],
-            [ '', false, true ],
-            [ '', false, false ],
-
-            [ ',', true, true ],
-            [ ' , ', true, false ],
-            [ ' ,, , ', true, false ],
-            [ ',', false, true ],
-            [ ' , ', false, false ],
-            [ ' ,, , ', false, false ],
-
-            [ true, true, true ],
-            [ true, true, false ],
-            [ true, false, true ],
-            [ true, false, false ],
-
-            [ [], true, true ],
-            [ [], true, false ],
-            [ [], false, true ],
-            [ [], false, false ],
-
-            [ [ [] ], true, true ],
-            [ [ [] ], true, false ],
-            [ [ [] ], false, true ],
-            [ [ [] ], false, false ],
-
-            [ [ [ [ 'a' ] ] ], true, true ],
-            [ [ [ [ 'a' ] ] ], true, false ],
-            [ [ [ [ 'a' ] ] ], false, true ],
-            [ [ [ [ 'a' ] ] ], false, false ],
+            [null, true, true],
+            [null, true, false],
+            [null, false, true],
+            [null, false, false],
+            ['', true, true],
+            ['', true, false],
+            ['', false, true],
+            ['', false, false],
+            [',', true, true],
+            [' , ', true, false],
+            [' ,, , ', true, false],
+            [',', false, true],
+            [' , ', false, false],
+            [' ,, , ', false, false],
+            [true, true, true],
+            [true, true, false],
+            [true, false, true],
+            [true, false, false],
+            [[], true, true],
+            [[], true, false],
+            [[], false, true],
+            [[], false, false],
+            [[[]], true, true],
+            [[[]], true, false],
+            [[[]], false, true],
+            [[[]], false, false],
+            [[[['a']]], true, true],
+            [[[['a']]], true, false],
+            [[[['a']]], false, true],
+            [[[['a']]], false, false],
         ];
     }
 }

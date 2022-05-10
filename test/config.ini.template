@@ -63,7 +63,7 @@ phpSettings.date.timezone = Europe/Berlin
 ;ZEND_APPLICATION SETTINGS
 includePaths.library = APPLICATION_PATH "/library"
 bootstrap.path = APPLICATION_PATH "/test/Bootstrap.php"
-bootstrap.class = "OpusTest\Bootstrap"
+bootstrap.class = "OpusTest\Search\Bootstrap"
 appnamespace = "Application"
 
 ;SEARCH ENGINE SETTINGS

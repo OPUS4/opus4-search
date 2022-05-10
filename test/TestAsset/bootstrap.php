@@ -25,12 +25,10 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
 // Setup error reporting.
 // TODO leave to Zend and config?
 error_reporting(E_ALL | E_STRICT);
@@ -52,18 +50,18 @@ require_once APPLICATION_PATH . '/vendor/autoload.php';
 require_once APPLICATION_PATH . '/vendor/opus4-repo/framework/library/OpusDb/Mysqlutf8.php';
 
 // Do test environment initializiation.
-$application = new \Zend_Application(
+$application = new Zend_Application(
     APPLICATION_ENV,
     [
         "config" => [
-            APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'config.ini'
-        ]
+            APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'config.ini',
+        ],
     ]
 );
 
 // TODO should not be necessary for search tests
-$options = $application->getOptions();
+$options                                        = $application->getOptions();
 $options['opus']['disableDatabaseVersionCheck'] = true;
 $application->setOptions($options);
 
-$application->bootstrap(['Database','Temp','OpusLocale','IndexPlugin']);
+$application->bootstrap(['Database', 'Temp', 'OpusLocale', 'IndexPlugin']);

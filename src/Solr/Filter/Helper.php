@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,23 +26,31 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Solr\Filter;
 
+use function explode;
+use function preg_replace;
+use function strpos;
+use function strtolower;
+use function substr_count;
+use function trim;
+
 class Helper
 {
-
+    /**
+     * @param string $term
+     * @return string
+     */
     public static function escapePhrase($term)
     {
         $term = trim($term);
 
         // add one " to the end of $query if it contains an odd number of "
-        if (substr_count($term, '"') % 2 == 1) {
+        if (substr_count($term, '"') % 2 === 1) {
             $term .= '"';
         }
 
@@ -53,7 +62,7 @@ class Helper
             if ($insidePhrase) {
                 $result .= '"' . $phrase . '"';
             } else {
-                $phrase = static::lowercaseLiterals($phrase);
+                $phrase  = static::lowercaseLiterals($phrase);
                 $result .= preg_replace(
                     '/(\s+|\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\|\/)/',
                     '\\\$1',
@@ -67,6 +76,10 @@ class Helper
         return $result;
     }
 
+    /**
+     * @param string $query
+     * @return string
+     */
     protected static function lowercaseLiterals($query)
     {
         // check if $query is a wildcard query

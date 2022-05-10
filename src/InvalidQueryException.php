@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,13 +26,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search;
+
+use Exception as PhpException;
 
 /**
  * Indicates invalid query either detected client-side or due to related
@@ -40,18 +41,24 @@ namespace Opus\Search;
  * TODO überlappungen zu anderen Exceptions
  */
 
-class InvalidQueryException extends Exception
+class InvalidQueryException extends SearchException
 {
-
-    public function __construct($message = "", $code = 0, \Exception $previous = null)
+    /**
+     * @param string $message
+     * @param int    $code
+     */
+    public function __construct($message = "", $code = 0, ?PhpException $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         $previousMessage = '';
-        if (! is_null($this->getPrevious())) {
+        if ($this->getPrevious() !== null) {
             $previousMessage = $this->getPrevious()->getMessage();
         }
 

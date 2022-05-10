@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,27 +25,26 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_Util
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace OpusTest\Util;
+namespace OpusTest\Search\Util;
 
+use Opus\Common\Config as OpusConfig;
 use Opus\Document;
 use Opus\Search\Config;
-use Opus\Search\Exception;
 use Opus\Search\QueryFactory;
+use Opus\Search\SearchException;
 use Opus\Search\Service;
 use Opus\Search\Util\ConsistencyCheck;
 use OpusTest\Search\TestAsset\TestCase;
+use Zend_Config;
+
+use function sleep;
 
 class ConsistencyCheckTest extends TestCase
 {
-
     private $doc;
 
     private $docId;
@@ -108,7 +108,7 @@ class ConsistencyCheckTest extends TestCase
         try {
             $this->doc->setServerState('unpublished');
             $this->doc->store();
-        } catch (Exception $e) {
+        } catch (SearchException $e) {
         }
 
         $this->restoreSolrConfig();
@@ -125,11 +125,11 @@ class ConsistencyCheckTest extends TestCase
         $searcher = Service::selectSearchingService();
         $query    = QueryFactory::selectDocumentById($searcher, $this->docId);
 
-        $result = $searcher->customSearch($query);
+        $result     = $searcher->customSearch($query);
         $resultList = $result->getReturnedMatches();
 
         $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
-        $this->assertTrue($resultList[0]->getServerDateModified()->getUnixTimestamp() == $this->doc->getServerDateModified()->getUnixTimestamp());
+        $this->assertTrue($resultList[0]->getServerDateModified()->getUnixTimestamp() === $this->doc->getServerDateModified()->getUnixTimestamp());
 
         $this->manipulateSolrConfig();
 
@@ -142,7 +142,7 @@ class ConsistencyCheckTest extends TestCase
         $searcher = Service::selectSearchingService();
         $query    = QueryFactory::selectDocumentById($searcher, $this->docId);
 
-        $result = $searcher->customSearch($query);
+        $result     = $searcher->customSearch($query);
         $resultList = $result->getReturnedMatches();
 
         $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
@@ -154,11 +154,11 @@ class ConsistencyCheckTest extends TestCase
         $searcher = Service::selectSearchingService();
         $query    = QueryFactory::selectDocumentById($searcher, $this->docId);
 
-        $result = $searcher->customSearch($query);
+        $result     = $searcher->customSearch($query);
         $resultList = $result->getReturnedMatches();
 
         $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
-        $this->assertTrue($resultList[0]->getServerDateModified()->getUnixTimestamp() == $this->doc->getServerDateModified()->getUnixTimestamp());
+        $this->assertTrue($resultList[0]->getServerDateModified()->getUnixTimestamp() === $this->doc->getServerDateModified()->getUnixTimestamp());
     }
 
     public function testWithInconsistentStateAfterIndexDeletion()
@@ -181,15 +181,17 @@ class ConsistencyCheckTest extends TestCase
     {
         $this->dropDeprecatedConfiguration();
 
-        $config = \Opus\Config::get();
+        $config          = OpusConfig::get();
         $this->indexHost = $config->searchengine->solr->default->service->endpoint;
 
         $this->adjustConfiguration([], function ($config) {
-            $config->searchengine->solr->default->service->default->endpoint = new \Zend_Config([ 'primary' => [
-                'host' => '1.2.3.4',
-                'port' => '8983',
-                'path' => '/solr/solr',
-            ] ]);
+            $config->searchengine->solr->default->service->default->endpoint = new Zend_Config([
+                'primary' => [
+                    'host' => '1.2.3.4',
+                    'port' => '8983',
+                    'path' => '/solr/solr',
+                ],
+            ]);
 
             return $config;
         });
@@ -214,11 +216,16 @@ class ConsistencyCheckTest extends TestCase
         Service::dropCached();
     }
 
+    /**
+     * @return bool
+     * @throws SearchException
+     * @throws Zend_Config_Exception
+     */
     private function isDocumentInSearchIndex()
     {
         $searcher = Service::selectSearchingService();
         $query    = QueryFactory::selectDocumentById($searcher, $this->docId);
         $result   = $searcher->customSearch($query);
-        return $result->getAllMatchesCount() == 1;
+        return $result->getAllMatchesCount() === 1;
     }
 }

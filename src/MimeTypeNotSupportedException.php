@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,20 +26,21 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search;
 
-/**
- */
-class MimeTypeNotSupportedException extends \Exception
-{
+use Exception as PhpException;
 
-    public function __construct($message = "", $code = 0, Exception $previous = null)
+class MimeTypeNotSupportedException extends PhpException
+{
+    /**
+     * @param string $message
+     * @param int    $code
+     */
+    public function __construct($message = "", $code = 0, ?parent $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

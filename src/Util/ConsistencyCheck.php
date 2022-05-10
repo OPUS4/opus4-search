@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,27 +25,27 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Util
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Util;
 
+use Opus\Common\Log;
+use Opus\Common\Repository;
 use Opus\Document;
-use Opus\Log;
 use Opus\Model\NotFoundException;
-use Opus\Repository;
-use Opus\Search\Exception;
 use Opus\Search\QueryFactory;
+use Opus\Search\SearchException;
 use Opus\Search\Service;
+use Zend_Config_Exception;
+use Zend_Exception;
+
+use function count;
+use function microtime;
 
 class ConsistencyCheck
 {
-
     private $logger;
 
     private $searcher;
@@ -57,12 +58,16 @@ class ConsistencyCheck
 
     private $numOfDeletions = 0;
 
-
+    /**
+     * @param Log|null $logger
+     * @throws Zend_Config_Exception
+     * @throws Zend_Exception
+     */
     public function __construct($logger = null)
     {
-        $this->logger = is_null($logger) ? Log::get() : $logger;
+        $this->logger   = $logger ?? Log::get();
         $this->searcher = Service::selectSearchingService();
-        $this->indexer = Service::selectIndexingService();
+        $this->indexer  = Service::selectIndexingService();
     }
 
     public function run()
@@ -93,7 +98,6 @@ class ConsistencyCheck
      * Check for each database document in serverState publish if it exists in
      * Solr index. Furthermore, compare field value of serverDateModified in
      * database and Solr index.
-     *
      */
     private function checkDatabase()
     {
@@ -114,7 +118,7 @@ class ConsistencyCheck
             $serverDataModified = $doc->getServerDateModified()->getUnixTimestamp();
 
             // retrieve document from index and compare serverDateModified fields
-            $query = QueryFactory::selectDocumentById($this->searcher, $id);
+            $query  = QueryFactory::selectDocumentById($this->searcher, $id);
             $result = $this->searcher->customSearch($query);
 
             switch ($result->getAllMatchesCount()) {
@@ -127,7 +131,7 @@ class ConsistencyCheck
                     break;
 
                 case 1:
-                    if ($result->getReturnedMatches()[0]->getServerDateModified()->getUnixTimestamp() != $serverDataModified) {
+                    if ($result->getReturnedMatches()[0]->getServerDateModified()->getUnixTimestamp() !== $serverDataModified) {
                         $this->numOfInconsistencies++;
                         $this->logger->info("inconsistency found for document $id: mismatch between values of server_date_modified in database and Solr index.");
                         if ($this->forceReindexing($doc)) {
@@ -146,11 +150,10 @@ class ConsistencyCheck
      * Find documents in Solr index, that are not in database or that are in
      * database but not in serverState published Remove such documents from Solr
      * index.
-     *
      */
     private function checkSearchIndex()
     {
-        $query = QueryFactory::selectAllDocuments($this->searcher);
+        $query  = QueryFactory::selectAllDocuments($this->searcher);
         $result = $this->searcher->customSearch($query);
 
         $results = $result->getReturnedMatchingIds();
@@ -165,7 +168,7 @@ class ConsistencyCheck
                 }
                 continue;
             }
-            if ($doc->getServerState() != 'published') {
+            if ($doc->getServerState() !== 'published') {
                 $this->logger->info("inconsistency found for document $id: document is in Solr index, but is not in ServerState published.");
                 $this->numOfInconsistencies++;
                 if ($this->removeDocumentFromSearchIndex($id)) {
@@ -186,7 +189,7 @@ class ConsistencyCheck
         try {
             $doc->unregisterPlugin('Opus_Document_Plugin_Index'); // prevent document from being indexed twice
             $this->indexer->addDocumentsToIndex($doc);
-        } catch (Exception $e) {
+        } catch (SearchException $e) {
             $this->logger->err('Could not force reindexing of document ' . $doc->getId() . ' : ' . $e->getMessage());
             return false;
         }
@@ -203,7 +206,7 @@ class ConsistencyCheck
     {
         try {
             $this->indexer->removeDocumentsFromIndexById($id);
-        } catch (Exception $e) {
+        } catch (SearchException $e) {
             $this->logger->err('Could not delete document ' . $id . ' from index : ' . $e->getMessage());
             return false;
         }

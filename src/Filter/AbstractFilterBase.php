@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,39 +26,31 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Michael Lang
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Search;
+namespace Opus\Search\Filter;
 
-use Opus\Document;
-use Opus\File;
+use Opus\Search\FilteringInterface;
 
 /**
- * Defines API provided for extracting fulltext data from files attached to
- * Opus documents.
+ * Describes base for all terms describing conditions to be met by matching
+ * documents.
+ *
+ * This class is part of API used to describe query terms independently of any
+ * actually used search engine. Declared abstract method compile() has to be
+ * provided by search engine adapters for converting described filter terms into
+ * search query string complying with query syntax of particular search engine.
  */
 
-interface Extracting
+abstract class AbstractFilterBase implements FilteringInterface
 {
-
     /**
-     * Extracts provided file of document.
+     * Compiles filter description to term for use with search engine adapter.
      *
-     * @param File $file
-     * @param Document $document
-     * @return Extracting fluent interface
+     * @param mixed $context adapter-specific reference on context the compiled term will be queried in
+     * @return string|null compiled term for use in given context, null if context has been prepared internally already
      */
-    public function extractDocumentFile(File $file, Document $document = null);
-
-    /**
-     * Extracts text from file.
-     * @param $path
-     * @return mixed
-     */
-    public function extractFile($path);
+    abstract public function compile($context);
 }

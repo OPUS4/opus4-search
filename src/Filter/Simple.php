@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,16 +26,21 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Filter;
 
-use Opus\Search\Filtering;
+use InvalidArgumentException;
+use Opus\Search\FilteringInterface;
+use RuntimeException;
+
+use function array_map;
+use function count;
+use function is_array;
+use function is_string;
+use function strval;
 
 /**
  * Describes simple binary term.
@@ -43,15 +49,14 @@ use Opus\Search\Filtering;
  * actually used search engine.
  */
 
-class Simple implements Filtering
+class Simple implements FilteringInterface
 {
-
-    const COMPARE_EQUALITY = '=';
-    const COMPARE_INEQUALITY = '<>';
-    const COMPARE_SIMILARITY = '~';
-    const COMPARE_LESS = '<';
-    const COMPARE_LESS_OR_EQUAL = '<=';
-    const COMPARE_GREATER = '>';
+    const COMPARE_EQUALITY         = '=';
+    const COMPARE_INEQUALITY       = '<>';
+    const COMPARE_SIMILARITY       = '~';
+    const COMPARE_LESS             = '<';
+    const COMPARE_LESS_OR_EQUAL    = '<=';
+    const COMPARE_GREATER          = '>';
     const COMPARE_GREATER_OR_EQUAL = '>=';
 
     protected $fieldName;
@@ -60,15 +65,14 @@ class Simple implements Filtering
 
     protected $fieldValues = [];
 
-
     /**
      * @param string $fieldName name of field simple condition applies on
-     * @param mixed $comparator one out of Opus_Search_Filter_Simple::COMPARE_* constants
+     * @param mixed  $comparator one out of Opus_Search_Filter_Simple::COMPARE_* constants
      */
     public function __construct($fieldName, $comparator)
     {
         if (! is_string($fieldName) || ! $fieldName) {
-            throw new \InvalidArgumentException('invalid field name');
+            throw new InvalidArgumentException('invalid field name');
         }
 
         switch ($comparator) {
@@ -80,7 +84,7 @@ class Simple implements Filtering
             case self::COMPARE_GREATER_OR_EQUAL:
                 break;
             default:
-                throw new \InvalidArgumentException('invalid comparator');
+                throw new InvalidArgumentException('invalid comparator');
         }
 
         $this->fieldName  = $fieldName;
@@ -92,20 +96,19 @@ class Simple implements Filtering
      *
      * @param string $field name of field filter is testing
      * @param string $comparator comparison operator to use on testing field
-     * @return Simple
+     * @return static
      */
     public static function createOnField($field, $comparator)
     {
-        return new static( $field, $comparator );
+        return new static($field, $comparator);
     }
 
     /**
      * Creates new simple filter for equality-matching any field.
      *
      * @note This filter is special and might not be supported by all adapters.
-     *
      * @param string $value value to look up in any field of search engine
-     * @return Simple
+     * @return static
      */
     public static function createCatchAll($value)
     {
@@ -148,9 +151,7 @@ class Simple implements Filtering
      * @note Adding multiple values is supported on simple conditions for
      *       equality or inequality resulting in operations for field values
      *       (not) contained in list of added values.
-     *
      * @note Any recently set range is replaced by adding values.
-     *
      * @param string $value
      * @return $this fluent interface
      */
@@ -162,7 +163,7 @@ class Simple implements Filtering
 
         if ($this->comparator !== self::COMPARE_EQUALITY && $this->comparator !== self::COMPARE_INEQUALITY) {
             if (count($this->fieldValues) > 0) {
-                throw new \InvalidArgumentException("invalid multi-value comparison");
+                throw new InvalidArgumentException("invalid multi-value comparison");
             }
         }
 
@@ -184,7 +185,7 @@ class Simple implements Filtering
                 return strval($i);
             }, $value);
         } else {
-            $this->fieldValues = [ strval($value) ];
+            $this->fieldValues = [strval($value)];
         }
 
         return $this;
@@ -201,7 +202,7 @@ class Simple implements Filtering
             return $this->fieldValues;
         }
 
-        throw new \InvalidArgumentException('range values must be requested differently');
+        throw new InvalidArgumentException('range values must be requested differently');
     }
 
     /**
@@ -210,7 +211,6 @@ class Simple implements Filtering
      *
      * @note Range values are supported on tests for equality or inequality,
      *       only.
-     *
      * @param int|null $lower optional lower (inclusive) end of range
      * @param int|null $upper optional upper (inclusive) end of range
      * @return $this fluent interface
@@ -218,10 +218,10 @@ class Simple implements Filtering
     public function setRange($lower, $upper)
     {
         if ($this->comparator !== self::COMPARE_EQUALITY && $this->comparator !== self::COMPARE_INEQUALITY) {
-            throw new \InvalidArgumentException("invalid range-value comparison");
+            throw new InvalidArgumentException("invalid range-value comparison");
         }
 
-        $this->fieldValues = [ [ $lower, $upper ] ];
+        $this->fieldValues = [[$lower, $upper]];
 
         return $this;
     }
@@ -229,7 +229,7 @@ class Simple implements Filtering
     /**
      * Retrieves some defined range value.
      *
-     * @param int[] $default default value to use if current term doesn't contain range value
+     * @param null|int[] $default default value to use if current term doesn't contain range value
      * @return int[] two-element array with lower/upper (inclusive) end of range (or null for open ranges at either end)
      */
     public function getRangeValue($default = null)
@@ -238,10 +238,10 @@ class Simple implements Filtering
             return $this->fieldValues[0];
         }
 
-        if (! is_null($default)) {
+        if ($default !== null) {
             return $default;
         }
 
-        throw new \RuntimeException('not a range value');
+        throw new RuntimeException('not a range value');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,8 +25,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application Tests
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -36,7 +35,7 @@ defined('APPLICATION_PATH')
 
 // Define application environment
 defined('APPLICATION_ENV')
-|| define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
+|| define('APPLICATION_ENV', getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production');
 
 // Configure include path.
 set_include_path(
@@ -57,18 +56,17 @@ require_once 'autoload.php';
 // TODO OPUSVIER-4420 remove after switching to Laminas/ZF3
 require_once APPLICATION_PATH . '/vendor/opus4-repo/framework/library/OpusDb/Mysqlutf8.php';
 
-
 // environment initializiation
-$application = new \Zend_Application(
+$application = new Zend_Application(
     APPLICATION_ENV,
     [
         "config" => [
             APPLICATION_PATH . '/test/config.ini',
-        ]
+        ],
     ]
 );
 
-$options = $application->getOptions();
+$options                                        = $application->getOptions();
 $options['opus']['disableDatabaseVersionCheck'] = true;
 $application->setOptions($options);
 
@@ -79,17 +77,17 @@ $application->bootstrap('Backend');
  * Prepare database.
  */
 
-$database = new \Opus\Database();
+$database = new Opus\Database();
 
 $dbName = $database->getName();
 
-echo("Dropping database '$dbName' ... ");
+echo "Dropping database '$dbName' ... ";
 $database->drop();
-echo('done' . PHP_EOL);
+echo 'done' . PHP_EOL;
 
-echo("Creating database '$dbName' ... ");
+echo "Creating database '$dbName' ... ";
 $database->create();
-echo('done' . PHP_EOL);
+echo 'done' . PHP_EOL;
 
-echo(PHP_EOL . "Importing database schema ... " . PHP_EOL);
+echo PHP_EOL . "Importing database schema ... " . PHP_EOL;
 $database->importSchema();
