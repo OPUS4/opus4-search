@@ -35,6 +35,7 @@ namespace Opus\Search\Solr\Document;
 use DOMDocument;
 use Exception as PhpException;
 use Opus\Common\Config;
+use Opus\Common\Storage\StorageException;
 use Opus\Document;
 use Opus\File;
 use Opus\Model\Xml;
@@ -44,7 +45,6 @@ use Opus\Search\Log;
 use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\SearchException;
 use Opus\Search\Service;
-use Opus\Storage\StorageException;
 use Zend_Config;
 
 use function array_filter;
