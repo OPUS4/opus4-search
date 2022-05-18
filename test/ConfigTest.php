@@ -33,7 +33,7 @@
 namespace OpusTest\Search;
 
 use Opus\Common\Config as OpusConfig;
-use Opus\EnrichmentKey;
+use Opus\Common\EnrichmentKey;
 use Opus\Search\Config;
 use OpusTest\Search\TestAsset\TestCase;
 use Zend_Config;
@@ -420,7 +420,7 @@ class ConfigTest extends TestCase
         $enrichment = EnrichmentKey::fetchByName('test');
 
         if ($enrichment === null) {
-            $enrichment = new EnrichmentKey();
+            $enrichment = EnrichmentKey::new();
             $enrichment->setName('test');
             $enrichment->store();
         }

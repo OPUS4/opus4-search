@@ -32,8 +32,9 @@
 
 namespace Opus\Search\Result;
 
+use Opus\Common\Document;
+use Opus\Common\DocumentInterface;
 use Opus\Date;
-use Opus\Document;
 use Opus\Model\NotFoundException;
 use RuntimeException;
 
@@ -54,7 +55,7 @@ class Match
     /** @var mixed */
     protected $id;
 
-    /** @var Document */
+    /** @var DocumentInterface */
     protected $doc;
 
     /** @var float */
@@ -115,7 +116,7 @@ class Match
      * Retrieves instance of Opus_Document related to current match.
      *
      * @throws NotFoundException
-     * @return Document
+     * @return DocumentInterface
      */
     public function getDocument()
     {

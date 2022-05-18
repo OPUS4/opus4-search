@@ -32,7 +32,7 @@
 namespace OpusTest\Search\Task;
 
 use Opus\Common\Config;
-use Opus\Document;
+use Opus\Common\Document;
 use Opus\Job;
 use Opus\Search\Task\ConsistencyCheck;
 use OpusTest\Search\TestAsset\TestCase;

@@ -32,7 +32,7 @@
 namespace OpusTest\Search\Util;
 
 use Opus\Common\Config as OpusConfig;
-use Opus\Document;
+use Opus\Common\Document;
 use Opus\Search\Config;
 use Opus\Search\QueryFactory;
 use Opus\Search\SearchException;

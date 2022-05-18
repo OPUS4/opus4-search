@@ -34,7 +34,7 @@
 
 namespace OpusTest\Search\Task;
 
-use Opus\Document;
+use Opus\Common\Document;
 use Opus\Job;
 use Opus\Search\Task\IndexOpusDocument;
 use OpusTest\Search\TestAsset\TestCase;
@@ -48,7 +48,7 @@ class IndexOpusDocumentTest extends TestCase
      */
     public function testWork()
     {
-        $document = new Document();
+        $document = Document::new();
         $document->setServerState('published');
         $documentId = $document->store();
 

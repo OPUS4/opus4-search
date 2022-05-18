@@ -36,7 +36,7 @@ use DOMDocument;
 use Exception;
 use InvalidArgumentException;
 use Opus\Common\Config;
-use Opus\Document;
+use Opus\Common\DocumentInterface;
 use Opus\Search\Log;
 use XSLTProcessor;
 use Zend_Config;
@@ -90,7 +90,7 @@ class Xslt extends AbstractSolrDocumentBase
      * @param DOMDocument $solrDoc
      * @return DOMDocument
      */
-    public function toSolrDocument(Document $opusDoc, $solrDoc)
+    public function toSolrDocument(DocumentInterface $opusDoc, $solrDoc)
     {
         if (! $solrDoc instanceof DomDocument) {
             throw new InvalidArgumentException('provided Solr document must be instance of DOMDocument');

@@ -33,8 +33,8 @@
 namespace Opus\Search\Result;
 
 use InvalidArgumentException;
+use Opus\Common\DocumentInterface;
 use Opus\Common\Repository;
-use Opus\Document;
 use Opus\Document\DocumentException;
 use Opus\Search\Log;
 use RuntimeException;
@@ -247,7 +247,7 @@ class Base
      * @note The wording is less specific in that all information in response to
      *       search query may considered results of search. Thus this new API
      *       prefers "matches" over "results".
-     * @return Document[]
+     * @return DocumentInterface[]
      */
     public function getResults()
     {

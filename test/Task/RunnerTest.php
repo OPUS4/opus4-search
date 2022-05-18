@@ -31,7 +31,7 @@
 
 namespace OpusTest\Search\Task;
 
-use Opus\Document;
+use Opus\Common\Document;
 use Opus\Job;
 use Opus\Job\Runner;
 use Opus\Model\NotFoundException;

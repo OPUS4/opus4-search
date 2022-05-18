@@ -31,7 +31,7 @@
 
 namespace OpusTest\Search\Plugin;
 
-use Opus\Document;
+use Opus\Common\Document;
 use Opus\Job;
 use OpusTest\Search\TestAsset\TestCase;
 

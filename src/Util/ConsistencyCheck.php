@@ -31,9 +31,10 @@
 
 namespace Opus\Search\Util;
 
+use Opus\Common\Document;
+use Opus\common\DocumentInterface;
 use Opus\Common\Log;
 use Opus\Common\Repository;
-use Opus\Document;
 use Opus\Model\NotFoundException;
 use Opus\Search\QueryFactory;
 use Opus\Search\SearchException;
@@ -181,7 +182,7 @@ class ConsistencyCheck
     /**
      * Forces the reindexing of the given document.
      *
-     * @param Document $doc
+     * @param DocumentInterface $doc
      * @return bool Returns true, iff the given document was successfully updated in Solr index.
      */
     private function forceReindexing($doc)

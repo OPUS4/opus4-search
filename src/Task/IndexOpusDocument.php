@@ -33,7 +33,7 @@
 namespace Opus\Search\Task;
 
 use InvalidArgumentException;
-use Opus\Document;
+use Opus\Common\Document;
 use Opus\Job;
 use Opus\Job\Worker\InvalidJobException;
 use Opus\Job\Worker\WorkerInterface;

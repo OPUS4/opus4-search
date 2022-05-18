@@ -32,7 +32,7 @@
 
 namespace Opus\Search;
 
-use Opus\Document;
+use Opus\Common\DocumentInterface;
 
 /**
  * Implements globally available methods for creating pre-configured instances
@@ -60,7 +60,7 @@ class QueryFactory
      *
      * @return Query
      */
-    public static function selectDocument(SearchingInterface $adapter, Document $document)
+    public static function selectDocument(SearchingInterface $adapter, DocumentInterface $document)
     {
         return self::selectDocumentById($adapter, $document->getId());
     }

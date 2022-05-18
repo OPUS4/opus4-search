@@ -34,10 +34,11 @@ namespace OpusTest\Search\TestAsset;
 
 use Exception;
 use InvalidArgumentException;
+use Opus\Common\Document;
+use Opus\Common\DocumentInterface;
+use Opus\Common\Model\DependentModelInterface;
 use Opus\Common\Model\ModelException;
-use Opus\Document;
-use Opus\Model\AbstractDb;
-use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Common\Model\ModelInterface;
 use Opus\Model\Xml\Cache;
 use Opus\Person;
 use ReflectionClass;
@@ -230,7 +231,7 @@ class DocumentBasedTestCase extends TestCase
 
                 // add another dependent model for every given description
                 foreach ($value as $set) {
-                    /** @var AbstractDependentModel $related */
+                    /** @var DependentModelInterface $related */
                     $related = null;
 
                     if ($pre) {
@@ -311,9 +312,9 @@ class DocumentBasedTestCase extends TestCase
         $files = APPLICATION_PATH . '/build/workspace/files/';
 
         foreach ($this->created as $model) {
-            /** @var AbstractDb $model */
+            /** @var ModelInterface $model */
             // TODO the following not be necessary since document will be permanently deleted by delete()
-            if ($model instanceof Document) {
+            if ($model instanceof DocumentInterface) {
                 // drop any model XML cached on document to delete next
                 $cache->removeAllEntriesWhereDocumentId($model->getId());
 

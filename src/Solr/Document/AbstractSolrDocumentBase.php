@@ -35,8 +35,8 @@ namespace Opus\Search\Solr\Document;
 use DOMDocument;
 use Exception as PhpException;
 use Opus\Common\Config;
-use Opus\Document;
-use Opus\File;
+use Opus\Common\DocumentInterface;
+use Opus\Common\FileInterface;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
@@ -66,7 +66,7 @@ abstract class AbstractSolrDocumentBase
      *
      * @return DOMDocument
      */
-    protected function getModelXml(Document $opusDoc)
+    protected function getModelXml(DocumentInterface $opusDoc)
     {
         // Set up caching xml-model and get XML representation of document.
         $cachingXmlModel = new Xml();
@@ -94,9 +94,9 @@ abstract class AbstractSolrDocumentBase
     /**
      * Appends fulltext data of every listen file to provided XML document.
      *
-     * @param DOMDocument $modelXml
-     * @param File[]      $files
-     * @param string      $docId ID of document
+     * @param DOMDocument     $modelXml
+     * @param FileInterface[] $files
+     * @param string          $docId ID of document
      */
     private function attachFulltextToXml($modelXml, $files, $docId)
     {
@@ -111,7 +111,7 @@ abstract class AbstractSolrDocumentBase
         }
 
         // only consider files which are visible in frontdoor
-        /** @var File $file */
+        /** @var FileInterface $file */
         $files = array_filter($files, function ($file) {
             return $file->getVisibleInFrontdoor() === '1';
         });
@@ -170,7 +170,7 @@ abstract class AbstractSolrDocumentBase
     /**
      * @return string
      */
-    private function getFulltextHash(File $file)
+    private function getFulltextHash(FileInterface $file)
     {
         $hash = '';
 
@@ -199,5 +199,5 @@ abstract class AbstractSolrDocumentBase
      * @param mixed $solrDoc depends on derived implementation
      * @return mixed reference provided in parameter $solrDoc
      */
-    abstract public function toSolrDocument(Document $opusDoc, $solrDoc);
+    abstract public function toSolrDocument(DocumentInterface $opusDoc, $solrDoc);
 }

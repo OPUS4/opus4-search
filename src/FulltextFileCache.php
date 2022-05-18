@@ -34,7 +34,7 @@ namespace Opus\Search;
 
 use Exception as PhpException;
 use Opus\Common\Config as OpusConfig;
-use Opus\File;
+use Opus\Common\FileInterface;
 
 use function file_get_contents;
 use function file_put_contents;
@@ -67,7 +67,7 @@ class FulltextFileCache
      * @return string|null
      * @throws PhpException
      */
-    public static function getCacheFileName(File $file)
+    public static function getCacheFileName(FileInterface $file)
     {
         $name = null;
 
@@ -88,7 +88,7 @@ class FulltextFileCache
      *
      * @return false|string found fulltext data, false on missing data in cache
      */
-    public static function readOnFile(File $file)
+    public static function readOnFile(FileInterface $file)
     {
         $fileName = static::getCacheFileName($file);
         if ($fileName && is_readable($fileName)) {
@@ -119,7 +119,7 @@ class FulltextFileCache
      *       record are going to fail then, too.
      * @param string $fulltext
      */
-    public static function writeOnFile(File $file, $fulltext)
+    public static function writeOnFile(FileInterface $file, $fulltext)
     {
         if (is_string($fulltext)) {
             // try deriving cache file's name first

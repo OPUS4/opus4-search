@@ -34,8 +34,8 @@ namespace OpusTest\Search\Solr\Document;
 
 use DOMDocument;
 use DOMXPath;
+use Opus\Common\DocumentInterface;
 use Opus\Date;
-use Opus\Document;
 use Opus\Search\Config;
 use Opus\Search\Solr\Document\Xslt;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
@@ -53,7 +53,7 @@ class XsltTest extends DocumentBasedTestCase
     public function testArticleConversion()
     {
         $document = $this->createDocument('article');
-        $this->assertInstanceOf(Document::class, $document);
+        $this->assertInstanceOf(DocumentInterface::class, $document);
 
         $converter = new Xslt(Config::getDomainConfiguration('solr'));
         $solr      = $converter->toSolrDocument($document, new DOMDocument());
@@ -190,7 +190,7 @@ class XsltTest extends DocumentBasedTestCase
     public function testBookConversion()
     {
         $document = $this->createDocument('book');
-        $this->assertInstanceOf(Document::class, $document);
+        $this->assertInstanceOf(DocumentInterface::class, $document);
 
         $converter = new Xslt(Config::getDomainConfiguration('solr'));
         $solr      = $converter->toSolrDocument($document, new DOMDocument());

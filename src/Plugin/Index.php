@@ -33,11 +33,11 @@ namespace Opus\Search\Plugin;
 
 use InvalidArgumentException;
 use Opus\Common\Config;
+use Opus\Common\Document;
+use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelInterface;
 use Opus\Common\Model\Plugin\AbstractPlugin;
-use Opus\Document;
 use Opus\Job;
-use Opus\Model\AbstractDb;
 use Opus\Search\Log;
 use Opus\Search\SearchException;
 use Opus\Search\Service;
@@ -73,12 +73,12 @@ class Index extends AbstractPlugin
      *
      * @see {\Opus_Model_Plugin_Interface::postStore}
      *
-     * @param AbstractDb $model item written to store before
+     * @param ModelInterface $model item written to store before
      */
     public function postStore(ModelInterface $model)
     {
         // only index Opus_Document instances
-        if (false === $model instanceof Document) {
+        if (false === $model instanceof DocumentInterface) {
             return;
         }
 
@@ -150,7 +150,7 @@ class Index extends AbstractPlugin
     /**
      * Helper method to add document to index.
      */
-    private function addDocumentToIndex(Document $document)
+    private function addDocumentToIndex(DocumentInterface $document)
     {
         $documentId = $document->getId();
 
