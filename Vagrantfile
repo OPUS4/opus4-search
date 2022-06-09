@@ -38,7 +38,7 @@ SCRIPT
 
 $solr = <<SCRIPT
 cd /home/vagrant
-mkdir "downloads"
+mkdir -p "downloads"
 cd downloads
 SOLR_TAR="solr-7.7.2.tgz"
 if test ! -f "$SOLR_TAR"; then
@@ -49,8 +49,12 @@ cd /home/vagrant/solr-7.7.2
 mkdir -p server/solr/opus4/conf
 echo name=opus4 > server/solr/opus4/core.properties
 cd server/solr/opus4/conf/
-ln -s /vagrant/conf/schema.xml schema.xml
-ln -s /vagrant/conf/solrconfig.xml solrconfig.xml
+if test ! -f "schema.xml"; then
+  ln -s /vagrant/conf/schema.xml schema.xml
+fi
+if test ! -f "solrconfig.xml"; then
+  ln -s /vagrant/conf/solrconfig.xml solrconfig.xml
+fi
 SCRIPT
 
 $database = <<SCRIPT
