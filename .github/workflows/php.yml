@@ -32,7 +32,7 @@ jobs:
         run: sudo systemctl start mysql.service
 
       - name: Prepare database
-        run: bash vendor/opus4-repo/framework/scripts/prepare-database.sh --admin_pwd root --user_pwd root
+        run: bash vendor/opus4-repo/framework/bin/prepare-database.sh --admin_pwd root --user_pwd root
 
       - name: Prepare
         run: |

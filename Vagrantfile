@@ -58,7 +58,7 @@ fi
 SCRIPT
 
 $database = <<SCRIPT
-/vagrant/vendor/opus4-repo/framework/scripts/prepare-database.sh --admin_pwd root --user_pwd root
+/vagrant/vendor/opus4-repo/framework/bin/prepare-database.sh --admin_pwd root --user_pwd root
 SCRIPT
 
 $opus = <<SCRIPT
