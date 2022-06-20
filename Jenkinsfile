@@ -46,7 +46,8 @@ pipeline {
                 // Prepare OPUS4 with ant, Install XDebug, initialize DB and change user for the repository
                 sh 'pecl install xdebug-2.8.0 && echo "zend_extension=/usr/lib/php/20151012/xdebug.so" >> /etc/php/7.0/cli/php.ini'
                 sh 'ant prepare-workspace prepare-config lint -DdbUserPassword=root -DdbAdminPassword=root'
-                sh 'php test/TestAsset/createdb.php'
+                sh 'export APPLICATION_PATH=.'
+                sh 'php vendor/opus4-repo/framework/db/createdb.php'
                 sh 'chown -R opus4:opus4 .'
             }
         }
