@@ -22,11 +22,7 @@
 ; along with OPUS; if not, write to the Free Software Foundation, Inc., 51
 ; Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ;
-; @category    Tests
-; @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
-; @author      Thoralf Klein <thoralf.klein@zib.de>
-; @author      Jens Schwidder <schwidder@zib.de>
-; @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+; @copyright   Copyright (c) 2008, OPUS 4 development team
 ; @license     http://www.gnu.org/licenses/gpl.html General Public License
 
 ; Database adapter configuration using standard Zend_db option names.
@@ -49,22 +45,10 @@ db.debug = 1
 opusdb.params.admin.name = @db.admin.name@
 opusdb.params.admin.password = @db.admin.password@
 
-;OPUS SETTINGS
-workspacePath = APPLICATION_PATH "/build/workspace"
-resources.locale.default = 'de'
-
-;PHP SETTINGS
-phpSettings.display_startup_errors = 1
-phpSettings.display_errors = 1
-; TODO verify the two settings below
-phpSettings.error_reporting = E_ALL | E_STRICT
-phpSettings.date.timezone = Europe/Berlin
-
 ;ZEND_APPLICATION SETTINGS
-includePaths.library = APPLICATION_PATH "/library"
 bootstrap.path = APPLICATION_PATH "/test/Bootstrap.php"
 bootstrap.class = "OpusTest\Search\Bootstrap"
-appnamespace = "Application"
+opus.bootstrap.resources = Database,Temp,OpusLocale,IndexPlugin
 
 ;SEARCH ENGINE SETTINGS
 searchengine.solr.default.adapterClass = Opus\Search\Solr\Solarium\Adapter
