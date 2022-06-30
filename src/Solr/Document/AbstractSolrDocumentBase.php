@@ -37,6 +37,7 @@ use Exception as PhpException;
 use Opus\Common\Config;
 use Opus\Common\DocumentInterface;
 use Opus\Common\FileInterface;
+use Opus\Common\Storage\StorageException;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
@@ -44,7 +45,6 @@ use Opus\Search\Log;
 use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\SearchException;
 use Opus\Search\Service;
-use Opus\Storage\StorageException;
 use Zend_Config;
 
 use function array_filter;
