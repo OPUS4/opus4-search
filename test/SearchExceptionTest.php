@@ -30,66 +30,17 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Search;
+namespace OpusTest\Search;
 
-use Exception as PhpException;
+use Opus\Search\SearchException;
+use OpusTest\Search\TestAsset\TestCase;
 
-/**
- * Implements common exception to be used in code of search engine adapters.
- *
- * TODO code duplication in extending classes
- * TODO rename to SearchException
- */
-class SearchException extends PhpException
+class SearchExceptionTest extends TestCase
 {
-    const SERVER_UNREACHABLE = 1;
-
-    const INVALID_QUERY = 2;
-
-    /**
-     * @param string      $message
-     * @param int|null    $code
-     * @param parent|null $previous
-     */
-    public function __construct($message, $code = null, $previous = null)
+    public function testIsServerUnreachable()
     {
-        parent::__construct($message, $code, $previous);
-    }
+        $ex = new SearchException('test', SearchException::SERVER_UNREACHABLE);
 
-    /**
-     * @return bool
-     */
-    public function isServerUnreachable()
-    {
-        return $this->code === self::SERVER_UNREACHABLE;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isInvalidQuery()
-    {
-        return $this->code === self::INVALID_QUERY;
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        $previousMessage = '';
-        if ($this->getPrevious() !== null) {
-            $previousMessage = $this->getPrevious()->getMessage();
-        }
-
-        if ($this->isServerUnreachable()) {
-            return "solr server is unreachable: $previousMessage";
-        }
-
-        if ($this->isInvalidQuery()) {
-            return "given search query is invalid: $previousMessage";
-        }
-
-        return 'unknown error while trying to search: ' . $previousMessage;
+        $this->assertTrue($ex->isServerUnreachable());
     }
 }

@@ -127,17 +127,19 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
         try {
             $result = $this->client->execute($query);
         } catch (HttpException $e) {
-            $msg = sprintf('%s: %d %s', $actionText, $e->getCode(), $e->getStatusMessage());
+            $code = (int) $e->getCode();
 
-            if ($e->getCode() === 404 || $e->getCode() >= 500) {
-                throw new InvalidServiceException($msg, $e->getCode(), $e);
+            $msg = sprintf('%s: %d %s', $actionText, $code, $e->getStatusMessage());
+
+            if ($code === 404 || $code >= 500) {
+                throw new InvalidServiceException($msg, $code, $e);
             }
 
-            if ($e->getCode() === 400) {
-                throw new InvalidQueryException($msg, $e->getCode(), $e);
+            if ($code === 400) {
+                throw new InvalidQueryException($msg, $code, $e);
             }
 
-            throw new SearchException($msg, $e->getCode(), $e);
+            throw new SearchException($msg, $code, $e);
         }
 
         if ($result->getStatus()) {

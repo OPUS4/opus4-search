@@ -26,7 +26,8 @@ script:
   - travis_fold start "prepare_dependencies"
   - ant prepare-workspace
   - ant prepare-config -DdbUserName=root -DdbAdminName=root
-  - php test/TestAsset/createdb.php
+  - export APPLICATION_PATH=.
+  - php vendor/opus4-repo/framework/db/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
   - ant download-solr -DsolrVersion=7.7.2 -DdownloadDir=$HOME/downloads
   - cd solr-7.7.2
