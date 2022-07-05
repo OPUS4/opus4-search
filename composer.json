@@ -29,6 +29,11 @@
     "sebastian/phpcpd": "*",
     "phpmetrics/phpmetrics": "*"
   },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "autoload": {
