@@ -4,6 +4,10 @@
          bootstrap="./vendor/opus4-repo/framework/tests/Bootstrap.php"
          colors="true">
 
+    <php>
+        <const name="APPLICATION_PATH" value="." />
+    </php>
+
     <testsuites>
         <testsuite name="OPUS 4 Search test suite">
             <directory>./test/</directory>

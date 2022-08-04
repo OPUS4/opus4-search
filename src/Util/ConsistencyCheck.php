@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -34,8 +34,8 @@ namespace Opus\Search\Util;
 use Opus\Common\Document;
 use Opus\common\DocumentInterface;
 use Opus\Common\Log;
+use Opus\Common\Model\NotFoundException;
 use Opus\Common\Repository;
-use Opus\Model\NotFoundException;
 use Opus\Search\QueryFactory;
 use Opus\Search\SearchException;
 use Opus\Search\Service;
