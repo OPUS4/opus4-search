@@ -106,6 +106,7 @@ search.facet.year.indexField = 'published_year'
 search.index.field.year.order = 'PublishedDate,PublishedYear'
 
 modelFactory = 'Opus\ModelFactory'
+model.fieldDescriptorClass = "Opus\Db\Model\DbFieldDescriptor"
 
 ;LOGGING RELATED SETTINGS
 ; if set to true all xml that is generated while indexing is prepared for logging
