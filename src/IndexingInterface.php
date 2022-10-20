@@ -32,7 +32,7 @@
 
 namespace Opus\Search;
 
-use Opus\Document;
+use Opus\Common\DocumentInterface;
 
 /**
  * Defines methods provided for indexing data in (Solr-based) search database.
@@ -46,7 +46,7 @@ interface IndexingInterface
      * @note Implementing methods MUST ensure to keep index in consistent state
      *       by adding all listed documents as part of a transaction to be
      *       rolled back on any error.
-     * @param Document|Document[] $documents set of documents to add
+     * @param DocumentInterface|DocumentInterface[] $documents set of documents to add
      * @return $this
      * @throws SearchException In case of error.
      */
@@ -58,7 +58,7 @@ interface IndexingInterface
      * @note Implementing methods MUST ensure to keep index in consistent state
      *       by adding all listed documents as part of a transaction to be
      *       rolled back on any error.
-     * @param Document|Document[] $documents set of document to remove
+     * @param DocumentInterface|DocumentInterface[] $documents set of document to remove
      * @return $this
      * @throws SearchException In case of error.
      */

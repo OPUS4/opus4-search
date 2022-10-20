@@ -34,7 +34,7 @@ namespace Opus\Search\Solr\Solarium;
 
 use DOMDocument;
 use InvalidArgumentException;
-use Opus\Document as OpusDocument;
+use Opus\Common\DocumentInterface;
 use Opus\Search\Solr\Document\Xslt;
 use Solarium\QueryType\Update\Query\Document\Document as SolariumDocument;
 use Zend_Config;
@@ -72,7 +72,7 @@ class Document extends Xslt
      * @param SolariumDocument $solrDoc
      * @return SolariumDocument
      */
-    public function toSolrDocument(OpusDocument $opusDoc, $solrDoc)
+    public function toSolrDocument(DocumentInterface $opusDoc, $solrDoc)
     {
         if (! $solrDoc instanceof SolariumDocument) {
             throw new InvalidArgumentException('provided Solr document must be instance of Solarium Update Document');

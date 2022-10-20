@@ -36,11 +36,11 @@ use DOMDocument;
 use Exception as PhpException;
 use InvalidArgumentException;
 use Opus\Common\Config;
+use Opus\Common\DocumentInterface;
+use Opus\Common\FileInterface;
 use Opus\Common\Storage\FileAccessException;
 use Opus\Common\Storage\FileNotFoundException;
 use Opus\Common\Storage\StorageException;
-use Opus\Document as OpusDocument;
-use Opus\File;
 use Opus\Search\AbstractAdapter;
 use Opus\Search\ExtractingInterface;
 use Opus\Search\FulltextFileCache;
@@ -224,7 +224,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
         $validDocuments = [];
 
         foreach ($documents as $document) {
-            if (! $document instanceof OpusDocument) {
+            if (! $document instanceof DocumentInterface) {
                 throw new InvalidArgumentException("invalid document in provided set");
             }
             if ($document->getServerState() !== 'temporary') {
@@ -255,7 +255,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
     }
 
     /**
-     * @param OpusDocument|OpusDocument[] $documents
+     * @param DocumentInterface|DocumentInterface[] $documents
      * @return $this
      * @throws SearchException
      * @throws InvalidQueryException
@@ -314,7 +314,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
     }
 
     /**
-     * @param OpusDocument|OpusDocument[] $documents
+     * @param DocumentInterface|DocumentInterface[] $documents
      * @return $this
      * @throws SearchException
      * @throws InvalidQueryException
@@ -325,7 +325,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
         $documents = $this->normalizeDocuments($documents);
 
         $documentIds = array_map(function ($doc) {
-            /** @var OpusDocument $doc */
+            /** @var DocumentInterface $doc */
             return $doc->getId();
         }, $documents);
 
@@ -633,7 +633,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
      * @throws MimeTypeNotSupportedException
      * @throws Zend_Exception
      */
-    public function extractDocumentFile(File $file, ?OpusDocument $document = null)
+    public function extractDocumentFile(FileInterface $file, ?DocumentInterface $document = null)
     {
         Log::get()->debug('extracting fulltext from ' . $file->getPath());
 
@@ -822,7 +822,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
      *
      * TODO make list configurable
      */
-    protected function isMimeTypeSupported(File $file)
+    protected function isMimeTypeSupported(FileInterface $file)
     {
         $mimeType = $file->getMimeType();
 

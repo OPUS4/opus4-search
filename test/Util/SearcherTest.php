@@ -31,11 +31,11 @@
 
 namespace OpusTest\Search\Util;
 
-use Opus\Collection;
-use Opus\CollectionRole;
+use Opus\Common\Collection;
+use Opus\Common\CollectionRole;
 use Opus\Common\Config;
+use Opus\Common\Document;
 use Opus\Common\Model\ModelException;
-use Opus\Document;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
@@ -139,7 +139,7 @@ class SearcherTest extends TestCase
      */
     public function testReindexingIsTriggeredInCaseOfDependentModelChanges()
     {
-        $role = new CollectionRole();
+        $role = CollectionRole::new();
         $role->setName('foobar-name');
         $role->setOaiName('foobar-oainame');
         $role->store();
@@ -149,7 +149,7 @@ class SearcherTest extends TestCase
 
         $collId = $root->getId();
 
-        $root = new Collection($collId);
+        $root = Collection::get($collId);
         $root->setVisible(0);
         $root->store();
 
@@ -174,7 +174,7 @@ class SearcherTest extends TestCase
 
         sleep(1);
 
-        $root = new Collection($collId);
+        $root = Collection::get($collId);
         $root->setVisible(1);
         $root->store();
 
@@ -226,7 +226,8 @@ class SearcherTest extends TestCase
 
     public function testServerDateModifiedIsUpdatedForDependentModelChanges()
     {
-        $role = new CollectionRole();
+        $role = CollectionRole::new();
+
         $role->setName('foobar-name');
         $role->setOaiName('foobar-oainame');
         $role->store();
@@ -236,7 +237,7 @@ class SearcherTest extends TestCase
 
         $collId = $root->getId();
 
-        $root = new Collection($collId);
+        $root = Collection::get($collId);
         $root->setVisible(0);
         $root->store();
 
@@ -261,7 +262,7 @@ class SearcherTest extends TestCase
 
         sleep(1);
 
-        $root = new Collection($collId);
+        $root = Collection::get($collId);
         $root->setVisible(1);
         $root->store();
 

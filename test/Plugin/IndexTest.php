@@ -25,14 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Search\Plugin;
 
-use Opus\Document;
-use Opus\Job;
+use Opus\Common\Document;
+use Opus\Common\Job;
 use OpusTest\Search\TestAsset\TestCase;
 
 use function count;

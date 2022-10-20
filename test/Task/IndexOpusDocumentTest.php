@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -25,17 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework Unit Test
- * @author      Edouard Simon <edouard.simon@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Search\Task;
 
-use Opus\Document;
-use Opus\Job;
+use Opus\Common\Document;
+use Opus\Common\Job;
 use Opus\Search\Task\IndexOpusDocument;
 use OpusTest\Search\TestAsset\TestCase;
 
@@ -48,11 +45,11 @@ class IndexOpusDocumentTest extends TestCase
      */
     public function testWork()
     {
-        $document = new Document();
+        $document = Document::new();
         $document->setServerState('published');
         $documentId = $document->store();
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('opus-index-document');
         $job->setData([
             'documentId' => $documentId,

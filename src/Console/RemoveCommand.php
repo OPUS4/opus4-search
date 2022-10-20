@@ -33,7 +33,7 @@
 namespace Opus\Search\Console;
 
 use Opus\Common\Console\AbstractBaseDocumentCommand;
-use Opus\Document;
+use Opus\Common\Document;
 use Opus\Search\Console\Helper\DocumentHelper;
 use Opus\Search\Service;
 use Symfony\Component\Console\Input\InputInterface;

@@ -25,15 +25,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2013-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2013, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Task;
 
 use Opus\Common\Config;
+use Opus\Common\JobInterface;
 use Opus\Common\Log;
-use Opus\Job;
 use Opus\Job\Worker\AbstractWorker;
 use Opus\Job\Worker\InvalidJobException;
 use Opus\Search\Util\ConsistencyCheck as SearchConsistencyCheck;
@@ -89,9 +89,9 @@ class ConsistencyCheck extends AbstractWorker
      * - it exists both in database and Solr index, but server_date_modified
      *   timestamps do not coincide
      *
-     * @param Job $job Job description and attached data.
+     * @param JobInterface $job Job description and attached data.
      */
-    public function work(Job $job)
+    public function work($job)
     {
         // make sure we have the right job
         if ($job->getLabel() !== $this->getActivationLabel()) {

@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -34,12 +34,13 @@ namespace OpusTest\Search\TestAsset;
 
 use Exception;
 use InvalidArgumentException;
+use Opus\Common\Document;
+use Opus\Common\DocumentInterface;
+use Opus\Common\Model\DependentModelInterface;
 use Opus\Common\Model\ModelException;
-use Opus\Document;
-use Opus\Model\AbstractDb;
-use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Common\Model\ModelInterface;
+use Opus\Common\Person;
 use Opus\Model\Xml\Cache;
-use Opus\Person;
 use ReflectionClass;
 
 use function array_key_exists;
@@ -230,11 +231,15 @@ class DocumentBasedTestCase extends TestCase
 
                 // add another dependent model for every given description
                 foreach ($value as $set) {
-                    /** @var AbstractDependentModel $related */
+                    /** @var DependentModelInterface $related */
                     $related = null;
 
                     if ($pre) {
-                        $related = $pre->newInstance();
+                        if ($pre->getName() === Person::class) {
+                            $related = Person::new();
+                        } else {
+                            $related = $pre->newInstance();
+                        }
                     } else {
                         $related = $document->$adder();
                     }
@@ -311,9 +316,9 @@ class DocumentBasedTestCase extends TestCase
         $files = APPLICATION_PATH . '/build/workspace/files/';
 
         foreach ($this->created as $model) {
-            /** @var AbstractDb $model */
+            /** @var ModelInterface $model */
             // TODO the following not be necessary since document will be permanently deleted by delete()
-            if ($model instanceof Document) {
+            if ($model instanceof DocumentInterface) {
                 // drop any model XML cached on document to delete next
                 $cache->removeAllEntriesWhereDocumentId($model->getId());
 

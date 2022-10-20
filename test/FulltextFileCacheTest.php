@@ -32,8 +32,8 @@
 
 namespace OpusTest\Search;
 
-use Opus\Document;
-use Opus\File;
+use Opus\Common\Document;
+use Opus\Common\File;
 use Opus\Search\FulltextFileCache;
 use OpusTest\Search\TestAsset\TestCase;
 
@@ -75,7 +75,7 @@ class FulltextFileCacheTest extends TestCase
             $name
         );
 
-        $file2 = new File($file->getId());
+        $file2 = File::get($file->getId());
 
         $name2 = FulltextFileCache::getCacheFileName($file2);
 

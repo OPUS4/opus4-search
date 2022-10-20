@@ -36,9 +36,10 @@ use Opus\Common\Console\Helper\ProgressBar;
 use Opus\Common\Console\Helper\ProgressMatrix;
 use Opus\Common\Console\Helper\ProgressOutput;
 use Opus\Common\Console\Helper\ProgressReport;
+use Opus\Common\Document;
+use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Storage\StorageException;
-use Opus\Document;
 use Opus\Model\Xml\Cache;
 use Opus\Search\IndexingInterface;
 use Opus\Search\MimeTypeNotSupportedException;
@@ -427,7 +428,7 @@ class IndexHelper
 
     /**
      * @param int $docId
-     * @return Document
+     * @return DocumentInterface
      */
     protected function getDocument($docId)
     {

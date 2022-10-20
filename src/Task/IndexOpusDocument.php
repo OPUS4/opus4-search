@@ -33,8 +33,8 @@
 namespace Opus\Search\Task;
 
 use InvalidArgumentException;
-use Opus\Document;
-use Opus\Job;
+use Opus\Common\Document;
+use Opus\Common\JobInterface;
 use Opus\Job\Worker\InvalidJobException;
 use Opus\Job\Worker\WorkerInterface;
 use Opus\Search\Service;
@@ -105,10 +105,10 @@ class IndexOpusDocument implements WorkerInterface
      * Load a document from database and optional file(s) and index them,
      * or remove document from index (depending on job)
      *
-     * @param Job $job Job description and attached data.
+     * @param JobInterface $job Job description and attached data.
      * @throws InvalidJobException
      */
-    public function work(Job $job)
+    public function work($job)
     {
         // make sure we have the right job
         if ($job->getLabel() !== $this->getActivationLabel()) {

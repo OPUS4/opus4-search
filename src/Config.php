@@ -34,7 +34,7 @@ namespace Opus\Search;
 
 use InvalidArgumentException;
 use Opus\Common\Config as OpusConfig;
-use Opus\EnrichmentKey;
+use Opus\Common\EnrichmentKey;
 use Zend_Config;
 use Zend_Config_Exception;
 use Zend_Db_Select_Exception;

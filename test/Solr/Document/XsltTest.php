@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -34,8 +34,8 @@ namespace OpusTest\Search\Solr\Document;
 
 use DOMDocument;
 use DOMXPath;
-use Opus\Date;
-use Opus\Document;
+use Opus\Common\Date;
+use Opus\Common\DocumentInterface;
 use Opus\Search\Config;
 use Opus\Search\Solr\Document\Xslt;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
@@ -53,7 +53,7 @@ class XsltTest extends DocumentBasedTestCase
     public function testArticleConversion()
     {
         $document = $this->createDocument('article');
-        $this->assertInstanceOf(Document::class, $document);
+        $this->assertInstanceOf(DocumentInterface::class, $document);
 
         $converter = new Xslt(Config::getDomainConfiguration('solr'));
         $solr      = $converter->toSolrDocument($document, new DOMDocument());
@@ -190,7 +190,7 @@ class XsltTest extends DocumentBasedTestCase
     public function testBookConversion()
     {
         $document = $this->createDocument('book');
-        $this->assertInstanceOf(Document::class, $document);
+        $this->assertInstanceOf(DocumentInterface::class, $document);
 
         $converter = new Xslt(Config::getDomainConfiguration('solr'));
         $solr      = $converter->toSolrDocument($document, new DOMDocument());
@@ -344,8 +344,7 @@ class XsltTest extends DocumentBasedTestCase
     public function testConfiguredIndexingOfYearField()
     {
         $document = $this->createDocument('book');
-        $date     = new Date();
-        $date->setNow();
+        $date     = Date::getNow();
         $document->setPublishedDate($date);
         $document->setPublishedYear(2010);
         $document->store();
