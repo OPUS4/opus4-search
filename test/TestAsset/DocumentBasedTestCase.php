@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -39,8 +39,8 @@ use Opus\Common\DocumentInterface;
 use Opus\Common\Model\DependentModelInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\ModelInterface;
+use Opus\Common\Person;
 use Opus\Model\Xml\Cache;
-use Opus\Person;
 use ReflectionClass;
 
 use function array_key_exists;
@@ -235,7 +235,11 @@ class DocumentBasedTestCase extends TestCase
                     $related = null;
 
                     if ($pre) {
-                        $related = $pre->newInstance();
+                        if ($pre->getName() === Person::class) {
+                            $related = Person::new();
+                        } else {
+                            $related = $pre->newInstance();
+                        }
                     } else {
                         $related = $document->$adder();
                     }

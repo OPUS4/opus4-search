@@ -32,16 +32,15 @@
 namespace OpusTest\Search\Task;
 
 use Opus\Common\Document;
+use Opus\Common\Job;
+use Opus\Common\JobInterface;
 use Opus\Common\Model\NotFoundException;
-use Opus\Job;
 use Opus\Job\Runner;
 use Opus\Search\Task\IndexOpusDocument;
 use OpusTest\Search\TestAsset\TestCase;
 
 /**
  * Test cases for running Opus_Jobs.
- *
- * @group       RunnerTest
  */
 class RunnerTest extends TestCase
 {
@@ -51,7 +50,7 @@ class RunnerTest extends TestCase
         $document->setServerState('published');
         $documentId = $document->store();
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('opus-index-document');
         $job->setData([
             'documentId' => $documentId,
@@ -65,7 +64,7 @@ class RunnerTest extends TestCase
         $runner->registerWorker($indexWorker);
         $runner->run();
 
-        $job = new Job($jobId);
+        $job = Job::get($jobId);
         $this->assertEquals(Job::STATE_FAILED, $job->getState());
         $error = $job->getErrors();
         $this->assertNotEquals('', $error, 'Expected error message from job.');
@@ -78,7 +77,7 @@ class RunnerTest extends TestCase
         $document->setServerState('published');
         $documentId = $document->store();
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('opus-index-document');
         $job->setData([
             'documentId' => $documentId,
@@ -92,8 +91,8 @@ class RunnerTest extends TestCase
         $runner->registerWorker($indexWorker);
         $runner->run();
         $this->expectException(NotFoundException::class);
-        $job = new Job($jobId);
-        if ($job instanceof Job) {
+        $job = Job::get($jobId);
+        if ($job instanceof JobInterface) {
             $job->delete();
         }
     }

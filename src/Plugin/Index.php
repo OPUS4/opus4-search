@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -35,9 +35,9 @@ use InvalidArgumentException;
 use Opus\Common\Config;
 use Opus\Common\Document;
 use Opus\Common\DocumentInterface;
+use Opus\Common\Job;
 use Opus\Common\Model\ModelInterface;
 use Opus\Common\Model\Plugin\AbstractPlugin;
-use Opus\Job;
 use Opus\Search\Log;
 use Opus\Search\SearchException;
 use Opus\Search\Service;
@@ -49,8 +49,6 @@ use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Plugin for updating the solr index triggered by document changes.
- *
- * @uses        AbstractPlugin
  */
 class Index extends AbstractPlugin
 {
@@ -123,7 +121,7 @@ class Index extends AbstractPlugin
         if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug(__METHOD__ . ': Adding remove-index job for document ' . $documentId . '.');
 
-            $job = new Job();
+            $job = Job::new();
             $job->setLabel(IndexOpusDocument::LABEL);
             $job->setData([
                 'documentId' => $documentId,
@@ -160,7 +158,7 @@ class Index extends AbstractPlugin
         if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug(__METHOD__ . ': Adding index job for document ' . $documentId . '.');
 
-            $job = new Job();
+            $job = Job::new();
             $job->setLabel(IndexOpusDocument::LABEL);
             $job->setData([
                 'documentId' => $documentId,

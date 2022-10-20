@@ -26,14 +26,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Search\Solr\Solarium;
 
 use Exception;
-use Opus\Person;
+use Opus\Common\Person;
 use Opus\Search\Query;
 use Opus\Search\QueryFactory;
 use Opus\Search\Service;
@@ -202,14 +202,14 @@ class AdapterSearchingTest extends DocumentBasedTestCase
     {
         $docA = $this->createDocument('article');
         $docA->setServerState('published');
-        $author = new Person();
+        $author = Person::new();
         $author->setLastName('Müller');
         $docA->addPersonAuthor($author);
         $docA->store();
 
         $docB = $this->createDocument('book');
         $docB->setServerState('published');
-        $author = new Person();
+        $author = Person::new();
         $author->setLastName('Muller');
         $docB->addPersonAuthor($author);
         $docB->store();

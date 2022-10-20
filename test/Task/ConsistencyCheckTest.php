@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -33,7 +33,8 @@ namespace OpusTest\Search\Task;
 
 use Opus\Common\Config;
 use Opus\Common\Document;
-use Opus\Job;
+use Opus\Common\Job;
+use Opus\Job\Worker\InvalidJobException;
 use Opus\Search\Task\ConsistencyCheck;
 use OpusTest\Search\TestAsset\TestCase;
 
@@ -46,7 +47,7 @@ class ConsistencyCheckTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->job    = new Job();
+        $this->job    = Job::new();
         $this->worker = new ConsistencyCheck();
     }
 
@@ -58,7 +59,7 @@ class ConsistencyCheckTest extends TestCase
     public function testInvalidJobExecution()
     {
         $this->job->setLabel('invalid-label');
-        $this->expectException(Job\Worker\InvalidJobException::class);
+        $this->expectException(InvalidJobException::class);
         $this->worker->work($this->job);
     }
 
