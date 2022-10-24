@@ -34,7 +34,7 @@ namespace OpusTest\Search\Task;
 use Opus\Common\Config;
 use Opus\Common\Document;
 use Opus\Common\Job;
-use Opus\Job\Worker\InvalidJobException;
+use Opus\Job\InvalidJobException;
 use Opus\Search\Task\ConsistencyCheck;
 use OpusTest\Search\TestAsset\TestCase;
 
