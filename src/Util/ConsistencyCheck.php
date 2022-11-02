@@ -45,6 +45,9 @@ use Zend_Exception;
 use function count;
 use function microtime;
 
+/**
+ * Checks if all documents are present in the index.
+ */
 class ConsistencyCheck
 {
     private $logger;
@@ -71,6 +74,9 @@ class ConsistencyCheck
         $this->indexer  = Service::selectIndexingService();
     }
 
+    /**
+     * Performs consistency check.
+     */
     public function run()
     {
         $runtime = microtime(true);
