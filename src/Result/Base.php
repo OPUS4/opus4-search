@@ -81,7 +81,7 @@ class Base
     /**
      * Assigns matches returned in response to search query.
      *
-     * @param mixed $documentId ID of document considered match of related search query
+     * @param int $documentId ID of document considered match of related search query
      * @return Match
      */
     public function addMatch($documentId)
@@ -249,7 +249,7 @@ class Base
      * @note The wording is less specific in that all information in response to
      *       search query may considered results of search. Thus this new API
      *       prefers "matches" over "results".
-     * @return DocumentInterface[]
+     * @return Match[]
      */
     public function getResults()
     {
