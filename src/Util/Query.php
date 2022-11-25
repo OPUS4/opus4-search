@@ -75,19 +75,46 @@ class Query
     const SEARCH_MODIFIER_CONTAINS_ANY  = "contains_any";
     const SEARCH_MODIFIER_CONTAINS_NONE = "contains_none";
 
-    private $start         = self::DEFAULT_START;
-    private $rows          = self::DEFAULT_ROWS;
-    private $sortField     = self::DEFAULT_SORTFIELD;
-    private $sortOrder     = self::DEFAULT_SORTORDER;
+    /** @var int */
+    private $start = self::DEFAULT_START;
+
+    /** @var int */
+    private $rows = self::DEFAULT_ROWS;
+
+    /** @var string */
+    private $sortField = self::DEFAULT_SORTFIELD;
+
+    /** @var string */
+    private $sortOrder = self::DEFAULT_SORTORDER;
+
+    /** @var array */
     private $filterQueries = [];
+
+    /** @var string */
     private $catchAll;
+
+    /** @var string */
     private $searchType;
+
+    /** @var string */
     private $modifier;
-    private $fieldValues     = [];
+
+    /** @var array */
+    private $fieldValues = [];
+
+    /** @var bool */
     private $escapingEnabled = true;
+
+    /** @var string */
     private $q;
+
+    /** @var string */
     private $facetField;
+
+    /** @var bool */
     private $returnIdsOnly = false;
+
+    /** @var int */
     private $seriesId;
 
     /**

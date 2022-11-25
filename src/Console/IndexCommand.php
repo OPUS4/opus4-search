@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2020-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -54,8 +54,10 @@ class IndexCommand extends AbstractBaseDocumentCommand
 
     const OPTION_TIMEOUT = 'timeout';
 
+    /** @var string */
     protected static $defaultName = 'index:index';
 
+    /** @var int */
     protected $blockSize = 10;
 
     protected function configure()

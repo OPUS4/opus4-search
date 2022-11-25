@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -52,6 +52,7 @@ use const DIRECTORY_SEPARATOR;
  */
 class SimpleTestCase extends TestCase
 {
+    /** @var Zend_Config */
     private $configBackup;
 
     const CONFIG_VALUE_FALSE = ''; // Zend_Config übersetzt false in den Wert ''
@@ -113,7 +114,7 @@ class SimpleTestCase extends TestCase
     /**
      * @beforeClass
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         defined('APPLICATION_PATH') || define('APPLICATION_PATH', realpath(dirname(dirname(dirname(__FILE__)))));
 
@@ -149,7 +150,7 @@ class SimpleTestCase extends TestCase
     /**
      * Standard setUp method for clearing database.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -159,7 +160,7 @@ class SimpleTestCase extends TestCase
         }
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if ($this->configBackup !== null) {
             OpusConfig::set($this->configBackup);

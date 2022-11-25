@@ -60,6 +60,7 @@ class ExtractFileCommand extends Command
 
     const OPTION_TIMEOUT = 'timeout';
 
+    /** @var string */
     protected static $defaultName = 'tools:extract-file';
 
     protected function configure()

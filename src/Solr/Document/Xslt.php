@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -58,6 +58,7 @@ class Xslt extends AbstractSolrDocumentBase
     /** @var XSLTProcessor */
     protected $processor;
 
+    /** @var Zend_Config */
     private $options;
 
     public function __construct(Zend_Config $options)
@@ -92,7 +93,7 @@ class Xslt extends AbstractSolrDocumentBase
      */
     public function toSolrDocument(DocumentInterface $opusDoc, $solrDoc)
     {
-        if (! $solrDoc instanceof DomDocument) {
+        if (! $solrDoc instanceof DOMDocument) {
             throw new InvalidArgumentException('provided Solr document must be instance of DOMDocument');
         }
 
@@ -161,6 +162,7 @@ class Xslt extends AbstractSolrDocumentBase
         return $year;
     }
 
+    /** @var string */
     private static $yearOrder;
 
     /**

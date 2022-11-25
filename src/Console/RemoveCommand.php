@@ -43,10 +43,13 @@ use function count;
 
 class RemoveCommand extends AbstractBaseDocumentCommand
 {
+    /** @var string */
     protected static $defaultName = 'index:remove';
 
+    /** @var string */
     protected $startIdDescription = 'ID of document where removing should start (or \'-\')';
 
+    /** @var string */
     protected $endIdDescription = 'ID of document where removing should stop (or \'-\')';
 
     protected function configure()
