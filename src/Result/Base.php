@@ -33,7 +33,6 @@
 namespace Opus\Search\Result;
 
 use InvalidArgumentException;
-use Opus\Common\DocumentInterface;
 use Opus\Common\Repository;
 use Opus\Document\DocumentException;
 use Opus\Search\Log;
@@ -82,7 +81,7 @@ class Base
      * Assigns matches returned in response to search query.
      *
      * @param int $documentId ID of document considered match of related search query
-     * @return Match
+     * @return ResultMatch
      */
     public function addMatch($documentId)
     {
@@ -90,7 +89,7 @@ class Base
             $this->data['matches'] = [];
         }
 
-        $match = Match::create($documentId);
+        $match = new ResultMatch($documentId);
 
         $this->data['matches'][] = $match;
 
@@ -193,7 +192,7 @@ class Base
      * Retrieves set of matching and locally existing documents returned in
      * response to some search query.
      *
-     * @return Match[]
+     * @return ResultMatch[]
      */
     public function getReturnedMatches()
     {
@@ -205,7 +204,7 @@ class Base
         // documents existing locally, only
         $matches = [];
 
-        /** @var Match $match */
+        /** @var ResultMatch $match */
         foreach ($this->data['matches'] as $match) {
             try {
                 $match->getDocument();
@@ -233,7 +232,7 @@ class Base
         }
 
         return array_map(function ($match) {
-            /** @var Match $match */
+            /** @var ResultMatch $match */
             return $match->getId();
         }, $this->data['matches']);
     }
@@ -243,13 +242,13 @@ class Base
      *
      * @deprecated
      *
+     * @return ResultMatch[]
      * @note This is provided for downward compatibility, though it's signature
      *       has changed in that it's returning set of Opus_Document instances
      *       rather than set of Opus_Search_Util_Result instances.
      * @note The wording is less specific in that all information in response to
      *       search query may considered results of search. Thus this new API
      *       prefers "matches" over "results".
-     * @return Match[]
      */
     public function getResults()
     {

@@ -50,7 +50,7 @@ use function trim;
  * Describes local document as a match in context of a related search query.
  */
 
-class Match
+class ResultMatch
 {
     /** @var mixed */
     protected $id;

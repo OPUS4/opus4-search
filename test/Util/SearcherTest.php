@@ -39,7 +39,7 @@ use Opus\Common\Model\ModelException;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
-use Opus\Search\Result\Match;
+use Opus\Search\Result\ResultMatch;
 use Opus\Search\SearchException;
 use Opus\Search\Util\Query;
 use Opus\Search\Util\Searcher;
@@ -298,7 +298,7 @@ class SearcherTest extends TestCase
 
     /**
      * @param int|null $collId
-     * @return Document[]|Match[]
+     * @return Document[]|ResultMatch[]
      * @throws SearchException
      */
     private function searchDocumentsAssignedToCollection($collId = null)
@@ -476,7 +476,7 @@ class SearcherTest extends TestCase
     }
 
     /**
-     * @return Document|Match
+     * @return Document|ResultMatch
      * @throws SearchException
      */
     private function getSearchResultForFulltextTests()
