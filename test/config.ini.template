@@ -55,17 +55,20 @@ searchengine.solr.default.adapterClass = Opus\Search\Solr\Solarium\Adapter
 
 searchengine.solr.default.service.default.endpoint.primary.host = @searchengine.index.host@
 searchengine.solr.default.service.default.endpoint.primary.port = @searchengine.index.port@
-searchengine.solr.default.service.default.endpoint.primary.path = @searchengine.index.app@
+searchengine.solr.default.service.default.endpoint.primary.path = @searchengine.index.path@
+searchengine.solr.default.service.default.endpoint.primary.core = @searchengine.index.core@
 searchengine.solr.default.service.default.endpoint.primary.timeout = 10
 searchengine.solr.default.service.default.marker = default
 
 searchengine.solr.default.service.index.endpoint.primary.port = @searchengine.index.port@
-searchengine.solr.default.service.index.endpoint.primary.path = @searchengine.index.app@
+searchengine.solr.default.service.index.endpoint.primary.path = @searchengine.index.path@
+searchengine.solr.default.service.index.endpoint.primary.path = @searchengine.index.core@
 searchengine.solr.default.service.index.marker = index
 
 searchengine.solr.default.service.search.endpoint.primary.host = @searchengine.index.host@
 searchengine.solr.default.service.search.endpoint.primary.port = @searchengine.index.port@
-searchengine.solr.default.service.search.endpoint.primary.path = @searchengine.index.app@
+searchengine.solr.default.service.search.endpoint.primary.path = @searchengine.index.path@
+searchengine.solr.default.service.search.endpoint.primary.path = @searchengine.index.core@
 searchengine.solr.default.service.search.marker = search
 
 searchengine.solr.default.service.extract.marker = extract
@@ -90,15 +93,6 @@ searchengine.solr.default.query.alldocs.query = "*:*"
 searchengine.solr.default.query.onedoc.query = "*:*"
 searchengine.solr.default.query.onedoc.rows = 1
 
-;SEARCH ENGINE SETTINGS (deprecated)
-searchengine.index.host = @searchengine.index.host@
-searchengine.index.port = @searchengine.index.port@
-searchengine.index.app = @searchengine.index.app@
-searchengine.index.timeout = 10
-searchengine.extract.host = @searchengine.index.host@
-searchengine.extract.port = @searchengine.index.port@
-searchengine.extract.app = @searchengine.index.app@
-searchengine.extract.timeout = 10
 searchengine.solr.facets = author_facet,year,doctype,language,has_fulltext,belongs_to_bibliography,subject,project,institute
 
 search.facet.year.indexField = 'published_year'
