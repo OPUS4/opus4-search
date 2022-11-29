@@ -99,6 +99,7 @@ class SimpleTestCase extends TestCase
     {
         $config = OpusConfig::get()->searchengine;
 
+        /*
         unset(
             $config->index->host,
             $config->index->port,
@@ -107,6 +108,7 @@ class SimpleTestCase extends TestCase
             $config->extract->port,
             $config->extract->app
         );
+        */
 
         Config::dropCached();
     }

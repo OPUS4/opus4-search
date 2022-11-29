@@ -216,7 +216,7 @@ class Config
 
         // finally adopt all basically deprecated service-related configuration
         // (old-style options are thus always preferred over any new-style ones)
-        $result = static::mergeWithDeprecatedServiceConfiguration($result, $serviceType);
+        // TODO Solarium $result = static::mergeWithDeprecatedServiceConfiguration($result, $serviceType);
 
         $result->setReadOnly();
 
@@ -365,7 +365,7 @@ class Config
         }
 
         if ($config && is_scalar($config)) {
-            $set = preg_split('/[\s,]+/', trim($config), null, PREG_SPLIT_NO_EMPTY);
+            $set = preg_split('/[\s,]+/', trim($config), 0, PREG_SPLIT_NO_EMPTY);
         } else {
             $set = [];
         }

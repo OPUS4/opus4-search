@@ -102,8 +102,8 @@ class SearcherTest extends TestCase
         $searcher = new Searcher();
         $results  = $searcher->search($query);
 
-        $this->assertEquals(1, count($results));
-        $result = $results->getResults();
+        $this->assertEquals(1, $results->getAllMatchesCount());
+        $result = $results->getReturnedMatches();
         $this->assertEquals($serverDateModified, $result[0]->getServerDateModified()->getUnixTimestamp());
     }
 
@@ -119,8 +119,8 @@ class SearcherTest extends TestCase
         $query->setRows(1);
         $searcher = new Searcher();
         $results  = $searcher->search($query);
-        $this->assertEquals(1, count($results));
-        $result = $results->getResults();
+        $this->assertEquals(1, $results->getAllMatchesCount());
+        $result = $results->getReturnedMatches();
 
         sleep(1);
 
@@ -484,7 +484,7 @@ class SearcherTest extends TestCase
         $query = new Query(Query::SIMPLE);
         $query->setCatchAll('*:*');
         $searcher = new Searcher();
-        $results  = $searcher->search($query)->getResults();
+        $results  = $searcher->search($query)->getReturnedMatches();
         $this->assertEquals(1, count($results));
         return $results[0];
     }

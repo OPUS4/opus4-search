@@ -56,6 +56,8 @@ use Opus\Search\SearchingInterface;
 use Opus\Search\Solr\Filter\Raw;
 use Opus\Search\Solr\Solarium\Filter\Complex;
 use Solarium\Client as SolariumClient;
+use Solarium\Component\Facet\FieldValueParametersInterface;
+use Solarium\Core\Client\Adapter\Curl;
 use Solarium\Core\Query\Query as SolariumCoreQuery;
 use Solarium\Core\Query\Result\ResultInterface;
 use Solarium\Exception\HttpException;
@@ -63,6 +65,7 @@ use Solarium\QueryType\Extract\Result as ExtractResult;
 use Solarium\QueryType\Select\Query\Query as SolariumQuery;
 use Solarium\QueryType\Select\Result\Document as SolariumDocument;
 use Solarium\QueryType\Select\Result\Result;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Zend_Config;
 use Zend_Exception;
 
@@ -107,7 +110,10 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
     public function __construct($serviceName, $options)
     {
         $this->options = $options;
-        $this->client  = new SolariumClient($options);
+        $adapter = new Curl();
+        $eventDispatcher = new EventDispatcher();
+
+        $this->client  = new SolariumClient($adapter, $eventDispatcher, $options->toArray());
 
         // ensure service is basically available
         $ping = $this->client->createPing();
@@ -142,9 +148,11 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
             throw new SearchException($msg, $code, $e);
         }
 
+        /* TODO Solarium
         if ($result->getStatus()) {
             throw new SearchException($actionText, $result->getStatus());
         }
+        */
 
         return $result;
     }
@@ -440,7 +448,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
             throw new InvalidQueryException('selected query is not pre-defined: ' . $name);
         }
 
-        $search = $this->client->createSelect($definition);
+        $search = $this->client->createSelect($definition->toArray());
 
         return $this->processQuery($this->applyParametersOnQuery($search, $customization, true));
     }
@@ -477,8 +485,8 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
 
         // create result descriptor
         $result = Base::create()
-            ->setAllMatchesCount($request->getNumFound())
-            ->setQueryTime($request->getQueryTime());
+            ->setAllMatchesCount($request->getNumFound());
+            // TODO Solarium ->setQueryTime($request->getQueryTime());
 
         // add description on every returned match
         $excluded = 0;
@@ -605,8 +613,11 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
                     $facetSet->createFacetField($field->getName())
                         ->setField($field->getName())
                         ->setMinCount($field->getMinCount())
-                        ->setLimit($field->getLimit())
-                        ->setSort($field->getSort() ? 'index' : null);
+                        ->setLimit($field->getLimit());
+
+                    if ($field->getSort()) {
+                        $facetSet->setSort(FieldValueParametersInterface::SORT_INDEX);
+                    }
                 }
 
                 if ($facet->isFacetOnly()) {
@@ -826,7 +837,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
     {
         $mimeType = $file->getMimeType();
 
-        $mimeType = preg_split('/[;\s]+/', trim($mimeType), null, PREG_SPLIT_NO_EMPTY)[0];
+        $mimeType = preg_split('/[;\s]+/', trim($mimeType), 0, PREG_SPLIT_NO_EMPTY)[0];
 
         if ($mimeType) {
             $supported = $this->options->get("supportedMimeType", [
