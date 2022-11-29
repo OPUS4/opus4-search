@@ -62,13 +62,13 @@ searchengine.solr.default.service.default.marker = default
 
 searchengine.solr.default.service.index.endpoint.primary.port = @searchengine.index.port@
 searchengine.solr.default.service.index.endpoint.primary.path = @searchengine.index.path@
-searchengine.solr.default.service.index.endpoint.primary.path = @searchengine.index.core@
+searchengine.solr.default.service.index.endpoint.primary.core = @searchengine.index.core@
 searchengine.solr.default.service.index.marker = index
 
 searchengine.solr.default.service.search.endpoint.primary.host = @searchengine.index.host@
 searchengine.solr.default.service.search.endpoint.primary.port = @searchengine.index.port@
 searchengine.solr.default.service.search.endpoint.primary.path = @searchengine.index.path@
-searchengine.solr.default.service.search.endpoint.primary.path = @searchengine.index.core@
+searchengine.solr.default.service.search.endpoint.primary.core = @searchengine.index.core@
 searchengine.solr.default.service.search.marker = search
 
 searchengine.solr.default.service.extract.marker = extract
