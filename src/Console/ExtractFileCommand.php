@@ -134,5 +134,7 @@ EOT;
         } else {
             $output->writeln($text);
         }
+
+        return 0;
     }
 }

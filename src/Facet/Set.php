@@ -227,7 +227,7 @@ class Set
                 throw new InvalidArgumentException('invalid type of field selector');
             }
 
-            $fieldNames = preg_split('/[\s,]+/', $field, null, PREG_SPLIT_NO_EMPTY);
+            $fieldNames = preg_split('/[\s,]+/', $field, 0, PREG_SPLIT_NO_EMPTY);
             foreach ($fieldNames as $name) {
                 if (! preg_match('/^[a-z_][a-z0-9_\.]*$/i', $name)) {
                     throw new InvalidArgumentException('malformed field selector: ' . $name);

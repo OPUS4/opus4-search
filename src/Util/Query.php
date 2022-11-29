@@ -442,7 +442,7 @@ class Query
     {
         $result     = $fieldname . ':(';
         $firstTerm  = true;
-        $queryTerms = preg_split("/[\s]+/", $this->escape($fieldvalue), null, PREG_SPLIT_NO_EMPTY);
+        $queryTerms = preg_split("/[\s]+/", $this->escape($fieldvalue), 0, PREG_SPLIT_NO_EMPTY);
         foreach ($queryTerms as $queryTerm) {
             if ($firstTerm) {
                 $firstTerm = false;

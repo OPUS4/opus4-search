@@ -119,7 +119,7 @@ class Xslt extends AbstractSolrDocumentBase
     {
         $path = $this->options->xsltfile;
 
-        if (strlen(trim($path)) === 0) {
+        if ($path === null || strlen(trim($path)) === 0) {
             $path = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'solr.xslt';
         }
 
@@ -152,7 +152,10 @@ class Xslt extends AbstractSolrDocumentBase
         foreach ($order as $fieldName) {
             if (array_key_exists($fieldName, $fields)) {
                 $year = $fields[$fieldName];
-                if (ctype_digit($year)) {
+                if (is_int($year)) {
+                    $year = strval($year);
+                }
+                if ($year !== null && ctype_digit($year)) {
                     // use the first value found
                     break;
                 }
@@ -179,7 +182,7 @@ class Xslt extends AbstractSolrDocumentBase
                 $orderConfig = 'PublishedDate,PublishedYear'; // old default
             }
 
-            $order = preg_split('/[\s,]+/', trim($orderConfig), null, PREG_SPLIT_NO_EMPTY);
+            $order = preg_split('/[\s,]+/', trim($orderConfig), 0, PREG_SPLIT_NO_EMPTY);
 
             self::$yearOrder = $order;
         }

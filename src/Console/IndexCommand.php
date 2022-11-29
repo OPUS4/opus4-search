@@ -173,5 +173,7 @@ EOT;
             $output->writeln($e->getTraceAsString());
             $output->writeln();
         }
+
+        return 0;
     }
 }
