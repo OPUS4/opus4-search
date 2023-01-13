@@ -16,10 +16,10 @@
     "ext-simplexml": "*",
     "ext-mbstring": "*",
     "solarium/solarium": "3.8.*",
-    "opus4-repo/framework": "4.7.2.x-dev",
-    "opus4-repo/opus4-common": "4.7.2.x-dev",
-    "opus4-repo/opus4-job": "dev-main",
-    "zendframework/zendframework1": "1.12.*",
+    "opus4-repo/framework": "dev-4.7.2-zf1f",
+    "opus4-repo/opus4-common": "dev-4.7.2-zf1f",
+    "opus4-repo/opus4-job": "dev-4.7.2-zf1f",
+    "shardj/zf1-future": "1.21.*",
     "symfony/console": "*"
   },
   "require-dev": {
