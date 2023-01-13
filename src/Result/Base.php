@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -80,7 +80,7 @@ class Base
      * Assigns matches returned in response to search query.
      *
      * @param mixed $documentId ID of document considered match of related search query
-     * @return Match
+     * @return ResultMatch
      */
     public function addMatch($documentId)
     {
@@ -88,7 +88,7 @@ class Base
             $this->data['matches'] = [];
         }
 
-        $match = Match::create($documentId);
+        $match = ResultMatch::create($documentId);
 
         $this->data['matches'][] = $match;
 
@@ -191,7 +191,7 @@ class Base
      * Retrieves set of matching and locally existing documents returned in
      * response to some search query.
      *
-     * @return Match[]
+     * @return ResultMatch[]
      */
     public function getReturnedMatches()
     {
@@ -203,7 +203,7 @@ class Base
         // documents existing locally, only
         $matches = [];
 
-        /** @var Match $match */
+        /** @var ResultMatch $match */
         foreach ($this->data['matches'] as $match) {
             try {
                 $match->getDocument();
@@ -231,7 +231,7 @@ class Base
         }
 
         return array_map(function ($match) {
-            /** @var Match $match */
+            /** @var ResultMatch $match */
             return $match->getId();
         }, $this->data['matches']);
     }
@@ -247,7 +247,7 @@ class Base
      * @note The wording is less specific in that all information in response to
      *       search query may considered results of search. Thus this new API
      *       prefers "matches" over "results".
-     * @return DocumentInterface[]
+     * @return ResultMatch[]
      */
     public function getResults()
     {

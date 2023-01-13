@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -35,11 +35,12 @@ use Opus\Common\Collection;
 use Opus\Common\CollectionRole;
 use Opus\Common\Config;
 use Opus\Common\Document;
+use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
-use Opus\Search\Result\Match;
+use Opus\Search\Result\ResultMatch;
 use Opus\Search\SearchException;
 use Opus\Search\Util\Query;
 use Opus\Search\Util\Searcher;
@@ -298,7 +299,7 @@ class SearcherTest extends TestCase
 
     /**
      * @param int|null $collId
-     * @return Document[]|Match[]
+     * @return DocumentInterface[]|ResultMatch[]
      * @throws SearchException
      */
     private function searchDocumentsAssignedToCollection($collId = null)
@@ -476,7 +477,7 @@ class SearcherTest extends TestCase
     }
 
     /**
-     * @return Document|Match
+     * @return DocumentInterface|ResultMatch
      * @throws SearchException
      */
     private function getSearchResultForFulltextTests()
