@@ -33,6 +33,7 @@
 namespace Opus\Search\Console;
 
 use Opus\Common\Console\AbstractBaseDocumentCommand;
+use Opus\Common\Model\ModelException;
 use Opus\Search\Console\Helper\IndexHelper;
 use Opus\Search\SearchException;
 use Symfony\Component\Console\Exception\InvalidOptionException;
@@ -137,6 +138,11 @@ EOT;
         }
     }
 
+    /**
+     * @return int
+     * @throws ModelException
+     * @throws Zend_Config_Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);

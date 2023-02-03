@@ -109,11 +109,11 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
      */
     public function __construct($serviceName, $options)
     {
-        $this->options = $options;
-        $adapter = new Curl();
+        $this->options   = $options;
+        $adapter         = new Curl();
         $eventDispatcher = new EventDispatcher();
 
-        $this->client  = new SolariumClient($adapter, $eventDispatcher, $options->toArray());
+        $this->client = new SolariumClient($adapter, $eventDispatcher, $options->toArray());
 
         // ensure service is basically available
         $ping = $this->client->createPing();

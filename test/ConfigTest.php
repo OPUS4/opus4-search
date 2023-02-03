@@ -32,7 +32,6 @@
 
 namespace OpusTest\Search;
 
-use Opus\Common\Config as OpusConfig;
 use Opus\Common\EnrichmentKey;
 use Opus\Search\Config;
 use OpusTest\Search\TestAsset\TestCase;

@@ -45,8 +45,10 @@ use function array_key_exists;
 use function ctype_digit;
 use function dirname;
 use function filter_var;
+use function is_int;
 use function preg_split;
 use function strlen;
+use function strval;
 use function trim;
 
 use const DIRECTORY_SEPARATOR;

@@ -96,6 +96,10 @@ EOT;
             );
     }
 
+    /**
+     * @return int
+     * @throws SearchException
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $file    = $input->getArgument(self::ARGUMENT_FILE);

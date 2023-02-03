@@ -44,10 +44,10 @@ class DocumentTest extends DocumentBasedTestCase
 {
     public function testConvertingArticle()
     {
-        $adapter = new Curl();
+        $adapter         = new Curl();
         $eventDispatcher = new EventDispatcher();
-        $service = new Client($adapter, $eventDispatcher);
-        $update  = $service->createUpdate();
+        $service         = new Client($adapter, $eventDispatcher);
+        $update          = $service->createUpdate();
 
         $article = $this->createDocument('article');
 
