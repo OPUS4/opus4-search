@@ -177,7 +177,7 @@ EOT;
             }
             $output->writeln('Stack Trace:');
             $output->writeln($e->getTraceAsString());
-            $output->writeln();
+            $output->writeln('');
         }
 
         return 0;
