@@ -53,9 +53,3 @@ jobs:
 
       - name: Coding-Style
         run: php composer.phar cs-check
-
-      - name: PHP-LOC
-        run: php composer.phar phploc
-
-      - name: PHP CPD
-        run: php composer.phar phpcpd

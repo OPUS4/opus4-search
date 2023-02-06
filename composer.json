@@ -25,9 +25,6 @@
   "require-dev": {
     "phpunit/phpunit": "6.*",
     "opus4-repo/codesniffer": "dev-laminas",
-    "phpmd/phpmd": "@stable",
-    "phploc/phploc": "@stable",
-    "sebastian/phpcpd": "*",
     "phpmetrics/phpmetrics": "*"
   },
   "config": {
