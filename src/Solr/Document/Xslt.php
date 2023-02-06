@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -45,8 +45,10 @@ use function array_key_exists;
 use function ctype_digit;
 use function dirname;
 use function filter_var;
+use function is_int;
 use function preg_split;
 use function strlen;
+use function strval;
 use function trim;
 
 use const DIRECTORY_SEPARATOR;
@@ -58,6 +60,7 @@ class Xslt extends AbstractSolrDocumentBase
     /** @var XSLTProcessor */
     protected $processor;
 
+    /** @var Zend_Config */
     private $options;
 
     public function __construct(Zend_Config $options)
@@ -92,7 +95,7 @@ class Xslt extends AbstractSolrDocumentBase
      */
     public function toSolrDocument(DocumentInterface $opusDoc, $solrDoc)
     {
-        if (! $solrDoc instanceof DomDocument) {
+        if (! $solrDoc instanceof DOMDocument) {
             throw new InvalidArgumentException('provided Solr document must be instance of DOMDocument');
         }
 
@@ -118,7 +121,7 @@ class Xslt extends AbstractSolrDocumentBase
     {
         $path = $this->options->xsltfile;
 
-        if (strlen(trim($path)) === 0) {
+        if ($path === null || strlen(trim($path)) === 0) {
             $path = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'solr.xslt';
         }
 
@@ -151,7 +154,10 @@ class Xslt extends AbstractSolrDocumentBase
         foreach ($order as $fieldName) {
             if (array_key_exists($fieldName, $fields)) {
                 $year = $fields[$fieldName];
-                if (ctype_digit($year)) {
+                if (is_int($year)) {
+                    $year = strval($year);
+                }
+                if ($year !== null && ctype_digit($year)) {
                     // use the first value found
                     break;
                 }
@@ -161,6 +167,7 @@ class Xslt extends AbstractSolrDocumentBase
         return $year;
     }
 
+    /** @var string */
     private static $yearOrder;
 
     /**
@@ -177,7 +184,7 @@ class Xslt extends AbstractSolrDocumentBase
                 $orderConfig = 'PublishedDate,PublishedYear'; // old default
             }
 
-            $order = preg_split('/[\s,]+/', trim($orderConfig), null, PREG_SPLIT_NO_EMPTY);
+            $order = preg_split('/[\s,]+/', trim($orderConfig), 0, PREG_SPLIT_NO_EMPTY);
 
             self::$yearOrder = $order;
         }

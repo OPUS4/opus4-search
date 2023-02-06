@@ -56,7 +56,7 @@ use const DIRECTORY_SEPARATOR;
 
 class SearcherTest extends TestCase
 {
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->clearFiles();
 
@@ -103,8 +103,8 @@ class SearcherTest extends TestCase
         $searcher = new Searcher();
         $results  = $searcher->search($query);
 
-        $this->assertEquals(1, count($results));
-        $result = $results->getResults();
+        $this->assertEquals(1, $results->getAllMatchesCount());
+        $result = $results->getReturnedMatches();
         $this->assertEquals($serverDateModified, $result[0]->getServerDateModified()->getUnixTimestamp());
     }
 
@@ -120,8 +120,8 @@ class SearcherTest extends TestCase
         $query->setRows(1);
         $searcher = new Searcher();
         $results  = $searcher->search($query);
-        $this->assertEquals(1, count($results));
-        $result = $results->getResults();
+        $this->assertEquals(1, $results->getAllMatchesCount());
+        $result = $results->getReturnedMatches();
 
         sleep(1);
 
@@ -332,7 +332,7 @@ class SearcherTest extends TestCase
         $this->assertEquals($value, $success[0]);
 
         $failure = $result->getFulltextIDsFailure();
-        $this->assertEquals(0, count($failure));
+        $this->assertNull($failure);
     }
 
     public function testFulltextFieldsForInvalidPDFFulltext()
@@ -353,7 +353,7 @@ class SearcherTest extends TestCase
         $this->assertEquals($value, $failure[0]);
 
         $success = $result->getFulltextIDsSuccess();
-        $this->assertEquals(0, count($success));
+        $this->assertNull($success);
     }
 
     /**
@@ -402,7 +402,7 @@ class SearcherTest extends TestCase
         $this->removeFiles($id, $fileName1, $fileName2);
 
         $this->assertEquals(2, count($success));
-        $this->assertEquals(0, count($failure));
+        $this->assertNull($failure);
         $this->assertEquals($valueFile1, $success[0]);
         $this->assertEquals($valueFile2, $success[1]);
     }
@@ -485,7 +485,7 @@ class SearcherTest extends TestCase
         $query = new Query(Query::SIMPLE);
         $query->setCatchAll('*:*');
         $searcher = new Searcher();
-        $results  = $searcher->search($query)->getResults();
+        $results  = $searcher->search($query)->getReturnedMatches();
         $this->assertEquals(1, count($results));
         return $results[0];
     }

@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -48,15 +48,8 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $this->assertInstanceOf(Adapter::class, $service);
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testDisfunctServiceFails()
     {
-    // need to drop deprecated configuration options for interfering with
-    // intention of this test regarding revised configuration structure, only
-        $this->dropDeprecatedConfiguration();
-
         $this->expectException(Exception::class);
         Service::selectIndexingService('disfunct');
     }
@@ -346,15 +339,8 @@ class AdapterIndexingTest extends DocumentBasedTestCase
         $service->removeDocumentsFromIndex([$docA]);
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testIndexingArticleOnDisfunctServiceFails()
     {
-        // need to drop deprecated configuration options for interfering with
-        // intention of this test regarding revised configuration structure, only
-        $this->dropDeprecatedConfiguration();
-
         $this->expectException(Exception::class);
         $service = Service::selectIndexingService('disfunct', 'solr');
 

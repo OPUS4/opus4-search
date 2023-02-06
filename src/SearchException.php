@@ -48,10 +48,10 @@ class SearchException extends PhpException
 
     /**
      * @param string      $message
-     * @param int|null    $code
+     * @param int         $code
      * @param parent|null $previous
      */
-    public function __construct($message, $code = null, $previous = null)
+    public function __construct($message, $code = 0, $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

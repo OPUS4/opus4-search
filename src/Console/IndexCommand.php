@@ -33,12 +33,14 @@
 namespace Opus\Search\Console;
 
 use Opus\Common\Console\AbstractBaseDocumentCommand;
+use Opus\Common\Model\ModelException;
 use Opus\Search\Console\Helper\IndexHelper;
 use Opus\Search\SearchException;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Zend_Config_Exception;
 
 use function ctype_digit;
 use function ltrim;
@@ -54,8 +56,10 @@ class IndexCommand extends AbstractBaseDocumentCommand
 
     const OPTION_TIMEOUT = 'timeout';
 
+    /** @var string */
     protected static $defaultName = 'index:index';
 
+    /** @var int */
     protected $blockSize = 10;
 
     protected function configure()
@@ -135,6 +139,11 @@ EOT;
         }
     }
 
+    /**
+     * @return int
+     * @throws ModelException
+     * @throws Zend_Config_Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
@@ -171,5 +180,7 @@ EOT;
             $output->writeln($e->getTraceAsString());
             $output->writeln('');
         }
+
+        return 0;
     }
 }
