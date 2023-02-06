@@ -35,6 +35,7 @@ use Opus\Common\Collection;
 use Opus\Common\CollectionRole;
 use Opus\Common\Config;
 use Opus\Common\Document;
+use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
@@ -298,7 +299,7 @@ class SearcherTest extends TestCase
 
     /**
      * @param int|null $collId
-     * @return Document[]|ResultMatch[]
+     * @return DocumentInterface[]|ResultMatch[]
      * @throws SearchException
      */
     private function searchDocumentsAssignedToCollection($collId = null)
@@ -331,7 +332,7 @@ class SearcherTest extends TestCase
         $this->assertEquals($value, $success[0]);
 
         $failure = $result->getFulltextIDsFailure();
-        $this->assertEquals(0, count($failure));
+        $this->assertNull($failure);
     }
 
     public function testFulltextFieldsForInvalidPDFFulltext()
@@ -352,7 +353,7 @@ class SearcherTest extends TestCase
         $this->assertEquals($value, $failure[0]);
 
         $success = $result->getFulltextIDsSuccess();
-        $this->assertEquals(0, count($success));
+        $this->assertNull($success);
     }
 
     /**
@@ -401,7 +402,7 @@ class SearcherTest extends TestCase
         $this->removeFiles($id, $fileName1, $fileName2);
 
         $this->assertEquals(2, count($success));
-        $this->assertEquals(0, count($failure));
+        $this->assertNull($failure);
         $this->assertEquals($valueFile1, $success[0]);
         $this->assertEquals($valueFile2, $success[1]);
     }
@@ -476,7 +477,7 @@ class SearcherTest extends TestCase
     }
 
     /**
-     * @return Document|ResultMatch
+     * @return DocumentInterface|ResultMatch
      * @throws SearchException
      */
     private function getSearchResultForFulltextTests()

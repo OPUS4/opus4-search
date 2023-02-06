@@ -89,7 +89,7 @@ class Base
             $this->data['matches'] = [];
         }
 
-        $match = new ResultMatch($documentId);
+        $match = ResultMatch::create($documentId);
 
         $this->data['matches'][] = $match;
 

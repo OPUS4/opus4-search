@@ -96,7 +96,7 @@ class Query
     /** @var string */
     private $searchType;
 
-    /** @var string */
+    /** @var array */
     private $modifier;
 
     /** @var array */
