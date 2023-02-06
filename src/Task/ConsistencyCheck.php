@@ -58,6 +58,7 @@ class ConsistencyCheck extends AbstractWorker
 {
     const LABEL = 'opus-consistency-check';
 
+    /** @var string */
     private $logfilePath;
 
     public function __construct()

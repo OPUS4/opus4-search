@@ -44,7 +44,7 @@ use const DIRECTORY_SEPARATOR;
 
 class ConsistencyCheckTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->job    = Job::new();

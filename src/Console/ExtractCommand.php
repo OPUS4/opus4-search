@@ -46,10 +46,13 @@ class ExtractCommand extends AbstractBaseDocumentCommand
 {
     const OPTION_TIMEOUT = 'timeout';
 
+    /** @var string */
     protected static $defaultName = 'index:extract';
 
+    /** @var string */
     protected $startIdDescription = 'ID of document where extraction should start (or \'-\')';
 
+    /** @var string */
     protected $endIdDescription = 'ID of document where extraction should stop (or \'-\')';
 
     protected function configure()

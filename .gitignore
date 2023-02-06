@@ -16,3 +16,4 @@ vendor
 
 # Vagrant files
 .vagrant
+.phpunit.result.cache

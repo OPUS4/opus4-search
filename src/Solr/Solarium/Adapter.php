@@ -826,7 +826,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
     {
         $mimeType = $file->getMimeType();
 
-        $mimeType = preg_split('/[;\s]+/', trim($mimeType), null, PREG_SPLIT_NO_EMPTY)[0];
+        $mimeType = preg_split('/[;\s]+/', trim($mimeType), 0, PREG_SPLIT_NO_EMPTY)[0];
 
         if ($mimeType) {
             $supported = $this->options->get("supportedMimeType", [
