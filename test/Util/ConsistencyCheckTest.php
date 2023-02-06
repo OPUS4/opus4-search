@@ -41,6 +41,7 @@ use Opus\Search\Service;
 use Opus\Search\Util\ConsistencyCheck;
 use OpusTest\Search\TestAsset\TestCase;
 use Zend_Config;
+use Zend_Config_Exception;
 
 use function sleep;
 
@@ -183,8 +184,6 @@ class ConsistencyCheckTest extends TestCase
 
     private function manipulateSolrConfig()
     {
-        $this->dropDeprecatedConfiguration();
-
         $config          = OpusConfig::get();
         $this->indexHost = $config->searchengine->solr->default->service->endpoint;
 

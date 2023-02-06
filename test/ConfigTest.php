@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -44,8 +44,6 @@ class ConfigTest extends TestCase
 {
     public function testProvidesSearchConfiguration()
     {
-        $this->dropDeprecatedConfiguration();
-
         $config = Config::getServiceConfiguration('search', null, 'solr');
 
         $this->assertInstanceOf(Zend_Config::class, $config);
@@ -63,8 +61,6 @@ class ConfigTest extends TestCase
 
     public function testProvidesIndexConfiguration()
     {
-        $this->dropDeprecatedConfiguration();
-
         $config = Config::getServiceConfiguration('index', null, 'solr');
 
         $this->assertInstanceOf(Zend_Config::class, $config);
@@ -79,8 +75,6 @@ class ConfigTest extends TestCase
 
     public function testProvidesExtractConfiguration()
     {
-        $this->dropDeprecatedConfiguration();
-
         $config = Config::getServiceConfiguration('extract', null, 'solr');
 
         $this->assertInstanceOf(Zend_Config::class, $config);
@@ -95,8 +89,6 @@ class ConfigTest extends TestCase
 
     public function testProvidesDefaultConfiguration()
     {
-        $this->dropDeprecatedConfiguration();
-
         $config = Config::getServiceConfiguration('default', null, 'solr');
 
         $this->assertInstanceOf(Zend_Config::class, $config);
@@ -111,8 +103,6 @@ class ConfigTest extends TestCase
 
     public function testProvidesSpecialSearchConfiguration()
     {
-        $this->dropDeprecatedConfiguration();
-
         $config = Config::getServiceConfiguration('search', 'special', 'solr');
 
         $this->assertInstanceOf('Zend_Config', $config);
@@ -127,8 +117,6 @@ class ConfigTest extends TestCase
 
     public function testProvidesSpecialExtractConfiguration()
     {
-        $this->dropDeprecatedConfiguration();
-
         $config = Config::getServiceConfiguration('extract', 'special', 'solr');
 
         $this->assertInstanceOf('Zend_Config', $config);
@@ -143,8 +131,6 @@ class ConfigTest extends TestCase
 
     public function testProvidesDefaultConfigurationAsFallback()
     {
-        $this->dropDeprecatedConfiguration();
-
         $config = Config::getServiceConfiguration('missing', null, 'solr');
 
         $this->assertInstanceOf('Zend_Config', $config);
@@ -159,8 +145,6 @@ class ConfigTest extends TestCase
 
     public function testProvidesAllSolrConfiguration()
     {
-        $this->dropDeprecatedConfiguration();
-
         $config = Config::getDomainConfiguration('solr');
 
         $this->assertInstanceOf('Zend_Config', $config);
@@ -184,8 +168,6 @@ class ConfigTest extends TestCase
 
     public function testAccessingDisfunctSearchConfiguration()
     {
-        $this->dropDeprecatedConfiguration();
-
         $config = Config::getServiceConfiguration('search', 'disfunct');
 
         $this->assertInstanceOf('Zend_Config', $config);
@@ -200,8 +182,6 @@ class ConfigTest extends TestCase
 
     public function testAccessingDisfunctIndexConfiguration()
     {
-        $this->dropDeprecatedConfiguration();
-
         $config = Config::getServiceConfiguration('index', 'disfunct');
 
         $this->assertInstanceOf('Zend_Config', $config);

@@ -50,10 +50,6 @@ class AdapterIndexingTest extends DocumentBasedTestCase
 
     public function testDisfunctServiceFails()
     {
-    // need to drop deprecated configuration options for interfering with
-    // intention of this test regarding revised configuration structure, only
-        $this->dropDeprecatedConfiguration();
-
         $this->expectException(Exception::class);
         Service::selectIndexingService('disfunct');
     }
@@ -345,10 +341,6 @@ class AdapterIndexingTest extends DocumentBasedTestCase
 
     public function testIndexingArticleOnDisfunctServiceFails()
     {
-        // need to drop deprecated configuration options for interfering with
-        // intention of this test regarding revised configuration structure, only
-        $this->dropDeprecatedConfiguration();
-
         $this->expectException(Exception::class);
         $service = Service::selectIndexingService('disfunct', 'solr');
 
