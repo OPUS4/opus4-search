@@ -80,8 +80,8 @@ class ConsistencyCheckTest extends TestCase
         $this->assertFileExists($logfilePath);
 
         $content = file_get_contents($logfilePath);
-        $this->assertContains('checking 1 published documents for consistency.', $content);
-        $this->assertContains('No inconsistency was detected.', $content);
-        $this->assertContains('Completed operation after ', $content);
+        $this->assertStringContainsString('checking 1 published documents for consistency.', $content);
+        $this->assertStringContainsString('No inconsistency was detected.', $content);
+        $this->assertStringContainsString('Completed operation after ', $content);
     }
 }

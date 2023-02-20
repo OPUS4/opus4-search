@@ -69,7 +69,7 @@ class FulltextFileCacheTest extends TestCase
 
         $name = FulltextFileCache::getCacheFileName($file);
 
-        $this->assertContains(
+        $this->assertStringContainsString(
             'solr_cache---1ba50dc8abc619cea3ba39f77c75c0fe'
             . '-f87dffb1d8f33844154e214711674407e2493e6188b1411481e6a38fe071064e.txt',
             $name

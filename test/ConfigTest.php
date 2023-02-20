@@ -200,7 +200,7 @@ class ConfigTest extends TestCase
 
         $facetList = $config->facets;
 
-        $this->assertNotContains(
+        $this->assertStringNotContainsString(
             'server_state',
             $facetList,
             'Facet configuration for testing should not contain server_state'
@@ -237,7 +237,7 @@ class ConfigTest extends TestCase
     {
         $limits = Config::getFacetLimits();
 
-        $this->assertInternalType('array', $limits);
+        $this->assertIsArray($limits);
         $this->assertCount(11, $limits);
         $this->assertArrayHasKey('__global__', $limits);
         $this->assertEquals(10, $limits['__global__']);
@@ -295,7 +295,7 @@ class ConfigTest extends TestCase
     {
         $sorting = Config::getFacetSorting();
 
-        $this->assertInternalType('array', $sorting);
+        $this->assertIsArray($sorting);
         $this->assertCount(0, $sorting);
 
         Config::dropCached();
