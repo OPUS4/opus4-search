@@ -2,6 +2,7 @@
 build
 test/config.ini
 cache.properties
+/database.ini
 
 # IDE files
 .idea
