@@ -40,16 +40,20 @@ jobs:
       - name: Start MySQL
         run: sudo systemctl start mysql.service
 
+      - name: Prepare workspace
+        run: ant prepare-workspace
+
+      - name: Prepare search config
+        run: ant prepare-config
+
       - name: Prepare database
         run: bash vendor/bin/opus4db --adminpwd root --userpwd root --sqlpwd root
 
-      - name: Prepare
-        run: |
-          ant prepare-workspace prepare-config lint -DdbUserPassword=root -DdbAdminPassword=root
-          export APPLICATION_PATH=. && php vendor/opus4-repo/framework/db/createdb.php
+      - name: Basic PHP file check
+        run: ant lint
 
-      - name: Test
+      - name: Tests
         run: php composer.phar test
 
-      - name: Coding-Style
+      - name: Coding Style
         run: php composer.phar cs-check
