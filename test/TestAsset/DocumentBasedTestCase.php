@@ -40,7 +40,7 @@ use Opus\Common\Model\DependentModelInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\ModelInterface;
 use Opus\Common\Person;
-use Opus\Model\Xml\Cache;
+use Opus\Common\Repository;
 use ReflectionClass;
 
 use function array_key_exists;
@@ -314,7 +314,7 @@ class DocumentBasedTestCase extends TestCase
     {
         parent::tearDown();
 
-        $cache = new Cache(false);
+        $cache = Repository::getInstance()->getDocumentXmlCache();
         $files = APPLICATION_PATH . '/build/workspace/files/';
 
         foreach ($this->created as $model) {
