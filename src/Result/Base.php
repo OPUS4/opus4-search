@@ -33,8 +33,8 @@
 namespace Opus\Search\Result;
 
 use InvalidArgumentException;
+use Opus\Common\Model\NotFoundException;
 use Opus\Common\Repository;
-use Opus\Document\DocumentException;
 use Opus\Search\Log;
 use RuntimeException;
 
@@ -209,7 +209,7 @@ class Base
             try {
                 $match->getDocument();
                 $matches[] = $match;
-            } catch (DocumentException $e) {
+            } catch (NotFoundException $e) {
                 Log::get()->warn('skipping matching but locally missing document #' . $match->getId());
             }
         }
