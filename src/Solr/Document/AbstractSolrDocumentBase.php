@@ -37,9 +37,9 @@ use Exception as PhpException;
 use Opus\Common\Config;
 use Opus\Common\DocumentInterface;
 use Opus\Common\FileInterface;
+use Opus\Common\Repository;
 use Opus\Common\Storage\StorageException;
 use Opus\Model\Xml;
-use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
 use Opus\Search\Log;
 use Opus\Search\MimeTypeNotSupportedException;
@@ -73,7 +73,7 @@ abstract class AbstractSolrDocumentBase
         $cachingXmlModel->setModel($opusDoc);
         $cachingXmlModel->excludeEmptyFields();
         $cachingXmlModel->setStrategy(new Version1());
-        $cache = new Cache(false);
+        $cache = Repository::getInstance()->getDocumentXmlCache();
         $cachingXmlModel->setXmlCache($cache);
 
         $modelXml = $cachingXmlModel->getDomDocument();
