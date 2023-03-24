@@ -97,6 +97,8 @@ abstract class AbstractSolrDocumentBase
      * @param DOMDocument     $modelXml
      * @param FileInterface[] $files
      * @param string          $docId ID of document
+     *
+     * TODO return values are messed up
      */
     private function attachFulltextToXml($modelXml, $files, $docId)
     {
@@ -113,7 +115,8 @@ abstract class AbstractSolrDocumentBase
         // only consider files which are visible in frontdoor
         /** @var FileInterface $file */
         $files = array_filter($files, function ($file) {
-            return $file->getVisibleInFrontdoor() === 1;
+            $visible = $file->getVisibleInFrontdoor();
+            return $visible ? true : false; // TODO depending on PHP version (7 vs 8) $visible is a string or an int ?
         });
 
         if (! count($files)) {
