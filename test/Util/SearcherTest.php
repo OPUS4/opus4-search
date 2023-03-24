@@ -318,17 +318,16 @@ class SearcherTest extends TestCase
     {
         $fileName = 'test.pdf';
         $id       = $this->createDocWithFulltext($fileName);
-
-        $result = $this->getSearchResultForFulltextTests();
-
-        $success = $result->getFulltextIDsSuccess();
+        $result   = $this->getSearchResultForFulltextTests();
+        $success  = $result->getFulltextIDsSuccess();
 
         $doc   = Document::get($id);
         $file  = $doc->getFile();
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->removeFiles($id, $fileName);
 
-        $this->assertEquals(1, count($success));
+        $this->assertNotNull($success);
+        $this->assertCount(1, $success);
         $this->assertEquals($value, $success[0]);
 
         $failure = $result->getFulltextIDsFailure();
@@ -349,7 +348,8 @@ class SearcherTest extends TestCase
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->removeFiles($id, $fileName);
 
-        $this->assertEquals(1, count($failure));
+        $this->assertNotNull($failure);
+        $this->assertCount(1, $failure);
         $this->assertEquals($value, $failure[0]);
 
         $success = $result->getFulltextIDsSuccess();
@@ -368,10 +368,12 @@ class SearcherTest extends TestCase
         $result = $this->getSearchResultForFulltextTests();
 
         $success = $result->getFulltextIDsSuccess();
-        $this->assertEquals(1, count($success));
+        $this->assertNotNull($success);
+        $this->assertCount(1, $success);
 
         $failure = $result->getFulltextIDsFailure();
-        $this->assertEquals(1, count($failure));
+        $this->assertNotNull($failure);
+        $this->assertCount(1, $failure);
 
         $doc   = Document::get($id);
         $file  = $doc->getFile();
@@ -401,7 +403,8 @@ class SearcherTest extends TestCase
         $valueFile2 = $file[1]->getId() . ':' . $file[1]->getRealHash('md5');
         $this->removeFiles($id, $fileName1, $fileName2);
 
-        $this->assertEquals(2, count($success));
+        $this->assertNotNull($success);
+        $this->assertCount(2, $success);
         $this->assertNull($failure);
         $this->assertEquals($valueFile1, $success[0]);
         $this->assertEquals($valueFile2, $success[1]);

@@ -81,6 +81,6 @@ class FulltextFileCacheTest extends TestCase
 
         $this->assertEquals($name, $name2);
 
-        $this->assertTrue(file_exists($name2));
+        $this->assertTrue(file_exists($name2), $name2);
     }
 }
