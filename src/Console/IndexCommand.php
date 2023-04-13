@@ -32,7 +32,7 @@
 
 namespace Opus\Search\Console;
 
-use Opus\Common\Console\AbstractBaseDocumentCommand;
+use Opus\Common\Console\AbstractDocumentCommand;
 use Opus\Common\Model\ModelException;
 use Opus\Search\Console\Helper\IndexHelper;
 use Opus\Search\SearchException;
@@ -46,7 +46,7 @@ use function ctype_digit;
 use function ltrim;
 use function sprintf;
 
-class IndexCommand extends AbstractBaseDocumentCommand
+class IndexCommand extends AbstractDocumentCommand
 {
     const OPTION_BLOCKSIZE = 'blocksize';
 
