@@ -31,7 +31,7 @@
 
 namespace Opus\Search\Console;
 
-use Opus\Common\Console\AbstractBaseDocumentCommand;
+use Opus\Common\Console\AbstractDocumentCommand;
 use Opus\Search\Console\Helper\IndexHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -42,7 +42,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * TODO use some kind of helper instead of base class?
  * TODO need to have a way to access/check cache (perhaps another command)
  */
-class ExtractCommand extends AbstractBaseDocumentCommand
+class ExtractCommand extends AbstractDocumentCommand
 {
     const OPTION_TIMEOUT = 'timeout';
 
