@@ -94,6 +94,9 @@ use const PREG_SPLIT_NO_EMPTY;
 
 class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInterface, ExtractingInterface
 {
+    /** @var string */
+    protected $serviceName;
+
     /** @var Zend_Config */
     protected $options;
 
@@ -109,15 +112,21 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
      */
     public function __construct($serviceName, $options)
     {
-        $this->options   = $options;
-        $adapter         = new Curl();
-        $eventDispatcher = new EventDispatcher();
+        $this->serviceName = $serviceName;
+        $this->options     = $options;
+        $adapter           = new Curl();
+        $eventDispatcher   = new EventDispatcher();
 
         $this->client = new SolariumClient($adapter, $eventDispatcher, $options->toArray());
 
         // ensure service is basically available
+        $this->ping();
+    }
+
+    public function ping()
+    {
         $ping = $this->client->createPing();
-        $this->execute($ping, 'failed pinging service ' . $serviceName);
+        $this->execute($ping, 'failed pinging service ' . $this->serviceName);
     }
 
     /**
