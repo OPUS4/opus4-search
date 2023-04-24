@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -36,14 +36,18 @@ use Opus\Search\Config;
 use Opus\Search\Solr\Solarium\Document;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 use Solarium\Client;
-use Solarium\QueryType\Update\Query\Document\Document as SolariumDocument;
+use Solarium\Core\Client\Adapter\Curl;
+use Solarium\QueryType\Update\Query\Document as SolariumDocument;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class DocumentTest extends DocumentBasedTestCase
 {
     public function testConvertingArticle()
     {
-        $service = new Client();
-        $update  = $service->createUpdate();
+        $adapter         = new Curl();
+        $eventDispatcher = new EventDispatcher();
+        $service         = new Client($adapter, $eventDispatcher);
+        $update          = $service->createUpdate();
 
         $article = $this->createDocument('article');
 

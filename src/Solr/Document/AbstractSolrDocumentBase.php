@@ -113,7 +113,7 @@ abstract class AbstractSolrDocumentBase
         // only consider files which are visible in frontdoor
         /** @var FileInterface $file */
         $files = array_filter($files, function ($file) {
-            return $file->getVisibleInFrontdoor() === '1';
+            return $file->getVisibleInFrontdoor() === 1;
         });
 
         if (! count($files)) {

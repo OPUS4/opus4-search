@@ -56,8 +56,10 @@ use function unlink;
 
 class DocumentBasedTestCase extends TestCase
 {
+    /** @var array */
     private $created = [];
 
+    /** @var array[] */
     protected static $documentPropertySets = [
         'article'   => [
             'Type'                    => 'article',
@@ -308,7 +310,7 @@ class DocumentBasedTestCase extends TestCase
     /**
      * Manages to delete all documents created in a test run.
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 

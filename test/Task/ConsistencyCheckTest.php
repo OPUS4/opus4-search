@@ -34,7 +34,7 @@ namespace OpusTest\Search\Task;
 use Opus\Common\Config;
 use Opus\Common\Document;
 use Opus\Common\Job;
-use Opus\Job\Worker\InvalidJobException;
+use Opus\Job\InvalidJobException;
 use Opus\Search\Task\ConsistencyCheck;
 use OpusTest\Search\TestAsset\TestCase;
 
@@ -44,7 +44,7 @@ use const DIRECTORY_SEPARATOR;
 
 class ConsistencyCheckTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->job    = Job::new();
@@ -80,8 +80,8 @@ class ConsistencyCheckTest extends TestCase
         $this->assertFileExists($logfilePath);
 
         $content = file_get_contents($logfilePath);
-        $this->assertContains('checking 1 published documents for consistency.', $content);
-        $this->assertContains('No inconsistency was detected.', $content);
-        $this->assertContains('Completed operation after ', $content);
+        $this->assertStringContainsString('checking 1 published documents for consistency.', $content);
+        $this->assertStringContainsString('No inconsistency was detected.', $content);
+        $this->assertStringContainsString('Completed operation after ', $content);
     }
 }

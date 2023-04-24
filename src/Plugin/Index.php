@@ -42,6 +42,7 @@ use Opus\Search\Log;
 use Opus\Search\SearchException;
 use Opus\Search\Service;
 use Opus\Search\Task\IndexOpusDocument;
+use Zend_Config;
 
 use function filter_var;
 
@@ -52,6 +53,7 @@ use const FILTER_VALIDATE_BOOLEAN;
  */
 class Index extends AbstractPlugin
 {
+    /** @var Zend_Config */
     private $config;
 
     /**

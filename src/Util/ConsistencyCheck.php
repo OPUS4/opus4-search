@@ -36,8 +36,10 @@ use Opus\common\DocumentInterface;
 use Opus\Common\Log;
 use Opus\Common\Model\NotFoundException;
 use Opus\Common\Repository;
+use Opus\Search\IndexingInterface;
 use Opus\Search\QueryFactory;
 use Opus\Search\SearchException;
+use Opus\Search\SearchingInterface;
 use Opus\Search\Service;
 use Zend_Config_Exception;
 use Zend_Exception;
@@ -47,16 +49,22 @@ use function microtime;
 
 class ConsistencyCheck
 {
+    /** @var Log */
     private $logger;
 
+    /** @var SearchingInterface */
     private $searcher;
 
+    /** @var IndexingInterface */
     private $indexer;
 
+    /** @var int */
     private $numOfInconsistencies = 0;
 
+    /** @var int */
     private $numOfUpdates = 0;
 
+    /** @var int */
     private $numOfDeletions = 0;
 
     /**

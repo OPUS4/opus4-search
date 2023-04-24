@@ -39,7 +39,7 @@ use function count;
 
 class IndexTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -53,7 +53,7 @@ class IndexTest extends TestCase
 
         $document = Document::new();
         $document->setServerState('published');
-        $documentId = $document->store();
+        $documentId = (int) $document->store();
 
         $indexJobs = Job::getByLabels(['opus-index-document']);
 
@@ -100,7 +100,7 @@ class IndexTest extends TestCase
 
         $document = Document::new();
         $document->setServerState('published');
-        $documentId = $document->store();
+        $documentId = (int) $document->store();
 
         $indexJobs   = Job::getByLabels(['opus-index-document']);
         $newIndexJob = $this->getCreatedJob($documentId, $indexJobs);

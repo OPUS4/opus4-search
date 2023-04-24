@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2017, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -43,7 +43,7 @@ use const DIRECTORY_SEPARATOR;
 
 class FulltextFileCacheTest extends TestCase
 {
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->clearFiles();
 
@@ -69,7 +69,7 @@ class FulltextFileCacheTest extends TestCase
 
         $name = FulltextFileCache::getCacheFileName($file);
 
-        $this->assertContains(
+        $this->assertStringContainsString(
             'solr_cache---1ba50dc8abc619cea3ba39f77c75c0fe'
             . '-f87dffb1d8f33844154e214711674407e2493e6188b1411481e6a38fe071064e.txt',
             $name
@@ -81,6 +81,6 @@ class FulltextFileCacheTest extends TestCase
 
         $this->assertEquals($name, $name2);
 
-        $this->assertTrue(file_exists($name2));
+        $this->assertTrue(file_exists($name2), $name2);
     }
 }

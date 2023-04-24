@@ -40,15 +40,20 @@ class DocumentHelper
      *
      * @param int $start Start of ID range
      * @param int $end End of ID range
+     * @param int $colId
      * @return array Array of document IDs
      *
      * TODO move somewhere else, not Index specific functionality
      */
-    public function getDocumentIds($start, $end)
+    public function getDocumentIds($start, $end, $colId = 0)
     {
         $finder = Repository::getInstance()->getDocumentFinder();
 
         $finder->setDocumentIdRange($start, $end);
+
+        if ($colId > 0) {
+            $finder->setCollectionId($colId);
+        }
 
         return $finder->getIds();
     }

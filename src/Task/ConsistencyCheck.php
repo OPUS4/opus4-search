@@ -34,8 +34,8 @@ namespace Opus\Search\Task;
 use Opus\Common\Config;
 use Opus\Common\JobInterface;
 use Opus\Common\Log;
-use Opus\Job\Worker\AbstractWorker;
-use Opus\Job\Worker\InvalidJobException;
+use Opus\Job\AbstractWorker;
+use Opus\Job\InvalidJobException;
 use Opus\Search\Util\ConsistencyCheck as SearchConsistencyCheck;
 use Zend_Log;
 use Zend_Log_Exception;
@@ -58,6 +58,7 @@ class ConsistencyCheck extends AbstractWorker
 {
     const LABEL = 'opus-consistency-check';
 
+    /** @var string */
     private $logfilePath;
 
     public function __construct()

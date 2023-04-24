@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -89,6 +89,7 @@ use const PREG_SPLIT_NO_EMPTY;
  */
 class Query
 {
+    /** @var array */
     protected $data;
 
     public function reset()
@@ -147,7 +148,7 @@ class Query
                 throw new InvalidArgumentException('invalid type of field selector');
             }
 
-            $fieldNames = preg_split('/[\s,]+/', $field, null, PREG_SPLIT_NO_EMPTY);
+            $fieldNames = preg_split('/[\s,]+/', $field, 0, PREG_SPLIT_NO_EMPTY);
             foreach ($fieldNames as $name) {
                 if (! preg_match('/^(?:\*|[a-z_][a-z0-9_.]*)$/i', $name)) {
                     throw new InvalidArgumentException('malformed field selector: ' . $name);
@@ -511,7 +512,7 @@ class Query
     {
         $sorting = static::getParameterDefault('sortField', 'score desc');
 
-        $parts = preg_split('/[\s,]+/', trim($sorting), null, PREG_SPLIT_NO_EMPTY);
+        $parts = preg_split('/[\s,]+/', trim($sorting), 0, PREG_SPLIT_NO_EMPTY);
 
         $sorting = [array_shift($parts)];
 

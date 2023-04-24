@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -35,11 +35,12 @@ use Opus\Common\Collection;
 use Opus\Common\CollectionRole;
 use Opus\Common\Config;
 use Opus\Common\Document;
+use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
-use Opus\Search\Result\Match;
+use Opus\Search\Result\ResultMatch;
 use Opus\Search\SearchException;
 use Opus\Search\Util\Query;
 use Opus\Search\Util\Searcher;
@@ -55,7 +56,7 @@ use const DIRECTORY_SEPARATOR;
 
 class SearcherTest extends TestCase
 {
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->clearFiles();
 
@@ -102,8 +103,8 @@ class SearcherTest extends TestCase
         $searcher = new Searcher();
         $results  = $searcher->search($query);
 
-        $this->assertEquals(1, count($results));
-        $result = $results->getResults();
+        $this->assertEquals(1, $results->getAllMatchesCount());
+        $result = $results->getReturnedMatches();
         $this->assertEquals($serverDateModified, $result[0]->getServerDateModified()->getUnixTimestamp());
     }
 
@@ -119,8 +120,8 @@ class SearcherTest extends TestCase
         $query->setRows(1);
         $searcher = new Searcher();
         $results  = $searcher->search($query);
-        $this->assertEquals(1, count($results));
-        $result = $results->getResults();
+        $this->assertEquals(1, $results->getAllMatchesCount());
+        $result = $results->getReturnedMatches();
 
         sleep(1);
 
@@ -298,7 +299,7 @@ class SearcherTest extends TestCase
 
     /**
      * @param int|null $collId
-     * @return Document[]|Match[]
+     * @return DocumentInterface[]|ResultMatch[]
      * @throws SearchException
      */
     private function searchDocumentsAssignedToCollection($collId = null)
@@ -317,21 +318,20 @@ class SearcherTest extends TestCase
     {
         $fileName = 'test.pdf';
         $id       = $this->createDocWithFulltext($fileName);
-
-        $result = $this->getSearchResultForFulltextTests();
-
-        $success = $result->getFulltextIDsSuccess();
+        $result   = $this->getSearchResultForFulltextTests();
+        $success  = $result->getFulltextIDsSuccess();
 
         $doc   = Document::get($id);
         $file  = $doc->getFile();
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->removeFiles($id, $fileName);
 
-        $this->assertEquals(1, count($success));
+        $this->assertNotNull($success);
+        $this->assertCount(1, $success);
         $this->assertEquals($value, $success[0]);
 
         $failure = $result->getFulltextIDsFailure();
-        $this->assertEquals(0, count($failure));
+        $this->assertNull($failure);
     }
 
     public function testFulltextFieldsForInvalidPDFFulltext()
@@ -348,11 +348,12 @@ class SearcherTest extends TestCase
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->removeFiles($id, $fileName);
 
-        $this->assertEquals(1, count($failure));
+        $this->assertNotNull($failure);
+        $this->assertCount(1, $failure);
         $this->assertEquals($value, $failure[0]);
 
         $success = $result->getFulltextIDsSuccess();
-        $this->assertEquals(0, count($success));
+        $this->assertNull($success);
     }
 
     /**
@@ -367,10 +368,12 @@ class SearcherTest extends TestCase
         $result = $this->getSearchResultForFulltextTests();
 
         $success = $result->getFulltextIDsSuccess();
-        $this->assertEquals(1, count($success));
+        $this->assertNotNull($success);
+        $this->assertCount(1, $success);
 
         $failure = $result->getFulltextIDsFailure();
-        $this->assertEquals(1, count($failure));
+        $this->assertNotNull($failure);
+        $this->assertCount(1, $failure);
 
         $doc   = Document::get($id);
         $file  = $doc->getFile();
@@ -400,8 +403,9 @@ class SearcherTest extends TestCase
         $valueFile2 = $file[1]->getId() . ':' . $file[1]->getRealHash('md5');
         $this->removeFiles($id, $fileName1, $fileName2);
 
-        $this->assertEquals(2, count($success));
-        $this->assertEquals(0, count($failure));
+        $this->assertNotNull($success);
+        $this->assertCount(2, $success);
+        $this->assertNull($failure);
         $this->assertEquals($valueFile1, $success[0]);
         $this->assertEquals($valueFile2, $success[1]);
     }
@@ -476,7 +480,7 @@ class SearcherTest extends TestCase
     }
 
     /**
-     * @return Document|Match
+     * @return DocumentInterface|ResultMatch
      * @throws SearchException
      */
     private function getSearchResultForFulltextTests()
@@ -484,7 +488,7 @@ class SearcherTest extends TestCase
         $query = new Query(Query::SIMPLE);
         $query->setCatchAll('*:*');
         $searcher = new Searcher();
-        $results  = $searcher->search($query)->getResults();
+        $results  = $searcher->search($query)->getReturnedMatches();
         $this->assertEquals(1, count($results));
         return $results[0];
     }
