@@ -16,9 +16,9 @@
     "ext-simplexml": "*",
     "ext-mbstring": "*",
     "solarium/solarium": "3.8.*",
-    "opus4-repo/framework": "4.7.2.*",
-    "opus4-repo/opus4-common": "4.7.2.*",
-    "opus4-repo/opus4-job": "dev-main",
+    "opus4-repo/framework": "^4.8",
+    "opus4-repo/opus4-common": "^4.8",
+    "opus4-repo/opus4-job": "^4.8",
     "opus4/zf1-future": "1.21.*",
     "symfony/console": "*"
   },
@@ -65,7 +65,7 @@
       "phpunit --colors=always --log-junit build/phpunit.xml"
     ],
     "test-coverage": "phpunit --log-junit build/phpunit.xml --colors=always --coverage-html build/ --coverage-clover build/clover.xml",
-    "cs-check": "phpcs -n",
+    "cs-check": "phpcs -n -p",
     "cs-check-report": "phpcs -n --report=checkstyle --report-file=build/checkstyle.xml",
     "cs-fix": "phpcbf -v",
     "phpmd": "phpmd src xml cleancode,unusedcode,design,naming --reportfile build/phpmd.xml --ignore-violations-on-exit",
