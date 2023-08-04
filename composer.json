@@ -18,7 +18,7 @@
     "solarium/solarium": "3.8.*",
     "opus4-repo/framework": "^4.8",
     "opus4-repo/opus4-common": "^4.8",
-    "opus4-repo/opus4-job": "4.8.0.1-dev",
+    "opus4-repo/opus4-job": ">=4.8.0.1",
     "opus4/zf1-future": "1.21.*",
     "symfony/console": "*"
   },
