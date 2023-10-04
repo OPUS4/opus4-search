@@ -37,15 +37,16 @@ bin/composer update
 SCRIPT
 
 $solr = <<SCRIPT
+SOLR_VERSION="9.3.0"
 cd /home/vagrant
 mkdir -p "downloads"
 cd downloads
-SOLR_TAR="solr-7.7.2.tgz"
+SOLR_TAR="solr-$SOLR_VERSION.tgz"
 if test ! -f "$SOLR_TAR"; then
-  wget -q "https://archive.apache.org/dist/lucene/solr/7.7.2/$SOLR_TAR"
+  wget -q "https://dlcdn.apache.org/solr/solr/$SOLR_VERSION/$SOLR_TAR"
 fi
 tar xfz "$SOLR_TAR" -C /home/vagrant
-cd /home/vagrant/solr-7.7.2
+cd /home/vagrant/solr-$SOLR_VERSION
 mkdir -p server/solr/opus4/conf
 echo name=opus4 > server/solr/opus4/core.properties
 cd server/solr/opus4/conf/
@@ -83,7 +84,8 @@ fi
 SCRIPT
 
 $start = <<SCRIPT
-cd /home/vagrant/solr-7.7.2
+SOLR_VERSION="9.3.0"
+cd /home/vagrant/solr-$SOLR_VERSION
 ./bin/solr start
 SCRIPT
 
