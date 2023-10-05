@@ -4,9 +4,11 @@
 
     <luceneMatchVersion>9.3.0</luceneMatchVersion>
 
-    <lib dir="${solr.install.dir:../../..}/contrib/extraction/lib" />
-    <lib dir="${solr.install.dir:../../..}/dist" regex="solr-cell-\d.*\.jar" />
-    <lib dir="${solr.install.dir:../../..}/dist" regex="solr-dataimporthandler-\d.*\.jar" />
+    <lib dir="${solr.install.dir:../../..}/modules/extraction/lib" regex=".*\.jar" />
+    
+    <!-- TODO With Solr 9.0, the Data Import Handler is an independent project & not part of Solr -->
+    <!-- <lib dir="${solr.install.dir:../../..}/dist" regex="solr-cell-\d.*\.jar" /> -->
+    <!-- <lib dir="${solr.install.dir:../../..}/dist" regex="solr-dataimporthandler-\d.*\.jar" /> -->
 
     <schemaFactory class="ClassicIndexSchemaFactory" />
 
@@ -143,7 +145,7 @@
         Request handler for text extraction.
     -->
 
-    <requestHandler name="/update/extract" class="org.apache.solr.handler.extraction.ExtractingRequestHandler"
+    <requestHandler name="/update/extract" class="solr.extraction.ExtractingRequestHandler"
                     startup="lazy">
         <lst name="defaults">
             <str name="fmap.content">text</str>
