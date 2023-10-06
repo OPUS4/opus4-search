@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 SOLR_VERSION="9.3.0"
-wget -q "https://dlcdn.apache.org/solr/solr/$SOLR_VERSION/solr-$SOLR_VERSION.tgz" -O - | tar -xz
+wget -q "https://archive.apache.org/dist/solr/solr/$SOLR_VERSION/solr-$SOLR_VERSION.tgz" -O - | tar -xz
 cd solr-$SOLR_VERSION
 ./bin/solr start -force
 ./bin/solr create -c opus4 -force
