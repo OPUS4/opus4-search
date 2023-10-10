@@ -37,7 +37,6 @@ bin/composer update
 SCRIPT
 
 $solr = <<SCRIPT
-SOLR_VERSION="9.3.0"
 cd /home/vagrant
 mkdir -p "downloads"
 cd downloads
@@ -84,7 +83,6 @@ fi
 SCRIPT
 
 $start = <<SCRIPT
-SOLR_VERSION="9.3.0"
 cd /home/vagrant/solr-$SOLR_VERSION
 ./bin/solr start
 SCRIPT
@@ -105,12 +103,14 @@ Vagrant.configure("2") do |config|
 
   config.vm.network "forwarded_port", guest: 8983, host: 9983, host_ip: "127.0.0.1"
 
+  ENV['SOLR_VERSION']="9.3.0"
+
   config.vm.provision "Install required software...", type: "shell", inline: $software
-  config.vm.provision "Install Apache Solr...", type: "shell", privileged: false, inline: $solr
+  config.vm.provision "Install Apache Solr...", type: "shell", privileged: false, inline: $solr, env: {"SOLR_VERSION" => ENV['SOLR_VERSION']}
   config.vm.provision "Setup environment...", type: "shell", inline: $environment
   config.vm.provision "Install Composer dependencies...", type: "shell", privileged: false, inline: $composer
   config.vm.provision "Prepare workspace...", type: "shell", privileged: false, inline: $workspace
   config.vm.provision "Create database...", type: "shell", inline: $database
-  config.vm.provision "Start services...", type: "shell", privileged: false, run: "always", inline: $start
+  config.vm.provision "Start services...", type: "shell", privileged: false, run: "always", inline: $start, env: {"SOLR_VERSION" => ENV['SOLR_VERSION']}
   config.vm.provision "Information", type: "shell", privileged: false, run: "always", inline: $help
 end
