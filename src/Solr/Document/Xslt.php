@@ -76,7 +76,10 @@ class Xslt extends AbstractSolrDocumentBase
 
             $this->processor = new XSLTProcessor();
             $this->processor->importStyleSheet($xslt);
-            $this->processor->registerPHPFunctions('Opus\Search\Solr\Document\Xslt::indexYear');
+            $this->processor->registerPHPFunctions([
+                'Opus\Search\Solr\Document\Xslt::indexYear',
+                'Opus\Search\Solr\Document\Xslt::indexEnrichment'
+            ]);
         } catch (Exception $e) {
             throw new InvalidArgumentException('invalid XSLT file for deriving Solr documents', 0, $e);
         }
@@ -199,5 +202,28 @@ class Xslt extends AbstractSolrDocumentBase
     public static function setYearOrder($order)
     {
         self::$yearOrder = $order;
+    }
+
+    /**
+     * Returns true if the enrichment field with the given name should
+     * be included in the Solr index, otherwise returns false.
+     *
+     * @param string $fieldName The name of the enrichment field
+     * @return bool
+     */
+    public static function indexEnrichment($fieldName)
+    {
+        $config = Config::get();
+
+        if (isset($config->search->index->enrichment->blacklist)) {
+            $configBlacklist = $config->search->index->enrichment->blacklist;
+            $blacklist = preg_split('/[\s,]+/', trim($configBlacklist), 0, PREG_SPLIT_NO_EMPTY);
+
+            if (in_array($fieldName, $blacklist, true)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

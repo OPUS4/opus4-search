@@ -416,4 +416,48 @@ class XsltTest extends DocumentBasedTestCase
             Xslt::indexYear('', '', '', 2013)
         );
     }
+
+    public function testIndexEnrichment()
+    {
+        $this->adjustConfiguration([
+            'search' => [
+                'index' => [
+                    'enrichment' => [
+                        'blacklist' => 'opus_doi_json',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertFalse(Xslt::indexEnrichment('opus_doi_json'));
+
+        $this->assertTrue(Xslt::indexEnrichment('some_other_field'));
+    }
+
+    public function testEnrichmentFieldExcludedFromIndex()
+    {
+        $this->markTestIncomplete('not fully implemented yet');
+
+        // TODO add two enrichment fields to $document ('opus_doi_json' & 'some_other_field')
+        // TODO verify that the generated Solr XML contains no field element for 'opus_doi_json'
+
+        $this->adjustConfiguration([
+            'search' => [
+                'index' => [
+                    'enrichment' => [
+                        'blacklist' => 'opus_doi_json',
+                    ],
+                ],
+            ],
+        ]);
+
+        $document = $this->createDocument('article');
+
+        $this->assertInstanceOf(DocumentInterface::class, $document);
+
+        $converter = new Xslt(Config::getDomainConfiguration('solr'));
+        $solr      = $converter->toSolrDocument($document, new DOMDocument());
+
+        $this->assertInstanceOf('DOMDocument', $solr);
+    }
 }
