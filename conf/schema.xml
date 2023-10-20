@@ -4,7 +4,7 @@
 -->
 
 <!--
-    Schema file for OPUS 4 and Solr 7.x.
+    Schema file for OPUS 4 and Solr 9.x.
 -->
 <schema name="OPUS 4" version="1.2">
 
