@@ -34,7 +34,7 @@ jobs:
       - name: Install Composer and Dependencies
         run: sudo apt-get update && curl -s http://getcomposer.org/installer | php && php composer.phar self-update && php composer.phar install
 
-      - name: Get Solr ${{ matrix.versions.solr }} from cache
+      - name: Get Solr ${{ matrix.versions.solr }} from Cache
         id: cache-solr
         uses: actions/cache@v3
         with:
@@ -51,16 +51,16 @@ jobs:
       - name: Start MySQL
         run: sudo systemctl start mysql.service
 
-      - name: Prepare workspace
+      - name: Prepare Workspace
         run: ant prepare-workspace
 
-      - name: Prepare search config
+      - name: Prepare Search Config
         run: ant prepare-config
 
-      - name: Prepare database
+      - name: Prepare Database
         run: bash vendor/bin/opus4db --adminpwd root --userpwd root --sqlpwd root
 
-      - name: Basic PHP file check
+      - name: Basic PHP File Check
         run: ant lint
 
       - name: Tests
