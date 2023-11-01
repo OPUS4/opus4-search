@@ -439,7 +439,7 @@ class XsltTest extends DocumentBasedTestCase
         $this->markTestIncomplete('not fully implemented yet');
 
         // TODO add two enrichment fields to $document ('opus_doi_json' & 'some_other_field')
-        // TODO verify that the generated Solr XML contains no field element for 'opus_doi_json'
+        // √ TODO verify that the generated Solr XML contains no field element for 'opus_doi_json'
 
         $this->adjustConfiguration([
             'search' => [
@@ -459,5 +459,10 @@ class XsltTest extends DocumentBasedTestCase
         $solr      = $converter->toSolrDocument($document, new DOMDocument());
 
         $this->assertInstanceOf('DOMDocument', $solr);
+
+        $xpath = new DOMXPath($solr);
+        $result = $xpath->query( '//field[@name="opus_doi_json"]' );
+
+        $this->assertTrue($result->length === 0);
     }
 }
