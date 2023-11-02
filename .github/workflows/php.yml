@@ -38,12 +38,8 @@ jobs:
         id: cache-solr
         uses: actions/cache@v3
         with:
-          path: solr-${{ matrix.versions.solr }}.tgz
-          key: solr-${{ matrix.versions.solr }}.tgz
-
-      - name: Download Solr ${{ matrix.versions.solr }}
-        if: steps.cache-solr.outputs.cache-hit != 'true'
-        run: sudo bash bin/download_solr_docker.sh --version ${{ matrix.versions.solr }}
+          path: downloads
+          key: solr-${{ matrix.versions.solr }}
 
       - name: Install Solr ${{ matrix.versions.solr }}
         run: sudo bash bin/install_solr_docker.sh --version ${{ matrix.versions.solr }}
