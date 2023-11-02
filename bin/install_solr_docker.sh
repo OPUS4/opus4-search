@@ -37,7 +37,7 @@ SOLR_TAR="solr-$SOLR_VERSION.tgz"
 mkdir -p "downloads"
 cd downloads
 
-# Get & extract Solr archive
+# Download Solr version
 if test ! -f "$SOLR_TAR"; then
   # the Solr download URL differs for versions >=9.0.0
   if [[ "$version" =~ ^[1-8]\.[0-9]+\.[0-9]+$ ]]; then
@@ -46,10 +46,11 @@ if test ! -f "$SOLR_TAR"; then
     SOLR_URL="https://www.apache.org/dyn/closer.lua/solr/solr/$SOLR_VERSION/$SOLR_TAR?action=download"
   fi
 
-  # Download Solr version
   echo "Getting: $SOLR_URL"
   wget -q --show-progress --progress=bar:force $SOLR_URL -O $SOLR_TAR
 fi
+
+# Extract Solr archive
 tar xfz "$SOLR_TAR" -C ..
 
 # Configure & start Solr
