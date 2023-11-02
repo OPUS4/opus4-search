@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# Script to install Solr. By default, version 9.4.0 will be assumed.
+# Script to install Solr. By default, version 9.4.0 will be installed.
 # Another Solr version can be specified using the `--version` option.
 
 # Define variables and their default values
@@ -34,15 +34,26 @@ fi
 SOLR_VERSION="$version"
 SOLR_TAR="solr-$SOLR_VERSION.tgz"
 
-# Extract Solr archive
+mkdir -p "downloads"
+cd downloads
+
+# Get & extract Solr archive
 if test ! -f "$SOLR_TAR"; then
-  echo "Solr archive not found: $SOLR_TAR"
-  exit 1
+  # the Solr download URL differs for versions >=9.0.0
+  if [[ "$version" =~ ^[1-8]\.[0-9]+\.[0-9]+$ ]]; then
+    SOLR_URL="https://archive.apache.org/dist/lucene/solr/$SOLR_VERSION/$SOLR_TAR"
+  elif [[ "$version" =~ ^(9|[1-9][0-9]+)\.[0-9]+\.[0-9]+$ ]]; then
+    SOLR_URL="https://www.apache.org/dyn/closer.lua/solr/solr/$SOLR_VERSION/$SOLR_TAR?action=download"
+  fi
+
+  # Download Solr version
+  echo "Getting: $SOLR_URL"
+  wget -q --show-progress --progress=bar:force $SOLR_URL -O $SOLR_TAR
 fi
-tar -xfz "$SOLR_TAR"
+tar xfz "$SOLR_TAR" -C ..
 
 # Configure & start Solr
-cd solr-$SOLR_VERSION
+cd ../solr-$SOLR_VERSION
 ./bin/solr start -force
 ./bin/solr create -c opus4 -force
 cd server/solr/opus4/conf/
