@@ -37,6 +37,7 @@ use DOMXPath;
 use Opus\Common\Date;
 use Opus\Common\DocumentInterface;
 use Opus\Search\Config;
+use Opus\Search\Service;
 use Opus\Search\Solr\Document\Xslt;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
@@ -434,7 +435,7 @@ class XsltTest extends DocumentBasedTestCase
         $this->assertTrue(Xslt::indexEnrichment('non_existing_field'));
     }
 
-    public function testEnrichmentFieldExcludedFromIndex()
+    public function testEnrichmentFieldExcludedFromSolrXML()
     {
         $this->adjustConfiguration([
             'search' => [
@@ -473,5 +474,49 @@ class XsltTest extends DocumentBasedTestCase
         $result = $xpath->query('//field[@name="enrichment_some_other_field"]');
 
         $this->assertTrue($result->length !== 0);
+    }
+
+    public function testEnrichmentFieldExcludedFromIndex()
+    {
+        $this->adjustConfiguration([
+            'search' => [
+                'index' => [
+                    'enrichment' => [
+                        'blacklist' => 'opus_doi_json',
+                    ],
+                ],
+            ],
+        ]);
+
+        $docA = $this->createDocument('article');
+        $docA->addEnrichment()
+            ->setKeyName('opus_doi_json')
+            ->setValue('DOI info');
+        $docA->store();
+
+        $docB = $this->createDocument('article');
+        $docB->addEnrichment()
+            ->setKeyName('some_other_field')
+            ->setValue('some other value');
+        $docB->store();
+
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex([$docA, $docB]);
+
+        $search = Service::selectSearchingService(null, 'solr');
+
+        $filter = $search->createFilter();
+        $filter->createSimpleEqualityFilter('enrichment_opus_doi_json')->addValue('DOI info');
+        $query  = $search->createQuery()->setSubFilter("alldocs", $filter);
+        $result = $search->customSearch($query);
+
+        $this->assertEquals(0, $result->getAllMatchesCount());
+
+        $filter = $search->createFilter();
+        $filter->createSimpleEqualityFilter('enrichment_some_other_field')->addValue('some other value');
+        $query  = $search->createQuery()->setSubFilter("alldocs", $filter);
+        $result = $search->customSearch($query);
+
+        $this->assertEquals(1, $result->getAllMatchesCount());
     }
 }
