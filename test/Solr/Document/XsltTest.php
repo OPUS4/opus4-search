@@ -431,16 +431,11 @@ class XsltTest extends DocumentBasedTestCase
 
         $this->assertFalse(Xslt::indexEnrichment('opus_doi_json'));
 
-        $this->assertTrue(Xslt::indexEnrichment('some_other_field'));
+        $this->assertTrue(Xslt::indexEnrichment('non_existing_field'));
     }
 
     public function testEnrichmentFieldExcludedFromIndex()
     {
-        $this->markTestIncomplete('not fully implemented yet');
-
-        // TODO add two enrichment fields to $document ('opus_doi_json' & 'some_other_field')
-        // √ TODO verify that the generated Solr XML contains no field element for 'opus_doi_json'
-
         $this->adjustConfiguration([
             'search' => [
                 'index' => [
@@ -455,14 +450,28 @@ class XsltTest extends DocumentBasedTestCase
 
         $this->assertInstanceOf(DocumentInterface::class, $document);
 
+        $document->addEnrichment()
+            ->setKeyName('opus_doi_json')
+            ->setValue('some value');
+
+        $document->addEnrichment()
+            ->setKeyName('some_other_field')
+            ->setValue('some other value');
+
+        $document->store();
+
         $converter = new Xslt(Config::getDomainConfiguration('solr'));
         $solr      = $converter->toSolrDocument($document, new DOMDocument());
 
         $this->assertInstanceOf('DOMDocument', $solr);
 
-        $xpath = new DOMXPath($solr);
-        $result = $xpath->query( '//field[@name="opus_doi_json"]' );
+        $xpath  = new DOMXPath($solr);
+        $result = $xpath->query('//field[@name="enrichment_opus_doi_json"]');
 
         $this->assertTrue($result->length === 0);
+
+        $result = $xpath->query('//field[@name="enrichment_some_other_field"]');
+
+        $this->assertTrue($result->length !== 0);
     }
 }

@@ -430,12 +430,12 @@
                     <xsl:variable name="indexEnrichment">
                         <xsl:value-of select="php:functionString('Opus\Search\Solr\Document\Xslt::indexEnrichment', ./@KeyName)" />
                     </xsl:variable>
-                    <xsl:if test="$indexEnrichment">
+                    <xsl:if test="$indexEnrichment = 'true'">
                         <xsl:element name="field">
                             <xsl:attribute name="name">enrichment_<xsl:value-of select="./@KeyName" /></xsl:attribute>
                             <xsl:value-of select="@Value" />
                         </xsl:element>
-                </xsl:if>
+                    </xsl:if>
                 </xsl:for-each>
 
             </xsl:element>
