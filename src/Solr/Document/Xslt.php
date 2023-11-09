@@ -67,7 +67,7 @@ class Xslt extends AbstractSolrDocumentBase
     private $options;
 
     /** @var string[] Names of enrichment fields to be excluded from indexing */
-    private static $enrichmentBlacklist = null;
+    private static $enrichmentBlacklist;
 
     public function __construct(Zend_Config $options)
     {
