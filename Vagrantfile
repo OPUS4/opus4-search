@@ -86,7 +86,7 @@ SCRIPT
 
 $start = <<SCRIPT
 cd /home/vagrant/solr-$SOLR_VERSION
-./bin/solr start
+./bin/solr start -Dsolr.jetty.host=0.0.0.0
 SCRIPT
 
 $help = <<SCRIPT
