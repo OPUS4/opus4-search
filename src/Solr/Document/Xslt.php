@@ -213,7 +213,7 @@ class Xslt extends AbstractSolrDocumentBase
      *
      * Note that comparison of field names is performed case insensitive.
      *
-     * @param string $fieldName The name of the enrichment field
+     * @param string $fieldName Name of enrichment field
      * @return bool
      */
     public static function indexEnrichment($fieldName)
