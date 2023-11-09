@@ -432,7 +432,7 @@ class XsltTest extends DocumentBasedTestCase
 
         $this->assertFalse(Xslt::indexEnrichment('opus_doi_json'));
 
-        $this->assertTrue(Xslt::indexEnrichment('non_existing_field'));
+        $this->assertTrue(Xslt::indexEnrichment('some_other_field'));
     }
 
     public function testEnrichmentFieldExcludedFromSolrXML()
