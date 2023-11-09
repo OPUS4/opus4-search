@@ -66,6 +66,9 @@ class Xslt extends AbstractSolrDocumentBase
     /** @var Zend_Config */
     private $options;
 
+    /** @var string[] Names of enrichment fields to be excluded from indexing */
+    private static $enrichmentBlacklist = null;
+
     public function __construct(Zend_Config $options)
     {
         parent::__construct($options);
@@ -86,6 +89,28 @@ class Xslt extends AbstractSolrDocumentBase
         } catch (Exception $e) {
             throw new InvalidArgumentException('invalid XSLT file for deriving Solr documents', 0, $e);
         }
+    }
+
+    /**
+     * Returns names of enrichment fields to be excluded from indexing.
+     *
+     * @return string[]
+     */
+    public static function getEnrichmentBlacklist()
+    {
+        if (self::$enrichmentBlacklist === null) {
+            $blacklist = [];
+            $config    = Config::get();
+
+            if (isset($config->search->index->enrichment->blacklist)) {
+                $configBlacklist = $config->search->index->enrichment->blacklist;
+                $blacklist       = array_map('strtolower', preg_split('/[\s,]+/', trim($configBlacklist), 0, PREG_SPLIT_NO_EMPTY));
+            }
+
+            self::$enrichmentBlacklist = $blacklist;
+        }
+
+        return self::$enrichmentBlacklist;
     }
 
     /**
@@ -211,24 +236,15 @@ class Xslt extends AbstractSolrDocumentBase
      * Returns true if the enrichment field with the given name should
      * be included in the Solr index, otherwise returns false.
      *
-     * Note that comparison of field names is performed case insensitive.
+     * Note that comparison of field names is performed case-insensitive.
      *
      * @param string $fieldName Name of enrichment field
      * @return bool
      */
     public static function indexEnrichment($fieldName)
     {
-        $config = Config::get();
+        $blacklist = self::getEnrichmentBlacklist();
 
-        if (isset($config->search->index->enrichment->blacklist)) {
-            $configBlacklist = $config->search->index->enrichment->blacklist;
-            $blacklist       = array_map('strtolower', preg_split('/[\s,]+/', trim($configBlacklist), 0, PREG_SPLIT_NO_EMPTY));
-
-            if (in_array(strtolower($fieldName), $blacklist, true)) {
-                return false;
-            }
-        }
-
-        return true;
+        return ! in_array(strtolower($fieldName), $blacklist, true);
     }
 }
