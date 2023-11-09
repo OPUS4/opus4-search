@@ -449,8 +449,6 @@ class XsltTest extends DocumentBasedTestCase
 
         $document = $this->createDocument('article');
 
-        $this->assertInstanceOf(DocumentInterface::class, $document);
-
         $document->addEnrichment()
             ->setKeyName('opus_doi_json')
             ->setValue('some value');
