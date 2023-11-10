@@ -37,6 +37,7 @@ use DOMXPath;
 use Opus\Common\Date;
 use Opus\Common\DocumentInterface;
 use Opus\Search\Config;
+use Opus\Search\Service;
 use Opus\Search\Solr\Document\Xslt;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
@@ -415,5 +416,105 @@ class XsltTest extends DocumentBasedTestCase
             '2013',
             Xslt::indexYear('', '', '', 2013)
         );
+    }
+
+    public function testIndexEnrichment()
+    {
+        $this->adjustConfiguration([
+            'search' => [
+                'index' => [
+                    'enrichment' => [
+                        'blacklist' => 'opus_doi_json',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertFalse(Xslt::indexEnrichment('opus_doi_json'));
+
+        $this->assertTrue(Xslt::indexEnrichment('some_other_field'));
+    }
+
+    public function testEnrichmentFieldExcludedFromSolrXML()
+    {
+        $this->adjustConfiguration([
+            'search' => [
+                'index' => [
+                    'enrichment' => [
+                        'blacklist' => 'opus_doi_json',
+                    ],
+                ],
+            ],
+        ]);
+
+        $document = $this->createDocument('article');
+
+        $document->addEnrichment()
+            ->setKeyName('opus_doi_json')
+            ->setValue('some value');
+
+        $document->addEnrichment()
+            ->setKeyName('some_other_field')
+            ->setValue('some other value');
+
+        $document->store();
+
+        $converter = new Xslt(Config::getDomainConfiguration('solr'));
+        $solr      = $converter->toSolrDocument($document, new DOMDocument());
+
+        $this->assertInstanceOf('DOMDocument', $solr);
+
+        $xpath  = new DOMXPath($solr);
+        $result = $xpath->query('//field[@name="enrichment_opus_doi_json"]');
+
+        $this->assertTrue($result->length === 0);
+
+        $result = $xpath->query('//field[@name="enrichment_some_other_field"]');
+
+        $this->assertTrue($result->length !== 0);
+    }
+
+    public function testEnrichmentFieldExcludedFromIndex()
+    {
+        $this->adjustConfiguration([
+            'search' => [
+                'index' => [
+                    'enrichment' => [
+                        'blacklist' => 'opus_doi_json',
+                    ],
+                ],
+            ],
+        ]);
+
+        $docA = $this->createDocument('article');
+        $docA->addEnrichment()
+            ->setKeyName('opus_doi_json')
+            ->setValue('DOI info');
+        $docA->store();
+
+        $docB = $this->createDocument('article');
+        $docB->addEnrichment()
+            ->setKeyName('some_other_field')
+            ->setValue('some other value');
+        $docB->store();
+
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex([$docA, $docB]);
+
+        $search = Service::selectSearchingService(null, 'solr');
+
+        $filter = $search->createFilter();
+        $filter->createSimpleEqualityFilter('enrichment_opus_doi_json')->addValue('DOI info');
+        $query  = $search->createQuery()->setSubFilter("alldocs", $filter);
+        $result = $search->customSearch($query);
+
+        $this->assertEquals(0, $result->getAllMatchesCount());
+
+        $filter = $search->createFilter();
+        $filter->createSimpleEqualityFilter('enrichment_some_other_field')->addValue('some other value');
+        $query  = $search->createQuery()->setSubFilter("alldocs", $filter);
+        $result = $search->customSearch($query);
+
+        $this->assertEquals(1, $result->getAllMatchesCount());
     }
 }
