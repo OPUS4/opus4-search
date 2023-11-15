@@ -2,11 +2,9 @@
 
 <config>
 
-    <luceneMatchVersion>7.7.2</luceneMatchVersion>
+    <luceneMatchVersion>9.8.0</luceneMatchVersion>
 
-    <lib dir="${solr.install.dir:../../..}/contrib/extraction/lib" />
-    <lib dir="${solr.install.dir:../../..}/dist" regex="solr-cell-\d.*\.jar" />
-    <lib dir="${solr.install.dir:../../..}/dist" regex="solr-dataimporthandler-\d.*\.jar" />
+    <lib dir="${solr.install.dir:../../..}/modules/extraction/lib" regex=".*\.jar" />
 
     <schemaFactory class="ClassicIndexSchemaFactory" />
 
@@ -28,11 +26,11 @@
     <query>
         <maxBooleanClauses>1024</maxBooleanClauses>
 
-        <filterCache class="solr.FastLRUCache" size="512" initialSize="512" autowarmCount="0"/>
+        <filterCache class="solr.CaffeineCache" size="512" initialSize="512" autowarmCount="0"/>
 
-        <queryResultCache class="solr.LRUCache" size="512" initialSize="512" autowarmCount="0"/>
+        <queryResultCache class="solr.CaffeineCache" size="512" initialSize="512" autowarmCount="0"/>
 
-        <documentCache class="solr.LRUCache" size="512" initialSize="512" autowarmCount="0"/>
+        <documentCache class="solr.CaffeineCache" size="512" initialSize="512" autowarmCount="0"/>
 
         <enableLazyFieldLoading>true</enableLazyFieldLoading>
 
@@ -143,7 +141,7 @@
         Request handler for text extraction.
     -->
 
-    <requestHandler name="/update/extract" class="org.apache.solr.handler.extraction.ExtractingRequestHandler"
+    <requestHandler name="/update/extract" class="solr.extraction.ExtractingRequestHandler"
                     startup="lazy">
         <lst name="defaults">
             <str name="fmap.content">text</str>
