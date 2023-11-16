@@ -248,4 +248,29 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
         $this->assertEquals(1, $result->getAllMatchesCount());
     }
+
+    public function testSearchWithQueryParserEDisMax()
+    {
+        $docA = $this->createDocument('book');
+        $docB = $this->createDocument('monograph');
+
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex([$docA, $docB]);
+
+        $query = new Query();
+
+        // TODO replace the default filter '*:*' with ''
+        // TODO see https://solarium.readthedocs.io/en/stable/queries/select-query/building-a-select-query/components/edismax-component/
+
+        // by adding `&defType=edismax` to the Solr request the eDisMax query parser will be used
+        $query->setQueryParser('edismax');
+
+        // TODO this still causes an error: Call to undefined method Solarium\QueryType\Select\Query\Query::setQueryFields()
+//        $query->setQueryFields('title^20.0 author^20.0 year^20.0 text^0.5');
+
+        $search = Service::selectSearchingService(null, 'solr');
+        $result = $search->customSearch($query);
+
+        $this->assertEquals(2, count($result->getReturnedMatchingIds()));
+    }
 }

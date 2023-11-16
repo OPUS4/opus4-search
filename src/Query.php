@@ -86,6 +86,10 @@ use const PREG_SPLIT_NO_EMPTY;
  * @method $this setFacet( Set $facet )
  * @method $this addFields( string $fields )
  * @method $this addSort( $sorting )
+ * @method string getQueryParser( string $default = '' )
+ * @method $this setQueryParser( string $type )
+ * @method string getQueryFields( string $default = '' )
+ * @method $this setQueryFields( string $queryFields )
  */
 class Query
 {
@@ -95,14 +99,16 @@ class Query
     public function reset()
     {
         $this->data = [
-            'start'      => null,
-            'rows'       => null,
-            'fields'     => null,
-            'sort'       => null,
-            'union'      => null,
-            'filter'     => null,
-            'facet'      => null,
-            'subfilters' => null,
+            'start'       => null,
+            'rows'        => null,
+            'fields'      => null,
+            'sort'        => null,
+            'union'       => null,
+            'filter'      => null,
+            'facet'       => null,
+            'subfilters'  => null,
+            'queryparser' => null,
+            'queryfields' => null,
         ];
     }
 
@@ -300,6 +306,30 @@ class Query
 
             case 'subfilters':
                 throw new RuntimeException('invalid access on sub filters');
+
+            case 'queryparser':
+                if ($adding) {
+                    throw new InvalidArgumentException('invalid parameter access on ' . $name);
+                }
+
+                if (! is_string($value)) {
+                    throw new InvalidArgumentException('invalid query parser option');
+                }
+
+                $this->data[$name] = $value;
+                break;
+
+            case 'queryfields':
+                if ($adding) {
+                    throw new InvalidArgumentException('invalid parameter access on ' . $name);
+                }
+
+                if (! is_string($value)) {
+                    throw new InvalidArgumentException('invalid query fields option');
+                }
+
+                $this->data[$name] = $value;
+                break;
         }
 
         return $this;

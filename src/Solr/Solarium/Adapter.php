@@ -615,6 +615,18 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
                 $query->setSorts($sortings);
             }
 
+            $queryParser = $parameters->getQueryParser();
+            if ($queryParser === 'edismax') {
+                // get the edismax component
+                $edismax = $query->getEDisMax();
+
+                // NOTE: query is now an edismax query
+                $queryFields = $parameters->getQueryFields();
+                if ($queryFields !== null) {
+                    $query->setQueryFields($queryFields);
+                }
+            }
+
             $facet = $parameters->getFacet();
             if ($facet !== null) {
                 $facetSet = $query->getFacetSet();
