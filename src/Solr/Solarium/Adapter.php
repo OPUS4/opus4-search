@@ -623,7 +623,7 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
                 // NOTE: query is now an edismax query
                 $queryFields = $parameters->getQueryFields();
                 if ($queryFields !== null) {
-                    $query->setQueryFields($queryFields);
+                    $edismax->setQueryFields($queryFields);
                 }
             }
 

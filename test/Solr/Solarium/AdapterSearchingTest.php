@@ -262,11 +262,11 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         // TODO replace the default filter '*:*' with ''
         // TODO see https://solarium.readthedocs.io/en/stable/queries/select-query/building-a-select-query/components/edismax-component/
 
-        // by adding `&defType=edismax` to the Solr request the eDisMax query parser will be used
+        // add Solr request param `defType=edismax` (i.e. use the eDisMax query parser)
         $query->setQueryParser('edismax');
 
-        // TODO this still causes an error: Call to undefined method Solarium\QueryType\Select\Query\Query::setQueryFields()
-//        $query->setQueryFields('title^20.0 author^20.0 year^20.0 text^0.5');
+        // add Solr request param `qf=...` which assigns boost factors to fields
+        $query->setQueryFields('title^20.0 author^20.0 year^20.0 text^0.5');
 
         $search = Service::selectSearchingService(null, 'solr');
         $result = $search->customSearch($query);
