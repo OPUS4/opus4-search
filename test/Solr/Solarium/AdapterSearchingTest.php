@@ -33,6 +33,7 @@
 namespace OpusTest\Search\Solr\Solarium;
 
 use Exception;
+use Opus\Common\Config;
 use Opus\Common\Person;
 use Opus\Search\Query;
 use Opus\Search\QueryFactory;
@@ -43,6 +44,7 @@ use Opus\Search\Util\Searcher;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
 use function count;
+use function round;
 
 class AdapterSearchingTest extends DocumentBasedTestCase
 {
@@ -251,26 +253,47 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
     public function testSearchWithQueryParserEDisMax()
     {
-        $docA = $this->createDocument('book');
-        $docB = $this->createDocument('monograph');
+        // assign boost factors to fields
+        $this->adjustConfiguration([
+            'search' => [
+                'simple' => [
+                    'title'    => 10,
+                    'abstract' => 0.5,
+                ],
+            ],
+        ]);
+
+        $config         = Config::get();
+        $weightedFields = $config->search->simple->toArray();
+
+        $docA = $this->createDocument('testdocA'); // phrase 'test document' only occurs in abstract
+        $docB = $this->createDocument('testdocB'); // phrase 'test document' occurs in title & abstract
 
         $index = Service::selectIndexingService(null, 'solr');
         $index->addDocumentsToIndex([$docA, $docB]);
 
+        $search = Service::selectSearchingService(null, 'solr');
+
         $query = new Query();
 
-        // TODO replace the default filter '*:*' with ''
-        // TODO see https://solarium.readthedocs.io/en/stable/queries/select-query/building-a-select-query/components/edismax-component/
-
-        // add Solr request param `defType=edismax` (i.e. use the eDisMax query parser)
-        $query->setQueryParser('edismax');
+        // use the Solr eDisMax query parser (i.e., add Solr request param `defType=edismax`)
+        $query->setWeightedSearch(true);
 
         // add Solr request param `qf=...` which assigns boost factors to fields
-        $query->setQueryFields('title^20.0 author^20.0 year^20.0 text^0.5');
+        $query->setWeightedFields($weightedFields);
 
-        $search = Service::selectSearchingService(null, 'solr');
-        $result = $search->customSearch($query);
+        $filter = $search->createFilter();
+        $filter->createSimpleEqualityFilter('*')->addValue('test document');
+        $query->setFilter($filter);
 
-        $this->assertEquals(2, count($result->getReturnedMatchingIds()));
+        $result  = $search->customSearch($query);
+        $matches = $result->getReturnedMatches();
+
+        $this->assertEquals(2, count($matches));
+
+        $firstResultScore  = $matches[0]->getScore();
+        $secondResultScore = $matches[1]->getScore();
+
+        $this->assertTrue(round($firstResultScore, 1) > round($secondResultScore, 1));
     }
 }
