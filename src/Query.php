@@ -74,8 +74,8 @@ use const PREG_SPLIT_NO_EMPTY;
  * @method int getRows( int $default = null )
  * @method string[] getFields( array $default = null )
  * @method array getSort( array $default = null )
- * @method bool getUnion( bool $default = null )
- * @method bool getWeightedSearch( bool $default = null )
+ * @method bool getUnion( bool $default = false )
+ * @method bool getWeightedSearch( bool $default = false )
  * @method array getWeightedFields( int[] $default = null )
  * @method AbstractFilterBase getFilter(AbstractFilterBase $default = null ) retrieves condition to be met by resulting documents
  * @method Set getFacet( Set $default = null )
@@ -103,11 +103,11 @@ class Query
             'rows'           => null,
             'fields'         => null,
             'sort'           => null,
-            'union'          => null,
+            'union'          => false,
             'filter'         => null,
             'facet'          => null,
             'subfilters'     => null,
-            'weightedsearch' => null,
+            'weightedsearch' => false,
             'weightedfields' => null,
         ];
     }
