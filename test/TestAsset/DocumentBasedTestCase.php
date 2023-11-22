@@ -153,26 +153,6 @@ class DocumentBasedTestCase extends TestCase
             'BelongsToBibliography'   => 1,
             'EmbargoDate'             => '2010-01-04',
         ],
-        'testdocA'  => [
-            'TitleMain'     => [
-                'Value'    => 'Some Document',
-                'Language' => 'eng',
-            ],
-            'TitleAbstract' => [
-                'Value'    => 'Abstract of test document A.\nSome more text.',
-                'Language' => 'eng',
-            ],
-        ],
-        'testdocB'  => [
-            'TitleMain'     => [
-                'Value'    => 'Another Test Document',
-                'Language' => 'eng',
-            ],
-            'TitleAbstract' => [
-                'Value'    => 'Abstract of test document B.\nSome blah blah text.',
-                'Language' => 'eng',
-            ],
-        ],
     ];
 
     /**

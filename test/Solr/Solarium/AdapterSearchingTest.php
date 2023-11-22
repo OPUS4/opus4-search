@@ -34,6 +34,7 @@ namespace OpusTest\Search\Solr\Solarium;
 
 use Exception;
 use Opus\Common\Config;
+use Opus\Common\Document;
 use Opus\Common\Person;
 use Opus\Search\Query;
 use Opus\Search\QueryFactory;
@@ -43,8 +44,8 @@ use Opus\Search\Util\Query as QueryUtil;
 use Opus\Search\Util\Searcher;
 use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
+use function abs;
 use function count;
-use function round;
 
 class AdapterSearchingTest extends DocumentBasedTestCase
 {
@@ -251,9 +252,51 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $this->assertEquals(1, $result->getAllMatchesCount());
     }
 
-    public function testSearchWithQueryParserEDisMax()
+    public function testWeightedSearch()
     {
-        // assign boost factors to fields
+        $docA = Document::new();
+        $docA->addTitleMain()->setLanguage("eng")->setValue("Some Document");
+        $docA->addTitleAbstract()->setLanguage("eng")->setValue("Abstract of test document A.\nSome more text.");
+        $docA->store();
+
+        $docB = Document::new();
+        $docB->addTitleMain()->setLanguage("eng")->setValue("Another Test Document");
+        $docB->addTitleAbstract()->setLanguage("eng")->setValue("Abstract of document B.\nSome blah blah text.");
+        $docB->store();
+
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex([$docA, $docB]);
+
+        $search = Service::selectSearchingService(null, 'solr');
+
+        $query = new Query();
+        $query->setWeightedSearch(true); // use the Solr eDisMax query parser
+
+        $filter = $search->createFilter();
+        $filter->createSimpleEqualityFilter('*')->addValue('test document');
+        $query->setFilter($filter);
+
+        // 1. without any boost factors assigned to fields, expect roughly equal scores
+        $query->setWeightedFields([]);
+
+        $result  = $search->customSearch($query);
+        $matches = $result->getReturnedMatches();
+
+        $this->assertEquals(2, count($matches));
+
+        $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) < 1.0);
+
+        // 2. with equal boost factors assigned to fields, expect roughly equal scores
+        $query->setWeightedFields(['title' => 1.0, 'abstract' => 1.0]);
+
+        $result  = $search->customSearch($query);
+        $matches = $result->getReturnedMatches();
+
+        $this->assertEquals(2, count($matches));
+
+        $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) < 1.0);
+
+        // 3. with different boost factors assigned to fields, expect clearly different scores
         $this->adjustConfiguration([
             'search' => [
                 'simple' => [
@@ -266,34 +309,13 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $config         = Config::get();
         $weightedFields = $config->search->simple->toArray();
 
-        $docA = $this->createDocument('testdocA'); // phrase 'test document' only occurs in abstract
-        $docB = $this->createDocument('testdocB'); // phrase 'test document' occurs in title & abstract
-
-        $index = Service::selectIndexingService(null, 'solr');
-        $index->addDocumentsToIndex([$docA, $docB]);
-
-        $search = Service::selectSearchingService(null, 'solr');
-
-        $query = new Query();
-
-        // use the Solr eDisMax query parser (i.e., add Solr request param `defType=edismax`)
-        $query->setWeightedSearch(true);
-
-        // add Solr request param `qf=...` which assigns boost factors to fields
         $query->setWeightedFields($weightedFields);
-
-        $filter = $search->createFilter();
-        $filter->createSimpleEqualityFilter('*')->addValue('test document');
-        $query->setFilter($filter);
 
         $result  = $search->customSearch($query);
         $matches = $result->getReturnedMatches();
 
         $this->assertEquals(2, count($matches));
 
-        $firstResultScore  = $matches[0]->getScore();
-        $secondResultScore = $matches[1]->getScore();
-
-        $this->assertTrue(round($firstResultScore, 1) > round($secondResultScore, 1));
+        $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) > 1.0);
     }
 }
