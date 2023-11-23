@@ -270,6 +270,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $search = Service::selectSearchingService(null, 'solr');
 
         $query = new Query();
+        $query->addSorting('score', false);
         $query->setWeightedSearch(true); // use the Solr eDisMax query parser
 
         $filter = $search->createFilter();
@@ -317,5 +318,20 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $this->assertEquals(2, count($matches));
 
         $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) > 1.0);
+
+        $this->assertEquals('Another Test Document', $matches[0]->getDocument()->getTitleMain(0)->getValue());
+
+
+        // 4. with swapped boost factors, also expect a swapped sort order
+        $query->setWeightedFields(['title' => 0.5, 'abstract' => 10.0]);
+
+        $result  = $search->customSearch($query);
+        $matches = $result->getReturnedMatches();
+
+        $this->assertEquals(2, count($matches));
+
+        $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) > 1.0);
+
+        $this->assertEquals('Some Document', $matches[0]->getDocument()->getTitleMain(0)->getValue());
     }
 }
