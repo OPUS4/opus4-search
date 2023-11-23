@@ -34,6 +34,7 @@ namespace Opus\Search;
 
 use InvalidArgumentException;
 use Opus\Common\Config;
+use Opus\Search\Config as SearchConfig;
 use Opus\Search\Facet\Set;
 use Opus\Search\Filter\AbstractFilterBase;
 use RuntimeException;
@@ -503,7 +504,7 @@ class Query
      */
     public static function getParameterDefault($name, $fallbackIfMissing, $oldName = null)
     {
-        $config   = Config::getDomainConfiguration();
+        $config   = SearchConfig::getDomainConfiguration();
         $defaults = $config->parameterDefaults;
 
         if ($defaults instanceof Zend_Config) {
