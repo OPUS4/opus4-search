@@ -44,6 +44,7 @@ use Opus\Model\Xml\Cache;
 use ReflectionClass;
 
 use function array_key_exists;
+use function array_merge;
 use function array_values;
 use function basename;
 use function file_get_contents;
@@ -155,12 +156,15 @@ class DocumentBasedTestCase extends TestCase
         ],
     ];
 
+    /** @var array[] */
+    protected static $additionalDocumentPropertySets;
+
     /**
      * @return array
      */
     public static function documentPropertiesProvider()
     {
-        return self::$documentPropertySets;
+        return array_merge(static::$documentPropertySets, static::$additionalDocumentPropertySets ?? []);
     }
 
     /**
@@ -169,11 +173,13 @@ class DocumentBasedTestCase extends TestCase
      */
     public static function getDocumentDescriptionByName($name)
     {
-        if (! array_key_exists($name, self::$documentPropertySets)) {
+        $documentPropertySets = self::documentPropertiesProvider();
+
+        if (! array_key_exists($name, $documentPropertySets)) {
             throw new InvalidArgumentException("unknown document description");
         }
 
-        return self::$documentPropertySets[$name];
+        return $documentPropertySets[$name];
     }
 
     /**
@@ -187,9 +193,9 @@ class DocumentBasedTestCase extends TestCase
     protected function createDocument($documentProperties = null)
     {
         if ($documentProperties === null) {
-            $documentProperties = self::$documentPropertySets['article'];
+            $documentProperties = self::getDocumentDescriptionByName('article');
         } if (is_string($documentProperties)) {
-            $documentProperties = self::$documentPropertySets[$documentProperties];
+            $documentProperties = self::getDocumentDescriptionByName($documentProperties);
         }
 
         $document = Document::new();

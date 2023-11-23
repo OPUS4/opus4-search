@@ -33,7 +33,6 @@
 namespace OpusTest\Search\Solr\Solarium;
 
 use Exception;
-use Opus\Common\Document;
 use Opus\Common\Person;
 use Opus\Search\Query;
 use Opus\Search\QueryFactory;
@@ -48,6 +47,30 @@ use function count;
 
 class AdapterSearchingTest extends DocumentBasedTestCase
 {
+    /** @var array[] */
+    protected static $additionalDocumentPropertySets = [
+        'weightedTestDocA' => [
+            'TitleMain'     => [
+                'Value'    => 'Some Document',
+                'Language' => 'eng',
+            ],
+            'TitleAbstract' => [
+                'Value'    => 'Abstract of test document A.\nSome more text.',
+                'Language' => 'eng',
+            ],
+        ],
+        'weightedTestDocB' => [
+            'TitleMain'     => [
+                'Value'    => 'Another Test Document',
+                'Language' => 'eng',
+            ],
+            'TitleAbstract' => [
+                'Value'    => 'Abstract of document B.\nSome blah blah text.',
+                'Language' => 'eng',
+            ],
+        ],
+    ];
+
     public function testService()
     {
         $search = Service::selectSearchingService(null, 'solr');
@@ -253,15 +276,8 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
     public function testWeightedSearch()
     {
-        $docA = Document::new();
-        $docA->addTitleMain()->setLanguage("eng")->setValue("Some Document");
-        $docA->addTitleAbstract()->setLanguage("eng")->setValue("Abstract of test document A.\nSome more text.");
-        $docA->store();
-
-        $docB = Document::new();
-        $docB->addTitleMain()->setLanguage("eng")->setValue("Another Test Document");
-        $docB->addTitleAbstract()->setLanguage("eng")->setValue("Abstract of document B.\nSome blah blah text.");
-        $docB->store();
+        $docA = $this->createDocument('weightedTestDocA'); // 'Some Document'
+        $docB = $this->createDocument('weightedTestDocB'); // 'Another Test Document'
 
         $index = Service::selectIndexingService(null, 'solr');
         $index->addDocumentsToIndex([$docA, $docB]);
@@ -310,15 +326,8 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
     public function testWeightedSearchWithEqualWeights()
     {
-        $docA = Document::new();
-        $docA->addTitleMain()->setLanguage("eng")->setValue("Some Document");
-        $docA->addTitleAbstract()->setLanguage("eng")->setValue("Abstract of test document A.\nSome more text.");
-        $docA->store();
-
-        $docB = Document::new();
-        $docB->addTitleMain()->setLanguage("eng")->setValue("Another Test Document");
-        $docB->addTitleAbstract()->setLanguage("eng")->setValue("Abstract of document B.\nSome blah blah text.");
-        $docB->store();
+        $docA = $this->createDocument('weightedTestDocA');
+        $docB = $this->createDocument('weightedTestDocB');
 
         $index = Service::selectIndexingService(null, 'solr');
         $index->addDocumentsToIndex([$docA, $docB]);
@@ -342,7 +351,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
         $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) < 1.0);
 
-        // 2. with equal boost factors assigned to fields, expect roughly equal scores
+        // 2. with equal boost factors, expect roughly equal scores
         $query->setWeightedFields(['abstract' => 1.0, 'title' => 1.0]);
 
         $result  = $search->customSearch($query);
