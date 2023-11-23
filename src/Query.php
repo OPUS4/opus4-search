@@ -33,6 +33,7 @@
 namespace Opus\Search;
 
 use InvalidArgumentException;
+use Opus\Common\Config;
 use Opus\Search\Facet\Set;
 use Opus\Search\Filter\AbstractFilterBase;
 use RuntimeException;
@@ -42,6 +43,7 @@ use function array_key_exists;
 use function array_merge;
 use function array_shift;
 use function array_unique;
+use function boolval;
 use function count;
 use function ctype_digit;
 use function intval;
@@ -107,7 +109,7 @@ class Query
             'filter'         => null,
             'facet'          => null,
             'subfilters'     => null,
-            'weightedsearch' => false,
+            'weightedsearch' => null,
             'weightedfields' => null,
         ];
     }
@@ -200,6 +202,19 @@ class Query
     public function get($name, $defaultValue = null)
     {
         $name = $this->isValidParameter($name);
+
+        $config = Config::get();
+
+        // prefer config options over getter defaults
+        switch ($name) {
+            case 'weightedsearch':
+                $defaultValue = isset($config->search->weightedSearch) ? boolval($config->search->weightedSearch) : $defaultValue;
+                break;
+
+            case 'weightedfields':
+                $defaultValue = isset($config->search->simple) ? $config->search->simple->toArray() : $defaultValue;
+                break;
+        }
 
         return $this->data[$name] ?? $defaultValue;
     }
