@@ -33,7 +33,6 @@
 namespace OpusTest\Search\Solr\Solarium;
 
 use Exception;
-use Opus\Common\Config;
 use Opus\Common\Document;
 use Opus\Common\Person;
 use Opus\Search\Query;
@@ -271,7 +270,63 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
         $query = new Query();
         $query->addSorting('score', false);
-        $query->setWeightedSearch(true); // use the Solr eDisMax query parser
+
+        $filter = $search->createFilter();
+        $filter->createSimpleEqualityFilter('*')->addValue('test document');
+        $query->setFilter($filter);
+
+        // 1. with different boost factors assigned to fields, expect clearly different scores & appropriate sort order
+        $this->adjustConfiguration([
+            'search' => [
+                'weightedSearch' => true, // use the Solr eDisMax query parser
+                'simple'         => [
+                    'abstract' => 0.5,
+                    'title'    => 10,
+                ],
+            ],
+        ]);
+
+        $result  = $search->customSearch($query);
+        $matches = $result->getReturnedMatches();
+
+        $this->assertEquals(2, count($matches));
+
+        $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) > 1.0);
+
+        $this->assertEquals('Another Test Document', $matches[0]->getDocument()->getTitleMain(0)->getValue());
+
+        // 2. with swapped boost factors, expect a swapped sort order
+        $query->setWeightedFields(['abstract' => 10.0, 'title' => 0.5]);
+
+        $result  = $search->customSearch($query);
+        $matches = $result->getReturnedMatches();
+
+        $this->assertEquals(2, count($matches));
+
+        $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) > 1.0);
+
+        $this->assertEquals('Some Document', $matches[0]->getDocument()->getTitleMain(0)->getValue());
+    }
+
+    public function testWeightedSearchWithEqualWeights()
+    {
+        $docA = Document::new();
+        $docA->addTitleMain()->setLanguage("eng")->setValue("Some Document");
+        $docA->addTitleAbstract()->setLanguage("eng")->setValue("Abstract of test document A.\nSome more text.");
+        $docA->store();
+
+        $docB = Document::new();
+        $docB->addTitleMain()->setLanguage("eng")->setValue("Another Test Document");
+        $docB->addTitleAbstract()->setLanguage("eng")->setValue("Abstract of document B.\nSome blah blah text.");
+        $docB->store();
+
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex([$docA, $docB]);
+
+        $search = Service::selectSearchingService(null, 'solr');
+
+        $query = new Query();
+        $query->setWeightedSearch(true);
 
         $filter = $search->createFilter();
         $filter->createSimpleEqualityFilter('*')->addValue('test document');
@@ -288,7 +343,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) < 1.0);
 
         // 2. with equal boost factors assigned to fields, expect roughly equal scores
-        $query->setWeightedFields(['title' => 1.0, 'abstract' => 1.0]);
+        $query->setWeightedFields(['abstract' => 1.0, 'title' => 1.0]);
 
         $result  = $search->customSearch($query);
         $matches = $result->getReturnedMatches();
@@ -296,42 +351,5 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $this->assertEquals(2, count($matches));
 
         $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) < 1.0);
-
-        // 3. with different boost factors assigned to fields, expect clearly different scores
-        $this->adjustConfiguration([
-            'search' => [
-                'simple' => [
-                    'title'    => 10,
-                    'abstract' => 0.5,
-                ],
-            ],
-        ]);
-
-        $config         = Config::get();
-        $weightedFields = $config->search->simple->toArray();
-
-        $query->setWeightedFields($weightedFields);
-
-        $result  = $search->customSearch($query);
-        $matches = $result->getReturnedMatches();
-
-        $this->assertEquals(2, count($matches));
-
-        $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) > 1.0);
-
-        $this->assertEquals('Another Test Document', $matches[0]->getDocument()->getTitleMain(0)->getValue());
-
-
-        // 4. with swapped boost factors, also expect a swapped sort order
-        $query->setWeightedFields(['title' => 0.5, 'abstract' => 10.0]);
-
-        $result  = $search->customSearch($query);
-        $matches = $result->getReturnedMatches();
-
-        $this->assertEquals(2, count($matches));
-
-        $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) > 1.0);
-
-        $this->assertEquals('Some Document', $matches[0]->getDocument()->getTitleMain(0)->getValue());
     }
 }
