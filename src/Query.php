@@ -78,8 +78,6 @@ use const PREG_SPLIT_NO_EMPTY;
  * @method string[] getFields( array $default = null )
  * @method array getSort( array $default = null )
  * @method bool getUnion( bool $default = false )
- * @method bool getWeightedSearch( bool $default = false )
- * @method array getWeightedFields( int[] $default = null )
  * @method AbstractFilterBase getFilter(AbstractFilterBase $default = null ) retrieves condition to be met by resulting documents
  * @method Set getFacet( Set $default = null )
  * @method $this setStart( int $offset )
@@ -110,7 +108,7 @@ class Query
             'filter'         => null,
             'facet'          => null,
             'subfilters'     => null,
-            'weightedsearch' => null,
+            'weightedsearch' => null, // first getWeightedSearch() call will set this to true or false
             'weightedfields' => null,
         ];
     }
@@ -194,6 +192,46 @@ class Query
     }
 
     /**
+     * Returns true if a weighted search shall be used, otherwise returns false.
+     *
+     * @return bool
+     */
+    public function getWeightedSearch()
+    {
+        if ($this->data['weightedsearch'] === null) {
+            $config = Config::get();
+
+            if (isset($config->search->weightedSearch)) {
+                $this->data['weightedsearch'] = boolval($config->search->weightedSearch);
+            } else {
+                $this->data['weightedsearch'] = false;
+            }
+        }
+
+        return $this->data['weightedsearch'];
+    }
+
+    /**
+     * Returns boost factors keyed by field (e.g. [ 'title' => 10, 'abstract' => 0.5 ]).
+     *
+     * @return int[]
+     */
+    public function getWeightedFields()
+    {
+        if ($this->data['weightedfields'] === null) {
+            $config = Config::get();
+
+            if (isset($config->search->simple)) {
+                $this->data['weightedfields'] = $config->search->simple->toArray();
+            } else {
+                $this->data['weightedfields'] = [];
+            }
+        }
+
+        return $this->data['weightedfields'];
+    }
+
+    /**
      * Retrieves value of selected query parameter.
      *
      * @param string     $name name of parameter to read
@@ -203,19 +241,6 @@ class Query
     public function get($name, $defaultValue = null)
     {
         $name = $this->isValidParameter($name);
-
-        $config = Config::get();
-
-        // prefer config options over getter defaults
-        switch ($name) {
-            case 'weightedsearch':
-                $defaultValue = isset($config->search->weightedSearch) ? boolval($config->search->weightedSearch) : $defaultValue;
-                break;
-
-            case 'weightedfields':
-                $defaultValue = isset($config->search->simple) ? $config->search->simple->toArray() : $defaultValue;
-                break;
-        }
 
         return $this->data[$name] ?? $defaultValue;
     }
