@@ -276,8 +276,8 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
     public function testWeightedSearch()
     {
-        $docA = $this->createDocument('weightedTestDocA'); // 'Some Document'
-        $docB = $this->createDocument('weightedTestDocB'); // 'Another Test Document'
+        $docA = $this->createDocument('weightedTestDocA');
+        $docB = $this->createDocument('weightedTestDocB');
 
         $index = Service::selectIndexingService(null, 'solr');
         $index->addDocumentsToIndex([$docA, $docB]);
@@ -309,7 +309,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
         $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) > 1.0);
 
-        $this->assertEquals('Another Test Document', $matches[0]->getDocument()->getTitleMain(0)->getValue());
+        $this->assertEquals($docB->getId(), $matches[0]->getDocument()->getId());
 
         // 2. with swapped boost factors, expect a swapped sort order
         $query->setWeightedFields(['abstract' => 10.0, 'title' => 0.5]);
@@ -321,7 +321,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
         $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) > 1.0);
 
-        $this->assertEquals('Some Document', $matches[0]->getDocument()->getTitleMain(0)->getValue());
+        $this->assertEquals($docA->getId(), $matches[0]->getDocument()->getId());
     }
 
     public function testWeightedSearchWithEqualWeights()
