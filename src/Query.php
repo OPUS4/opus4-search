@@ -89,7 +89,6 @@ use const PREG_SPLIT_NO_EMPTY;
  * @method $this setFacet( Set $facet )
  * @method $this addFields( string $fields )
  * @method $this addSort( $sorting )
- * @method $this setWeightedSearch( bool $isWeightedSearch )
  * @method $this setWeightedFields( int[] $weightedFields ) assigns boost factors to fields (e.g. [ 'title' => 10, 'abstract' => 0.5 ])
  */
 class Query
@@ -108,7 +107,6 @@ class Query
             'filter'         => null,
             'facet'          => null,
             'subfilters'     => null,
-            'weightedsearch' => null, // first getWeightedSearch() call will set this to true or false
             'weightedfields' => null,
         ];
     }
@@ -198,7 +196,7 @@ class Query
      */
     public function getWeightedSearch()
     {
-        if ($this->data['weightedsearch'] === null) {
+        if (! isset($this->data['weightedsearch'])) {
             $config = Config::get();
 
             if (isset($config->search->weightedSearch)) {
@@ -209,6 +207,17 @@ class Query
         }
 
         return $this->data['weightedsearch'];
+    }
+
+    /**
+     * Set to true if a weighted search shall be used, otherwise set to false.
+     *
+     * @param  bool $value
+     * @return $this fluent interface
+     */
+    public function setWeightedSearch($value)
+    {
+        $this->data['weightedsearch'] = ! ! $value;
     }
 
     /**
@@ -314,7 +323,6 @@ class Query
                 break;
 
             case 'union':
-            case 'weightedsearch':
                 if ($adding) {
                     throw new InvalidArgumentException('invalid parameter access on ' . $name);
                 }
