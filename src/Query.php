@@ -218,6 +218,8 @@ class Query
     public function setWeightedSearch($value)
     {
         $this->data['weightedsearch'] = ! ! $value;
+
+        return $this;
     }
 
     /**
