@@ -55,7 +55,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
                 'Language' => 'eng',
             ],
             'TitleAbstract' => [
-                'Value'    => 'Abstract of test document A.\nSome more text.',
+                'Value'    => 'Abstract A, full query string (test document) only occurs in abstract.',
                 'Language' => 'eng',
             ],
         ],
@@ -65,7 +65,37 @@ class AdapterSearchingTest extends DocumentBasedTestCase
                 'Language' => 'eng',
             ],
             'TitleAbstract' => [
-                'Value'    => 'Abstract of document B.\nSome blah blah text.',
+                'Value'    => 'Abstract of document B, full query string only occurs in title.',
+                'Language' => 'eng',
+            ],
+        ],
+        'weightedTestDocC' => [
+            'TitleMain'     => [
+                'Value'    => 'Third One',
+                'Language' => 'eng',
+            ],
+            'TitleAbstract' => [
+                'Value'    => 'Abstract C, first query term (test) only occurs in abstract.\nSome more text.',
+                'Language' => 'eng',
+            ],
+        ],
+        'weightedTestDocD' => [
+            'TitleMain'     => [
+                'Value'    => 'Fourth One',
+                'Language' => 'eng',
+            ],
+            'TitleAbstract' => [
+                'Value'    => 'Abstract D, second query term (document) only occurs in abstract.\nEven more text.',
+                'Language' => 'eng',
+            ],
+        ],
+        'weightedTestDocE' => [
+            'TitleMain'     => [
+                'Value'    => 'Yet Another Test',
+                'Language' => 'eng',
+            ],
+            'TitleAbstract' => [
+                'Value'    => 'Abstract of document E, title & abstract contain one query term each.',
                 'Language' => 'eng',
             ],
         ],
@@ -272,6 +302,70 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $result = $search->search($query);
 
         $this->assertEquals(1, $result->getAllMatchesCount());
+    }
+
+    public function testStandardAndWeightedSearch()
+    {
+        $docA = $this->createDocument('weightedTestDocA');
+        $docB = $this->createDocument('weightedTestDocB');
+        $docC = $this->createDocument('weightedTestDocC');
+        $docD = $this->createDocument('weightedTestDocD');
+        $docE = $this->createDocument('weightedTestDocE');
+
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex([$docA, $docB, $docC, $docD, $docE]);
+
+        $search = Service::selectSearchingService(null, 'solr');
+
+        $query = new Query();
+        $query->addSorting('score', false);
+
+        // add query terms
+        $filter = $search->createFilter();
+        $filter->createSimpleEqualityFilter('*')->addValue('test document');
+        $query->setFilter($filter);
+
+        // 1. standard search (AND)
+        $query->setWeightedSearch(false);
+        $query->setUnion(false); // use AND as default query operator
+
+        $result  = $search->customSearch($query);
+        $matchingIds = $result->getReturnedMatchingIds();
+
+        $this->assertEquals(3, count($matchingIds));
+
+        $this->assertTrue(in_array($docA->getId(), $matchingIds));
+        $this->assertTrue(in_array($docB->getId(), $matchingIds));
+        $this->assertTrue(in_array($docE->getId(), $matchingIds));
+
+        // 2. weighted search (AND)
+        $query->setWeightedSearch(true);
+        $query->setWeightedFields(['abstract' => 1.0, 'title' => 1.0]); // assigns boost factors to fields
+        $query->setWeightMultiplier(5); // multiplier to further increase boost factors when matching phrases
+        $query->setUnion(false); // use AND as default query operator
+
+        $result  = $search->customSearch($query);
+        $matchingIds = $result->getReturnedMatchingIds();
+
+        $this->assertEquals(2, count($matchingIds));
+
+        $this->assertTrue(in_array($docA->getId(), $matchingIds));
+        $this->assertTrue(in_array($docB->getId(), $matchingIds));
+
+        // 3. weighted search (OR), expect much greater scores for the two documents matching the full query phrase
+        $query->setUnion(true); // use OR as default query operator
+
+        $result  = $search->customSearch($query);
+        $matches = $result->getReturnedMatches();
+
+        $this->assertEquals(5, count($matches));
+
+        $this->assertTrue($matches[0]->getScore() > 1.0);
+        $this->assertTrue($matches[1]->getScore() > 1.0);
+
+        $this->assertTrue($matches[2]->getScore() < 1.0);
+        $this->assertTrue($matches[3]->getScore() < 1.0);
+        $this->assertTrue($matches[4]->getScore() < 1.0);
     }
 
     public function testWeightedSearch()
