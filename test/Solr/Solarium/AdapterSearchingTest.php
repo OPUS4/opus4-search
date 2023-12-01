@@ -33,9 +33,11 @@
 namespace OpusTest\Search\Solr\Solarium;
 
 use Exception;
+use Opus\Common\Document;
 use Opus\Common\Person;
 use Opus\Search\Query;
 use Opus\Search\QueryFactory;
+use Opus\Search\SearchingInterface;
 use Opus\Search\Service;
 use Opus\Search\Solr\Solarium\Adapter;
 use Opus\Search\Util\Query as QueryUtil;
@@ -312,20 +314,12 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $docC = $this->createDocument('weightedTestDocC');
         $docD = $this->createDocument('weightedTestDocD');
         $docE = $this->createDocument('weightedTestDocE');
-
-        $index = Service::selectIndexingService(null, 'solr');
-        $index->addDocumentsToIndex([$docA, $docB, $docC, $docD, $docE]);
+        $this->indexDocuments([$docA, $docB, $docC, $docD, $docE]);
 
         $search = Service::selectSearchingService(null, 'solr');
+        $query  = $this->queryWithSearchString($search, 'test document');
 
-        $query = new Query();
-        $query->addSorting('score', false);
-
-        // add query terms
-        $filter = $search->createFilter();
-        $filter->createSimpleEqualityFilter('*')->addValue('test document');
-        $query->setFilter($filter);
-
+        // TODO better explanation (expectation, what gets tested
         // 1. standard search (AND)
         $query->setWeightedSearch(false);
         $query->setUnion(false); // use AND as default query operator
@@ -339,6 +333,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $this->assertTrue(in_array($docB->getId(), $matchingIds));
         $this->assertTrue(in_array($docE->getId(), $matchingIds));
 
+// TODO split into separate tests
         // 2. weighted search (AND)
         $query->setWeightedSearch(true);
         $query->setWeightedFields(['abstract' => 1.0, 'title' => 1.0]); // assigns boost factors to fields
@@ -361,6 +356,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
         $this->assertEquals(5, count($matches));
 
+// TODO also compare doc IDs
         $this->assertTrue($matches[0]->getScore() > 1.0);
         $this->assertTrue($matches[1]->getScore() > 1.0);
 
@@ -373,18 +369,10 @@ class AdapterSearchingTest extends DocumentBasedTestCase
     {
         $docA = $this->createDocument('weightedTestDocA');
         $docB = $this->createDocument('weightedTestDocB');
-
-        $index = Service::selectIndexingService(null, 'solr');
-        $index->addDocumentsToIndex([$docA, $docB]);
+        $this->indexDocuments([$docA, $docB]);
 
         $search = Service::selectSearchingService(null, 'solr');
-
-        $query = new Query();
-        $query->addSorting('score', false);
-
-        $filter = $search->createFilter();
-        $filter->createSimpleEqualityFilter('*')->addValue('test document');
-        $query->setFilter($filter);
+        $query  = $this->queryWithSearchString($search, 'test document');
 
         // 1. with different boost factors assigned to fields, expect clearly different scores & appropriate sort order
         $this->adjustConfiguration([
@@ -423,18 +411,12 @@ class AdapterSearchingTest extends DocumentBasedTestCase
     {
         $docA = $this->createDocument('weightedTestDocA');
         $docB = $this->createDocument('weightedTestDocB');
-
-        $index = Service::selectIndexingService(null, 'solr');
-        $index->addDocumentsToIndex([$docA, $docB]);
+        $this->indexDocuments([$docA, $docB]);
 
         $search = Service::selectSearchingService(null, 'solr');
+        $query  = $this->queryWithSearchString($search, 'test document');
 
-        $query = new Query();
         $query->setWeightedSearch(true);
-
-        $filter = $search->createFilter();
-        $filter->createSimpleEqualityFilter('*')->addValue('test document');
-        $query->setFilter($filter);
 
         // 1. without any boost factors assigned to fields, expect roughly equal scores
         $query->setWeightedFields([]);
@@ -455,5 +437,36 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $this->assertEquals(2, count($matches));
 
         $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) < 1.0);
+    }
+
+    /**
+     * Adds the given documents to the Solr index.
+     *
+     * @param Document[] $documents documents to be indexed
+     */
+    protected function indexDocuments($documents)
+    {
+        $index = Service::selectIndexingService(null, 'solr');
+        $index->addDocumentsToIndex($documents);
+    }
+
+    /**
+     * Returns a query object for the given search string sorting results by score in descending order.
+     *
+     * @param SearchingInterface $search searching service to work with
+     * @param string             $searchString query string to search for
+     * @return Query
+     */
+    protected function queryWithSearchString($search, $searchString)
+    {
+        $query = new Query();
+        $query->addSorting('score', false);
+
+        // add query terms
+        $filter = $search->createFilter();
+        $filter->createSimpleEqualityFilter('*')->addValue($searchString);
+        $query->setFilter($filter);
+
+        return $query;
     }
 }
