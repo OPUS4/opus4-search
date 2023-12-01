@@ -90,6 +90,7 @@ use const PREG_SPLIT_NO_EMPTY;
  * @method $this addFields( string $fields )
  * @method $this addSort( $sorting )
  * @method $this setWeightedFields( int[] $weightedFields ) assigns boost factors to fields (e.g. [ 'title' => 10, 'abstract' => 0.5 ])
+ * @method $this setWeightMultiplier( int $multiplier ) multiplier to further increase boost factors when matching phrases
  */
 class Query
 {
@@ -99,15 +100,16 @@ class Query
     public function reset()
     {
         $this->data = [
-            'start'          => null,
-            'rows'           => null,
-            'fields'         => null,
-            'sort'           => null,
-            'union'          => false,
-            'filter'         => null,
-            'facet'          => null,
-            'subfilters'     => null,
-            'weightedfields' => null,
+            'start'            => null,
+            'rows'             => null,
+            'fields'           => null,
+            'sort'             => null,
+            'union'            => false,
+            'filter'           => null,
+            'facet'            => null,
+            'subfilters'       => null,
+            'weightedfields'   => null,
+            'weightmultiplier' => null,
         ];
     }
 
@@ -243,6 +245,30 @@ class Query
     }
 
     /**
+     * Returns a positive integer used as a multiplier to further increase field-specific boost factors when
+     * matching phrases (i.e., in cases where all query terms appear in close proximity.
+     *
+     * For example, with a weight multiplier of 5, the weightedfields array [ 'title' => 10, 'abstract' => 0.5 ]
+     * would be translated to [ 'title' => 50, 'abstract' => 2.5 ] when matching phrases.
+     *
+     * @return int
+     */
+    public function getWeightMultiplier()
+    {
+        if ($this->data['weightmultiplier'] === null) {
+            $config = Config::get();
+
+            if (isset($config->search->weightMultiplier)) {
+                $this->data['weightmultiplier'] = $config->search->weightMultiplier;
+            } else {
+                $this->data['weightmultiplier'] = 1;
+            }
+        }
+
+        return $this->data['weightmultiplier'];
+    }
+
+    /**
      * Retrieves value of selected query parameter.
      *
      * @param string     $name name of parameter to read
@@ -272,6 +298,7 @@ class Query
         switch ($name) {
             case 'start':
             case 'rows':
+            case 'weightmultiplier':
                 if ($adding) {
                     throw new InvalidArgumentException('invalid parameter access on ' . $name);
                 }

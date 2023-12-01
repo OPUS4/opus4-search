@@ -626,6 +626,12 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
                 if (! empty($weightedFields)) {
                     $queryFields = $this->getQueryFieldsString($weightedFields);
                     $edismax->setQueryFields($queryFields);
+
+                    $weightMultiplier = $parameters->getWeightMultiplier();
+                    if ($weightMultiplier !== null) {
+                        $phraseFields = $this->getPhraseFieldsString($weightedFields, $weightMultiplier);
+                        $edismax->setPhraseFields($phraseFields);
+                    }
                 }
             }
 
@@ -910,5 +916,22 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
         }
 
         return implode(' ', $queryFields);
+    }
+
+    /**
+     * Generates a phrase fields string that can be used as input for the Solr `pf` request parameter.
+     *
+     * @param int[] $weightedFields assigns boost factors to fields, e.g.: [ 'title' => 10, 'abstract' => 0.5 ]
+     * @param int   $weightMultiplier factor by which each boost factor will be multiplied when matching phrases, e.g.: 5
+     * @return string phrase fields string, e.g.: "title^50 abstract^2.5"
+     */
+    protected function getPhraseFieldsString($weightedFields, $weightMultiplier)
+    {
+        $phraseFields = [];
+        foreach ($weightedFields as $field => $boostFactor) {
+            $phraseFields[] = "$field^" . $boostFactor * $weightMultiplier;
+        }
+
+        return implode(' ', $phraseFields);
     }
 }
