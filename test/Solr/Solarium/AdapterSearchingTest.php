@@ -44,6 +44,7 @@ use OpusTest\Search\TestAsset\DocumentBasedTestCase;
 
 use function abs;
 use function count;
+use function in_array;
 
 class AdapterSearchingTest extends DocumentBasedTestCase
 {
@@ -329,7 +330,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $query->setWeightedSearch(false);
         $query->setUnion(false); // use AND as default query operator
 
-        $result  = $search->customSearch($query);
+        $result      = $search->customSearch($query);
         $matchingIds = $result->getReturnedMatchingIds();
 
         $this->assertEquals(3, count($matchingIds));
@@ -344,7 +345,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $query->setWeightMultiplier(5); // multiplier to further increase boost factors when matching phrases
         $query->setUnion(false); // use AND as default query operator
 
-        $result  = $search->customSearch($query);
+        $result      = $search->customSearch($query);
         $matchingIds = $result->getReturnedMatchingIds();
 
         $this->assertEquals(2, count($matchingIds));
