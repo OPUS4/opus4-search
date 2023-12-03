@@ -246,7 +246,7 @@ class Query
 
     /**
      * Returns a positive integer used as a multiplier to further increase field-specific boost factors when
-     * matching phrases (i.e., in cases where all query terms appear in close proximity.
+     * matching phrases (i.e., in cases where all query terms appear in close proximity).
      *
      * For example, with a weight multiplier of 5, the weightedfields array [ 'title' => 10, 'abstract' => 0.5 ]
      * would be translated to [ 'title' => 50, 'abstract' => 2.5 ] when matching phrases.

@@ -121,58 +121,10 @@
         <field name="fulltext_id_success" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="fulltext_id_failure" type="string" indexed="true" stored="true" multiValued="true"/>
 
-        <!--
-            Catchall field, containing all other searchable text fields (implemented
-            via copyField further on in this schema)
-            indexes tokens both normally and in reverse for efficient
-            leading wildcard queries.
-        -->
-        <field name="text" type="text" indexed="true" stored="false" multiValued="true" omitNorms="false"/>
-
-        <!-- Catchall field for simple search without fulltext. -->
-        <field name="simple" type="text" indexed="true" stored="false" multiValued="true" omitNorms="false"/>
-
         <dynamicField name="enrichment_*" multiValued="true" stored="true" indexed="true" type="string" />
     </fields>
 
     <uniqueKey>id</uniqueKey>
-
-    <!--
-        Copy all searchable text fields into catchall field for keyword searches across everything.
-
-        TODO Werden alle Titel und Zusammenfassungen indiziert oder nur die in der Sprache des Dokuments?
-    -->
-    <copyField source="abstract" dest="text"/>
-    <copyField source="title" dest="text"/>
-    <copyField source="author" dest="text"/>
-    <copyField source="subject" dest="text"/>
-    <copyField source="title_parent" dest="text"/>
-    <copyField source="title_additional" dest="text"/>
-    <copyField source="title_sub" dest="text"/>
-    <copyField source="creating_corporation" dest="text"/>
-    <copyField source="contributing_corporation" dest="text"/>
-    <copyField source="publisher_name" dest="text"/>
-    <copyField source="publisher_place" dest="text"/>
-    <copyField source="identifier" dest="text"/>
-    <copyField source="persons" dest="text"/>
-    <copyField source="enrichment_*" dest="text"/>
-    <!-- Add fulltext to text field for simple search with fulltext. -->
-    <copyField source="fulltext" dest="text"/>
-
-    <!-- Duplicate content of text in simple field for simple search without fulltext. -->
-    <copyField source="abstract" dest="simple"/>
-    <copyField source="title" dest="simple"/>
-    <copyField source="author" dest="simple"/>
-    <copyField source="subject" dest="simple"/>
-    <copyField source="title_parent" dest="simple"/>
-    <copyField source="title_additional" dest="simple"/>
-    <copyField source="title_sub" dest="simple"/>
-    <copyField source="creating_corporation" dest="simple"/>
-    <copyField source="contributing_corporation" dest="simple"/>
-    <copyField source="publisher_name" dest="simple"/>
-    <copyField source="publisher_place" dest="simple"/>
-    <copyField source="identifier" dest="simple"/>
-    <copyField source="persons" dest="simple"/>
 
     <!-- TODO why -->
     <copyField source="author" dest="author_facet"/>

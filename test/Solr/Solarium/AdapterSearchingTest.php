@@ -309,11 +309,10 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
     /**
      * Test that a standard `AND` search (which uses Solr's standard query parser)
-     * finds all documents that contain both query terms in the same field.
+     * finds all documents that contain both query terms in the default field ('title').
      */
     public function testStandardAndSearch()
     {
-        // TODO when the `text` field gets removed from the Solr index, weightedTestDocE should not get found anymore
         $docA = $this->createDocument('weightedTestDocA'); // full query string only occurs in abstract
         $docB = $this->createDocument('weightedTestDocB'); // full query string only occurs in title
         $docC = $this->createDocument('weightedTestDocC'); // has only one query term (in abstract)
@@ -324,18 +323,18 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $search = Service::selectSearchingService(null, 'solr');
         $query  = $this->queryWithSearchString($search, 'test document');
 
-        $query->setWeightedSearch(false); // use Solr's standard query parser
+        // use Solr's standard query parser (which, as currently configured
+        // in solarconfig.xml, by default only searches the 'title' field)
+        $query->setWeightedSearch(false);
         $query->setUnion(false); // use AND as default query operator
 
         $result      = $search->customSearch($query);
         $matchingIds = $result->getReturnedMatchingIds();
 
-        $this->assertEquals(3, count($matchingIds));
+        $this->assertEquals(1, count($matchingIds));
 
-        // expect only documents that contain both query terms in the same field
-        $this->assertTrue(in_array($docA->getId(), $matchingIds));
+        // expect only documents that contain both query terms in the default field ('title')
         $this->assertTrue(in_array($docB->getId(), $matchingIds));
-        $this->assertTrue(in_array($docE->getId(), $matchingIds));
     }
 
     /**
@@ -506,6 +505,33 @@ class AdapterSearchingTest extends DocumentBasedTestCase
     }
 
     /**
+     * Test that a "weighted" search with undefined weights (i.e. no field-specific boost factors defined at all)
+     * will cause Solr to fall back to its standard query parser (which by default only searches the title field).
+     */
+    public function testWeightedSearchWithUndefinedWeights()
+    {
+        $docA = $this->createDocument('weightedTestDocA'); // full query string only occurs in abstract
+        $docB = $this->createDocument('weightedTestDocB'); // full query string only occurs in title
+        $this->indexDocuments([$docA, $docB]);
+
+        $search = Service::selectSearchingService(null, 'solr');
+        $query  = $this->queryWithSearchString($search, 'test document');
+
+        $query->setWeightedSearch(true);
+
+        // without any boost factors assigned to fields, expect only docB
+        // (which contains the query string in the title) to be found
+        $query->setWeightedFields([]); // defining no weights causes Solr to fall back to its standard query parser
+
+        $result  = $search->customSearch($query);
+        $matches = $result->getReturnedMatches();
+
+        $this->assertEquals(1, count($matches));
+
+        $this->assertEquals($docB->getId(), $matches[0]->getDocument()->getId());
+    }
+
+    /**
      * Test that a weighted search with equal weights (i.e. no fields being boosted) will result in
      * similar scores for two documents that both contain the full query string in one of their fields.
      */
@@ -520,17 +546,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
 
         $query->setWeightedSearch(true);
 
-        // 1. without any boost factors assigned to fields, expect roughly equal scores
-        $query->setWeightedFields([]);
-
-        $result  = $search->customSearch($query);
-        $matches = $result->getReturnedMatches();
-
-        $this->assertEquals(2, count($matches));
-
-        $this->assertTrue(abs($matches[0]->getScore() - $matches[1]->getScore()) < 1.0);
-
-        // 2. with equal boost factors, also expect roughly equal scores
+        // with equal boost factors, expect both documents being returned with roughly equal scores
         $query->setWeightedFields(['abstract' => 1.0, 'title' => 1.0]);
 
         $result  = $search->customSearch($query);
