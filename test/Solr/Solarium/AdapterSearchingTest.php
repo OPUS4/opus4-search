@@ -268,22 +268,28 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $docB->addPersonAuthor($author);
         $docB->store();
 
-        $index = Service::selectIndexingService(null, 'solr');
-        $index->addDocumentsToIndex([$docA, $docB]);
+        $this->indexDocuments([$docA, $docB]);
 
-        $search = new Searcher();
+        $search = Service::selectSearchingService(null, 'solr');
+        $query  = $this->queryWithSearchString($search, 'muller');
 
-        $query = new QueryUtil(QueryUtil::SIMPLE);
-        $query->setCatchAll('muller');
-        $result = $search->search($query);
+        $query->setWeightedSearch(true);
+        $query->setWeightedFields(['author' => 1.0]);
 
-        $this->assertEquals(2, $result->getAllMatchesCount());
+        $result      = $search->customSearch($query);
+        $matchingIds = $result->getReturnedMatchingIds();
 
-        $query = new QueryUtil(QueryUtil::SIMPLE);
-        $query->setCatchAll('müller');
-        $result = $search->search($query);
+        $this->assertEquals(2, count($matchingIds));
 
-        $this->assertEquals(2, $result->getAllMatchesCount());
+        $filter = $search->createFilter();
+        $filter->createSimpleEqualityFilter('*')->addValue('müller');
+        $query->setFilter($filter);
+
+        $result      = $search->customSearch($query);
+        $matchingIds = $result->getReturnedMatchingIds();
+
+        // when searching with diacritics, expect the same documents being found
+        $this->assertEquals(2, count($matchingIds));
     }
 
     public function testMapYearFacetIndexFieldsToYearAsset()
