@@ -38,8 +38,10 @@ use Opus\Document\DocumentException;
 use Opus\Search\Log;
 use RuntimeException;
 
+use function array_filter;
 use function array_key_exists;
 use function array_map;
+use function array_values;
 use function count;
 use function ctype_digit;
 use function intval;
@@ -192,9 +194,11 @@ class Base
      * Retrieves set of matching and locally existing documents returned in
      * response to some search query.
      *
+     * @param bool $ignoreZeroScoreMatches ignore any matches with score 0.0
+     *        (true) or not (false); defaults to true
      * @return ResultMatch[]
      */
-    public function getReturnedMatches()
+    public function getReturnedMatches($ignoreZeroScoreMatches = true)
     {
         if ($this->data['matches'] === null) {
             return [];
@@ -208,7 +212,10 @@ class Base
         foreach ($this->data['matches'] as $match) {
             try {
                 $match->getDocument();
-                $matches[] = $match;
+                $ignoreMatch = $ignoreZeroScoreMatches === true && $match->getScore() === 0.0;
+                if ($ignoreMatch !== true) {
+                    $matches[] = $match;
+                }
             } catch (DocumentException $e) {
                 Log::get()->warn('skipping matching but locally missing document #' . $match->getId());
             }
@@ -223,18 +230,22 @@ class Base
      *
      * @note If query was requesting to retrieve non-qualified matches this set
      *       might include IDs of documents that doesn't exist locally anymore.
+     * @param bool $ignoreZeroScoreMatches ignore any matches with score 0.0
+     *        (true) or not (false); defaults to true
      * @return int[]
      */
-    public function getReturnedMatchingIds()
+    public function getReturnedMatchingIds($ignoreZeroScoreMatches = true)
     {
         if ($this->data['matches'] === null) {
             return [];
         }
 
-        return array_map(function ($match) {
-            /** @var ResultMatch $match */
-            return $match->getId();
+        $matchingIds = array_map(function (ResultMatch $match) use ($ignoreZeroScoreMatches) {
+            $ignoreMatch = $ignoreZeroScoreMatches === true && $match->getScore() === 0.0;
+            return $ignoreMatch !== true ? $match->getId() : null;
         }, $this->data['matches']);
+
+        return array_values(array_filter($matchingIds));
     }
 
     /**
@@ -247,7 +258,7 @@ class Base
      *       has changed in that it's returning set of Opus_Document instances
      *       rather than set of Opus_Search_Util_Result instances.
      * @note The wording is less specific in that all information in response to
-     *       search query may considered results of search. Thus this new API
+     *       search query may be considered results of search. Thus this new API
      *       prefers "matches" over "results".
      */
     public function getResults()
