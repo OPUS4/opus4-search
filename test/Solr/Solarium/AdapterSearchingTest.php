@@ -453,7 +453,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $query->setUnion(false); // use AND as default query operator
 
         $result  = $search->customSearch($query);
-        $matches = $result->getReturnedMatches();
+        $matches = $result->getReturnedMatches(false);
 
         // expect only docA & docB to get found (which both contain the full query string in one of their fields)
         $this->assertEquals(2, count($matches));
@@ -486,7 +486,7 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         $query->setUnion(true); // use OR as default query operator
 
         $result  = $search->customSearch($query);
-        $matches = $result->getReturnedMatches();
+        $matches = $result->getReturnedMatches(false);
 
         // expect all documents to get found since all of them contain at least one query term in one of their fields
         $this->assertEquals(3, count($matches));
@@ -502,6 +502,35 @@ class AdapterSearchingTest extends DocumentBasedTestCase
         // expect docD (contains part of query string in abstract) to sort last and with a score of 0
         $this->assertEquals($docD->getId(), $matches[2]->getDocument()->getId());
         $this->assertTrue($matches[2]->getScore() === 0.0);
+    }
+
+    /**
+     * Test that a weighted `AND` search with a field's boost factor set to 0 will
+     * by default ignore any matches with a score of 0.
+     */
+    public function testWeightedAndSearchLeavingOutZeroScoredMatches()
+    {
+        $docA = $this->createDocument('weightedTestDocA'); // full query string only occurs in abstract
+        $docB = $this->createDocument('weightedTestDocB'); // full query string only occurs in title
+        $docE = $this->createDocument('weightedTestDocE'); // title & abstract contain one query term each
+        $this->indexDocuments([$docA, $docB, $docE]);
+
+        $search = Service::selectSearchingService(null, 'solr');
+        $query  = $this->queryWithSearchString($search, 'test document');
+
+        $query->setWeightedSearch(true);
+        $query->setWeightedFields(['abstract' => 0, 'title' => 1.0]);
+        $query->setUnion(false); // use AND as default query operator
+
+        $result  = $search->customSearch($query);
+        $matches = $result->getReturnedMatches(); // by default, ignores any matches with score 0.0
+
+        // expect only docB to get found, since docA only contains the full query string in the (ignored) abstract
+        $this->assertEquals(1, count($matches));
+
+        // expect just docB (contains full query string in title) with a score greater than 0
+        $this->assertEquals($docB->getId(), $matches[0]->getDocument()->getId());
+        $this->assertTrue($matches[0]->getScore() > 0.0);
     }
 
     /**
