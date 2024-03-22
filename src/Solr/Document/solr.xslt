@@ -26,12 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_SolrSearch
- * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 -->
@@ -277,15 +272,24 @@
                 <xsl:if test="$doctype != ''">
                     <xsl:element name="field">
                         <xsl:attribute name="name">doctype</xsl:attribute>
-                        <xsl:value-of select="/Opus/Opus_Document/@Type" />
+                        <xsl:value-of select="$doctype" />
                     </xsl:element>
                 </xsl:if>
 
-                <!-- state -->
+                <!-- ServerState -->
                 <xsl:element name="field">
                     <xsl:attribute name="name">server_state</xsl:attribute>
                     <xsl:value-of select="/Opus/Opus_Document/@ServerState" />
                 </xsl:element>
+
+                <!-- PublicationState -->
+                <xsl:variable name="publicationState" select="/Opus/Opus_Document/@PublicationState" />
+                <xsl:if test="$publicationState != ''">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">publication_state</xsl:attribute>
+                        <xsl:value-of select="$publicationState" />
+                    </xsl:element>
+                </xsl:if>
 
                 <!-- subject (swd) -->
                 <xsl:for-each select="/Opus/Opus_Document/Subject[@Type = 'swd']">

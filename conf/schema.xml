@@ -82,6 +82,7 @@
         <field name="subject" type="string" indexed="true" stored="false" multiValued="true"/>
         <field name="doctype" type="string" indexed="true" stored="false"/>
         <field name="server_state" type="string" indexed="true" stored="false" />
+        <field name="publication_state" type="string" indexed="true" stored="false" />
 
         <!-- Feld für die Sammlung 'institutes', um die Intitute-Facette anzeigen zu können. -->
         <field name="institute" type="string" indexed="true" stored="false" multiValued="true"/>
