@@ -37,6 +37,7 @@ use Opus\Common\Config;
 use Opus\Common\Document;
 use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Person;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
@@ -496,5 +497,48 @@ class SearcherTest extends TestCase
     public function testFilterFacetQueriesByServerStatePublishedForUsers()
     {
         $this->markTestIncomplete('test not implemented yet - waiting for refactoring of isAdmin implementation');
+    }
+
+    public function testAdvancedSearch()
+    {
+        $rows = 5;
+        $ids  = [];
+        for ($i = 0; $i < $rows; $i++) {
+            $document = Document::new();
+            $document->setServerState('published');
+            $document->store();
+            array_push($ids, $document->getId());
+        }
+
+        $doc    = Document::get($ids[0]);
+        $author = Person::new();
+        $author->setLastName('Doe');
+        $author = $doc->addPersonAuthor($author);
+        $doc->store();
+
+        $doc    = Document::get($ids[3]);
+        $author = Person::new();
+        $author->setLastName('doe');
+        $author = $doc->addPersonAuthor($author);
+        $doc->store();
+
+        $query = new Query(Query::ADVANCED);
+        $query->setStart(0);
+        $query->setRows(10);
+        $query->setSortField('score');
+        $query->setSortOrder('desc');
+        $query->setFilterQueries([]);
+        $query->setCatchAll(null);
+        $query->setFacetField(null);
+        $query->setReturnIdsOnly(false);
+        $query->setField('author', 'doe');
+        $query->getQ();
+
+        $searcher = new Searcher();
+        $results  = $searcher->search($query);
+
+        $this->assertEquals(2, $results->getAllMatchesCount());
+        $this->assertContains($ids[0], $results->getReturnedMatchingIds());
+        $this->assertContains($ids[3], $results->getReturnedMatchingIds());
     }
 }
