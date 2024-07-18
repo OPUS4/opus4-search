@@ -46,4 +46,9 @@ class AdapterTest extends DocumentBasedTestCase
 
         $service->ping();
     }
+
+    public function testFacetSortingDoesNotApplyToAllFacetsWhenSetForOne()
+    {
+        $this->markTestIncomplete('implement test');
+    }
 }
