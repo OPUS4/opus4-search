@@ -619,13 +619,13 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
             if ($facet !== null) {
                 $facetSet = $query->getFacetSet();
                 foreach ($facet->getFields() as $field) {
-                    $facetSet->createFacetField($field->getName())
+                    $facetField = $facetSet->createFacetField($field->getName())
                         ->setField($field->getName())
                         ->setMinCount($field->getMinCount())
                         ->setLimit($field->getLimit());
 
                     if ($field->getSort()) {
-                        $facetSet->setSort(FieldValueParametersInterface::SORT_INDEX);
+                        $facetField->setSort(FieldValueParametersInterface::SORT_INDEX);
                     }
                 }
 
