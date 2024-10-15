@@ -49,7 +49,7 @@ class QueryTest extends TestCase
         $this->assertFalse(isset($query->rows));
         $this->assertFalse(isset($query->fields));
         $this->assertFalse(isset($query->sort));
-        $this->assertFalse(isset($query->union));
+        $this->assertFalse($query->union);
     }
 
     public function testSupportingExplicitGetter()
@@ -60,7 +60,7 @@ class QueryTest extends TestCase
         $this->assertNull($query->get('rows'));
         $this->assertNull($query->get('fields'));
         $this->assertNull($query->get('sort'));
-        $this->assertNull($query->get('union'));
+        $this->assertFalse($query->get('union'));
     }
 
     public function testSupportingImplicitGetter()
@@ -71,7 +71,7 @@ class QueryTest extends TestCase
         $this->assertNull($query->rows);
         $this->assertNull($query->fields);
         $this->assertNull($query->sort);
-        $this->assertNull($query->union);
+        $this->assertFalse($query->union);
     }
 
     public function testSupportingGetterMethods()
@@ -82,7 +82,7 @@ class QueryTest extends TestCase
         $this->assertNull($query->getRows());
         $this->assertNull($query->getFields());
         $this->assertNull($query->getSort());
-        $this->assertNull($query->getUnion());
+        $this->assertFalse($query->getUnion());
     }
 
     /**
