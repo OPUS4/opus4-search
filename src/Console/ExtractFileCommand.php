@@ -97,10 +97,9 @@ EOT;
     }
 
     /**
-     * @return int
      * @throws SearchException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $file    = $input->getArgument(self::ARGUMENT_FILE);
         $target  = $input->getOption(self::OPTION_OUTPUT_FILE);
