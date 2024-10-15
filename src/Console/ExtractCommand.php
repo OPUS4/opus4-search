@@ -89,7 +89,7 @@ EOT;
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         parent::execute($input, $output);
 
@@ -107,5 +107,7 @@ EOT;
         } else {
             $helper->extract($this->startId, $this->endId);
         }
+
+        return 0;
     }
 }

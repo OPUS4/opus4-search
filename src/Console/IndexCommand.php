@@ -163,6 +163,9 @@ EOT;
             ->setAliases(['index']);
     }
 
+    /**
+     * @return int
+     */
     protected function processArguments(InputInterface $input)
     {
         parent::processArguments($input);
@@ -200,14 +203,15 @@ EOT;
                 }
             }
         }
+
+        return 0; // TODO is this necessary
     }
 
     /**
-     * @return int
      * @throws ModelException
      * @throws Zend_Config_Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         parent::execute($input, $output);
 

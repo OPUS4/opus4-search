@@ -79,7 +79,7 @@ EOT;
             ->setHelp($help);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         parent::execute($input, $output);
 
@@ -107,5 +107,7 @@ EOT;
                 $output->writeln('done');
             }
         }
+
+        return 0;
     }
 }
