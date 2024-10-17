@@ -176,9 +176,9 @@ class IndexHelper
             $col      = Collection::get($colId);
             $colTitle = $col->getDisplayName();
             $output->writeln("Indexing documents in collection: \"${colTitle}\" (ID=$colId)");
-        } elseif ($endId !== null) {
+        } elseif ($endId !== 0) {
             $output->writeln("Indexing document from <fg=yellow>$startId</> to <fg=yellow>$endId</> ...");
-        } elseif ($startId !== null) {
+        } elseif ($startId !== 0) {
             $output->writeln("Indexing documents starting at <fg=yellow>$startId</> ...");
         } else {
             $output->writeln('Indexing <fg=yellow>all</> documents ...');
@@ -265,12 +265,12 @@ class IndexHelper
         $documentHelper = new DocumentHelper();
 
         // TODO this is a hack to detect if $endId has not been specified - better way?
-        if ($endId === -1) {
+        if ($endId <= 0) {
             $singleDocument = true;
             $docIds         = [$startId];
         } else {
             $singleDocument = false;
-            if ($startId === null && $endId === null) {
+            if ($startId === 0 && $endId === 0) {
                 $removeAll = true;
             }
             $docIds = $documentHelper->getDocumentIds($startId, $endId);
