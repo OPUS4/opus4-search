@@ -77,6 +77,7 @@ use function array_shift;
 use function file_exists;
 use function filesize;
 use function filter_var;
+use function implode;
 use function in_array;
 use function intval;
 use function is_array;
@@ -615,6 +616,25 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
                 $query->setSorts($sortings);
             }
 
+            $isWeightedSearch = $parameters->getWeightedSearch();
+            if ($isWeightedSearch === true) {
+                // get the edismax component
+                $edismax = $query->getEDisMax();
+
+                // NOTE: query is now an edismax query
+                $weightedFields = $parameters->getWeightedFields();
+                if (! empty($weightedFields)) {
+                    $queryFields = $this->getQueryFieldsString($weightedFields);
+                    $edismax->setQueryFields($queryFields);
+
+                    $weightMultiplier = $parameters->getWeightMultiplier();
+                    if ($weightMultiplier !== null) {
+                        $phraseFields = $this->getPhraseFieldsString($weightedFields, $weightMultiplier);
+                        $edismax->setPhraseFields($phraseFields);
+                    }
+                }
+            }
+
             $facet = $parameters->getFacet();
             if ($facet !== null) {
                 $facetSet = $query->getFacetSet();
@@ -879,5 +899,39 @@ class Adapter extends AbstractAdapter implements IndexingInterface, SearchingInt
             $options['endpoint'][$keys[0]]['timeout'] = $timeout;
             $this->client->setOptions($options, true);
         }
+    }
+
+    /**
+     * Converts an array containing boost factors keyed by field into a query fields string that can be used
+     * as input for the Solr `qf` request parameter.
+     *
+     * @param int[] $weightedFields assigns boost factors to fields, e.g.: [ 'title' => 10, 'abstract' => 0.5 ]
+     * @return string query fields string, e.g.: "title^10 abstract^0.5"
+     */
+    protected function getQueryFieldsString($weightedFields)
+    {
+        $queryFields = [];
+        foreach ($weightedFields as $field => $boostFactor) {
+            $queryFields[] = "$field^$boostFactor";
+        }
+
+        return implode(' ', $queryFields);
+    }
+
+    /**
+     * Generates a phrase fields string that can be used as input for the Solr `pf` request parameter.
+     *
+     * @param int[] $weightedFields assigns boost factors to fields, e.g.: [ 'title' => 10, 'abstract' => 0.5 ]
+     * @param int   $weightMultiplier factor by which each boost factor will be multiplied when matching phrases, e.g.: 5
+     * @return string phrase fields string, e.g.: "title^50 abstract^2.5"
+     */
+    protected function getPhraseFieldsString($weightedFields, $weightMultiplier)
+    {
+        $phraseFields = [];
+        foreach ($weightedFields as $field => $boostFactor) {
+            $phraseFields[] = "$field^" . $boostFactor * $weightMultiplier;
+        }
+
+        return implode(' ', $phraseFields);
     }
 }
