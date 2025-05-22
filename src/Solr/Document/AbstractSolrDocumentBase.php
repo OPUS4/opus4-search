@@ -39,7 +39,7 @@ use Opus\Common\DocumentInterface;
 use Opus\Common\FileInterface;
 use Opus\Common\Repository;
 use Opus\Common\Storage\StorageException;
-use Opus\Model\Xml;
+use Opus\Model\Xml; // TODO Remove runtime framework dependency (#96 depends on moving XML code out of Framework)
 use Opus\Model\Xml\Version1;
 use Opus\Search\Log;
 use Opus\Search\MimeTypeNotSupportedException;
