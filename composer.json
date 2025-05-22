@@ -17,7 +17,6 @@
     "ext-mbstring": "*",
     "solarium/solarium": "6.*",
     "symfony/event-dispatcher": "*",
-    "opus4-repo/framework": "dev-master as 4.8.1",
     "opus4-repo/opus4-common": "dev-master as 4.8.1",
     "opus4-repo/opus4-job": "dev-main as 4.8.1",
     "opus4/zf1-future": "1.21.*",
@@ -26,6 +25,7 @@
   "require-dev": {
     "phpunit/phpunit": "10.*",
     "opus4-repo/codesniffer": "dev-laminas",
+    "opus4-repo/framework": "dev-master as 4.8.1",
     "phpmd/phpmd": "@stable",
     "phploc/phploc": "@stable",
     "sebastian/phpcpd": "*",

@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -40,8 +40,9 @@ use Opus\Common\Console\Helper\ProgressReport;
 use Opus\Common\Document;
 use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Model\Xml\XmlCacheInterface;
+use Opus\Common\Repository;
 use Opus\Common\Storage\StorageException;
-use Opus\Model\Xml\Cache;
 use Opus\Search\IndexingInterface;
 use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Plugin\Index;
@@ -85,7 +86,7 @@ class IndexHelper
     /** @var int */
     private $blockSize = 10;
 
-    /** @var Cache */
+    /** @var XmlCacheInterface */
     private $cache;
 
     /** @var bool */
@@ -500,19 +501,19 @@ class IndexHelper
     }
 
     /**
-     * @return Cache
+     * @return XmlCacheInterface
      */
     public function getCache()
     {
         if ($this->cache === null) {
-            $this->cache = new Cache();
+            $this->cache = Repository::getInstance()->getDocumentXmLCache();
         }
 
         return $this->cache;
     }
 
     /**
-     * @param Cache $cache
+     * @param XmlCacheInterface $cache
      */
     public function setCache($cache)
     {
