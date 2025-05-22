@@ -8,11 +8,12 @@
  *
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
- * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
- * the Saarland University and State Library, the Saxon State Library -
- * Dresden State and University Library, the Bielefeld University Library and
- * the University Library of Hamburg University of Technology with funding from
- * the German Research Foundation and the European Regional Development Fund.
+ * Baden-Wuerttemberg, the North Rhine-Westphalian Library Service Center,
+ * the Cooperative Library Network Berlin-Brandenburg, the Saarland University
+ * and State Library, the Saxon State Library - Dresden State and University
+ * Library, the Bielefeld University Library and the University Library of
+ * Hamburg University of Technology with funding from the German Research
+ * Foundation and the European Regional Development Fund.
  *
  * LICENCE
  * OPUS is free software; you can redistribute it and/or modify it under the
@@ -25,39 +26,27 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2024, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Search\Console\Helper;
+namespace OpusTest\Search\Console;
 
-use Opus\Common\Repository;
+use Opus\Search\Console\SearchCommandProvider;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Command\Command;
 
-class DocumentHelper
+class SearchCommandProviderTest extends TestCase
 {
-    /**
-     * Returns IDs for published documents in range.
-     *
-     * @param int $start Start of ID range
-     * @param int $end End of ID range
-     * @param int $colId
-     * @return array Array of document IDs
-     *
-     * TODO move somewhere else, not Index specific functionality
-     */
-    public function getDocumentIds($start, $end, $colId = 0)
+    public function testGetCommands()
     {
-        $finder = Repository::getInstance()->getDocumentFinder();
+        $provider = new SearchCommandProvider();
+        $commands = $provider->getCommands();
 
-        $finder->setDocumentIdRange(
-            $start !== 0 ? $start : null,
-            $end !== 0 ? $end : null
-        );
+        $this->assertCount(4, $commands);
 
-        if ($colId > 0) {
-            $finder->setCollectionId($colId);
+        foreach ($commands as $command) {
+            $this->assertInstanceOf(Command::class, $command);
         }
-
-        return $finder->getIds();
     }
 }

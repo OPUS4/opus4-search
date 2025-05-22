@@ -45,7 +45,7 @@ class IndexCommandTest extends TestCase
      *
      * TODO add more test cases (longform as well)
      */
-    public function blockSizeOptionProvider()
+    public static function blockSizeOptionProvider()
     {
         return [
             [null, 10],
@@ -83,7 +83,7 @@ class IndexCommandTest extends TestCase
     /**
      * @return string[][]
      */
-    public function invalidBlockSizeOptionProvider()
+    public static function invalidBlockSizeOptionProvider()
     {
         return [
             ['a'],

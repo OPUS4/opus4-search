@@ -31,6 +31,7 @@
 
 namespace Opus\Search\Console\Helper;
 
+use Opus\Common\Collection;
 use Opus\Common\Config;
 use Opus\Common\Console\Helper\ProgressBar;
 use Opus\Common\Console\Helper\ProgressMatrix;
@@ -100,6 +101,7 @@ class IndexHelper
     /**
      * @param int $startId
      * @param int $endId
+     * @param int $colId
      * @return float|string
      * @throws SearchException
      * @throws ModelException
@@ -107,7 +109,7 @@ class IndexHelper
      *
      * TODO Is the timestamp in the console output useful?
      */
-    public function index($startId, $endId = -1)
+    public function index($startId, $endId = -1, $colId = 0)
     {
         $output    = $this->getOutput();
         $blockSize = $this->getBlockSize();
@@ -131,7 +133,7 @@ class IndexHelper
         if ($singleDocument) {
             $docIds = [$startId];
         } else {
-            $docIds = $documentHelper->getDocumentIds($startId, $endId);
+            $docIds = $documentHelper->getDocumentIds($startId, $endId, $colId);
         }
 
         $docCount = count($docIds);
@@ -160,7 +162,7 @@ class IndexHelper
             if ($singleDocument) {
                 $output->writeln("Removing document <fg=yellow>$startId</> from index ... ");
                 $indexer->removeDocumentsFromIndexById($docIds);
-            } elseif ($removeAll) {
+            } elseif ($removeAll && $colId === 0) {
                 $output->writeln('Removing <fg=yellow>all</> documents from index ... ');
                 $indexer->removeAllDocumentsFromIndex();
             } else {
@@ -171,9 +173,13 @@ class IndexHelper
 
         if ($singleDocument) {
             $output->writeln("Indexing document <fg=yellow>$startId</> ...");
-        } elseif ($endId !== null) {
+        } elseif ($colId > 0) {
+            $col      = Collection::get($colId);
+            $colTitle = $col->getDisplayName();
+            $output->writeln("Indexing documents in collection: \"${colTitle}\" (ID=$colId)");
+        } elseif ($endId !== 0) {
             $output->writeln("Indexing document from <fg=yellow>$startId</> to <fg=yellow>$endId</> ...");
-        } elseif ($startId !== null) {
+        } elseif ($startId !== 0) {
             $output->writeln("Indexing documents starting at <fg=yellow>$startId</> ...");
         } else {
             $output->writeln('Indexing <fg=yellow>all</> documents ...');
@@ -260,12 +266,12 @@ class IndexHelper
         $documentHelper = new DocumentHelper();
 
         // TODO this is a hack to detect if $endId has not been specified - better way?
-        if ($endId === -1) {
+        if ($endId <= 0) {
             $singleDocument = true;
             $docIds         = [$startId];
         } else {
             $singleDocument = false;
-            if ($startId === null && $endId === null) {
+            if ($startId === 0 && $endId === 0) {
                 $removeAll = true;
             }
             $docIds = $documentHelper->getDocumentIds($startId, $endId);

@@ -272,15 +272,24 @@
                 <xsl:if test="$doctype != ''">
                     <xsl:element name="field">
                         <xsl:attribute name="name">doctype</xsl:attribute>
-                        <xsl:value-of select="/Opus/Opus_Document/@Type" />
+                        <xsl:value-of select="$doctype" />
                     </xsl:element>
                 </xsl:if>
 
-                <!-- state -->
+                <!-- ServerState -->
                 <xsl:element name="field">
                     <xsl:attribute name="name">server_state</xsl:attribute>
                     <xsl:value-of select="/Opus/Opus_Document/@ServerState" />
                 </xsl:element>
+
+                <!-- PublicationState -->
+                <xsl:variable name="publicationState" select="/Opus/Opus_Document/@PublicationState" />
+                <xsl:if test="$publicationState != ''">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">publication_state</xsl:attribute>
+                        <xsl:value-of select="$publicationState" />
+                    </xsl:element>
+                </xsl:if>
 
                 <!-- subject (swd) -->
                 <xsl:for-each select="/Opus/Opus_Document/Subject[@Type = 'swd']">
@@ -421,12 +430,13 @@
                 </xsl:for-each>
 
                 <!-- enrichment -->
-                <!-- TODO configurable inclusion of enrichments -->
                 <xsl:for-each select="/Opus/Opus_Document/Enrichment">
-                    <xsl:element name="field">
-                        <xsl:attribute name="name">enrichment_<xsl:value-of select="./@KeyName" /></xsl:attribute>
-                        <xsl:value-of select="@Value" />
-                    </xsl:element>
+                    <xsl:if test="php:functionString('Opus\Search\Solr\Document\Xslt::indexEnrichment', ./@KeyName)">
+                        <xsl:element name="field">
+                            <xsl:attribute name="name">enrichment_<xsl:value-of select="./@KeyName" /></xsl:attribute>
+                            <xsl:value-of select="@Value" />
+                        </xsl:element>
+                    </xsl:if>
                 </xsl:for-each>
 
             </xsl:element>

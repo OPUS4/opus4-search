@@ -318,10 +318,8 @@ class SearcherTest extends TestCase
     {
         $fileName = 'test.pdf';
         $id       = $this->createDocWithFulltext($fileName);
-
-        $result = $this->getSearchResultForFulltextTests();
-
-        $success = $result->getFulltextIDsSuccess();
+        $result   = $this->getSearchResultForFulltextTests();
+        $success  = $result->getFulltextIDsSuccess();
 
         $doc   = Document::get($id);
         $file  = $doc->getFile();

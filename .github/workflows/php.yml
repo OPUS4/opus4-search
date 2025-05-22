@@ -16,17 +16,17 @@ jobs:
 
     strategy:
       matrix:
-        php-versions: ['8.1']
+        versions: [{php: '8.1', solr: '9.7.0'}, {php: '8.2', solr: '9.7.0'}]
 
-    name: PHP ${{ matrix.php-versions }} Test
+    name: PHP ${{ matrix.versions.php }} Test
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup PHP ${{ matrix.php-versions }}
+      - name: Setup PHP ${{ matrix.versions.php }}
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: ${{ matrix.versions.php }}
 
       - name: Check PHP Version
         run: php -v
@@ -34,22 +34,29 @@ jobs:
       - name: Install Composer and Dependencies
         run: sudo apt-get update && curl -s http://getcomposer.org/installer | php && php composer.phar self-update && php composer.phar install
 
-      - name: Solr
-        run: sudo bash bin/install_solr_docker.sh
+      - name: Get Solr ${{ matrix.versions.solr }} from Cache
+        id: cache-solr
+        uses: actions/cache@v3
+        with:
+          path: downloads
+          key: solr-${{ matrix.versions.solr }}
+
+      - name: Install Solr ${{ matrix.versions.solr }}
+        run: sudo bash bin/install_solr_docker.sh --version ${{ matrix.versions.solr }}
 
       - name: Start MySQL
         run: sudo systemctl start mysql.service
 
-      - name: Prepare workspace
+      - name: Prepare Workspace
         run: ant prepare-workspace
 
-      - name: Prepare search config
+      - name: Prepare Search Config
         run: ant prepare-config
 
-      - name: Prepare database
+      - name: Prepare Database
         run: bash vendor/bin/opus4db --adminpwd root --userpwd root --sqlpwd root
 
-      - name: Basic PHP file check
+      - name: Basic PHP File Check
         run: ant lint
 
       - name: Tests

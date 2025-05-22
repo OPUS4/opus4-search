@@ -42,12 +42,15 @@ use XSLTProcessor;
 use Zend_Config;
 
 use function array_key_exists;
+use function array_map;
 use function ctype_digit;
 use function dirname;
 use function filter_var;
+use function in_array;
 use function is_int;
 use function preg_split;
 use function strlen;
+use function strtolower;
 use function strval;
 use function trim;
 
@@ -63,6 +66,9 @@ class Xslt extends AbstractSolrDocumentBase
     /** @var Zend_Config */
     private $options;
 
+    /** @var string[] Names of enrichment fields to be excluded from indexing */
+    private static $enrichmentBlacklist;
+
     public function __construct(Zend_Config $options)
     {
         parent::__construct($options);
@@ -76,10 +82,35 @@ class Xslt extends AbstractSolrDocumentBase
 
             $this->processor = new XSLTProcessor();
             $this->processor->importStyleSheet($xslt);
-            $this->processor->registerPHPFunctions('Opus\Search\Solr\Document\Xslt::indexYear');
+            $this->processor->registerPHPFunctions([
+                'Opus\Search\Solr\Document\Xslt::indexYear',
+                'Opus\Search\Solr\Document\Xslt::indexEnrichment',
+            ]);
         } catch (Exception $e) {
             throw new InvalidArgumentException('invalid XSLT file for deriving Solr documents', 0, $e);
         }
+    }
+
+    /**
+     * Returns names of enrichment fields to be excluded from indexing.
+     *
+     * @return string[]
+     */
+    public static function getEnrichmentBlacklist()
+    {
+        if (self::$enrichmentBlacklist === null) {
+            $blacklist = [];
+            $config    = Config::get();
+
+            if (isset($config->search->index->enrichment->blacklist)) {
+                $configBlacklist = $config->search->index->enrichment->blacklist;
+                $blacklist       = array_map('strtolower', preg_split('/[\s,]+/', trim($configBlacklist), 0, PREG_SPLIT_NO_EMPTY));
+            }
+
+            self::$enrichmentBlacklist = $blacklist;
+        }
+
+        return self::$enrichmentBlacklist;
     }
 
     /**
@@ -199,5 +230,21 @@ class Xslt extends AbstractSolrDocumentBase
     public static function setYearOrder($order)
     {
         self::$yearOrder = $order;
+    }
+
+    /**
+     * Returns true if the enrichment field with the given name should
+     * be included in the Solr index, otherwise returns false.
+     *
+     * Note that comparison of field names is performed case-insensitive.
+     *
+     * @param string $fieldName Name of enrichment field
+     * @return bool
+     */
+    public static function indexEnrichment($fieldName)
+    {
+        $blacklist = self::getEnrichmentBlacklist();
+
+        return ! in_array(strtolower($fieldName), $blacklist, true);
     }
 }

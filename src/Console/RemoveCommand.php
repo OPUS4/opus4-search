@@ -32,7 +32,7 @@
 
 namespace Opus\Search\Console;
 
-use Opus\Common\Console\AbstractBaseDocumentCommand;
+use Opus\Common\Console\AbstractDocumentCommand;
 use Opus\Common\Document;
 use Opus\Search\Console\Helper\DocumentHelper;
 use Opus\Search\Service;
@@ -41,7 +41,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use function count;
 
-class RemoveCommand extends AbstractBaseDocumentCommand
+class RemoveCommand extends AbstractDocumentCommand
 {
     /** @var string */
     protected static $defaultName = 'index:remove';
@@ -79,7 +79,7 @@ EOT;
             ->setHelp($help);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         parent::execute($input, $output);
 
@@ -107,5 +107,7 @@ EOT;
                 $output->writeln('done');
             }
         }
+
+        return 0;
     }
 }

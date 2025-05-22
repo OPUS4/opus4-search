@@ -40,12 +40,14 @@ $solr = <<SCRIPT
 cd /home/vagrant
 mkdir -p "downloads"
 cd downloads
-SOLR_TAR="solr-7.7.2.tgz"
+SOLR_TAR="solr-$SOLR_VERSION.tgz"
 if test ! -f "$SOLR_TAR"; then
-  wget -q "https://archive.apache.org/dist/lucene/solr/7.7.2/$SOLR_TAR"
+  SOLR_URL="https://www.apache.org/dyn/closer.lua/solr/solr/$SOLR_VERSION/$SOLR_TAR?action=download"
+  echo "Getting: $SOLR_URL"
+  wget -q --show-progress --progress=bar:force $SOLR_URL -O $SOLR_TAR
 fi
 tar xfz "$SOLR_TAR" -C /home/vagrant
-cd /home/vagrant/solr-7.7.2
+cd /home/vagrant/solr-$SOLR_VERSION
 mkdir -p server/solr/opus4/conf
 echo name=opus4 > server/solr/opus4/core.properties
 cd server/solr/opus4/conf/
@@ -83,8 +85,8 @@ fi
 SCRIPT
 
 $start = <<SCRIPT
-cd /home/vagrant/solr-7.7.2
-./bin/solr start
+cd /home/vagrant/solr-$SOLR_VERSION
+./bin/solr start -Dsolr.jetty.host=0.0.0.0
 SCRIPT
 
 $help = <<SCRIPT
@@ -103,12 +105,14 @@ Vagrant.configure("2") do |config|
 
   config.vm.network "forwarded_port", guest: 8983, host: 9983, host_ip: "127.0.0.1"
 
+  ENV['SOLR_VERSION']="9.6.1"
+
   config.vm.provision "Install required software...", type: "shell", inline: $software
-  config.vm.provision "Install Apache Solr...", type: "shell", privileged: false, inline: $solr
+  config.vm.provision "Install Apache Solr...", type: "shell", privileged: false, inline: $solr, env: {"SOLR_VERSION" => ENV['SOLR_VERSION']}
   config.vm.provision "Setup environment...", type: "shell", inline: $environment
   config.vm.provision "Install Composer dependencies...", type: "shell", privileged: false, inline: $composer
   config.vm.provision "Prepare workspace...", type: "shell", privileged: false, inline: $workspace
   config.vm.provision "Create database...", type: "shell", inline: $database
-  config.vm.provision "Start services...", type: "shell", privileged: false, run: "always", inline: $start
+  config.vm.provision "Start services...", type: "shell", privileged: false, run: "always", inline: $start, env: {"SOLR_VERSION" => ENV['SOLR_VERSION']}
   config.vm.provision "Information", type: "shell", privileged: false, run: "always", inline: $help
 end
