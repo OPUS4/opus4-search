@@ -99,6 +99,14 @@ class IndexHelper
     private $timeout;
 
     /**
+     * @return float|string
+     */
+    public function indexAll()
+    {
+        return $this->index(null, null);
+    }
+
+    /**
      * @param int $startId
      * @param int $endId
      * @param int $colId
