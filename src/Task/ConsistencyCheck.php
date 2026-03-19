@@ -114,7 +114,7 @@ class ConsistencyCheck extends AbstractWorker
      * @param Log|null $logger
      * @throws Zend_Log_Exception
      */
-    public function setLogger($logger = null)
+    public function setLogger($logger = null): self
     {
         if ($this->logfilePath !== null) {
             $logfile = @fopen($this->logfilePath, 'w', false);

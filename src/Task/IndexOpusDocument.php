@@ -82,7 +82,7 @@ class IndexOpusDocument implements WorkerInterface
      * @param Zend_Log $logger Logger instance.
      * @throws InvalidArgumentException
      */
-    public function setLogger($logger)
+    public function setLogger($logger): self
     {
         if (null === $logger) {
             $this->logger = new Zend_Log(new Zend_Log_Writer_Null());
