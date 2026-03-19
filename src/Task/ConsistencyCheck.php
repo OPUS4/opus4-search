@@ -128,5 +128,7 @@ class ConsistencyCheck extends AbstractWorker
         } else {
             parent::setLogger(null);
         }
+
+        return $this;
     }
 }

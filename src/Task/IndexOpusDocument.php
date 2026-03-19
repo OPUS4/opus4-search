@@ -91,6 +91,8 @@ class IndexOpusDocument implements WorkerInterface
         } else {
             throw new InvalidArgumentException('Zend_Log instance expected.');
         }
+
+        return $this;
     }
 
     /**
