@@ -184,16 +184,16 @@ class IndexHelper
         } elseif ($colId > 0) {
             $col      = Collection::get($colId);
             $colTitle = $col->getDisplayName();
-            $output->writeln("Indexing documents in collection: \"${colTitle}\" (ID=$colId)");
+            $output->writeln("Indexing documents in collection: \"{$colTitle}\" (ID={$colId})");
         } elseif ($endId !== 0) {
-            $output->writeln("Indexing document from <fg=yellow>$startId</> to <fg=yellow>$endId</> ...");
+            $output->writeln("Indexing document from <fg=yellow>{$startId}</> to <fg=yellow>{$endId}</> ...");
         } elseif ($startId !== 0) {
-            $output->writeln("Indexing documents starting at <fg=yellow>$startId</> ...");
+            $output->writeln("Indexing documents starting at <fg=yellow>{$startId}</> ...");
         } else {
             $output->writeln('Indexing <fg=yellow>all</> documents ...');
         }
 
-        $output->writeln(date('Y-m-d H:i:s') . " Start indexing of <fg=yellow>$docCount</> documents ... ");
+        $output->writeln(date('Y-m-d H:i:s') . " Start indexing of <fg=yellow>{$docCount}</> documents ... ");
         $numOfDocs = 0;
 
         switch ($output->getVerbosity()) {
