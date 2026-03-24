@@ -34,6 +34,7 @@ namespace OpusTest\Search\Task;
 use Opus\Common\Config;
 use Opus\Common\Document;
 use Opus\Common\Job;
+use Opus\Common\JobInterface;
 use Opus\Job\InvalidJobException;
 use Opus\Search\Task\ConsistencyCheck;
 use OpusTest\Search\TestAsset\TestCase;
@@ -44,6 +45,12 @@ use const DIRECTORY_SEPARATOR;
 
 class ConsistencyCheckTest extends TestCase
 {
+    /** @var JobInterface */
+    private $job;
+
+    /** @var ConsistencyCheck */
+    private $worker;
+
     public function setUp(): void
     {
         parent::setUp();
