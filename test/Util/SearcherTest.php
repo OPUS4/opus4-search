@@ -447,7 +447,7 @@ class SearcherTest extends TestCase
         $file->setTempFile($fulltextDir . $fulltext1);
         $file->setPathName($fulltext1);
         $file->setLabel($fulltext1);
-        $file->setVisibleInFrontdoor('1');
+        $file->setVisibleInFrontdoor(true);
         $doc->store();
 
         if ($fulltext2 !== null) {
@@ -456,7 +456,7 @@ class SearcherTest extends TestCase
             $file->setTempFile($fulltextDir . $fulltext2);
             $file->setPathName($fulltext2);
             $file->setLabel($fulltext2);
-            $file->setVisibleInFrontdoor('1');
+            $file->setVisibleInFrontdoor(true);
             $doc->store();
         }
 
