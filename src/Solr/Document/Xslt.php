@@ -36,6 +36,7 @@ use DOMDocument;
 use Exception;
 use InvalidArgumentException;
 use Opus\Common\Config;
+use Opus\Common\Document;
 use Opus\Common\DocumentInterface;
 use Opus\Search\Log;
 use XSLTProcessor;
@@ -172,64 +173,7 @@ class Xslt extends AbstractSolrDocumentBase
      */
     public static function indexYear($publishedDateYear, $publishedYear, $completedDateYear, $completedYear)
     {
-        $fields                  = [];
-        $fields['PublishedDate'] = $publishedDateYear;
-        $fields['PublishedYear'] = $publishedYear;
-        $fields['CompletedDate'] = $completedDateYear;
-        $fields['CompletedYear'] = $completedYear;
-
-        $year = '';
-
-        $order = self::getYearOrder();
-
-        foreach ($order as $fieldName) {
-            if (array_key_exists($fieldName, $fields)) {
-                $year = $fields[$fieldName];
-                if (is_int($year)) {
-                    $year = strval($year);
-                }
-                if ($year !== null && ctype_digit($year)) {
-                    // use the first value found
-                    break;
-                }
-            }
-        }
-
-        return $year;
-    }
-
-    /** @var string */
-    private static $yearOrder;
-
-    /**
-     * @return array|false|string[]
-     */
-    public static function getYearOrder()
-    {
-        if (self::$yearOrder === null) {
-            $config = Config::get();
-
-            if (isset($config->search->index->field->year->order)) {
-                $orderConfig = $config->search->index->field->year->order;
-            } else {
-                $orderConfig = 'PublishedDate,PublishedYear'; // old default
-            }
-
-            $order = preg_split('/[\s,]+/', trim($orderConfig), 0, PREG_SPLIT_NO_EMPTY);
-
-            self::$yearOrder = $order;
-        }
-
-        return self::$yearOrder;
-    }
-
-    /**
-     * @param string $order
-     * TODO hack necessary for testing - refactor all of this
-     */
-    public static function setYearOrder($order)
-    {
-        self::$yearOrder = $order;
+        return Document::getYear($publishedDateYear, $publishedYear, $completedDateYear, $completedYear);
     }
 
     /**

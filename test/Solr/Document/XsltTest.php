@@ -35,6 +35,7 @@ namespace OpusTest\Search\Solr\Document;
 use DOMDocument;
 use DOMXPath;
 use Opus\Common\Date;
+use Opus\Common\Document;
 use Opus\Common\DocumentInterface;
 use Opus\Search\Config;
 use Opus\Search\Service;
@@ -383,7 +384,7 @@ class XsltTest extends DocumentBasedTestCase
 
     public function testIndexYearCustomConfig()
     {
-        Xslt::setYearOrder(null);
+        Document::reset();
 
         $this->adjustConfiguration([
             'search' => [
