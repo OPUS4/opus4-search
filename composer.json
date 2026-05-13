@@ -17,7 +17,7 @@
     "ext-mbstring": "*",
     "solarium/solarium": "6.*",
     "symfony/event-dispatcher": "*",
-    "opus4-repo/opus4-common": "dev-issue123 as 4.10",
+    "opus4-repo/opus4-common": "dev-master as 4.10.1",
     "opus4-repo/opus4-job": "^4.9",
     "opus4/zf1-future": "1.25.*",
     "symfony/console": "*"
