@@ -38,6 +38,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Command for checking consistency between index and database.
+ *
+ * TODO support optional repair
+ * TODO support verbose output
  */
 class CheckCommand extends Command
 {
@@ -60,7 +63,10 @@ EOT;
     /**
      * Performs consistency check.
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        // TODO use ConsistencyCheck or some kind of IndexHelper class
+
+        return Command::SUCCESS;
     }
 }
