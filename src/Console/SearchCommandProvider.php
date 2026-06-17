@@ -26,70 +26,27 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @copyright   Copyright (c) 2024, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Search;
+namespace Opus\Search\Console;
 
-use Exception as PhpException;
+use Opus\Common\Console\CommandProviderInterface;
+use Symfony\Component\Console\Command\Command;
 
-/**
- * Implements common exception to be used in code of search engine adapters.
- *
- * TODO code duplication in extending classes
- * TODO rename to SearchException
- */
-class SearchException extends PhpException
+class SearchCommandProvider implements CommandProviderInterface
 {
-    const SERVER_UNREACHABLE = 1;
-
-    const INVALID_QUERY = 2;
-
     /**
-     * @param string      $message
-     * @param int         $code
-     * @param parent|null $previous
+     * @return Command[]
      */
-    public function __construct($message, $code = 0, $previous = null)
+    public function getCommands()
     {
-        parent::__construct($message, $code, $previous);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isServerUnreachable()
-    {
-        return $this->code === self::SERVER_UNREACHABLE;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isInvalidQuery()
-    {
-        return $this->code === self::INVALID_QUERY;
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        $previousMessage = '';
-        if ($this->getPrevious() !== null) {
-            $previousMessage = $this->getPrevious()->getMessage();
-        }
-
-        if ($this->isServerUnreachable()) {
-            return "solr server is unreachable: $previousMessage";
-        }
-
-        if ($this->isInvalidQuery()) {
-            return "given search query is invalid: $previousMessage";
-        }
-
-        return 'unknown error while trying to search: ' . $previousMessage;
+        return [
+            new IndexCommand(),
+            new RemoveCommand(),
+            new ExtractCommand(),
+            new ExtractFileCommand(),
+        ];
     }
 }

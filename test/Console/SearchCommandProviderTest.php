@@ -26,70 +26,27 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @copyright   Copyright (c) 2024, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Search;
+namespace OpusTest\Search\Console;
 
-use Exception as PhpException;
+use Opus\Search\Console\SearchCommandProvider;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Command\Command;
 
-/**
- * Implements common exception to be used in code of search engine adapters.
- *
- * TODO code duplication in extending classes
- * TODO rename to SearchException
- */
-class SearchException extends PhpException
+class SearchCommandProviderTest extends TestCase
 {
-    const SERVER_UNREACHABLE = 1;
-
-    const INVALID_QUERY = 2;
-
-    /**
-     * @param string      $message
-     * @param int         $code
-     * @param parent|null $previous
-     */
-    public function __construct($message, $code = 0, $previous = null)
+    public function testGetCommands()
     {
-        parent::__construct($message, $code, $previous);
-    }
+        $provider = new SearchCommandProvider();
+        $commands = $provider->getCommands();
 
-    /**
-     * @return bool
-     */
-    public function isServerUnreachable()
-    {
-        return $this->code === self::SERVER_UNREACHABLE;
-    }
+        $this->assertCount(4, $commands);
 
-    /**
-     * @return bool
-     */
-    public function isInvalidQuery()
-    {
-        return $this->code === self::INVALID_QUERY;
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        $previousMessage = '';
-        if ($this->getPrevious() !== null) {
-            $previousMessage = $this->getPrevious()->getMessage();
+        foreach ($commands as $command) {
+            $this->assertInstanceOf(Command::class, $command);
         }
-
-        if ($this->isServerUnreachable()) {
-            return "solr server is unreachable: $previousMessage";
-        }
-
-        if ($this->isInvalidQuery()) {
-            return "given search query is invalid: $previousMessage";
-        }
-
-        return 'unknown error while trying to search: ' . $previousMessage;
     }
 }

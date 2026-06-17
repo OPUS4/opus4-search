@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -101,7 +101,7 @@ class TestCase extends SimpleTestCase
     /**
      * Standard setUp method for clearing database.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -112,7 +112,7 @@ class TestCase extends SimpleTestCase
         $this->clearSolrIndex();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->clearSolrIndex();
 

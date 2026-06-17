@@ -25,8 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2010 Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
- * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009 Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
+ * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -82,7 +82,7 @@ class IndexOpusDocument implements WorkerInterface
      * @param Zend_Log $logger Logger instance.
      * @throws InvalidArgumentException
      */
-    public function setLogger($logger)
+    public function setLogger($logger): self
     {
         if (null === $logger) {
             $this->logger = new Zend_Log(new Zend_Log_Writer_Null());
@@ -91,6 +91,8 @@ class IndexOpusDocument implements WorkerInterface
         } else {
             throw new InvalidArgumentException('Zend_Log instance expected.');
         }
+
+        return $this;
     }
 
     /**

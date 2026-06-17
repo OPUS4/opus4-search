@@ -58,6 +58,7 @@ class ConsistencyCheck extends AbstractWorker
 {
     const LABEL = 'opus-consistency-check';
 
+    /** @var string */
     private $logfilePath;
 
     public function __construct()
@@ -113,7 +114,7 @@ class ConsistencyCheck extends AbstractWorker
      * @param Log|null $logger
      * @throws Zend_Log_Exception
      */
-    public function setLogger($logger = null)
+    public function setLogger($logger = null): self
     {
         if ($this->logfilePath !== null) {
             $logfile = @fopen($this->logfilePath, 'w', false);
@@ -127,5 +128,7 @@ class ConsistencyCheck extends AbstractWorker
         } else {
             parent::setLogger(null);
         }
+
+        return $this;
     }
 }

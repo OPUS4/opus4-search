@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -36,7 +36,7 @@ use DOMDocument;
 use InvalidArgumentException;
 use Opus\Common\DocumentInterface;
 use Opus\Search\Solr\Document\Xslt;
-use Solarium\QueryType\Update\Query\Document\Document as SolariumDocument;
+use Solarium\QueryType\Update\Query\Document as SolariumDocument;
 use Zend_Config;
 
 use function simplexml_import_dom;

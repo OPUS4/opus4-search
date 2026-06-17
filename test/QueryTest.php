@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -202,7 +202,7 @@ class QueryTest extends TestCase
     /**
      * @return array[]
      */
-    public function provideValidScalarSettings()
+    public static function provideValidScalarSettings()
     {
         return [
             [0, 'start', 'setStart', 0],
@@ -240,7 +240,7 @@ class QueryTest extends TestCase
     /**
      * @return array
      */
-    public function provideInvalidScalarSettings()
+    public static function provideInvalidScalarSettings()
     {
         return [
             [-10, 'start', 'setStart'],
@@ -379,7 +379,7 @@ class QueryTest extends TestCase
     /**
      * @return array[]
      */
-    public function provideValidFieldsSettings()
+    public static function provideValidFieldsSettings()
     {
         return [
             ['*', 'fields', 'setFields', ['*']],
@@ -406,7 +406,7 @@ class QueryTest extends TestCase
     /**
      * @return array
      */
-    public function provideInvalidFieldsSettings()
+    public static function provideInvalidFieldsSettings()
     {
         return [
             ['', 'fields', 'setFields'],
@@ -546,7 +546,7 @@ class QueryTest extends TestCase
     /**
      * @return array[]
      */
-    public function provideValidSortSettings()
+    public static function provideValidSortSettings()
     {
         return [
             ['a', 'sort', 'setSort', ['a' => 'asc']],
@@ -573,7 +573,7 @@ class QueryTest extends TestCase
     /**
      * @return array
      */
-    public function provideInvalidSortSettings()
+    public static function provideInvalidSortSettings()
     {
         return [
             ['', 'sort', 'setSort'],
@@ -631,7 +631,7 @@ class QueryTest extends TestCase
     /**
      * @return array[]
      */
-    public function provideValidAddSortSettings()
+    public static function provideValidAddSortSettings()
     {
         return [
             ['a', true, true, ['a' => 'asc']],
@@ -652,7 +652,7 @@ class QueryTest extends TestCase
     /**
      * @return array
      */
-    public function provideInvalidAddSortSettings()
+    public static function provideInvalidAddSortSettings()
     {
         return [
             [null, true, true],

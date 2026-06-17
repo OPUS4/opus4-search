@@ -2,10 +2,10 @@
 # vi: set ft=ruby :
 
 $software = <<SCRIPT
-# Downgrade to PHP 7.1
+# Downgrade to PHP 8.2
 apt-add-repository -y ppa:ondrej/php
 apt-get -yq update
-apt-get -yq install php7.1
+apt-get -yq install php8.2
 
 # Install MYSQL
 debconf-set-selections <<< "mysql-server mysql-server/root_password password root"
@@ -13,14 +13,14 @@ debconf-set-selections <<< "mysql-server mysql-server/root_password_again passwo
 apt-get -yq install mysql-server
 
 # Install required PHP packages
-apt-get -yq install php7.1-dom
-apt-get -yq install php7.1-mbstring
-apt-get -yq install php7.1-intl
-apt-get -yq install php7.1-gd
-apt-get -yq install php7.1-mcrypt
-apt-get -yq install php7.1-curl
-apt-get -yq install php7.1-zip
-apt-get -yq install php7.1-mysql
+apt-get -yq install php8.2-dom
+apt-get -yq install php8.2-mbstring
+apt-get -yq install php8.2-intl
+apt-get -yq install php8.2-gd
+apt-get -yq install php8.2-mcrypt
+apt-get -yq install php8.2-curl
+apt-get -yq install php8.2-zip
+apt-get -yq install php8.2-mysql
 
 # Install Java
 apt-get -yq install openjdk-11-jdk
@@ -40,12 +40,14 @@ $solr = <<SCRIPT
 cd /home/vagrant
 mkdir -p "downloads"
 cd downloads
-SOLR_TAR="solr-7.7.2.tgz"
+SOLR_TAR="solr-$SOLR_VERSION.tgz"
 if test ! -f "$SOLR_TAR"; then
-  wget -q "https://archive.apache.org/dist/lucene/solr/7.7.2/$SOLR_TAR"
+  SOLR_URL="https://www.apache.org/dyn/closer.lua/solr/solr/$SOLR_VERSION/$SOLR_TAR?action=download"
+  echo "Getting: $SOLR_URL"
+  wget -q --show-progress --progress=bar:force $SOLR_URL -O $SOLR_TAR
 fi
 tar xfz "$SOLR_TAR" -C /home/vagrant
-cd /home/vagrant/solr-7.7.2
+cd /home/vagrant/solr-$SOLR_VERSION
 mkdir -p server/solr/opus4/conf
 echo name=opus4 > server/solr/opus4/core.properties
 cd server/solr/opus4/conf/
@@ -58,14 +60,12 @@ fi
 SCRIPT
 
 $database = <<SCRIPT
-/vagrant/vendor/opus4-repo/framework/bin/prepare-database.sh --admin_pwd root --user_pwd root
+/vagrant/vendor/bin/opus4db --adminpwd root --userpwd root --sqlpwd root
 SCRIPT
 
-$opus = <<SCRIPT
+$workspace = <<SCRIPT
 cd /vagrant
-ant prepare-workspace prepare-config -DdbUserPassword=root -DdbAdminPassword=root
-export APPLICATION_PATH=/vagrant
-php vendor/opus4-repo/framework/db/createdb.php
+ant prepare-workspace prepare-config
 SCRIPT
 
 $environment = <<SCRIPT
@@ -85,8 +85,8 @@ fi
 SCRIPT
 
 $start = <<SCRIPT
-cd /home/vagrant/solr-7.7.2
-./bin/solr start
+cd /home/vagrant/solr-$SOLR_VERSION
+./bin/solr start -Dsolr.jetty.host=0.0.0.0
 SCRIPT
 
 $help = <<SCRIPT
@@ -101,16 +101,18 @@ echo "  http://localhost:9983"
 SCRIPT
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "bento/ubuntu-20.04"
+  config.vm.box = "bento/ubuntu-24.04"
 
   config.vm.network "forwarded_port", guest: 8983, host: 9983, host_ip: "127.0.0.1"
 
+  ENV['SOLR_VERSION']="9.10.1"
+
   config.vm.provision "Install required software...", type: "shell", inline: $software
-  config.vm.provision "Install Apache Solr...", type: "shell", privileged: false, inline: $solr
+  config.vm.provision "Install Apache Solr...", type: "shell", privileged: false, inline: $solr, env: {"SOLR_VERSION" => ENV['SOLR_VERSION']}
   config.vm.provision "Setup environment...", type: "shell", inline: $environment
   config.vm.provision "Install Composer dependencies...", type: "shell", privileged: false, inline: $composer
+  config.vm.provision "Prepare workspace...", type: "shell", privileged: false, inline: $workspace
   config.vm.provision "Create database...", type: "shell", inline: $database
-  config.vm.provision "Configure OPUS 4...", type: "shell", privileged: false, inline: $opus
-  config.vm.provision "Start services...", type: "shell", privileged: false, run: "always", inline: $start
+  config.vm.provision "Start services...", type: "shell", privileged: false, run: "always", inline: $start, env: {"SOLR_VERSION" => ENV['SOLR_VERSION']}
   config.vm.provision "Information", type: "shell", privileged: false, run: "always", inline: $help
 end

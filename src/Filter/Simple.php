@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -59,10 +59,13 @@ class Simple implements FilteringInterface
     const COMPARE_GREATER          = '>';
     const COMPARE_GREATER_OR_EQUAL = '>=';
 
+    /** @var string */
     protected $fieldName;
 
+    /** @var string */
     protected $comparator;
 
+    /** @var array */
     protected $fieldValues = [];
 
     /**

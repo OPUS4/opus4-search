@@ -25,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search\Console\Helper;
 
+use Opus\Common\Collection;
 use Opus\Common\Config;
 use Opus\Common\Console\Helper\ProgressBar;
 use Opus\Common\Console\Helper\ProgressMatrix;
@@ -39,8 +40,9 @@ use Opus\Common\Console\Helper\ProgressReport;
 use Opus\Common\Document;
 use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Model\Xml\XmlCacheInterface;
+use Opus\Common\Repository;
 use Opus\Common\Storage\StorageException;
-use Opus\Model\Xml\Cache;
 use Opus\Search\IndexingInterface;
 use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Plugin\Index;
@@ -84,7 +86,7 @@ class IndexHelper
     /** @var int */
     private $blockSize = 10;
 
-    /** @var Cache */
+    /** @var XmlCacheInterface */
     private $cache;
 
     /** @var bool */
@@ -97,8 +99,17 @@ class IndexHelper
     private $timeout;
 
     /**
+     * @return float|string
+     */
+    public function indexAll()
+    {
+        return $this->index(null, null);
+    }
+
+    /**
      * @param int $startId
      * @param int $endId
+     * @param int $colId
      * @return float|string
      * @throws SearchException
      * @throws ModelException
@@ -106,7 +117,7 @@ class IndexHelper
      *
      * TODO Is the timestamp in the console output useful?
      */
-    public function index($startId, $endId = -1)
+    public function index($startId, $endId = -1, $colId = 0)
     {
         $output    = $this->getOutput();
         $blockSize = $this->getBlockSize();
@@ -130,7 +141,7 @@ class IndexHelper
         if ($singleDocument) {
             $docIds = [$startId];
         } else {
-            $docIds = $documentHelper->getDocumentIds($startId, $endId);
+            $docIds = $documentHelper->getDocumentIds($startId, $endId, $colId);
         }
 
         $docCount = count($docIds);
@@ -159,7 +170,7 @@ class IndexHelper
             if ($singleDocument) {
                 $output->writeln("Removing document <fg=yellow>$startId</> from index ... ");
                 $indexer->removeDocumentsFromIndexById($docIds);
-            } elseif ($removeAll) {
+            } elseif ($removeAll && $colId === 0) {
                 $output->writeln('Removing <fg=yellow>all</> documents from index ... ');
                 $indexer->removeAllDocumentsFromIndex();
             } else {
@@ -170,15 +181,19 @@ class IndexHelper
 
         if ($singleDocument) {
             $output->writeln("Indexing document <fg=yellow>$startId</> ...");
-        } elseif ($endId !== null) {
-            $output->writeln("Indexing document from <fg=yellow>$startId</> to <fg=yellow>$endId</> ...");
-        } elseif ($startId !== null) {
-            $output->writeln("Indexing documents starting at <fg=yellow>$startId</> ...");
+        } elseif ($colId > 0) {
+            $col      = Collection::get($colId);
+            $colTitle = $col->getDisplayName();
+            $output->writeln("Indexing documents in collection: \"{$colTitle}\" (ID={$colId})");
+        } elseif ($endId !== 0) {
+            $output->writeln("Indexing document from <fg=yellow>{$startId}</> to <fg=yellow>{$endId}</> ...");
+        } elseif ($startId !== 0) {
+            $output->writeln("Indexing documents starting at <fg=yellow>{$startId}</> ...");
         } else {
             $output->writeln('Indexing <fg=yellow>all</> documents ...');
         }
 
-        $output->writeln(date('Y-m-d H:i:s') . " Start indexing of <fg=yellow>$docCount</> documents ... ");
+        $output->writeln(date('Y-m-d H:i:s') . " Start indexing of <fg=yellow>{$docCount}</> documents ... ");
         $numOfDocs = 0;
 
         switch ($output->getVerbosity()) {
@@ -259,12 +274,12 @@ class IndexHelper
         $documentHelper = new DocumentHelper();
 
         // TODO this is a hack to detect if $endId has not been specified - better way?
-        if ($endId === -1) {
+        if ($endId <= 0) {
             $singleDocument = true;
             $docIds         = [$startId];
         } else {
             $singleDocument = false;
-            if ($startId === null && $endId === null) {
+            if ($startId === 0 && $endId === 0) {
                 $removeAll = true;
             }
             $docIds = $documentHelper->getDocumentIds($startId, $endId);
@@ -494,19 +509,19 @@ class IndexHelper
     }
 
     /**
-     * @return Cache
+     * @return XmlCacheInterface
      */
     public function getCache()
     {
         if ($this->cache === null) {
-            $this->cache = new Cache();
+            $this->cache = Repository::getInstance()->getDocumentXmLCache();
         }
 
         return $this->cache;
     }
 
     /**
-     * @param Cache $cache
+     * @param XmlCacheInterface $cache
      */
     public function setCache($cache)
     {

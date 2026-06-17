@@ -11,7 +11,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-# @copyright   Copyright (c) 2010-2022, OPUS 4 development team
+# @copyright   Copyright (c) 2010, OPUS 4 development team
 # @license     http://www.gnu.org/licenses/gpl.html General Public License
 
 set -e

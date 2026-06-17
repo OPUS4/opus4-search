@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -56,7 +56,7 @@ interface SearchingInterface
      *
      * @param string     $name name of query defined in configuration
      * @param null|Query $customization set of customizations to selected query
-     * @returns Base set of documents matching query
+     * @return Base set of documents matching query
      * @throws SearchException In case of error.
      */
     public function namedSearch($name, ?Query $customization = null);

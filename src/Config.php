@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -75,6 +75,7 @@ use const PREG_SPLIT_NO_EMPTY;
  */
 class Config
 {
+    /** @var array */
     protected static $configurationsPool = [];
 
     /**
@@ -215,7 +216,7 @@ class Config
 
         // finally adopt all basically deprecated service-related configuration
         // (old-style options are thus always preferred over any new-style ones)
-        $result = static::mergeWithDeprecatedServiceConfiguration($result, $serviceType);
+        // TODO Solarium $result = static::mergeWithDeprecatedServiceConfiguration($result, $serviceType);
 
         $result->setReadOnly();
 
@@ -364,7 +365,7 @@ class Config
         }
 
         if ($config && is_scalar($config)) {
-            $set = preg_split('/[\s,]+/', trim($config), null, PREG_SPLIT_NO_EMPTY);
+            $set = preg_split('/[\s,]+/', trim($config), 0, PREG_SPLIT_NO_EMPTY);
         } else {
             $set = [];
         }

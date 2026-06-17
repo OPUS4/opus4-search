@@ -26,14 +26,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Search;
 
 use Exception as PhpException;
-use Opus\Common\Config as OpusConfig;
+use Opus\Common\Config;
 use Opus\Common\FileInterface;
 
 use function file_get_contents;
@@ -73,7 +73,7 @@ class FulltextFileCache
 
         try {
             $hash = $file->getRealHash('md5') . '-' . $file->getRealHash('sha256');
-            $name = OpusConfig::get()->workspacePath . "/cache/solr_cache---$hash.txt";
+            $name = Config::getInstance()->getWorkspacePath() . "cache/solr_cache---$hash.txt";
         } catch (PhpException $e) {
             Log::get()->err(
                 self::class . '::' . __METHOD__ . ' : could not compute hash values for ' . $file->getPath() . " : $e"
@@ -127,7 +127,7 @@ class FulltextFileCache
             if ($cacheFile) {
                 // use intermediate temporary file with random name for writing
                 // to prevent race conditions on writing cache file
-                $tmpPath = realpath(OpusConfig::get()->workspacePath . '/tmp/');
+                $tmpPath = realpath(Config::getInstance()->getWorkspacePath() . 'tmp/');
                 $tmpFile = tempnam($tmpPath, 'solr_tmp---');
 
                 if (! file_put_contents($tmpFile, trim($fulltext))) {

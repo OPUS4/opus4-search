@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -36,17 +36,19 @@ use DOMDocument;
 use Exception;
 use InvalidArgumentException;
 use Opus\Common\Config;
+use Opus\Common\Document;
 use Opus\Common\DocumentInterface;
 use Opus\Search\Log;
 use XSLTProcessor;
 use Zend_Config;
 
-use function array_key_exists;
-use function ctype_digit;
+use function array_map;
 use function dirname;
 use function filter_var;
+use function in_array;
 use function preg_split;
 use function strlen;
+use function strtolower;
 use function trim;
 
 use const DIRECTORY_SEPARATOR;
@@ -58,7 +60,11 @@ class Xslt extends AbstractSolrDocumentBase
     /** @var XSLTProcessor */
     protected $processor;
 
+    /** @var Zend_Config */
     private $options;
+
+    /** @var string[] Names of enrichment fields to be excluded from indexing */
+    private static $enrichmentBlacklist;
 
     public function __construct(Zend_Config $options)
     {
@@ -73,10 +79,35 @@ class Xslt extends AbstractSolrDocumentBase
 
             $this->processor = new XSLTProcessor();
             $this->processor->importStyleSheet($xslt);
-            $this->processor->registerPHPFunctions('Opus\Search\Solr\Document\Xslt::indexYear');
+            $this->processor->registerPHPFunctions([
+                'Opus\Search\Solr\Document\Xslt::indexYear',
+                'Opus\Search\Solr\Document\Xslt::indexEnrichment',
+            ]);
         } catch (Exception $e) {
             throw new InvalidArgumentException('invalid XSLT file for deriving Solr documents', 0, $e);
         }
+    }
+
+    /**
+     * Returns names of enrichment fields to be excluded from indexing.
+     *
+     * @return string[]
+     */
+    public static function getEnrichmentBlacklist()
+    {
+        if (self::$enrichmentBlacklist === null) {
+            $blacklist = [];
+            $config    = Config::get();
+
+            if (isset($config->search->index->enrichment->blacklist)) {
+                $configBlacklist = $config->search->index->enrichment->blacklist;
+                $blacklist       = array_map('strtolower', preg_split('/[\s,]+/', trim($configBlacklist), 0, PREG_SPLIT_NO_EMPTY));
+            }
+
+            self::$enrichmentBlacklist = $blacklist;
+        }
+
+        return self::$enrichmentBlacklist;
     }
 
     /**
@@ -92,7 +123,7 @@ class Xslt extends AbstractSolrDocumentBase
      */
     public function toSolrDocument(DocumentInterface $opusDoc, $solrDoc)
     {
-        if (! $solrDoc instanceof DomDocument) {
+        if (! $solrDoc instanceof DOMDocument) {
             throw new InvalidArgumentException('provided Solr document must be instance of DOMDocument');
         }
 
@@ -118,7 +149,7 @@ class Xslt extends AbstractSolrDocumentBase
     {
         $path = $this->options->xsltfile;
 
-        if (strlen(trim($path)) === 0) {
+        if ($path === null || strlen(trim($path)) === 0) {
             $path = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'solr.xslt';
         }
 
@@ -138,59 +169,22 @@ class Xslt extends AbstractSolrDocumentBase
      */
     public static function indexYear($publishedDateYear, $publishedYear, $completedDateYear, $completedYear)
     {
-        $fields                  = [];
-        $fields['PublishedDate'] = $publishedDateYear;
-        $fields['PublishedYear'] = $publishedYear;
-        $fields['CompletedDate'] = $completedDateYear;
-        $fields['CompletedYear'] = $completedYear;
-
-        $year = '';
-
-        $order = self::getYearOrder();
-
-        foreach ($order as $fieldName) {
-            if (array_key_exists($fieldName, $fields)) {
-                $year = $fields[$fieldName];
-                if (ctype_digit($year)) {
-                    // use the first value found
-                    break;
-                }
-            }
-        }
-
-        return $year;
-    }
-
-    private static $yearOrder;
-
-    /**
-     * @return array|false|string[]
-     */
-    public static function getYearOrder()
-    {
-        if (self::$yearOrder === null) {
-            $config = Config::get();
-
-            if (isset($config->search->index->field->year->order)) {
-                $orderConfig = $config->search->index->field->year->order;
-            } else {
-                $orderConfig = 'PublishedDate,PublishedYear'; // old default
-            }
-
-            $order = preg_split('/[\s,]+/', trim($orderConfig), null, PREG_SPLIT_NO_EMPTY);
-
-            self::$yearOrder = $order;
-        }
-
-        return self::$yearOrder;
+        return Document::getYear($publishedDateYear, $publishedYear, $completedDateYear, $completedYear);
     }
 
     /**
-     * @param string $order
-     * TODO hack necessary for testing - refactor all of this
+     * Returns true if the enrichment field with the given name should
+     * be included in the Solr index, otherwise returns false.
+     *
+     * Note that comparison of field names is performed case-insensitive.
+     *
+     * @param string $fieldName Name of enrichment field
+     * @return bool
      */
-    public static function setYearOrder($order)
+    public static function indexEnrichment($fieldName)
     {
-        self::$yearOrder = $order;
+        $blacklist = self::getEnrichmentBlacklist();
+
+        return ! in_array(strtolower($fieldName), $blacklist, true);
     }
 }

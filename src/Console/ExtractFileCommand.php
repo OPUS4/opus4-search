@@ -60,6 +60,7 @@ class ExtractFileCommand extends Command
 
     const OPTION_TIMEOUT = 'timeout';
 
+    /** @var string */
     protected static $defaultName = 'tools:extract-file';
 
     protected function configure()
@@ -95,7 +96,10 @@ EOT;
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    /**
+     * @throws SearchException
+     */
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $file    = $input->getArgument(self::ARGUMENT_FILE);
         $target  = $input->getOption(self::OPTION_OUTPUT_FILE);
@@ -133,5 +137,7 @@ EOT;
         } else {
             $output->writeln($text);
         }
+
+        return 0;
     }
 }

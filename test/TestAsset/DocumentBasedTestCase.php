@@ -40,7 +40,7 @@ use Opus\Common\Model\DependentModelInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\ModelInterface;
 use Opus\Common\Person;
-use Opus\Model\Xml\Cache;
+use Opus\Common\Repository;
 use ReflectionClass;
 
 use function array_key_exists;
@@ -56,8 +56,10 @@ use function unlink;
 
 class DocumentBasedTestCase extends TestCase
 {
+    /** @var array */
     private $created = [];
 
+    /** @var array[] */
     protected static $documentPropertySets = [
         'article'   => [
             'Type'                    => 'article',
@@ -308,11 +310,11 @@ class DocumentBasedTestCase extends TestCase
     /**
      * Manages to delete all documents created in a test run.
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 
-        $cache = new Cache(false);
+        $cache = Repository::getInstance()->getDocumentXmlCache();
         $files = APPLICATION_PATH . '/build/workspace/files/';
 
         foreach ($this->created as $model) {

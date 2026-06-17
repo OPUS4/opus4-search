@@ -29,104 +29,18 @@
 ; Have a look on Zend_Db::factory() method for information about adapter creation.
 
 [production]
-; The 'theme' setting can be used to select a different theme.
-; Need theme for unit tests.
-theme = foobar
-
-;DB SETTINGS
-; db.params.host = "127.0.0.1"
-; db.params.port = "3306"
-; Currently it is necessary to use the admin account here for testing
-db.params.username = @db.admin.name@
-db.params.password = @db.admin.password@
-db.params.dbname = @db.name@
-db.debug = 1
-
-opusdb.params.admin.name = @db.admin.name@
-opusdb.params.admin.password = @db.admin.password@
-
-;ZEND_APPLICATION SETTINGS
-bootstrap.path = APPLICATION_PATH "/test/Bootstrap.php"
-bootstrap.class = "OpusTest\Search\Bootstrap"
-opus.bootstrap.resources = Database,Temp,OpusLocale,IndexPlugin
-
-;SEARCH ENGINE SETTINGS
-searchengine.solr.default.adapterClass = Opus\Search\Solr\Solarium\Adapter
-
 searchengine.solr.default.service.default.endpoint.primary.host = @searchengine.index.host@
 searchengine.solr.default.service.default.endpoint.primary.port = @searchengine.index.port@
-searchengine.solr.default.service.default.endpoint.primary.path = @searchengine.index.app@
-searchengine.solr.default.service.default.endpoint.primary.timeout = 10
-searchengine.solr.default.service.default.marker = default
+searchengine.solr.default.service.default.endpoint.primary.path = @searchengine.index.path@
+searchengine.solr.default.service.default.endpoint.primary.core = @searchengine.index.core@
 
 searchengine.solr.default.service.index.endpoint.primary.port = @searchengine.index.port@
-searchengine.solr.default.service.index.endpoint.primary.path = @searchengine.index.app@
-searchengine.solr.default.service.index.marker = index
+searchengine.solr.default.service.index.endpoint.primary.path = @searchengine.index.path@
+searchengine.solr.default.service.index.endpoint.primary.core = @searchengine.index.core@
 
 searchengine.solr.default.service.search.endpoint.primary.host = @searchengine.index.host@
 searchengine.solr.default.service.search.endpoint.primary.port = @searchengine.index.port@
-searchengine.solr.default.service.search.endpoint.primary.path = @searchengine.index.app@
-searchengine.solr.default.service.search.marker = search
-
-searchengine.solr.default.service.extract.marker = extract
-
-; declare separate named service used by Opus_Search_ConfigTest accessing
-; different named services
-searchengine.solr.special.service.default.endpoint.primary.path = /solr-special/
-searchengine.solr.special.service.search.endpoint.primary.host = "127.0.0.2"
-searchengine.solr.special.service.search.marker = search2
-
-searchengine.solr.special.service.extract.marker = extract2
-
-; declare separate named service addressing unavailable host used by
-; Opus_Search_Solr_Solarium_AdapterIndexingTest
-searchengine.solr.disfunct.service.default.endpoint.primary.host = 1.2.3.4
-searchengine.solr.disfunct.service.default.endpoint.primary.port = 12345
-searchengine.solr.disfunct.service.default.endpoint.primary.path = /solr-disfunct/
-
-; declare queries in runtime configuration used by Opus_Search_QueryTest
-searchengine.solr.default.query.alldocs.query = "*:*"
-
-searchengine.solr.default.query.onedoc.query = "*:*"
-searchengine.solr.default.query.onedoc.rows = 1
-
-;SEARCH ENGINE SETTINGS (deprecated)
-searchengine.index.host = @searchengine.index.host@
-searchengine.index.port = @searchengine.index.port@
-searchengine.index.app = @searchengine.index.app@
-searchengine.index.timeout = 10
-searchengine.extract.host = @searchengine.index.host@
-searchengine.extract.port = @searchengine.index.port@
-searchengine.extract.app = @searchengine.index.app@
-searchengine.extract.timeout = 10
-searchengine.solr.facets = author_facet,year,doctype,language,has_fulltext,belongs_to_bibliography,subject,project,institute
-
-search.facet.year.indexField = 'published_year'
-
-search.index.field.year.order = 'PublishedDate,PublishedYear'
-
-modelFactory = 'Opus\ModelFactory'
-model.fieldDescriptorClass = "Opus\Db\Model\DbFieldDescriptor"
-
-;LOGGING RELATED SETTINGS
-; if set to true all xml that is generated while indexing is prepared for logging
-log.prepare.xml = false
-log.level = DEBUG
-
-; Plugins used by Opus_Document
-model.plugins.document[] = 'Opus\Search\Plugin\Index'
-model.plugins.document[] = 'Opus\Document\Plugin\XmlCache'
-model.plugins.document[] = 'Opus\Document\Plugin\IdentifierUrn'
-model.plugins.document[] = 'Opus\Document\Plugin\IdentifierDoi'
-
-documentFinderClass = 'Opus\DocumentFinder\DefaultDocumentFinder'
+searchengine.solr.default.service.search.endpoint.primary.path = @searchengine.index.path@
+searchengine.solr.default.service.search.endpoint.primary.core = @searchengine.index.core@
 
 [testing : production]
-sql.schema.path =
-
-; URN SETTINGS
-; If you do not want to set URNs automatically, set these values blank or
-; comment them out
-urn.nid = nbn
-urn.nss = de:kobv:test-opus
-urn.autoCreate = true
