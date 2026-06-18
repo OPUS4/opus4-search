@@ -561,8 +561,12 @@ class IndexHelper
 
         $docCount = $finder->getCount();
 
-        $progress = new ProgressBar($output, $docCount);
-        $progress->start();
+        $progress = null;
+
+        if (! $output->isVerbose() && ! $output->isVeryVerbose()) {
+            $progress = new ProgressBar($output, $docCount);
+            $progress->start();
+        }
 
         foreach ($finder->getIds() as $docId) {
             // check if document with id $docId is already persisted in search index
@@ -572,22 +576,30 @@ class IndexHelper
             $result = $search->customSearch($query);
 
             if ($result->getAllMatchesCount() !== 1) {
-                $output->writeln("ERROR: document # $docId is not stored in search index");
+                $output->writeln(
+                    "ERROR: document # $docId is not stored in search index",
+                    OutputInterface::VERBOSITY_VERBOSE
+                );
                 $numOfMissing++;
             } else {
                 $matches              = $result->getReturnedMatches();
-                $solrModificationDate = $matches[0]->getServerDateModified();
+                $solrModificationDate = $matches[0]->getServerDateModified()->getUnixTimestamp();
                 $document             = Document::get($docId);
                 $docModificationDate  = $document->getServerDateModified()->getUnixTimestamp();
+
                 if ($solrModificationDate !== $docModificationDate) {
                     $numOfModified++;
-                    $output->writeln("document # $docId is modified");
+                    $output->writeln("document # $docId is modified", OutputInterface::VERBOSITY_VERBOSE);
                 }
             }
-            $progress->advance();
+            if ($progress !== null) {
+                $progress->advance();
+            }
         }
 
-        $progress->finish();
+        if ($progress !== null) {
+            $progress->finish();
+        }
 
         if ($numOfMissing > 0 || $numOfModified > 0) {
             $output->writeln("$numOfMissing missing documents were found");
