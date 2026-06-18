@@ -545,14 +545,24 @@ class IndexHelper
         return $this->timeout;
     }
 
-    public function findMissingDocuments(): void
+    /**
+     * Find all documents in index where ServerDateModified is smaller than the timestamp in the database.
+     *
+     * Also note if a document is missing in the index.
+     */
+    public function verifyDocuments(): void
     {
         $output = $this->getOutput();
 
-        $numOfErrors = 0;
+        $numOfModified = 0;
+        $numOfMissing  = 0;
 
         $finder = Repository::getInstance()->getDocumentFinder();
-        $finder->setServerState(Document::STATE_PUBLISHED);
+
+        $docCount = $finder->getCount();
+
+        $progress = new ProgressBar($output, $docCount);
+        $progress->start();
 
         foreach ($finder->getIds() as $docId) {
             // check if document with id $docId is already persisted in search index
@@ -560,15 +570,28 @@ class IndexHelper
             $query  = QueryFactory::selectDocumentById($search, $docId);
 
             if ($search->customSearch($query)->getAllMatchesCount() !== 1) {
-                $output->writeln("doc $docId is not stored in search index");
-                $numOfErrors++;
+                $output->writeln("ERROR: document # $docId is not stored in search index");
+                $numOfMissing++;
+            } else {
+                $result               = $search->getResults();
+                $solrModificationDate = $result[0]->getServerDateModified();
+                $document             = Document::get($docId);
+                $docModificationDate  = $document->getServerDateModified()->getUnixTimestamp();
+                if ($solrModificationDate !== $docModificationDate) {
+                    $numOfModified++;
+                    $output->writeln("document # $docId is modified");
+                }
             }
+            $progress->advance();
         }
 
-        if ($numOfErrors > 0) {
-            $output->writeln("$numOfErrors missing documents were found");
+        $progress->finish();
+
+        if ($numOfMissing > 0 || $numOfModified > 0) {
+            $output->writeln("$numOfMissing missing documents were found");
+            $output->writeln("$numOfModified modified documents were found");
         } else {
-            $output->writeln("no errors were found");
+            $output->writeln('no missing or modified documents were found');
         }
     }
 }

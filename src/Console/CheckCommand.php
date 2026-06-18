@@ -69,7 +69,7 @@ EOT;
         $indexHelper = new IndexHelper();
         $indexHelper->setOutput($output);
 
-        $indexHelper->findMissingDocuments();
+        $indexHelper->verifyDocuments();
 
         return Command::SUCCESS;
     }
