@@ -47,6 +47,7 @@ class SearchCommandProvider implements CommandProviderInterface
             new RemoveCommand(),
             new ExtractCommand(),
             new ExtractFileCommand(),
+            new CheckCommand(),
         ];
     }
 }

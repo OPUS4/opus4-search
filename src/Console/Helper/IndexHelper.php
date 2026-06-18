@@ -46,6 +46,7 @@ use Opus\Common\Storage\StorageException;
 use Opus\Search\IndexingInterface;
 use Opus\Search\MimeTypeNotSupportedException;
 use Opus\Search\Plugin\Index;
+use Opus\Search\QueryFactory;
 use Opus\Search\SearchException;
 use Opus\Search\Service;
 use Symfony\Component\Console\Output\NullOutput;
@@ -542,5 +543,32 @@ class IndexHelper
     public function getTimeout()
     {
         return $this->timeout;
+    }
+
+    public function findMissingDocuments(): void
+    {
+        $output = $this->getOutput();
+
+        $numOfErrors = 0;
+
+        $finder = Repository::getInstance()->getDocumentFinder();
+        $finder->setServerState(Document::STATE_PUBLISHED);
+
+        foreach ($finder->getIds() as $docId) {
+            // check if document with id $docId is already persisted in search index
+            $search = Service::selectSearchingService();
+            $query  = QueryFactory::selectDocumentById($search, $docId);
+
+            if ($search->customSearch($query)->getAllMatchesCount() !== 1) {
+                $output->writeln("doc $docId is not stored in search index");
+                $numOfErrors++;
+            }
+        }
+
+        if ($numOfErrors > 0) {
+            $output->writeln("$numOfErrors missing documents were found");
+        } else {
+            $output->writeln("no errors were found");
+        }
     }
 }

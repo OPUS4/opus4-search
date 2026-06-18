@@ -32,6 +32,7 @@
 
 namespace Opus\Search\Console;
 
+use Opus\Search\Console\Helper\IndexHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -65,7 +66,10 @@ EOT;
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // TODO use ConsistencyCheck or some kind of IndexHelper class
+        $indexHelper = new IndexHelper();
+        $indexHelper->setOutput($output);
+
+        $indexHelper->findMissingDocuments();
 
         return Command::SUCCESS;
     }
