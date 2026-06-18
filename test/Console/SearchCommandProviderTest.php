@@ -43,7 +43,7 @@ class SearchCommandProviderTest extends TestCase
         $provider = new SearchCommandProvider();
         $commands = $provider->getCommands();
 
-        $this->assertCount(4, $commands);
+        $this->assertCount(5, $commands);
 
         foreach ($commands as $command) {
             $this->assertInstanceOf(Command::class, $command);
