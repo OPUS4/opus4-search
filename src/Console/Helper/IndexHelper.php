@@ -569,12 +569,14 @@ class IndexHelper
             $search = Service::selectSearchingService();
             $query  = QueryFactory::selectDocumentById($search, $docId);
 
-            if ($search->customSearch($query)->getAllMatchesCount() !== 1) {
+            $result = $search->customSearch($query);
+
+            if ($result->getAllMatchesCount() !== 1) {
                 $output->writeln("ERROR: document # $docId is not stored in search index");
                 $numOfMissing++;
             } else {
-                $result               = $search->getResults();
-                $solrModificationDate = $result[0]->getServerDateModified();
+                $matches              = $result->getReturnedMatches();
+                $solrModificationDate = $matches[0]->getServerDateModified();
                 $document             = Document::get($docId);
                 $docModificationDate  = $document->getServerDateModified()->getUnixTimestamp();
                 if ($solrModificationDate !== $docModificationDate) {
