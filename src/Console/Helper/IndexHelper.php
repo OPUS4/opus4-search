@@ -40,6 +40,7 @@ use Opus\Common\Console\Helper\ProgressReport;
 use Opus\Common\Document;
 use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Model\NotFoundException;
 use Opus\Common\Model\Xml\XmlCacheInterface;
 use Opus\Common\Repository;
 use Opus\Common\Storage\StorageException;
@@ -550,7 +551,7 @@ class IndexHelper
      *
      * Also note if a document is missing in the index.
      */
-    public function verifyDocuments(): void
+    public function verifyDocuments(bool $repair = false): void
     {
         $output = $this->getOutput();
 
@@ -581,6 +582,10 @@ class IndexHelper
                     OutputInterface::VERBOSITY_VERBOSE
                 );
                 $numOfMissing++;
+                if ($repair) {
+                    $doc = Document::get($docId);
+                    $this->indexDocument($doc);
+                }
             } else {
                 $matches              = $result->getReturnedMatches();
                 $solrModificationDate = $matches[0]->getServerDateModified()->getUnixTimestamp();
@@ -590,22 +595,113 @@ class IndexHelper
                 if ($solrModificationDate !== $docModificationDate) {
                     $numOfModified++;
                     $output->writeln("document # $docId is modified", OutputInterface::VERBOSITY_VERBOSE);
+                    if ($repair) {
+                        $doc = Document::get($docId);
+                        $this->indexDocument($doc);
+                    }
                 }
             }
-            if ($progress !== null) {
-                $progress->advance();
-            }
+            $progress?->advance();
         }
 
-        if ($progress !== null) {
-            $progress->finish();
-        }
+        $progress?->finish();
 
         if ($numOfMissing > 0 || $numOfModified > 0) {
             $output->writeln("$numOfMissing missing documents were found");
             $output->writeln("$numOfModified modified documents were found");
         } else {
             $output->writeln('no missing or modified documents were found');
+        }
+    }
+
+    protected function indexDocument(DocumentInterface $doc): bool
+    {
+        $output  = $this->getOutput();
+        $indexer = Service::selectIndexingService();
+
+        try {
+            $doc->unregisterPlugin('Opus_Document_Plugin_Index'); // prevent document from being indexed twice
+            $indexer->addDocumentsToIndex($doc);
+        } catch (SearchException $e) {
+            $output->writeln(
+                'Could not force reindexing of document ' . $doc->getId() . ' : ' . $e->getMessage(),
+                OutputInterface::VERBOSITY_VERBOSE
+            );
+            return false;
+        }
+        return true;
+    }
+
+    protected function removeDocument(int $id): bool
+    {
+        $output = $this->getOutput();
+
+        $indexer = Service::selectIndexingService();
+
+        try {
+            $indexer->removeDocumentsFromIndexById($id);
+        } catch (SearchException $e) {
+            $output->writeln(
+                "Could not delete document {$id} from index : " . $e->getMessage(),
+                OutputInterface::VERBOSITY_VERBOSE
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if document in index exist in database.
+     *
+     * TODO not getting all documents from index
+     */
+    public function verifyDocumentsExist(bool $repair = false): void
+    {
+        $output   = $this->getOutput();
+        $searcher = Service::selectSearchingService();
+
+        $query  = QueryFactory::selectAllDocuments($searcher);
+        $result = $searcher->customSearch($query);
+
+        $results = $result->getReturnedMatchingIds();
+
+        $progress = null;
+
+        if (! $output->isVerbose() && ! $output->isVeryVerbose()) {
+            $progress = new ProgressBar($output, $result->getAllMatchesCount());
+            $progress->start();
+        }
+
+        $numOfUnknownDocuments = 0;
+        $numOfDeletions        = 0;
+
+        foreach ($results as $docId) {
+            try {
+                $output->writeln(
+                    "Checking index document # {$docId}",
+                    OutputInterface::VERBOSITY_VERY_VERBOSE
+                );
+                Document::get($docId);
+            } catch (NotFoundException $nfe) {
+                $output->writeln(
+                    "Document {$docId} found in index, but not in database",
+                    OutputInterface::VERBOSITY_VERBOSE
+                );
+                $numOfUnknownDocuments++;
+                if ($repair && $this->removeDocument($docId)) {
+                    $numOfDeletions++;
+                }
+            }
+            $progress?->advance();
+        }
+        $progress?->finish();
+
+        if ($numOfUnknownDocuments > 0) {
+            $output->writeln("{$numOfUnknownDocuments} documents found in index, but not in database");
+            $output->writeln("{$numOfDeletions} documents removed from index");
+        } else {
+            $output->writeln('no unknown documents were found in index');
         }
     }
 }

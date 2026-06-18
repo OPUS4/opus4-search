@@ -35,41 +35,56 @@ namespace Opus\Search\Console;
 use Opus\Search\Console\Helper\IndexHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Command for checking consistency between index and database.
- *
- * TODO support optional repair
- * TODO support verbose output
  */
 class CheckCommand extends Command
 {
+    const OPTION_REPAIR = 'repair';
+
     protected function configure()
     {
         parent::configure();
 
         $help = <<<EOT
-The <fg=green>index:check</> (short <fg=green>i:c</>) command checks the consistency between
-the documents in the database and the index. It verifies that all documents are indexed and
-that deleted documents have been removed from the index. It also checks if the index entry of 
-a document needs to be updated.       
+The <info>index:check</info> (short <info>i:c</info>) command checks the consistency between the
+documents in the database and the index. It verifies that all documents 
+are indexed and that deleted documents have been removed from the index. 
+It also checks if the index entry of a document needs to be updated.
+
+Problems found can be repaired automatically using the <info>--repair</info> option.       
 EOT;
 
         $this->setName('index:check')
             ->setDescription('Checks consistency between database and index')
-            ->setHelp($help);
+            ->setHelp($help)
+            ->addOption(
+                self::OPTION_REPAIR,
+                '-r',
+                InputOption::VALUE_NONE,
+                'Repair index errors'
+            );
     }
 
     /**
-     * Performs consistency check.
+     * Performs consistency check and repairs.
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $indexHelper = new IndexHelper();
         $indexHelper->setOutput($output);
 
-        $indexHelper->verifyDocuments();
+        $repair = $input->getOption(self::OPTION_REPAIR);
+
+        $output->writeln('Checking for outdated or missing documents in index..');
+        $indexHelper->verifyDocuments($repair);
+
+        $output->writeln('');
+        $output->writeln('Checking for documents in index, that do not exist in database..');
+        $indexHelper->verifyDocumentsExist($repair);
 
         return Command::SUCCESS;
     }
