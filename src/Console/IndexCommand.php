@@ -217,7 +217,7 @@ EOT;
 
         $clearCache = $input->getOption(self::OPTION_CLEAR_CACHE);
         $remove     = $input->getOption(self::OPTION_REMOVE);
-        $timeout    = $input->getOption(self::OPTION_TIMEOUT);
+        $timeout    = $input->getOption(self::OPTION_TIMEOUT) ?? 0;
 
         $startId = $this->startId;
         $endId   = $this->endId;
