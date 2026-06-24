@@ -163,10 +163,7 @@ EOT;
             ->setAliases(['index']);
     }
 
-    /**
-     * @return int
-     */
-    protected function processArguments(InputInterface $input)
+    protected function processArguments(InputInterface $input): int
     {
         parent::processArguments($input);
 
@@ -217,7 +214,7 @@ EOT;
 
         $clearCache = $input->getOption(self::OPTION_CLEAR_CACHE);
         $remove     = $input->getOption(self::OPTION_REMOVE);
-        $timeout    = $input->getOption(self::OPTION_TIMEOUT);
+        $timeout    = $input->getOption(self::OPTION_TIMEOUT) ?? 0;
 
         $startId = $this->startId;
         $endId   = $this->endId;
