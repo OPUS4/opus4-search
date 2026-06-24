@@ -71,7 +71,8 @@ use const PHP_EOL;
  *
  * If all documents are indexed the index is cleared first.
  *
- * TODO cleanup and document
+ * TODO refactor for easier testing and document
+ * TODO move configuration handling out
  */
 class IndexHelper
 {
@@ -109,9 +110,6 @@ class IndexHelper
     }
 
     /**
-     * @param int $startId
-     * @param int $endId
-     * @param int $colId
      * @return float|string
      * @throws SearchException
      * @throws ModelException
@@ -119,7 +117,7 @@ class IndexHelper
      *
      * TODO Is the timestamp in the console output useful?
      */
-    public function index($startId, $endId = -1, $colId = 0)
+    public function index(int|null $startId, int|null $endId = null, int|null $colId = null)
     {
         $output    = $this->getOutput();
         $blockSize = $this->getBlockSize();
@@ -129,11 +127,11 @@ class IndexHelper
         $removeAll = false;
 
         // TODO this is a hack to detect if $endId has not been specified - better way?
-        if ($endId === -1) {
+        if ($startId > 0 && $endId === null) {
             $singleDocument = true;
         } else {
             $singleDocument = false;
-            if ($startId === null && $endId === null) {
+            if (($startId === 0 || $startId === null) && ($endId === 0 || $endId === null)) {
                 $removeAll = true;
             }
         }
@@ -164,7 +162,7 @@ class IndexHelper
 
         $timeout = $this->getTimeout();
 
-        if ($timeout !== null) {
+        if ($timeout > 0) {
             $indexer->setTimeout($timeout);
         }
 
@@ -291,7 +289,7 @@ class IndexHelper
 
         $timeout = $this->getTimeout();
 
-        if ($timeout !== null) {
+        if ($timeout > 0) {
             $extractor->setTimeout($timeout);
         }
 
@@ -530,18 +528,12 @@ class IndexHelper
         $this->cache = $cache;
     }
 
-    /**
-     * @param int $timeout
-     */
-    public function setTimeout($timeout)
+    public function setTimeout(int $timeout)
     {
         $this->timeout = $timeout;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getTimeout()
+    public function getTimeout(): int
     {
         return $this->timeout;
     }
