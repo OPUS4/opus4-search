@@ -125,14 +125,11 @@ class IndexHelper
         $removeAll = false;
 
         // TODO this is a hack to detect if $endId has not been specified - better way?
-        if ($startId > 0 && $endId === 0) {
+        if ($startId > 0 && $endId === null) {
             $singleDocument = true;
-        } else if ($startId > 0 && $endId === null) {
-            $singleDocument = false;
-            $endId          = 0;
         } else {
             $singleDocument = false;
-            if ($startId === 0 && $endId === 0) {
+            if (($startId === 0 || $startId === null) && ($endId === 0 || $endId === null)) {
                 $removeAll = true;
             }
         }

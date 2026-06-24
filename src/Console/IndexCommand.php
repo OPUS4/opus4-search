@@ -163,10 +163,7 @@ EOT;
             ->setAliases(['index']);
     }
 
-    /**
-     * @return int
-     */
-    protected function processArguments(InputInterface $input)
+    protected function processArguments(InputInterface $input): int
     {
         parent::processArguments($input);
 
