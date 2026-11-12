@@ -75,7 +75,7 @@ class IndexCommand extends AbstractDocumentCommand
     /** @var int */
     protected $collectionId = 0;
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 

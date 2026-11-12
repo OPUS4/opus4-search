@@ -63,7 +63,7 @@ class ExtractFileCommand extends Command
     /** @var string */
     protected static $defaultName = 'tools:extract-file';
 
-    protected function configure()
+    protected function configure(): void
     {
         $help = <<<EOT
 The <fg=green>tools:extract-file</> command can be used to perform the extraction of
