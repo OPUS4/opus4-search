@@ -52,7 +52,7 @@ class RemoveCommand extends AbstractDocumentCommand
     /** @var string */
     protected $endIdDescription = 'ID of document where removing should stop (or \'-\')';
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 

@@ -55,7 +55,7 @@ class ExtractCommand extends AbstractDocumentCommand
     /** @var string */
     protected $endIdDescription = 'ID of document where extraction should stop (or \'-\')';
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
